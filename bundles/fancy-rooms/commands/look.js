@@ -2,8 +2,8 @@
 
 const { Broadcast: B }               = require('ranvier');
 const { Room, Item, ItemType, Player } = require('ranvier');
-const ArgParser  = require('../../bundle-example-lib/lib/ArgParser');
-const ItemUtil   = require('../../bundle-example-lib/lib/ItemUtil');
+const ArgParser  = require('../../lib/lib/ArgParser');
+const ItemUtil   = require('../../lib/lib/ItemUtil');
 const { decorate }                   = require('../lib/RoomDecorator')
 const { getItemEmoji, getNpcEmoji }  = require('../lib/EmojiMapper')
 const Colors = require('../../colors/lib/Colors')
