@@ -16,7 +16,16 @@ module.exports = [
     aliases: ['.'],
     color: ['bold', 'green'],
     description: 'Chat with everyone on the game',
-    audience: new WorldAudience()
+    audience: new WorldAudience(),
+    formatter: {
+      sender: function (sender, target, message, colorify) {
+        return colorify(`🌐 You chat, '${message}'`);
+      },
+
+      target: function (sender, target, message, colorify) {
+        return colorify(`🌐 ${sender.name} chats, '${message}'`);
+      }
+    }
   }),
 
   new Channel({
@@ -26,11 +35,11 @@ module.exports = [
     audience: new RoomAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
-        return colorify(`You say: '${message}'`);
+        return colorify(`💬 You say, '${message}'`);
       },
 
       target: function (sender, target, message, colorify) {
-        return colorify(`${sender.name} says: '${message}'`);
+        return colorify(`💬 ${sender.name} says, '${message}'`);
       }
     }
   }),
@@ -42,11 +51,11 @@ module.exports = [
     audience: new PrivateAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
-        return colorify(`You tell ${target.name}, '${message}'`);
+        return colorify(`👂 You tell ${target.name}, '${message}'`);
       },
 
       target: function (sender, target, message, colorify) {
-        return colorify(`${sender.name} tells you, '${message}'`);
+        return colorify(`👂 ${sender.name} tells you, '${message}'`);
       }
     }
   }),
@@ -58,11 +67,11 @@ module.exports = [
     audience: new AreaAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
-        return colorify(`You yell, '${message}'`);
+        return colorify(`🗯️  You yell, '${message}'`);
       },
 
       target: function (sender, target, message, colorify) {
-        return colorify(`Someone yells from nearby, '${message}'`);
+        return colorify(`🗯️  Someone yells from nearby, '${message}'`);
       }
     }
   }),
@@ -74,11 +83,11 @@ module.exports = [
     audience: new PartyAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
-        return colorify(`You tell the group, '${message}'`);
+        return colorify(`👥 You tell the group, '${message}'`);
       },
 
       target: function (sender, target, message, colorify) {
-        return colorify(`${sender.name} tells the group, '${message}'`);
+        return colorify(`👥 ${sender.name} tells the group, '${message}'`);
       }
     }
   }),
