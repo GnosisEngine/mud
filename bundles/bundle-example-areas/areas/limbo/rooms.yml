@@ -1,11 +1,12 @@
 - id: white
   title: "White Room"
+  coordinates: [ 0, 0, 0 ]
   description: "A featureless white room. A pitch black void in the shape of archway can be seen on the east side of the room."
-  npcs: ["limbo:rat" ]
+  npcs: ["limbo:rat"]
   items:
     - id: "limbo:woodenchest"
       respawnChance: 20
-      replaceOnRespawn: true # when this chest respawns completely replace it so its contents get refreshed
+      replaceOnRespawn: true
   script: "white"
   exits:
     - roomId: "limbo:black"
@@ -17,8 +18,10 @@
       direction: west
     - roomId: "mapped:start"
       direction: north
+
 - id: black
   title: "Black Room"
+  coordinates: [ 1, 0, 0 ]
   description: >-
     A completely black room. Somehow all of the light that should be coming from the room to the west does not pass
     through the archway. A single lightbulb hangs from the ceiling illuminating a small area. To the east you see a
@@ -34,9 +37,11 @@
       leaveMessage: " steps into the light and disappears."
     - roomId: "limbo:training1"
       direction: east
+
 - &trainingroom
   id: training1
   title: "Training Room"
+  coordinates: [ 2, 0, 0 ]
   script: "combat-training"
   description: >-
     The entire area is covered by a large dome with a hexagonal grid surface. A beautiful blue sky reaches from horizon
@@ -53,9 +58,11 @@
       direction: north
     - roomId: "limbo:training4"
       direction: east
+
 - <<: *trainingroom
   id: training2
   title: "Training Room 2"
+  coordinates: [ 2, 1, 0 ]
   items:
     - id: "craft:greenplant"
       respawnChance: 30
@@ -71,9 +78,11 @@
       direction: south
     - roomId: "limbo:training3"
       direction: east
+
 - <<: *trainingroom
   id: training3
   title: "Training Room 3"
+  coordinates: [ 3, 1, 0 ]
   items:
     - id: "craft:redrose"
       respawnChance: 15
@@ -84,9 +93,11 @@
       direction: south
     - roomId: "limbo:bosstraining"
       direction: north
+
 - <<: *trainingroom
   id: training4
   title: "Training Room 4"
+  coordinates: [ 3, 0, 0 ]
   npcs:
     - id: "limbo:trainingdummy"
       respawnChance: 25
@@ -99,8 +110,10 @@
       direction: west
     - roomId: "limbo:training3"
       direction: north
+
 - id: bosstraining
   title: "Boss Training Room"
+  coordinates: [ 3, 2, 0 ]
   description: >-
     The dome in this section is bright red, the pure green grass is replaced with a smooth white surface. The ground
     beneath your feet has the word "Danger" in bright red letters tiled across the area.
@@ -110,8 +123,10 @@
   exits:
     - roomId: "limbo:training3"
       direction: south
+
 - id: ancientwayshrine
   title: "Ancient Wayshrine"
+  coordinates: [ 0, 0, -1 ]
   description: >
     A runed black obelisk towers in the center of this clearing, surrounded by a faerie ring. The runes pulse and glow with
     a soft blue light. The grass immediately around the obelisk is immaculate in stark contrast to the dying former meadow
@@ -122,9 +137,11 @@
       direction: up
     - roomId: "limbo:context"
       direction: down
+
 - id: wallys
   title: "Wally's Wonderful Wares (Shop)"
-  description: >- 
+  coordinates: [ -1, 0, 0 ]
+  description: >-
     A very brightly colored shop stall stands in the middle of an otherwise desolate clearing. The stall is covered in
     colorful cloth, shining gems, and battle gear of all varieties. A large sign sits next to the products:
     "<b><yellow>Wally's Wonderful Wares</yellow></b> has the best products in town! Armor, weapons and potions, you name
@@ -135,8 +152,10 @@
   exits:
     - roomId: "limbo:white"
       direction: east
+
 - id: context
   title: "Room Context Commands Test"
+  coordinates: [ 0, 0, -2 ]
   script: 'context'
   description: >-
     This room shows off commands that are only active in a particular room. Try out the <b><cyan>roomtest</cyan></b> command.
@@ -153,8 +172,10 @@
     "limbo:ancientwayshrine":
       locked: true
       closed: true
+
 - id: locked
   title: "Locked room with key"
+  coordinates: [ 1, 0, -2 ]
   description: This room requires a key to get into
   items:
     - id: "limbo:locked_chest"

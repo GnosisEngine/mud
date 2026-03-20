@@ -28,13 +28,8 @@ function wordWrap(text, width) {
   return lines
 }
 
-function lerp(a, b, t) {
-  return Math.round(a + (b - a) * t)
-}
-
-function rgb(r, g, b) {
-  return `\x1b[38;2;${r};${g};${b}m`
-}
+function lerp(a, b, t) { return Math.round(a + (b - a) * t) }
+function rgb(r, g, b)  { return `\x1b[38;2;${r};${g};${b}m` }
 
 function borderColor(col, row, totalCols, totalRows) {
   const tx = col / (totalCols - 1)
@@ -53,14 +48,10 @@ function hrun(char, c1, c2, row, W, H) {
   return s
 }
 
-// seafoam/mint gradient — triadic complement to gold border + periwinkle area name
 function gradientTitle(text) {
   return [...text].map((char, i, arr) => {
     const t = arr.length === 1 ? 1 : i / (arr.length - 1)
-    const r = lerp(40,  130, t)
-    const g = lerp(195, 255, t)
-    const b = lerp(170, 220, t)
-    return `${rgb(r, g, b)}${char}`
+    return `${rgb(lerp(40, 130, t), lerp(195, 255, t), lerp(170, 220, t))}${char}`
   }).join('') + '\x1b[0m'
 }
 
@@ -75,18 +66,21 @@ function shimmerText(text) {
   }).join('') + '\x1b[0m'
 }
 
-const AREA_PAREN = rgb(80,  110, 220)
+const AREA_PAREN = rgb( 80, 110, 220)
 const AREA_NAME  = rgb(130, 165, 255)
 
 function areaTag(name) {
   return `${AREA_PAREN}(${AREA_NAME} ${name} ${AREA_PAREN})\x1b[0m`
 }
 
-function decorate(room, width = DEFAULT_WIDTH) {
+// waypointLabel: string if this room is a saved waypoint, null otherwise
+function decorate(room, width = DEFAULT_WIDTH, options = {}) {
+  const { waypointLabel = null } = options
+
   const R  = '\x1b[0m'
   const EL = '\x1b[38;2;150;140;80m'
-  const DM = '\x1b[38;2;160;40;70m'    // deep rose — brackets
-  const DC = '\x1b[38;2;255;100;130m'  // bright coral rose — exit names
+  const DM = '\x1b[38;2;80;30;120m'
+  const DC = '\x1b[38;2;200;100;255m'
 
   const inner  = width - 4
   const titleW = width - 2
@@ -94,7 +88,7 @@ function decorate(room, width = DEFAULT_WIDTH) {
   const titleRaw  = room.title || 'Unknown'
   const areaName  = room.area ? room.area.title : null
   const descLines = wordWrap(room.description || '', inner)
-  const exits = Array.isArray(room.exits) ? room.exits.map(e => e.direction).sort() : []
+  const exits     = Array.isArray(room.exits) ? room.exits.map(e => e.direction).sort() : []
 
   const totalRows = 4 + descLines.length + (exits.length ? 2 : 0)
   const W = width
@@ -107,7 +101,7 @@ function decorate(room, width = DEFAULT_WIDTH) {
 
   // top border
   if (areaName) {
-    const tagVisualLen = areaName.length + 4   // ( + space + name + space + )
+    const tagVisualLen = areaName.length + 4
     const MIN_RIGHT    = 5
     const leftDashes   = Math.max(1, W - 2 - tagVisualLen - MIN_RIGHT)
     const tagStart     = leftDashes + 1
@@ -133,16 +127,18 @@ function decorate(room, width = DEFAULT_WIDTH) {
   out.push(g('║', 0, row) + ' '.repeat(padL) + titleStyled + ' '.repeat(padR) + g('║', W-1, row))
   row++
 
-  // gem separator
-  const totalDashes = W - 3
-  const gemL        = Math.floor(totalDashes / 2)
-  const gemR        = totalDashes - gemL
-  const gemC        = rgb(255, 210, 40)
+  // gem separator — ⭐ (2 wide) if waypoint, ◆ (1 wide) otherwise
+  const gem      = waypointLabel ? '⭐' : '◆'
+  const gemWidth = waypointLabel ? 2 : 1
+  const gemC     = waypointLabel ? rgb(255, 230, 80) : rgb(255, 210, 40)
+  const totalDashes = W - 2 - gemWidth
+  const gemL     = Math.floor(totalDashes / 2)
+  const gemR     = totalDashes - gemL
   out.push(
     g('╠', 0, row) +
     hr('═', 1, gemL, row) +
-    `${gemC}◆${R}` +
-    hr('═', gemL + 2, gemL + 1 + gemR, row) +
+    `${gemC}${gem}${R}` +
+    hr('═', gemL + 1 + gemWidth, gemL + gemWidth + gemR, row) +
     g('╣', W-1, row)
   )
   row++
@@ -164,7 +160,6 @@ function decorate(room, width = DEFAULT_WIDTH) {
     row++
   }
 
-  // bottom border
   out.push(g('╚', 0, row) + hr('═', 1, W-2, row) + g('╝', W-1, row))
 
   return out.join('\r\n')
