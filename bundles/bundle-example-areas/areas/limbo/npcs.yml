@@ -15,13 +15,13 @@
     health: 100
     energy: 100
 - id: wiseoldman
-  keywords: ["wise", "old", "man"]
+  keywords: ["wise", "old", "man", "friendly"]
   name: "Wise Old Man"
   level: 99
   script: 'old-man'
   description: "A wise looking old man sits on the ground with legs crossed."
 - id: puppy
-  keywords: ["puppy", "dog", "loyal", "wide", "eyed", "wide-eyed"]
+  keywords: ["puppy", "dog", "loyal", "wide", "eyed", "wide-eyed", "friendly"]
   name: A Puppy
   description: "A wide-eyed puppy stares up at you."
   level: 1
@@ -55,7 +55,7 @@
     discern; it seems to constantly change between metal, wood, cloth, and glass depending on the angle. There is a
     large red and white bullseye painted on its chest. The dummy has no eyes and mindlessly meanders about the area.
 - id: bossdummy
-  keywords: ["boss", "target", "dummy", "practice"]
+  keywords: ["boss", "target", "dummy", "practice", "hostile"]
   name: "Boss Training Dummy"
   level: 5
   description: >-

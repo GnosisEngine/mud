@@ -1,7 +1,8 @@
 'use strict'
 
 const { decorate } = require('../lib/RoomDecorator')
-const { getEmoji } = require('../lib/EmojiMapper')
+const { getItemEmoji, getNpcEmoji } = require('../lib/EmojiMapper')
+const Colors = require('../../colors/lib/Colors')
 
 module.exports = {
   aliases: ['l'],
@@ -32,23 +33,28 @@ module.exports = {
 
       if (room.items && room.items.size) {
         for (const item of room.items) {
-          const emoji = getEmoji(item.keywords) || '•'
+          const emoji = getItemEmoji(item.keywords)
           const name  = item.roomDesc || item.name
-          player.socket.write(`\x1b[38;2;180;180;160m ${emoji} ${name}\x1b[0m\r\n`)
+          player.socket.write(`${Colors.rgb(180, 180, 160)} ${emoji} ${name}${Colors.RESET}\r\n`)
         }
       }
 
       if (room.npcs && room.npcs.size) {
         for (const npc of room.npcs) {
-          const emoji = getEmoji(npc.keywords) || '•'
+          const emoji = getNpcEmoji(npc.keywords)
           const name  = npc.roomDesc || npc.name
-          player.socket.write(`\x1b[38;2;210;120;120m ${emoji} ${name}\x1b[0m\r\n`)
+          const tags  = npc.keywords || []
+          const color = tags.includes('friendly')                            ? Colors.named.green
+                      : tags.includes('hostile') || tags.includes('aggro')  ? Colors.named.red
+                      : tags.includes('vendor')  || tags.includes('shop')   ? Colors.named.blue
+                      : Colors.named.orange
+          player.socket.write(`${Colors.rgb(...color)} ${emoji} ${name}${Colors.RESET}\r\n`)
         }
       }
 
       for (const other of room.players) {
         if (other === player) continue
-        player.socket.write(`\x1b[38;2;180;220;255m • ${other.name} is here.\x1b[0m\r\n`)
+        player.socket.write(`${Colors.rgb(180, 220, 255)} • ${other.name} is here.${Colors.RESET}\r\n`)
       }
     }
   }

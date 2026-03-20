@@ -65,7 +65,7 @@ const EMOJI_MAP = [
   ['🧙',  ['wizard', 'mage', 'sorcerer', 'witch', 'warlock', 'enchanter', 'conjurer', 'necromancer']],
   ['⚔️',  ['warrior', 'fighter', 'knight', 'guard', 'soldier', 'mercenary', 'bandit', 'brigand']],
   ['🏹',  ['ranger', 'hunter', 'archer', 'scout', 'tracker', 'poacher']],
-  ['🗣️',  ['merchant', 'trader', 'vendor', 'peddler', 'shopkeeper', 'innkeeper', 'barkeep', 'bartender']],
+  ['🗣️ ',  ['merchant', 'trader', 'vendor', 'peddler', 'shopkeeper', 'innkeeper', 'barkeep', 'bartender']],
   ['👤',  ['thief', 'rogue', 'assassin', 'spy', 'pickpocket', 'cutpurse', 'smuggler']],
   ['⛪',  ['priest', 'cleric', 'monk', 'friar', 'paladin', 'inquisitor', 'acolyte', 'bishop', 'abbess']],
   ['👑',  ['king', 'queen', 'prince', 'princess', 'lord', 'lady', 'duke', 'baron', 'noble', 'emperor']],
@@ -125,4 +125,12 @@ function getEmoji(keywords) {
   return null
 }
 
-module.exports = { getEmoji }
+function getItemEmoji(keywords) {
+  return getEmoji(keywords) || '🔹'
+}
+
+function getNpcEmoji(keywords) {
+  return getEmoji(keywords) || '🧑'
+}
+
+module.exports = { getEmoji, getItemEmoji, getNpcEmoji }
