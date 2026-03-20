@@ -222,7 +222,7 @@ function buildHealMessage(healer, target, heal, finalAmount) {
 // ---------------------------------------------------------------------------
 
 const EXHAUSTION_COLORS = {
-  // tier 1 & 2 — fresh/winded: no color, silence reads as minor
+  2: (s) => `<magenta>${s}</magenta>`,
   3: (s) => `<magenta>${s}</magenta>`,
   4: (s) => `<b><magenta>${s}</magenta></b>`,
   5: (s) => `<b><magenta>${s}</magenta></b>`,

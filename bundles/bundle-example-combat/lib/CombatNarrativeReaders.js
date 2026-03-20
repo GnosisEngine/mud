@@ -118,6 +118,7 @@ function getCandidates(obj) {
     obj.roomDesc,
     obj.metadata && obj.metadata.type,
     obj.metadata && obj.metadata.keywords,
+    obj.keywords
   ];
   return fields
     .filter(Boolean)
@@ -139,9 +140,11 @@ function getCandidates(obj) {
 function getAttackType(source) {
   if (!source) return 'generic';
 
-  // Explicit metadata wins immediately
   const explicit = source.metadata && source.metadata.damageType;
-  if (explicit) return pick(explicit).toLowerCase();
+  if (explicit) {
+    const val = Array.isArray(explicit) ? pick(explicit) : explicit;
+    return val.toLowerCase();
+  }
 
   const inferred = inferFromKeywords(getCandidates(source), ATTACK_TYPE_KEYWORDS);
   return inferred || 'generic';
@@ -185,15 +188,19 @@ function getArmorType(entity) {
   const armor = entity.equipment && entity.equipment.get('body');
   if (armor) {
     const explicit = armor.metadata && armor.metadata.armorType;
-    if (explicit) return pick(explicit).toLowerCase();
-
+    if (explicit) {
+      const val = Array.isArray(explicit) ? pick(explicit) : explicit;
+      return val.toLowerCase();
+    }
     const inferred = inferFromKeywords(getCandidates(armor), ARMOR_TYPE_KEYWORDS);
     if (inferred) return inferred;
   }
 
-  // 2. Check entity's natural armor metadata (monsters, creatures)
   const natural = entity.metadata && entity.metadata.naturalArmor;
-  if (natural) return pick(natural).toLowerCase();
+  if (natural) {
+    const val = Array.isArray(natural) ? pick(natural) : natural;
+    return val.toLowerCase();
+  }
 
   // 3. Infer from the entity itself (e.g. ghost, skeleton, slime)
   const entityInferred = inferFromKeywords(getCandidates(entity), ARMOR_TYPE_KEYWORDS);
@@ -215,7 +222,10 @@ function getEntityType(entity) {
   if (!entity) return 'generic';
 
   const explicit = entity.metadata && entity.metadata.entityType;
-  if (explicit) return pick(explicit).toLowerCase();
+  if (explicit) {
+    const val = Array.isArray(explicit) ? pick(explicit) : explicit;
+    return val.toLowerCase();
+  }
 
   const inferred = inferFromKeywords(getCandidates(entity), ENTITY_TYPE_KEYWORDS);
   return inferred || 'generic';
@@ -318,8 +328,9 @@ function getArcStage(attacker, target) {
   if (roundCount <= 2) return 'opening';
 
   // Closing: enemy is near death, player is in reasonable shape
-  // Must be checked before desperate so it doesn't get swallowed
-  if (enemyExhaustion >= 5 && playerExhaustion <= 2) return 'closing';
+  // Must be checked before desperate so it doesn't get swallowed.
+  // Player up to tier 3 (hurt) still counts as "in reasonable shape" here.
+  if (enemyExhaustion >= 5 && playerExhaustion <= 3) return 'closing';
 
   // Desperate: either combatant is critically wounded
   if (playerExhaustion >= 5 || enemyExhaustion >= 5) return 'desperate';

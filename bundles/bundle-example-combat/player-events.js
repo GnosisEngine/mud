@@ -1,12 +1,14 @@
 'use strict';
 
+// Set to true to show the numeric health bar in the combat prompt.
+// In production this is off — the pip row and bar fills carry the information.
+const DEBUG = false;
+
 const { Config, Broadcast: B } = require('ranvier');
 const Combat = require('./lib/Combat');
 const CombatErrors = require('./lib/CombatErrors');
 const LevelUtil = require('../bundle-example-lib/lib/LevelUtil');
 const WebsocketStream = require('../websocket-networking/lib/WebsocketStream');
-
-const DEBUG = false
 
 const {
   buildHitMessage,
@@ -57,38 +59,40 @@ module.exports = {
 
       const usingWebsockets = this.socket instanceof WebsocketStream;
 
-      // Arc language — emitted on stage transitions and on the opening round.
-      // Needs the first combatant as the attacker reference for name tokens.
       const firstCombatant = [...this.combatants][0];
+      let arcFired = false;
       if (firstCombatant) {
         const arcLine = ArcTracker.update(firstCombatant, this);
         if (arcLine) {
           B.sayAt(this, arcLine);
+          arcFired = true;
         }
       }
 
       // Status flavor — throttled, only fires every 4–6 rounds.
-      // Self exhaustion/clarity state.
-      const selfFlavor = buildStatusFlavor(this);
-      if (selfFlavor) {
-        B.sayAt(this, selfFlavor);
-      }
+      // Suppressed when an arc transition already fired this tick to avoid
+      // two meta-commentary lines appearing in the same prompt block.
+      if (!arcFired) {
+        const selfFlavor = buildStatusFlavor(this);
+        if (selfFlavor) {
+          B.sayAt(this, selfFlavor);
+        }
 
-      // Target exhaustion flavor — what the player observes about their opponent.
-      if (firstCombatant) {
-        const targetFlavor = buildTargetExhaustionFlavor(this, firstCombatant);
-        if (targetFlavor) {
-          B.sayAt(this, targetFlavor);
+        if (firstCombatant) {
+          const targetFlavor = buildTargetExhaustionFlavor(this, firstCombatant);
+          if (targetFlavor) {
+            B.sayAt(this, targetFlavor);
+          }
         }
       }
 
       // Combat prompt (health bars).
       if (!usingWebsockets) {
-        if (!this.hasPrompt('combat')) {
+        if (DEBUG && !this.hasPrompt('combat')) {
           this.addPrompt('combat', _ => promptBuilder(this));
         }
-        B.sayAt(this, '');
         B.prompt(this);
+        B.sayAt(this, '');
       }
     },
 
@@ -301,7 +305,11 @@ module.exports = {
 // ---------------------------------------------------------------------------
 
 function promptBuilder(promptee) {
-  if (DEBUG === false || !promptee.isInCombat()) {
+  if (!promptee.isInCombat()) {
+    return '';
+  }
+
+  if (!DEBUG) {
     return '';
   }
 
