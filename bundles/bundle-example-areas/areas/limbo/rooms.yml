@@ -37,6 +37,10 @@
       leaveMessage: " steps into the light and disappears."
     - roomId: "limbo:training1"
       direction: east
+  doors:
+    "limbo:training1":
+      locked: false
+      closed: true
 
 - &trainingroom
   id: training1

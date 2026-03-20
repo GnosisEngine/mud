@@ -104,6 +104,29 @@ function interpolate(template, attacker, target) {
 //
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Stage progression order
+// A fight should only move to stages of equal or greater narrative weight.
+// Prevents regression e.g. turning:winning → exchange when health values
+// oscillate around a tier boundary.
+// Same-weight lateral shifts (turning:winning ↔ turning:losing) are allowed.
+// ---------------------------------------------------------------------------
+
+const STAGE_ORDER = {
+  'opening':        0,
+  'exchange':       1,
+  'turning:winning':2,
+  'turning:losing': 2,
+  'desperate':      3,
+  'closing':        3,
+};
+
+function isProgressionAllowed(previousStage, currentStage) {
+  const prev = STAGE_ORDER[previousStage] ?? 0;
+  const curr = STAGE_ORDER[currentStage]  ?? 0;
+  return curr >= prev;
+}
+
 /**
  * Initialize narrative combat fields on an entity's combatData.
  * Call this when a fight begins (e.g. in the first updateTick after
@@ -152,7 +175,10 @@ function update(attacker, target) {
   // No change — nothing to say
   if (currentStage === previousStage) return null;
 
-  // Stage changed — record it and emit transition language
+  // Block regression — only allow forward or lateral progression
+  if (!isProgressionAllowed(previousStage, currentStage)) return null;
+
+  // Stage changed and progression is valid — record it and emit
   target.combatData.arcStage       = currentStage;
   target.combatData.arcTransitions += 1;
 

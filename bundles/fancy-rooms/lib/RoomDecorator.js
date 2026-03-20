@@ -88,8 +88,9 @@ function areaTag(name) {
 }
 
 // waypointLabel: string if this room is a saved waypoint, null otherwise
+// state: Ranvier state object (optional) — used for door emoji resolution
 function decorate(room, width = DEFAULT_WIDTH, options = {}) {
-  const { waypointLabel = null } = options
+  const { waypointLabel = null, state = null } = options
 
   const EL = Colors.rgb(150, 140,  80)
   const DM = Colors.rgb( 80,  30, 120)
@@ -102,7 +103,12 @@ function decorate(room, width = DEFAULT_WIDTH, options = {}) {
   const areaName  = room.area ? room.area.title : null
   const rawDesc   = (room.description || '').replace(/[\r\n]+/g, ' ').replace(/  +/g, ' ').trim()
   const descLines = wordWrap(Colors.parse(rawDesc), inner)
-  const exits     = Array.isArray(room.exits) ? room.exits.map(e => e.direction).sort() : []
+  // replace the old exits line near the top of decorate()
+  const exits = (typeof room.getExits === 'function'
+    ? room.getExits()
+    : Array.isArray(room.exits)
+      ? room.exits
+      : []).sort()
 
   const totalRows = 4 + descLines.length + (exits.length ? 2 : 0)
   const W = width
@@ -168,7 +174,19 @@ function decorate(room, width = DEFAULT_WIDTH, options = {}) {
   if (exits.length) {
     out.push(g('╠', 0, row) + hr('─', 1, W-2, row) + g('╣', W-1, row))
     row++
-    const exitList  = exits.map(e => `${DM}[${DC}${e}${DM}]${Colors.RESET}`).join(' ')
+
+    const exitList = exits.map(exit => {
+      let doorEmoji = ''
+      if (state) {
+        const exitRoom = state.RoomManager.getRoom(exit.roomId)
+        const door     = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room))
+        if (door) {
+          doorEmoji = door.locked ? ' 🔒' : door.closed ? ' 🚪' : ' ⬛'
+        }
+      }
+      return `${DM}[${DC}${exit.direction}${doorEmoji}${DM}]${Colors.RESET}`
+    }).join(' ')
+
     const exitLabel = `${EL}Exits:${Colors.RESET} ${exitList}`
     out.push(g('║', 0, row) + ` ${pad(exitLabel, inner)} ` + g('║', W-1, row))
     row++
