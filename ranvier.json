@@ -1,6 +1,7 @@
 {
   "port": 4000,
   "bundles": [
+    "fancy-rooms",
     "bundle-example-areas",
     "bundle-example-channels",
     "bundle-example-classes",
