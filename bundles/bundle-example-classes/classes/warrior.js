@@ -1,5 +1,5 @@
 'use strict';
-const { renderStatusBar } = require('./statusBar')
+const { renderStatusBar } = require('../lib/statusBar')
 
 /**
  * This example definition of a class file is a guideline. The class system is
@@ -23,6 +23,12 @@ module.exports = {
     const actionName = 'energy'
     const energy = state.AttributeFactory.create(actionName, 100);
     player.addAttribute(energy);
-    player.prompt = renderStatusBar(state, player, actionName);
+
+    const refreshPrompt = () => {
+      player.prompt = renderStatusBar(state, player, actionName);
+    };
+
+    refreshPrompt();
+    player.on('attributeUpdate', refreshPrompt);
   }
 };

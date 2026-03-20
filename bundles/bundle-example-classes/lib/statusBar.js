@@ -6,7 +6,7 @@ const Colors = require('../../colors/lib/Colors')
 const STAT_ICONS = {
   mana:      '✨',
   mp:        '✨',
-  energy:    '✨',
+  energy:    '⚡',
   stamina:   '🟢',
   focus:     '🔵',
   rage:      '🔴',
@@ -14,7 +14,6 @@ const STAT_ICONS = {
   chi:       '🔶',
   soul:      '💜',
   faith:     '🤍',
-  favor:     '🤍',
   corruption:'🖤',
   charge:    '🔋',
 }
@@ -23,27 +22,29 @@ const DEFAULT_STAT_ICON = '🔷'
 
 // Per-stat color palette: [brightRgb, darkRgb]
 const STAT_COLORS = {
-  mana:       [[80,  120, 255], [15,  25,  60]],
-  mp:         [[80,  120, 255], [15,  25,  60]],
-  energy:     [[255, 230, 60],  [60,  55,  10]],
-  stamina:    [[60,  220, 100], [10,  50,  20]],
-  focus:      [[60,  180, 255], [10,  40,  70]],
-  rage:       [[255, 60,  60],  [70,  10,  10]],
-  ki:         [[255, 160, 40],  [70,  40,  10]],
-  chi:        [[255, 160, 40],  [70,  40,  10]],
-  soul:       [[200, 80,  255], [50,  10,  80]],
-  faith:      [[230, 230, 255], [50,  50,  70]],
-  corruption: [[180, 0,   255], [30,  0,   50]],
-  charge:     [[80,  255, 220], [10,  60,  50]],
+  mana:       [[80,  120, 255], [3,  4,  12]],
+  mp:         [[80,  120, 255], [3,  4,  12]],
+  energy:     [[255, 230, 60],  [10, 9,  2 ]],
+  stamina:    [[60,  220, 100], [2,  8,  3 ]],
+  focus:      [[60,  180, 255], [2,  6,  12]],
+  rage:       [[255, 60,  60],  [12, 2,  2 ]],
+  ki:         [[255, 160, 40],  [12, 6,  2 ]],
+  chi:        [[255, 160, 40],  [12, 6,  2 ]],
+  soul:       [[200, 80,  255], [8,  2,  14]],
+  faith:      [[230, 230, 255], [8,  8,  12]],
+  corruption: [[180, 0,   255], [5,  0,  8 ]],
+  charge:     [[80,  255, 220], [2,  10, 8 ]],
 }
 
-const DEFAULT_STAT_COLORS = [[80, 200, 255], [15, 45, 65]]
+const DEFAULT_STAT_COLORS = [[80, 200, 255], [3, 7, 10]]
 
 const HEALTH_BRIGHT = [255, 60,  80]
-const HEALTH_DARK   = [60,  10,  20]
+const HEALTH_DARK   = [10,  2,   3 ]
 
-const DOTS     = 4
-const DOT_CHAR = '•'
+const DOTS       = 4
+const FILL_CHAR  = '●'
+const EMPTY_CHAR = '○'
+const EMPTY_COLOR = [45, 45, 45]
 
 /**
  * Render a small inline HUD bar like:
@@ -105,9 +106,14 @@ function makeDots(pct, brightRgb, darkRgb) {
 
   for (let i = 0; i < DOTS; i++) {
     const dotFill = Math.max(0, Math.min(1, filledDots - i))
-    // Interpolate between dark and bright based on how filled this dot is
-    const color = lerpColor(darkRgb, brightRgb, dotFill)
-    parts.push(`${Colors.rgb(...color)}${DOT_CHAR}`)
+    if (dotFill === 0) {
+      // Completely empty quintile — hollow char in dim grey
+      parts.push(`${Colors.rgb(...EMPTY_COLOR)}${EMPTY_CHAR}`)
+    } else {
+      // Partially or fully filled — filled char, color lerped bright→dark
+      const color = lerpColor(darkRgb, brightRgb, dotFill)
+      parts.push(`${Colors.rgb(...color)}${FILL_CHAR}`)
+    }
   }
 
   return parts.join(' ') + Colors.RESET

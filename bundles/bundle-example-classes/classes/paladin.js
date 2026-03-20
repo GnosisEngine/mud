@@ -1,5 +1,5 @@
 'use strict';
-const { renderStatusBar } = require('./statusBar')
+const { renderStatusBar } = require('../lib/statusBar')
 
 module.exports = {
   name: 'Paladin',
@@ -16,6 +16,12 @@ module.exports = {
     // Paladins use Favor, with a max of 10. Favor is a generated resource and returns to 0 when out of combat
     const favor = state.AttributeFactory.create(actionName, 10, -10);
     player.addAttribute(favor);
-    player.prompt = renderStatusBar(state, player, actionName);
+    
+    const refreshPrompt = () => {
+      player.prompt = renderStatusBar(state, player, actionName);
+    };
+
+    refreshPrompt();
+    player.on('attributeUpdate', refreshPrompt);
   }
 };

@@ -1,5 +1,5 @@
 'use strict';
-const { renderStatusBar } = require('./statusBar')
+const { renderStatusBar } = require('../lib/statusBar')
 
 /**
  * See warrior.js for more on classes.
@@ -15,6 +15,12 @@ module.exports = {
     const actionName = 'mana'
     const mana = state.AttributeFactory.create(actionName, 100);
     player.addAttribute(mana);
-    player.prompt = renderStatusBar(state, player, actionName);
+
+    const refreshPrompt = () => {
+      player.prompt = renderStatusBar(state, player, actionName);
+    };
+
+    refreshPrompt();
+    player.on('attributeUpdate', refreshPrompt);
   }
 };
