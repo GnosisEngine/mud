@@ -1,28 +1,33 @@
 'use strict';
 
-const store = require('../lib/store');
+const { Broadcast } = require('ranvier');
+const say = Broadcast.sayAt;
 
 module.exports = {
-  name: 'claim',
   aliases: [],
-
-  execute(args, { player, room }) {
+  command: state => (args, player) => {
     const [sub, ...rest] = (args || '').trim().split(/\s+/);
+
+    const { store } = state.StorageManager
 
     // claim list
     if (sub === 'list') {
-      const claims = store.getClaimsByOwner(player.id);
-
+      const claims = store.getClaimsByOwner(player.name);
       if (!claims.length) {
-        return player.emit('message', 'You hold no claims.');
+        return say(player, 'You hold no claims.');
       }
 
-      player.emit('message', 'Your claims:');
+      say(player, 'Your claims:');
+
+      let i = 1
       for (const claim of claims) {
-        const state = store.getClaimState(claim.id);
-        const locked = claim.taxRateLocked ? ' [rate locked]' : '';
-        const expiring = state === 'E' ? ' [EXPIRING]' : '';
-        player.emit('message', `  ${claim.id}  room:${claim.roomId}  rate:${claim.taxRate}%${locked}${expiring}`);
+        const claimState = store.getClaimState(claim.id);
+        const locked   = claim.taxRateLocked ? ' [rate locked]' : '';
+        const expiring = claimState === 'E' ? ' [EXPIRING]' : '';
+        const room = state.RoomManager.getRoom(claim.roomId)
+
+        say(player, `  ${i}.)  ${room.area.title} / ${room.title} @ ${claim.taxRate}%${locked}${expiring}`);
+        i += 1
       }
       return;
     }
@@ -31,22 +36,25 @@ module.exports = {
     if (sub === 'release') {
       const claimId = rest[0];
       if (!claimId) {
-        return player.emit('message', 'Usage: claim release <claimId>');
+        return say(player, 'Usage: claim release <claimId>');
       }
 
-      const claim = store.getClaim(claimId);
+      const claims = store.getClaimsByOwner(player.name);
+
+      const claim = claims[parseInt(claimId) - 1];
       if (!claim) {
-        return player.emit('message', `No claim found with id ${claimId}.`);
+        return say(player, `No claim found at #${claimId}.`);
       }
-      if (claim.ownerId !== player.id) {
-        return player.emit('message', 'That is not your claim.');
+      if (claim.ownerId !== player.name) {
+        return say(player, 'That is not your claim.');
       }
       if (claim.taxRateLocked) {
-        return player.emit('message', 'That claim has a locked tax rate — it is attached to a funded collateral package and cannot be released.');
+        return say(player, 'That claim has a locked tax rate — it is attached to a funded collateral package and cannot be released.');
       }
 
-      store.expireClaim(claimId).then(() => {
-        player.emit('message', `Claim ${claimId} on room ${claim.roomId} released.`);
+      store.expireClaim(claim.id).then(() => {
+        const room = state.RoomManager.getRoom(claim.roomId)
+        say(player, `Claim #${claimId} on ${room.title} released.`);
       });
       return;
     }
@@ -54,23 +62,24 @@ module.exports = {
     // claim <taxRate>  — stake current room
     const taxRate = parseInt(sub, 10);
     if (isNaN(taxRate) || taxRate < 0 || taxRate > 100) {
-      return player.emit('message', 'Usage: claim <taxRate 0–100> | claim list | claim release <claimId>');
+      return say(player, 'Usage: claim <taxRate 0–100> | claim list | claim release <claimId>');
     }
 
+    const room     = player.room;
     const roomId   = room.entityReference;
     const existing = store.getClaimByRoom(roomId);
 
     if (existing) {
-      if (existing.ownerId === player.id) {
-        return player.emit('message', 'You already hold this room.');
+      if (existing.ownerId === player.name) {
+        return say(player, 'You already hold this room.');
       }
-      return player.emit('message', `This room is claimed by another player.`);
+      return say(player, 'This room is already claimed by another player.');
     }
 
-    store.claimRoom(player.id, roomId, { taxRate }).then((claim) => {
-      player.emit('message', `Room ${roomId} claimed. Tax rate: ${taxRate}%. Claim id: ${claim.id}`);
+    store.claimRoom(player.name, roomId, { taxRate }).then((claim) => {
+      say(player, `You've claimed ${room.title} at a tax rate of ${taxRate}%.`);
     }).catch((err) => {
-      player.emit('message', `Failed to claim room: ${err.message}`);
+      say(player, `Failed to claim room: ${err.message}`);
     });
   },
 };

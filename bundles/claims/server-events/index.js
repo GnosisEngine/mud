@@ -2,12 +2,12 @@
 'use strict';
 
 const path  = require('path');
-const { Log }     = require('./lib/log');
-const { Graph }   = require('./lib/graph');
-const { Db }      = require('./lib/db');
-const { replay }  = require('./lib/replay');
-const { compact } = require('./lib/compaction');
-const { Store }   = require('./lib/store');
+const { Log }     = require('../lib/log');
+const { Graph }   = require('../lib/graph');
+const { Db }      = require('../lib/db');
+const { replay }  = require('../lib/replay');
+const { compact } = require('../lib/compaction');
+const { Store }   = require('../lib/store');
 
 /**
  * ranvier-storage bundle
@@ -60,7 +60,7 @@ module.exports = {
      * begins accepting connections — safe to do async I/O here.
      */
     startup: state => async () => {
-      console.log('[ranvier-storage] initialising...');
+      console.log('[claims-storage] initialising...');
 
       // Layer 3 — log
       const log = new Log(DATA_DIR, COMPACT_THRESHOLD);
@@ -84,14 +84,14 @@ module.exports = {
       expiryTimer = setInterval(async () => {
         const count = await store.flushExpiredClaims();
         if (count > 0) {
-          console.log(`[ranvier-storage] flushed ${count} expired claim(s)`);
+          console.log(`[claims-storage] flushed ${count} expired claim(s)`);
         }
       }, EXPIRY_INTERVAL);
 
       // Prevent the timer from keeping the process alive on shutdown
       if (expiryTimer.unref) expiryTimer.unref();
 
-      console.log('[ranvier-storage] ready');
+      console.log('[claims-storage] ready');
     },
 
     /**
@@ -99,7 +99,7 @@ module.exports = {
      * Final compaction ensures the log is clean for the next boot.
      */
     shutdown: state => async () => {
-      console.log('[ranvier-storage] shutting down...');
+      console.log('[claims-storage] shutting down...');
 
       if (expiryTimer) {
         clearInterval(expiryTimer);
@@ -119,7 +119,7 @@ module.exports = {
         store = null;
       }
 
-      console.log('[ranvier-storage] shutdown complete');
+      console.log('[claims-storage] shutdown complete');
     },
   },
 };

@@ -1,43 +1,23 @@
 'use strict';
 
-const store = require('../lib/store');
+// const store       = require('../lib/store');
+const enforcement = require('../lib/enforcement');
 
-/**
- * enforce <playerName> <durationMinutes>
- *
- * Issues a submission demand to a player in the same room.
- * The target has 60 seconds to respond: submit, fight, or flee.
- *
- * Rules from the design doc:
- *   - Max submission duration: 60 minutes
- *   - One active threat per target at a time
- *   - You must own a claim on the current room to enforce
- *   - Target must be in the same room
- *
- * Submission acceptance, combat, and flee are handled by separate
- * command / event handlers — this command only issues the demand and
- * starts the 60-second response timer.
- */
-
-// Track active threats in memory: Map<enforcerId, Map<targetId, timeoutHandle>>
-const activeThreats = new Map();
-
-const RESPONSE_WINDOW_MS  = 60 * 1000;   // 60 seconds to respond
+const RESPONSE_WINDOW_MS   = 60 * 1000;
 const MAX_DURATION_MINUTES = 60;
 
 module.exports = {
-  name: 'enforce',
   aliases: ['threaten'],
-
-  execute(args, { player, room }) {
+  command: state => (args, player) => {
     const parts = (args || '').trim().split(/\s+/);
     const [targetName, durationStr] = parts;
+    const { store } = state.StorageManager
 
     if (!targetName || !durationStr) {
       return player.emit('message', 'Usage: enforce <playerName> <durationMinutes 1–60>');
     }
 
-    // Must hold a claim on this room
+    const room   = player.room;
     const roomId = room.entityReference;
     const claim  = store.getClaimByRoom(roomId);
 
@@ -45,77 +25,68 @@ module.exports = {
       return player.emit('message', 'You do not hold a claim on this room.');
     }
 
-    // Parse duration
     const duration = parseInt(durationStr, 10);
     if (isNaN(duration) || duration < 1 || duration > MAX_DURATION_MINUTES) {
       return player.emit('message', `Submission duration must be between 1 and ${MAX_DURATION_MINUTES} minutes.`);
     }
 
-    // Find target in room
-    const target = room.playerInRoom ? room.playerInRoom(targetName) : null;
-    if (!target) {
-      return player.emit('message', `${targetName} is not in this room.`);
-    }
-    if (target.id === player.id) {
-      return player.emit('message', `You cannot enforce against yourself.`);
-    }
+    // Find target by name in current room
+    const target = [...room.players].find(
+      p => p.name.toLowerCase() === targetName.toLowerCase() && p !== player
+    );
+    if (!target) return player.emit('message', `${targetName} is not in this room.`);
 
-    // One active threat per target per enforcer
-    if (!activeThreats.has(player.id)) {
-      activeThreats.set(player.id, new Map());
-    }
-    const myThreats = activeThreats.get(player.id);
-
-    if (myThreats.has(target.id)) {
+    if (enforcement.hasThreat(player.id, target.id)) {
       return player.emit('message', `You already have an active enforcement demand against ${target.name}.`);
     }
+    if (enforcement.isSubmittedTo(target.id, player.id)) {
+      return player.emit('message', `${target.name} is already submitted to you.`);
+    }
 
-    // Announce to the room
-    room.emit('message', `${player.name} fixes ${target.name} with a hard stare. "Submit for ${duration} minutes — or face the consequences." (${target.name} has 60 seconds to respond.)`);
+    room.emit('message', `${player.name} rounds on ${target.name}. "Submit for ${duration} minutes — or face the consequences." (${target.name} has 60 seconds to respond or will submit automatically.)`);
 
-    // Emit the threat event to the target so their client / other handlers can act
     target.emit('enforce:received', {
       enforcerId:   player.id,
       enforcerName: player.name,
       roomId,
       claimId:      claim.id,
-      duration,     // minutes
+      duration,
     });
 
-    // Response timer — 60 seconds
-    const timeout = setTimeout(() => {
-      myThreats.delete(target.id);
+    const meta = { enforcerId: player.id, enforcerName: player.name, claimId: claim.id, roomId, duration };
 
-      // Only notify if both are still in the room
-      if (room.playerInRoom && room.playerInRoom(target.name)) {
-        player.emit('message', `${target.name} did not respond to your enforcement demand.`);
-        target.emit('message', `${player.name}'s enforcement demand has expired with no answer.`);
-        room.emit('enforce:timeout', { enforcerId: player.id, targetId: target.id });
-      }
+    const timeoutHandle = setTimeout(() => {
+      enforcement.removeThreat(player.id, target.id);
+      applySubmission({ enforcer: player, target, room, claimId: claim.id, roomId, duration });
+      room.emit('message', `${target.name} did not respond — and is now subject to ${player.name}'s terms.`);
     }, RESPONSE_WINDOW_MS);
 
-    myThreats.set(target.id, timeout);
-
-    player.emit('message', `Enforcement demand issued to ${target.name}. ${duration}-minute submission. Awaiting response.`);
+    enforcement.addThreat(player.id, target.id, meta, timeoutHandle);
+    player.emit('message', `Enforcement demand issued to ${target.name}. ${duration}-minute submission. They have 60 seconds to respond or submit automatically.`);
   },
 };
 
-/**
- * Cancel an active threat — call this when the target responds (submit / fight / flee)
- * so the timeout doesn't fire spuriously.
- *
- * @param {string} enforcerId
- * @param {string} targetId
- */
-function cancelThreat(enforcerId, targetId) {
-  const myThreats = activeThreats.get(enforcerId);
-  if (!myThreats) return;
+function applySubmission({ enforcer, target, room, claimId, roomId, duration }) {
+  enforcement.removeSubmission(target.id);
 
-  const handle = myThreats.get(targetId);
-  if (handle) {
-    clearTimeout(handle);
-    myThreats.delete(targetId);
-  }
+  const expiryHandle = setTimeout(() => {
+    enforcement.removeSubmission(target.id);
+    target.emit('message',   `Your submission to ${enforcer.name} has ended.`);
+    enforcer.emit('message', `${target.name}'s submission to you has ended.`);
+  }, duration * 60 * 1000);
+
+  enforcement.addSubmission(target.id, {
+    enforcerId:    enforcer.id,
+    enforcerName:  enforcer.name,
+    claimId,
+    roomId,
+    duration,
+    endsAt:        Date.now() + duration * 60 * 1000,
+    timeoutHandle: expiryHandle,
+  });
+
+  target.emit('message',   `You are now submitted to ${enforcer.name} for ${duration} minutes. Tax is collected automatically.`);
+  enforcer.emit('message', `${target.name} is now submitted to you for ${duration} minutes.`);
 }
 
-module.exports.cancelThreat = cancelThreat;
+module.exports.applySubmission = applySubmission;
