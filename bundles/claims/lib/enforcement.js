@@ -4,7 +4,7 @@
  * In-memory enforcement state.
  *
  * threats:     Map<enforcerId, Map<targetId, { meta, timeoutHandle }>>
- * submissions: Map<targetId,  { enforcerId, enforcerName, claimId, roomId,
+ * submissions: Map<targetId,  { enforcerId, claimId, roomId,
  *                                duration, endsAt, timeoutHandle }>
  */
 
@@ -19,7 +19,7 @@ const submissions = new Map();
  * Register a threat with its metadata and response-window timeout.
  * @param {string} enforcerId
  * @param {string} targetId
- * @param {{ enforcerId, enforcerName, claimId, roomId, duration }} meta
+ * @param {{ enforcerId, claimId, roomId, duration }} meta
  * @param {*} timeoutHandle
  */
 function addThreat(enforcerId, targetId, meta, timeoutHandle) {
@@ -57,7 +57,7 @@ function hasThreat(enforcerId, targetId) {
  * Return the stored threat metadata for a specific enforcer → target pair.
  * Used by the submit command to retrieve duration/claimId without exposing
  * the raw map.
- * @returns {{ enforcerId, enforcerName, claimId, roomId, duration } | null}
+ * @returns {{ enforcerId, claimId, roomId, duration } | null}
  */
 function getThreatMeta(enforcerId, targetId) {
   return threats.get(enforcerId)?.get(targetId)?.meta ?? null;

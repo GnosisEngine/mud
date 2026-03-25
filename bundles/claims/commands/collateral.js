@@ -1,6 +1,7 @@
 'use strict';
 
-// const store = require('../lib/store');
+const { Broadcast } = require('ranvier');
+const say = Broadcast.sayAt;
 
 const USAGE = `
 Collateral commands:
@@ -26,83 +27,83 @@ module.exports = {
 
       case 'create': {
         const name = parts.slice(1).join(' ');
-        if (!name) return player.emit('message', 'Usage: collateral create <name>');
+        if (!name) return say(player,  'Usage: collateral create <name>');
         try {
           const pkg = store.listPackage({
-            claimantId:      player.id,
+            claimantId:      player.name,
             name,
             attachedRoomIds: [],
             requestedAmount: 0,
             durationDays:    0,
             yieldFloor:      0,
           });
-          player.emit('message', `Package created. ID: ${pkg.id}  Name: "${pkg.name}"`);
+          say(player,  `Package created. ID: ${pkg.id}  Name: "${pkg.name}"`);
         } catch (err) {
-          player.emit('message', `Could not create package: ${err.message}`);
+          say(player,  `Could not create package: ${err.message}`);
         }
         break;
       }
 
       case 'attach': {
         const [, packageId, roomId] = parts;
-        if (!packageId || !roomId) return player.emit('message', 'Usage: collateral attach <packageId> <roomId>');
+        if (!packageId || !roomId) return say(player,  'Usage: collateral attach <packageId> <roomId>');
 
         const pkg = store.getPackage(packageId);
-        if (!pkg) return player.emit('message', `Package ${packageId} not found.`);
-        if (pkg.claimantId !== player.id) return player.emit('message', 'That is not your package.');
-        if (pkg.status !== 'O') return player.emit('message', 'Can only attach rooms to open (unfunded) packages.');
+        if (!pkg) return say(player,  `Package ${packageId} not found.`);
+        if (pkg.claimantId !== player.name) return say(player,  'That is not your package.');
+        if (pkg.status !== 'O') return say(player,  'Can only attach rooms to open (unfunded) packages.');
 
         const claim = store.getClaimByRoom(roomId);
-        if (!claim) return player.emit('message', `Room ${roomId} is not claimed.`);
-        if (claim.ownerId !== player.id) return player.emit('message', 'You do not own the claim on that room.');
-        if (claim.taxRateLocked) return player.emit('message', 'That room is already attached to a funded package.');
+        if (!claim) return say(player,  `Room ${roomId} is not claimed.`);
+        if (claim.ownerId !== player.name) return say(player,  'You do not own the claim on that room.');
+        if (claim.taxRateLocked) return say(player,  'That room is already attached to a funded package.');
 
-        const alreadyAttached = store.getPackagesByClaimant(player.id).some(
+        const alreadyAttached = store.getPackagesByClaimant(player.name).some(
           p => p.id !== packageId && p.attachedRoomIds.includes(roomId)
         );
-        if (alreadyAttached) return player.emit('message', 'That room is already in another package. No rehypothecation.');
+        if (alreadyAttached) return say(player,  'That room is already in another package. No rehypothecation.');
 
         const updated = { ...pkg, attachedRoomIds: [...pkg.attachedRoomIds, roomId] };
         store.deletePackage(packageId);
         store.listPackage(updated);
-        player.emit('message', `Room ${roomId} attached to package ${packageId}.`);
+        say(player,  `Room ${roomId} attached to package ${packageId}.`);
         break;
       }
 
       case 'detach': {
         const [, packageId, roomId] = parts;
-        if (!packageId || !roomId) return player.emit('message', 'Usage: collateral detach <packageId> <roomId>');
+        if (!packageId || !roomId) return say(player,  'Usage: collateral detach <packageId> <roomId>');
 
         const pkg = store.getPackage(packageId);
-        if (!pkg) return player.emit('message', `Package ${packageId} not found.`);
-        if (pkg.claimantId !== player.id) return player.emit('message', 'That is not your package.');
-        if (pkg.status !== 'O') return player.emit('message', 'Cannot detach rooms from a funded or closed package.');
-        if (!pkg.attachedRoomIds.includes(roomId)) return player.emit('message', `Room ${roomId} is not attached to this package.`);
+        if (!pkg) return say(player,  `Package ${packageId} not found.`);
+        if (pkg.claimantId !== player.name) return say(player,  'That is not your package.');
+        if (pkg.status !== 'O') return say(player,  'Cannot detach rooms from a funded or closed package.');
+        if (!pkg.attachedRoomIds.includes(roomId)) return say(player,  `Room ${roomId} is not attached to this package.`);
 
         const updated = { ...pkg, attachedRoomIds: pkg.attachedRoomIds.filter(r => r !== roomId) };
         store.deletePackage(packageId);
         store.listPackage(updated);
-        player.emit('message', `Room ${roomId} detached from package ${packageId}.`);
+        say(player,  `Room ${roomId} detached from package ${packageId}.`);
         break;
       }
 
       case 'list': {
-        const asClaimant = store.getPackagesByClaimant(player.id);
-        const asLender   = store.getPackagesByLender(player.id);
+        const asClaimant = store.getPackagesByClaimant(player.name);
+        const asLender   = store.getPackagesByLender(player.name);
 
         if (!asClaimant.length && !asLender.length) {
-          return player.emit('message', 'You have no collateral packages.');
+          return say(player,  'You have no collateral packages.');
         }
         if (asClaimant.length) {
-          player.emit('message', 'Your packages (claimant):');
+          say(player,  'Your packages (claimant):');
           for (const p of asClaimant) {
-            player.emit('message', `  ${p.id}  "${p.name}"  status:${p.status}  rooms:${p.attachedRoomIds.join(',') || 'none'}  req:${p.requestedAmount}  ${p.durationDays}d  floor:${p.yieldFloor}`);
+            say(player,  `  ${p.id}  "${p.name}"  status:${p.status}  rooms:${p.attachedRoomIds.join(',') || 'none'}  req:${p.requestedAmount}  ${p.durationDays}d  floor:${p.yieldFloor}`);
           }
         }
         if (asLender.length) {
-          player.emit('message', 'Your packages (lender):');
+          say(player,  'Your packages (lender):');
           for (const p of asLender) {
-            player.emit('message', `  ${p.id}  "${p.name}"  claimant:${p.claimantId}  status:${p.status}  floor:${p.yieldFloor}`);
+            say(player,  `  ${p.id}  "${p.name}"  claimant:${p.claimantId}  status:${p.status}  floor:${p.yieldFloor}`);
           }
         }
         break;
@@ -110,13 +111,13 @@ module.exports = {
 
       case 'status': {
         const packageId = parts[1];
-        if (!packageId) return player.emit('message', 'Usage: collateral status <packageId>');
+        if (!packageId) return say(player,  'Usage: collateral status <packageId>');
 
         const pkg = store.getPackage(packageId);
-        if (!pkg) return player.emit('message', `Package ${packageId} not found.`);
+        if (!pkg) return say(player,  `Package ${packageId} not found.`);
 
         const STATUS_LABEL = { O: 'open offer', F: 'funded', D: 'defaulted', C: 'closed' };
-        player.emit('message', [
+        say(player,  [
           `Package:       ${pkg.id}  "${pkg.name}"`,
           `Claimant:      ${pkg.claimantId}`,
           `Status:        ${STATUS_LABEL[pkg.status] || pkg.status}`,
@@ -132,13 +133,13 @@ module.exports = {
       case 'pledge': {
         const [, packageId, amount, durationDays, yieldFloor] = parts;
         if (!packageId || !amount || !durationDays || !yieldFloor) {
-          return player.emit('message', 'Usage: collateral pledge <packageId> <amount> <durationDays> <yieldFloor>');
+          return say(player,  'Usage: collateral pledge <packageId> <amount> <durationDays> <yieldFloor>');
         }
         const pkg = store.getPackage(packageId);
-        if (!pkg) return player.emit('message', `Package ${packageId} not found.`);
-        if (pkg.claimantId !== player.id) return player.emit('message', 'That is not your package.');
-        if (pkg.status !== 'O') return player.emit('message', 'Package is already pledged or closed.');
-        if (!pkg.attachedRoomIds.length) return player.emit('message', 'Attach at least one room before pledging.');
+        if (!pkg) return say(player,  `Package ${packageId} not found.`);
+        if (pkg.claimantId !== player.name) return say(player,  'That is not your package.');
+        if (pkg.status !== 'O') return say(player,  'Package is already pledged or closed.');
+        if (!pkg.attachedRoomIds.length) return say(player,  'Attach at least one room before pledging.');
 
         const updated = {
           ...pkg,
@@ -148,53 +149,53 @@ module.exports = {
         };
         store.deletePackage(packageId);
         store.listPackage(updated);
-        player.emit('message', `Package ${packageId} posted. Requesting: ${updated.requestedAmount}  Duration: ${updated.durationDays}d  Floor: ${updated.yieldFloor}/day`);
+        say(player,  `Package ${packageId} posted. Requesting: ${updated.requestedAmount}  Duration: ${updated.durationDays}d  Floor: ${updated.yieldFloor}/day`);
         break;
       }
 
       case 'cancel': {
         const packageId = parts[1];
-        if (!packageId) return player.emit('message', 'Usage: collateral cancel <packageId>');
+        if (!packageId) return say(player,  'Usage: collateral cancel <packageId>');
 
         const pkg = store.getPackage(packageId);
-        if (!pkg) return player.emit('message', `Package ${packageId} not found.`);
-        if (pkg.claimantId !== player.id) return player.emit('message', 'That is not your package.');
-        if (pkg.status !== 'O') return player.emit('message', 'Can only cancel open (unfunded) packages.');
+        if (!pkg) return say(player,  `Package ${packageId} not found.`);
+        if (pkg.claimantId !== player.name) return say(player,  'That is not your package.');
+        if (pkg.status !== 'O') return say(player,  'Can only cancel open (unfunded) packages.');
 
         store.deletePackage(packageId);
-        player.emit('message', `Package ${packageId} cancelled and removed.`);
+        say(player,  `Package ${packageId} cancelled and removed.`);
         break;
       }
 
       case 'offers': {
         const open = store.getOpenPackages();
-        if (!open.length) return player.emit('message', 'No open collateral offers right now.');
-        player.emit('message', 'Open collateral offers:');
+        if (!open.length) return say(player,  'No open collateral offers right now.');
+        say(player,  'Open collateral offers:');
         for (const p of open) {
-          player.emit('message', `  ${p.id}  "${p.name}"  claimant:${p.claimantId}  req:${p.requestedAmount}  ${p.durationDays}d  floor:${p.yieldFloor}/day  rooms:${p.attachedRoomIds.length}`);
+          say(player,  `  ${p.id}  "${p.name}"  claimant:${p.claimantId}  req:${p.requestedAmount}  ${p.durationDays}d  floor:${p.yieldFloor}/day  rooms:${p.attachedRoomIds.length}`);
         }
         break;
       }
 
       case 'accept': {
         const packageId = parts[1];
-        if (!packageId) return player.emit('message', 'Usage: collateral accept <packageId>');
+        if (!packageId) return say(player,  'Usage: collateral accept <packageId>');
 
         const pkg = store.getPackage(packageId);
-        if (!pkg) return player.emit('message', `Package ${packageId} not found.`);
-        if (pkg.status !== 'O') return player.emit('message', 'This package is no longer open.');
-        if (pkg.claimantId === player.id) return player.emit('message', 'You cannot fund your own package.');
+        if (!pkg) return say(player,  `Package ${packageId} not found.`);
+        if (pkg.status !== 'O') return say(player,  'This package is no longer open.');
+        if (pkg.claimantId === player.name) return say(player,  'You cannot fund your own package.');
 
-        store.fundPackage(packageId, player.id).then((funded) => {
-          player.emit('message', `You have funded package ${funded.id} "${funded.name}". Yield will route to you for ${funded.durationDays} days.`);
+        store.fundPackage(packageId, player.name).then((funded) => {
+          say(player,  `You have funded package ${funded.id} "${funded.name}". Yield will route to you for ${funded.durationDays} days.`);
         }).catch((err) => {
-          player.emit('message', `Could not fund package: ${err.message}`);
+          say(player,  `Could not fund package: ${err.message}`);
         });
         break;
       }
 
       default:
-        player.emit('message', USAGE);
+        say(player,  USAGE);
     }
   },
 };
