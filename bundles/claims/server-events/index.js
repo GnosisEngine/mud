@@ -34,9 +34,9 @@ const { Store }   = require('../lib/store');
 // Configuration
 // ---------------------------------------------------------------------------
 
-const DATA_DIR          = path.resolve(__dirname, 'data');
+const DATA_DIR          = path.resolve(__dirname, '../data');
 const COMPACT_THRESHOLD = 10000;   // lines before mid-session compaction
-const EXPIRY_INTERVAL   = 30000;   // ms between expiry flush checks (30s)
+const LOGOUT_GRACE_MS   = 30000;   // ms between expiry flush checks (30s)
 
 // ---------------------------------------------------------------------------
 // Bundle state — module-scoped, initialised in startup listener
@@ -83,10 +83,11 @@ module.exports = {
       // Expiry flush timer — checks for timed-out claims on interval
       expiryTimer = setInterval(async () => {
         const count = await store.flushExpiredClaims();
+
         if (count > 0) {
           console.log(`[claims-storage] flushed ${count} expired claim(s)`);
         }
-      }, EXPIRY_INTERVAL);
+      }, LOGOUT_GRACE_MS);
 
       // Prevent the timer from keeping the process alive on shutdown
       if (expiryTimer.unref) expiryTimer.unref();
@@ -120,6 +121,6 @@ module.exports = {
       }
 
       console.log('[claims-storage] shutdown complete');
-    },
+    }
   },
 };

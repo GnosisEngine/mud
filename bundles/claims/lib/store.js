@@ -159,12 +159,16 @@ class Store {
    * @param {string} ownerId
    * @param {number} expiresAt — unix ms timestamp when claims should expire
    */
-  async armExpiryForPlayer(ownerId, expiresAt) {
-    const claims = this._graph.getClaimsByOwner(ownerId);
+  async armExpiryForPlayer(ownerId, expiresAt = Date.now() + LOGOUT_GRACE_MS) {
+    const claims = this._graph.getClaimsByOwner(ownerId)
 
     for (const claim of claims) {
-      const data = { id: claim.id, expiresAt };
-      await this._write('O', data, () => this._graph.setClaimExpiry(data));
+      const data = {
+        id: claim.id,
+        expiresAt: expiresAt ?? claim.expiresAt
+      }
+
+      await this._write('O', data, () => this._graph.setClaimExpiry(data))
     }
   }
 
