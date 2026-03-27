@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Terrain Grid Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #12120e;
+    --panel:    #1c1c16;
+    --surface:  #24241c;
+    --border:   #3a3a28;
+    --accent:   #c8a060;
+    --accent2:  #7ab87a;
+    --text:     #d4c9a0;
+    --dim:      #6a6050;
+    --danger:   #c06040;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inconsolata', 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    font-size: 13px;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 8px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+
+  .header-meta {
+    color: var(--dim);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* ── Main layout ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Canvas area ── */
+  #grid-wrap {
+    flex: 1;
+    overflow: auto;
+    padding: 12px;
+    background: var(--bg);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  #gridCanvas {
+    cursor: crosshair;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  /* ── Side panel ── */
+  .panel {
+    width: 248px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Parameter inputs ── */
+  .field { margin-bottom: 8px; }
+  .field label {
+    display: block; font-size: 10px; color: var(--dim);
+    margin-bottom: 3px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .field input[type=number], .field input[type=text] {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Inconsolata', monospace; font-size: 12px;
+    padding: 4px 7px; border-radius: 2px; appearance: textfield;
+  }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .field input[type=number]::-webkit-inner-spin-button { opacity: 0.4; }
+  .field-row { display: flex; gap: 6px; }
+  .field-row .field { flex: 1; }
+  .field select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Inconsolata', monospace; font-size: 12px;
+    padding: 4px 7px; border-radius: 2px; cursor: pointer;
+  }
+  .field select:focus { outline: none; border-color: var(--accent); }
+  .param-hint { font-size: 10px; color: var(--dim); margin-top: -4px; margin-bottom: 6px; }
+
+  .panel-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding: 14px 12px;
+  }
+
+  .panel-scroll::-webkit-scrollbar { width: 4px; }
+  .panel-scroll::-webkit-scrollbar-track { background: var(--bg); }
+  .panel-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .section {
+    margin-bottom: 18px;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-bottom: 5px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    width: 100%;
+    padding: 6px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Inconsolata', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 2px;
+    text-align: left;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .btn:hover { background: rgba(200,160,96,0.1); border-color: var(--accent); color: var(--accent); }
+  .btn.active { background: rgba(200,160,96,0.15); border-color: var(--accent); color: var(--accent); }
+  .btn.danger { border-color: var(--border); color: var(--dim); }
+  .btn.danger:hover { border-color: var(--danger); color: var(--danger); background: rgba(192,96,64,0.08); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 7px 10px;
+    background: rgba(200,160,96,0.12);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.12s;
+    margin-bottom: 5px;
+  }
+  .btn-primary:hover { background: rgba(200,160,96,0.25); }
+
+  /* ── Terrain buttons ── */
+  .terrain-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 7px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Inconsolata', monospace;
+    font-size: 11px;
+    color: var(--text);
+    text-align: left;
+    margin-bottom: 2px;
+    transition: background 0.1s, border-color 0.1s;
+    justify-content: space-between;
+  }
+  .terrain-btn:hover { background: rgba(200,160,96,0.08); }
+  .terrain-btn.active { border-color: var(--accent); background: rgba(200,160,96,0.12); color: var(--accent); }
+
+  .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ── Cell info ── */
+  .cell-info {
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.6;
+    min-height: 42px;
+  }
+  .cell-info .val { color: var(--text); }
+
+  /* ── Import modal ── */
+  #importModal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+    z-index: 9998; display: none; align-items: center; justify-content: center;
+  }
+  #importModal.open { display: flex; }
+  #importModalBox {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 3px; padding: 18px; width: min(90vw, 540px);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  #importModalBox h2 {
+    font-family: 'Cinzel', serif; font-size: 13px; color: var(--accent);
+    letter-spacing: 0.12em; margin: 0;
+  }
+  #importModalBox p {
+    font-size: 11px; color: var(--dim); margin: 0; line-height: 1.5;
+  }
+  #importJsonText {
+    width: 100%; height: 220px; resize: vertical;
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Inconsolata', monospace;
+    font-size: 11px; padding: 8px; border-radius: 2px;
+  }
+  #importJsonText:focus { outline: none; border-color: var(--accent); }
+  #importError {
+    font-size: 11px; color: var(--danger); min-height: 16px;
+    font-family: 'Inconsolata', monospace;
+  }
+  #importModalActions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── Cluster tooltip ── */
+  #clusterTooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(18,18,14,0.93);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Inconsolata', monospace;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+    z-index: 999;
+    display: none;
+  }
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+    font-size: 11px;
+    color: var(--dim);
+  }
+</style>
+</head>
+<body>
+
+<div id="clusterTooltip"></div>
+
+<!-- Import JSON Modal -->
+<div id="importModal">
+  <div id="importModalBox">
+    <h2>⬆ Import Map JSON</h2>
+    <p>Paste the exported map JSON below. The map will be resized to match the imported dimensions and all cells repopulated.</p>
+    <textarea id="importJsonText" placeholder='{ "metadata": { ... }, "map": [ ... ] }'></textarea>
+    <div id="importError"></div>
+    <div id="importModalActions">
+      <button class="btn" id="importCancelBtn" style="width:auto;padding:6px 16px">Cancel</button>
+      <button class="btn-primary" id="importConfirmBtn" style="width:auto;padding:6px 16px">Import Map</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <h1>⚔ Terrain Grid Editor</h1>
+  <span class="header-meta">Each cell = ¼ mile &nbsp;·&nbsp; <span id="gridDimLabel"></span></span>
+  <div class="header-right">
+    <span id="seedLabel" style="font-size:11px;color:var(--dim)"></span>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Grid Canvas -->
+  <div id="grid-wrap">
+    <canvas id="gridCanvas"></canvas>
+  </div>
+
+  <!-- Side Panel -->
+  <div class="panel">
+    <div class="panel-scroll">
+
+      <!-- Controls -->
+      <div class="section">
+        <div class="section-title">Controls</div>
+        <button class="btn-primary" id="regenBtn">↺ Regenerate World</button>
+        <button class="btn-primary" id="copyJsonBtn" style="background:rgba(64,128,232,0.12);border-color:#4080e8;color:#4080e8;">⎘ Copy Map JSON</button>
+        <button class="btn-primary" id="importJsonBtn" style="background:rgba(64,128,232,0.12);border-color:#4080e8;color:#4080e8;">⬆ Import Map JSON</button>
+        <button class="btn-primary" id="copyImgBtn" style="background:rgba(48,192,96,0.10);border-color:#30c060;color:#30c060;">🖼 Copy Map Image</button>
+        <button class="btn-primary" id="copyPromptBtn" style="background:rgba(212,168,32,0.10);border-color:#d4a820;color:#d4a820;">✦ Copy Gemini Prompt</button>
+        <button class="btn danger" id="clearBtn">✕ Clear All Areas</button>
+        <div class="cell-info" id="cellInfo" style="margin-top:8px">Hover a cell to inspect</div>
+      </div>
+
+      <!-- World Parameters -->
+      <div class="section">
+        <div class="section-title">World Parameters</div>
+        <p class="param-hint">Applied on next Regenerate</p>
+
+        <div class="field">
+          <label>Seed (blank = random)</label>
+          <input type="text" id="paramSeed" placeholder="e.g. 42" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Grid Width</label>
+            <input type="number" id="paramGridW" value="56" min="20" max="160" />
+          </div>
+          <div class="field">
+            <label>Grid Height</label>
+            <input type="number" id="paramGridH" value="42" min="20" max="120" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Rivers</label>
+            <input type="number" id="paramRivers" value="3" min="0" max="8" />
+          </div>
+          <div class="field">
+            <label>Supply Clusters</label>
+            <input type="number" id="paramSupply" value="6" min="1" max="12" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Wilderness Clusters</label>
+          <input type="number" id="paramWild" value="8" min="1" max="16" />
+        </div>
+
+        <div class="field">
+          <label>Terrain Roughness</label>
+          <select id="paramRoughness">
+            <option value="smooth">Smooth (gentle rolling)</option>
+            <option value="medium" selected>Medium</option>
+            <option value="rough">Rough (peaks & bogs)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Road Preference</label>
+          <select id="paramRoadPref">
+            <option value="direct">Direct (shortest path)</option>
+            <option value="terrain" selected>Terrain-aware</option>
+            <option value="cautious">Cautious (avoids bad terrain)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Paint Mode -->
+      <div class="section">
+        <div class="section-title">Paint Mode</div>
+        <button class="btn active" data-mode="terrain">🗺 Terrain</button>
+        <button class="btn" data-mode="feature">📍 Features</button>
+      </div>
+
+      <!-- Terrain Selector -->
+      <div class="section" id="terrainSection">
+        <div class="section-title">Terrain Type</div>
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Feature Selector -->
+      <div class="section" id="featureSection" style="display:none">
+        <div class="section-title">Feature Brush</div>
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Legend -->
+      <div class="section">
+        <div class="section-title">Areas Legend</div>
+        <div class="legend-row">🏰 <span>Outpost</span></div>
+        <div class="legend-row" style="font-size:15px;line-height:1">• <span style="font-size:11px">Road</span></div>
+        <div class="legend-row">🌿 <span>Wilderness</span></div>
+        <div class="legend-row">📦 <span>Supply Area</span></div>
+      </div>
+
+      <!-- Faction Legend (populated after generation) -->
+      <div class="section" id="factionLegend" style="display:none">
+        <div class="section-title">Factions</div>
+        <div id="factionLegendRows"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  GRID CONFIGURATION  (resized on regenerate)                 ║
+// ╚══════════════════════════════════════════════════════════════╝
+let GRID_W  = 56;
+let GRID_H  = 42;
+const CELL_PX = 15;   // pixels per cell
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  TERRAIN TYPES                                               ║
+// ╚══════════════════════════════════════════════════════════════╝
+const TERRAIN_TYPES = {
+  bog:               { label: 'Bog',                color: '#5a6628', border: '#6a7830' },
+  caves:             { label: 'Caves',              color: '#38383f', border: '#48484f' },
+  coniferous_forest: { label: 'Coniferous Forest',  color: '#1a4a2a', border: '#225532' },
+  deciduous_forest:  { label: 'Deciduous Forest',   color: '#2d6430', border: '#37743a' },
+  hills:             { label: 'Hills',              color: '#8a7050', border: '#9a8060' },
+  forest_edge:       { label: 'Forest Edge',        color: '#3f7248', border: '#4a8252' },
+  grassland:         { label: 'Grassland',          color: '#5d8e30', border: '#6d9e40' },
+  meadow:            { label: 'Meadow',             color: '#90b855', border: '#a0c865' },
+  lakeshore:         { label: 'Lakeshore',          color: '#5da8c0', border: '#6db8d0' },
+  mountain_outcrops: { label: 'Mountain Outcrops',  color: '#606070', border: '#707080' },
+  mountain_valleys:  { label: 'Mountain Valleys',   color: '#708060', border: '#809070' },
+  mountains:         { label: 'Mountains',          color: '#404858', border: '#505868' },
+  river:             { label: 'River',              color: '#2060a0', border: '#3070b0' },
+  upland_pasture:    { label: 'Upland Pasture',     color: '#80a045', border: '#90b055' },
+  wetland_margins:   { label: 'Wetland Margins',    color: '#3d7a68', border: '#4d8a78' },
+};
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  AREA TYPES                                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+const AREA_TYPES = {
+  outpost:   { label: 'Outpost',     emoji: '🏰' },
+  road:      { label: 'Road',        emoji: '🛤' },
+  wilderness:{ label: 'Wilderness',  emoji: '🌿' },
+  supply:    { label: 'Supply Area', emoji: '📦' },
+};
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  FACTION COLORS  (up to 6 factions)                          ║
+// ╚══════════════════════════════════════════════════════════════╝
+const FACTION_COLORS = [
+  { name: 'Crimson', border: '#e04848', glow: 'rgba(224,72,72,0.55)'   },
+  { name: 'Cobalt',  border: '#4080e8', glow: 'rgba(64,128,232,0.55)'  },
+  { name: 'Emerald', border: '#30c060', glow: 'rgba(48,192,96,0.55)'   },
+  { name: 'Gold',    border: '#d4a820', glow: 'rgba(212,168,32,0.55)'  },
+  { name: 'Violet',  border: '#9848d4', glow: 'rgba(152,72,212,0.55)'  },
+  { name: 'Teal',    border: '#20b8c8', glow: 'rgba(32,184,200,0.55)'  },
+];
+
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║  WORLD GENERATION ALGORITHM  (cluster-based)                         ║
+// ║                                                                      ║
+// ║  Mental model:                                                        ║
+// ║    1. Paint terrain biomes (noise)                                    ║
+// ║    2. Carve rivers                                                    ║
+// ║    3. Place CLUSTERS per faction (outpost / supply)                   ║
+// ║    4. Stitch clusters with A* roads                                   ║
+// ║    5. Place wilderness clusters (neutral)                             ║
+// ║    6. Reconnect any orphaned clusters                                 ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+const WorldGen = {
+
+  // ══════════════════════════════════════════════════════════════
+  //  CFG  — all tunable knobs in one place
+  // ══════════════════════════════════════════════════════════════
+  CFG: {
+    seed: 42,
+
+    // ── Factions (LOCKED TO 3) ────────────────────────────────────
+    // 3 factions, each anchored to one of 3 corners: TL, TR, BL
+    // (4th corner BR is left as neutral wilderness territory)
+
+    // ── Corner zone ───────────────────────────────────────────────
+    // Fraction of grid W/H used as each corner's exclusive zone
+    cornerZoneFrac: 0.32,
+
+    // Four terrain themes shuffled per seed — one assigned per corner
+    cornerThemes: [
+      { name:'Mountains', heightBias: 0.40, moistureBias:-0.20 },
+      { name:'Forest',    heightBias: 0.05, moistureBias: 0.38 },
+      { name:'Wetland',   heightBias:-0.32, moistureBias: 0.44 },
+      { name:'Plains',    heightBias:-0.12, moistureBias:-0.20 },
+    ],
+
+    // Min spacing between any two outpost seeds (primaries or secondaries)
+    outpostMinDist: 8,
+
+    // ── Terrain noise ────────────────────────────────────────────
+    roughness: 'medium',
+    terrainOctavesPresets: {
+      smooth: [{ freq:3,amp:1.0},{freq:6,amp:0.30},{freq:12,amp:0.10}],
+      medium: [{ freq:4,amp:1.0},{freq:9,amp:0.45},{freq:18,amp:0.20}],
+      rough:  [{ freq:5,amp:1.0},{freq:11,amp:0.55},{freq:22,amp:0.30}],
+    },
+    moistureOctaves: [{ freq:5,amp:1.0},{freq:11,amp:0.40}],
+
+    // ── Rivers ───────────────────────────────────────────────────
+    numRivers: 3,
+    riverStartZone: 0.35,
+    numSupply: 6,
+    supplyMinDist: 8,
+    supplySize: { min:6, max:12 },
+    supplyTerrains: new Set(['grassland','meadow','upland_pasture','hills','forest_edge','deciduous_forest']),
+    supplyNearOutpostRadius: 20,
+
+    // ── Wilderness clusters ───────────────────────────────────────
+    numWilderness: 8,
+    wildernessMinDist: 10,
+    wildernessSize: { min:18, max:40 },
+    wildernessTerrains: new Set(['coniferous_forest','deciduous_forest','bog','wetland_margins',
+                                  'mountain_valleys','caves','wildlife','mountain_outcrops','mountains']),
+    wildernessMinDistFromOutpost: 10,
+
+    // ── Roads (A*) ────────────────────────────────────────────────
+    // roadPref preset: 'direct' | 'terrain' | 'cautious'
+    roadPref: 'terrain',
+    roadTerrainCostPresets: {
+      direct: {
+        grassland:1.0,meadow:1.0,upland_pasture:1.0,forest_edge:1.0,hills:1.0,
+        wildlife:1.0,deciduous_forest:1.0,coniferous_forest:1.0,bog:1.0,
+        wetland_margins:1.0,byproduct:1.0,mountain_valleys:1.0,mountain_outcrops:1.0,
+        mountains:1.0,caves:1.0,river:1.0,lakeshore:1.0,
+      },
+      terrain: {
+        grassland:1.0,meadow:1.0,upland_pasture:1.2,forest_edge:1.6,hills:2.0,
+        wildlife:1.8,deciduous_forest:2.4,coniferous_forest:2.8,bog:3.5,
+        wetland_margins:3.2,byproduct:2.2,mountain_valleys:3.5,mountain_outcrops:5.0,
+        mountains:7.0,caves:6.0,river:2.8,lakeshore:2.6,
+      },
+      cautious: {
+        grassland:1.0,meadow:1.0,upland_pasture:1.3,forest_edge:2.2,hills:2.8,
+        wildlife:2.5,deciduous_forest:3.5,coniferous_forest:4.0,bog:8.0,
+        wetland_margins:7.0,byproduct:3.0,mountain_valleys:5.0,mountain_outcrops:9.0,
+        mountains:14.0,caves:10.0,river:5.0,lakeshore:4.0,
+      },
+    },
+    roadOnRoadCost: 0.3,
+    outpostConnectNearest: 2,
+    supplyConnectToOutpost: true,
+    wildernessConnect: true,
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  ENTRY POINT
+  // ══════════════════════════════════════════════════════════════
+  generate(grid) {
+    const NUM_FACTIONS = 3; // LOCKED — do not change
+    const rng         = this._rng(this.CFG.seed);
+    const octaves     = this.CFG.terrainOctavesPresets[this.CFG.roughness] || this.CFG.terrainOctavesPresets.medium;
+    const heightMap   = this._valueNoise(rng, octaves);
+    const moistureMap = this._valueNoise(this._rng(this.CFG.seed + 0x5f3759df), this.CFG.moistureOctaves);
+
+    // Shuffle which theme goes to which corner (0=TL, 1=TR, 2=BL, 3=BR)
+    const themeOrder = [0,1,2,3];
+    for (let i = 3; i > 0; i--) {
+      const j = Math.floor(rng() * (i+1));
+      [themeOrder[i], themeOrder[j]] = [themeOrder[j], themeOrder[i]];
+    }
+    const cornerThemes = themeOrder.map(ti => this.CFG.cornerThemes[ti]);
+
+    this._stageCornerBias(heightMap, moistureMap, cornerThemes);
+    this._stageBiomes(grid, heightMap, moistureMap);
+    this._stageRivers(grid, heightMap, rng);
+
+    // ── 3 factions, corners 0=TL, 1=TR, 2=BL; corner 3=BR is neutral ──
+    const allOutpostClusters = [];
+    const allSupplyClusters  = [];
+    const allPrevSeeds       = [];  // seeds across all factions for spacing
+
+    for (let fi = 0; fi < NUM_FACTIONS; fi++) {
+      const outpostClusters = this._stageOutposts(grid, rng, fi, fi, allPrevSeeds);
+      for (const c of outpostClusters) allPrevSeeds.push(c.seed);
+      allOutpostClusters.push(...outpostClusters);
+
+      const supplyClusters = this._stageClusters(
+        grid, rng, 'supply', fi,
+        this.CFG.numSupply, this.CFG.supplyMinDist, this.CFG.supplySize,
+        this.CFG.supplyTerrains, outpostClusters, heightMap, null, allOutpostClusters
+      );
+      allSupplyClusters.push(...supplyClusters);
+
+      this._stageRoads(grid, outpostClusters, supplyClusters, [], fi);
+    }
+
+    const wildernessClusters = this._stageClusters(
+      grid, rng, 'wilderness', null,
+      this.CFG.numWilderness, this.CFG.wildernessMinDist, this.CFG.wildernessSize,
+      this.CFG.wildernessTerrains, null, heightMap, allOutpostClusters, null
+    );
+    this._stageRoads(grid, [], allSupplyClusters.concat(allOutpostClusters), wildernessClusters, null);
+
+    const allClusters = [...allOutpostClusters, ...allSupplyClusters, ...wildernessClusters];
+    this._stageReconnect(grid, allClusters);
+
+    const primaryOutposts = allOutpostClusters.filter(c => c.primary);
+    this._stageCrossFactionConnect(grid, primaryOutposts, allClusters);
+
+    // ── Stamp cluster index on every cell and build name registry ──
+    this._buildClusterRegistry(grid, allClusters);
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  CLUSTER REGISTRY
+  //  Assigns a numeric clusterIdx to every cluster cell and builds
+  //  WORLD_CLUSTERS map (idx → name).  Index 0 = unclustered.
+  // ══════════════════════════════════════════════════════════════
+  _buildClusterRegistry(grid, allClusters) {
+    WORLD_CLUSTERS = { 0: 'none' };
+
+    allClusters.forEach((cluster, i) => {
+      const idx = i + 1;
+      // Stamp cells
+      for (const k of cluster.cells) {
+        const cx=k%GRID_W, cy=Math.floor(k/GRID_W);
+        grid[cy][cx].clusterIdx = idx;
+      }
+      // Name the cluster
+      WORLD_CLUSTERS[idx] = this._nameCluster(cluster, grid);
+    });
+  },
+
+  _nameCluster(cluster, grid) {
+    // Only name by faction if this is actually an outpost cluster
+    const k0 = [...cluster.cells][0];
+    const firstCell = k0 !== undefined ? grid[Math.floor(k0/GRID_W)][k0%GRID_W] : null;
+    const isOutpost = firstCell?.area === 'outpost';
+
+    if (isOutpost && cluster.faction !== null && cluster.faction !== undefined) {
+      const fc = FACTION_COLORS[cluster.faction];
+      const label = fc ? fc.name : `Faction ${cluster.faction}`;
+      return cluster.primary ? `${label} — Main Outpost` : `${label} — Outpost`;
+    }
+
+    // Supply/wilderness — tally terrain and generate a descriptive name
+    const counts = {};
+    for (const k of cluster.cells) {
+      const t = grid[Math.floor(k/GRID_W)][k%GRID_W]?.terrain;
+      if (t) counts[t] = (counts[t]||0) + 1;
+    }
+    const dominant = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    const top    = dominant[0]?.[0] || 'unknown';
+    const second = dominant[1]?.[0];
+
+    const areaType = firstCell?.area ?? null;
+
+    const ADJ = {
+      bog:'Boggy', caves:'Cave', coniferous_forest:'Pine', deciduous_forest:'Oak',
+      hills:'Rolling', forest_edge:'Woodland', grassland:'Green', meadow:'Meadow',
+      lakeshore:'Lakeside', mountain_outcrops:'Rocky', mountain_valleys:'Valley',
+      mountains:'Mountain', river:'Riverside', upland_pasture:'Pasture',
+      wetland_margins:'Marsh',
+    };
+    const SUFFIX = { supply:'Depot', wilderness:'Wilds' };
+
+    const adj    = ADJ[top] || 'Remote';
+    const suffix = SUFFIX[areaType] || 'Area';
+
+    if (second && second !== top && counts[second] >= cluster.cells.size * 0.25) {
+      const adj2 = ADJ[second];
+      return adj2 ? `${adj} ${adj2} ${suffix}` : `${adj} ${suffix}`;
+    }
+    return `${adj} ${suffix}`;
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  CORNER BIAS
+  //  Smoothly pushes height/moisture at each corner toward a theme.
+  //  Falloff is cosine (smooth-step) from corner to map center.
+  // ══════════════════════════════════════════════════════════════
+  _stageCornerBias(heightMap, moistureMap, cornerThemes) {
+    // corners: 0=TL, 1=TR, 2=BL, 3=BR
+    const corners = [
+      { ax:0,         ay:0         },
+      { ax:GRID_W-1,  ay:0         },
+      { ax:0,         ay:GRID_H-1  },
+      { ax:GRID_W-1,  ay:GRID_H-1  },
+    ];
+    const maxDist = Math.hypot(GRID_W, GRID_H);
+
+    for (let y = 0; y < GRID_H; y++) {
+      for (let x = 0; x < GRID_W; x++) {
+        let hBias = 0, mBias = 0;
+        for (let ci = 0; ci < 4; ci++) {
+          const theme = cornerThemes[ci];
+          const d = Math.hypot(x - corners[ci].ax, y - corners[ci].ay);
+          // strength = 1 at the corner, 0 at maxDist/2, stays 0 beyond that
+          const t = Math.max(0, 1 - (d / (maxDist * 0.6)));
+          const strength = t * t * (3 - 2*t);  // smoothstep
+          hBias += theme.heightBias   * strength;
+          mBias += theme.moistureBias * strength;
+        }
+        heightMap[y][x]   = Math.max(0, Math.min(1, heightMap[y][x]   + hBias));
+        moistureMap[y][x] = Math.max(0, Math.min(1, moistureMap[y][x] + mBias));
+      }
+    }
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  OUTPOST PLACEMENT  (deterministic, guaranteed)
+  //
+  //  PRIMARY (1 per faction)
+  //    • Stamped as a solid W×H rectangle (4≤W≤6, 4≤H≤6)
+  //    • Must land inside the faction's corner zone
+  //    • All valid anchor positions in the zone are enumerated,
+  //      shuffled, and tried in order — no random-sample failures
+  //    • Only skips positions where any cell would be water
+  //
+  //  SECONDARIES (exactly 3 per faction, always placed)
+  //    • Tier 0: 2×2 rectangle
+  //    • Tier 1: 2×1 or 1×2 (orientation random)
+  //    • Tier 2: 1×1
+  //    • Placed anywhere on the map with outpostMinDist spacing
+  // ══════════════════════════════════════════════════════════════
+  _stageOutposts(grid, rng, factionIdx, cornerIdx, allPrevSeeds) {
+    const WATER = new Set(['river','lakeshore']);
+    const dirs4 = [[0,1],[1,0],[-1,0],[0,-1]];
+    const clusters = [];
+    const usedSeeds = [...allPrevSeeds];  // grows as we place
+    const minDist = this.CFG.outpostMinDist;
+
+    // ── Corner zone bounds (corners: 0=TL, 1=TR, 2=BL) ────────────
+    const zw = Math.floor(GRID_W * this.CFG.cornerZoneFrac);
+    const zh = Math.floor(GRID_H * this.CFG.cornerZoneFrac);
+    const ZONES = [
+      { x0:2,           x1:zw,         y0:2,           y1:zh         }, // TL
+      { x0:GRID_W-zw-1, x1:GRID_W-3,   y0:2,           y1:zh         }, // TR
+      { x0:2,           x1:zw,         y0:GRID_H-zh-1, y1:GRID_H-3   }, // BL
+    ];
+    const zone = ZONES[cornerIdx] || ZONES[0];
+
+    // ── Helper: stamp a W×H rect anchored at (ax, ay) ──────────────
+    const stampRect = (ax, ay, w, h) => {
+      if (ax+w > GRID_W || ay+h > GRID_H || ax < 0 || ay < 0) return null;
+      const cells = new Set();
+      for (let dy = 0; dy < h; dy++)
+        for (let dx = 0; dx < w; dx++)
+          cells.add((ay+dy)*GRID_W + (ax+dx));
+      return cells;
+    };
+
+    const hasWater = (cells) => {
+      for (const k of cells) {
+        const cx=k%GRID_W, cy=Math.floor(k/GRID_W);
+        if (WATER.has(grid[cy][cx].terrain)) return true;
+      }
+      return false;
+    };
+
+    const commitCluster = (ax, ay, cells, primary) => {
+      for (const k of cells) {
+        const cx=k%GRID_W, cy=Math.floor(k/GRID_W);
+        grid[cy][cx].area    = 'outpost';
+        grid[cy][cx].faction = factionIdx;
+      }
+      const edgeCells = [];
+      for (const k of cells) {
+        const cx=k%GRID_W, cy=Math.floor(k/GRID_W);
+        if (dirs4.some(([dx,dy])=>{
+          const nx=cx+dx, ny=cy+dy;
+          return nx>=0&&nx<GRID_W&&ny>=0&&ny<GRID_H&&!cells.has(ny*GRID_W+nx);
+        })) edgeCells.push([cx,cy]);
+      }
+      clusters.push({ seed:[ax,ay], cells, edgeCells, primary, faction:factionIdx });
+      usedSeeds.push([ax,ay]);
+    };
+
+    // ── PRIMARY: enumerate all valid anchor positions in zone ───────
+    const pw = 4 + Math.floor(rng() * 3);  // 4, 5, or 6
+    const ph = 4 + Math.floor(rng() * 3);
+
+    const candidates = [];
+    for (let ay = zone.y0; ay <= zone.y1 - ph + 1; ay++)
+      for (let ax = zone.x0; ax <= zone.x1 - pw + 1; ax++)
+        candidates.push([ax, ay]);
+
+    // Fisher-Yates shuffle
+    for (let i = candidates.length-1; i > 0; i--) {
+      const j = Math.floor(rng() * (i+1));
+      [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+    }
+
+    let primaryPlaced = false;
+    for (const [ax, ay] of candidates) {
+      const cells = stampRect(ax, ay, pw, ph);
+      if (!cells) continue;
+      if (hasWater(cells)) continue;
+      commitCluster(ax, ay, cells, true);
+      primaryPlaced = true;
+      break;
+    }
+
+    // Fallback: if every candidate had water, just pick the first one anyway
+    if (!primaryPlaced && candidates.length > 0) {
+      const [ax, ay] = candidates[0];
+      const cells = stampRect(ax, ay, pw, ph);
+      if (cells) commitCluster(ax, ay, cells, true);
+    }
+
+    // ── SECONDARIES: exactly 3, guaranteed placement ────────────────
+    const SEC_SIZES = [
+      { w:2, h:2 },
+      { w: (rng()<0.5 ? 2 : 1), h: (rng()<0.5 ? 1 : 2) },  // 2×1 or 1×2
+      { w:1, h:1 },
+    ];
+    // Fix orientation for tier 1 (the randomization above needs to be stable)
+    SEC_SIZES[1] = rng() < 0.5 ? { w:2, h:1 } : { w:1, h:2 };
+
+    for (const { w, h } of SEC_SIZES) {
+      let placed = false;
+      let attempts = 0;
+      while (!placed && attempts < 2000) {
+        attempts++;
+        const ax = 2 + Math.floor(rng() * (GRID_W - w - 3));
+        const ay = 2 + Math.floor(rng() * (GRID_H - h - 3));
+        if (usedSeeds.some(([ox,oy]) => Math.hypot(ax-ox,ay-oy) < minDist)) continue;
+        const cells = stampRect(ax, ay, w, h);
+        if (!cells) continue;
+        if (hasWater(cells)) continue;
+        commitCluster(ax, ay, cells, false);
+        placed = true;
+      }
+      // Fallback: relax spacing to half if still not placed
+      if (!placed) {
+        for (let attempts2 = 0; attempts2 < 2000; attempts2++) {
+          const ax = 2 + Math.floor(rng() * (GRID_W - w - 3));
+          const ay = 2 + Math.floor(rng() * (GRID_H - h - 3));
+          if (usedSeeds.some(([ox,oy]) => Math.hypot(ax-ox,ay-oy) < minDist/2)) continue;
+          const cells = stampRect(ax, ay, w, h);
+          if (!cells) continue;
+          commitCluster(ax, ay, cells, false);
+          break;
+        }
+      }
+    }
+
+    return clusters;
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  STAGE 7 — cross-faction primary outpost connectivity
+  //
+  //  Guarantees every primary outpost can reach every other
+  //  primary outpost through the existing road network.
+  //
+  //  Strategy (never direct outpost→outpost):
+  //   1. BFS over road cells from each primary's adjacent road cells
+  //   2. If two primaries share the same road-connected component,
+  //      they're already linked — skip.
+  //   3. If not: find the road cell nearest to each primary, then
+  //      A* road-cell to road-cell.  The path runs entirely through
+  //      open terrain, never cutting through cluster interiors.
+  // ══════════════════════════════════════════════════════════════
+  _stageCrossFactionConnect(grid, primaryOutposts, allClusters) {
+    if (primaryOutposts.length < 2) return;
+
+    const dirs4 = [[0,1],[1,0],[-1,0],[0,-1]];
+    const costMap = this.CFG.roadTerrainCostPresets[this.CFG.roadPref]
+                 || this.CFG.roadTerrainCostPresets.terrain;
+
+    const clusterCells = new Set();
+    for (const c of allClusters) for (const k of c.cells) clusterCells.add(k);
+
+    // ── Build road adjacency graph via BFS flood-fill ──────────────
+    // Returns the component ID map: roadKey → componentId
+    const componentOf = new Map();
+    let nextComp = 0;
+    for (let y = 0; y < GRID_H; y++) {
+      for (let x = 0; x < GRID_W; x++) {
+        if (grid[y][x].area !== 'road') continue;
+        const k = y * GRID_W + x;
+        if (componentOf.has(k)) continue;
+        // BFS flood
+        const queue = [k];
+        componentOf.set(k, nextComp);
+        for (let qi = 0; qi < queue.length; qi++) {
+          const cur = queue[qi];
+          const cx = cur % GRID_W, cy = Math.floor(cur / GRID_W);
+          for (const [dx,dy] of dirs4) {
+            const nx=cx+dx, ny=cy+dy;
+            if (nx<0||nx>=GRID_W||ny<0||ny>=GRID_H) continue;
+            const nk = ny*GRID_W+nx;
+            if (grid[ny][nx].area !== 'road') continue;
+            if (componentOf.has(nk)) continue;
+            componentOf.set(nk, nextComp);
+            queue.push(nk);
+          }
+        }
+        nextComp++;
+      }
+    }
+
+    // ── Helper: nearest road cell key to a cluster's edge ──────────
+    const nearestRoadToCluster = (cluster) => {
+      let bestDist = Infinity, bestKey = -1, bestEdge = null;
+      for (const [ex,ey] of cluster.edgeCells) {
+        for (const [compK] of componentOf) {
+          const rx = compK % GRID_W, ry = Math.floor(compK / GRID_W);
+          const d = Math.abs(ex-rx) + Math.abs(ey-ry);
+          if (d < bestDist) { bestDist=d; bestKey=compK; bestEdge=[ex,ey]; }
+        }
+      }
+      return { roadKey: bestKey, edgeCell: bestEdge };
+    };
+
+    // ── For each pair of primaries, check connectivity ──────────────
+    for (let i = 0; i < primaryOutposts.length; i++) {
+      for (let j = i+1; j < primaryOutposts.length; j++) {
+        const pA = primaryOutposts[i];
+        const pB = primaryOutposts[j];
+
+        const { roadKey: rkA, edgeCell: ecA } = nearestRoadToCluster(pA);
+        const { roadKey: rkB, edgeCell: ecB } = nearestRoadToCluster(pB);
+
+        if (rkA === -1 || rkB === -1) continue;
+
+        // Already in the same road component? Done.
+        if (componentOf.get(rkA) === componentOf.get(rkB)) continue;
+
+        // Route from nearest-road-to-A  →  nearest-road-to-B
+        // We A* between the two road anchor cells, not the outpost edges,
+        // so the road never "touches" the outpost clusters directly.
+        const key  = (x,y) => y*GRID_W+x;
+        const rx2  = rkB % GRID_W, ry2 = Math.floor(rkB / GRID_W);
+        const rx1  = rkA % GRID_W, ry1 = Math.floor(rkA / GRID_W);
+        const heur = (x,y) => Math.abs(x-rx2)+Math.abs(y-ry2);
+
+        const open = new Map(), gMap = new Map(), prev = new Map();
+        gMap.set(rkA, 0); open.set(rkA, heur(rx1, ry1));
+
+        let bridgePath = [];
+        outer: while (open.size > 0) {
+          let curK=-1, curF=Infinity;
+          for (const [k,f] of open) { if (f<curF){curF=f;curK=k;} }
+          open.delete(curK);
+          if (curK === rkB) {
+            let c=curK;
+            while(c!==undefined){bridgePath.push(c);c=prev.get(c);}
+            break outer;
+          }
+          const cx=curK%GRID_W, cy=Math.floor(curK/GRID_W);
+          for (const [dx,dy] of dirs4) {
+            const nx=cx+dx, ny=cy+dy;
+            if (nx<0||nx>=GRID_W||ny<0||ny>=GRID_H) continue;
+            const nk = key(nx,ny);
+            // Never cut through cluster interiors
+            if (clusterCells.has(nk)) continue;
+            const isRoad = grid[ny][nx].area === 'road';
+            const t = grid[ny][nx].terrain||'grassland';
+            const stepCost = isRoad ? this.CFG.roadOnRoadCost : (costMap[t]??2.0);
+            const g = (gMap.get(curK)||0) + stepCost;
+            if (!gMap.has(nk)||g<gMap.get(nk)) {
+              gMap.set(nk,g); prev.set(nk,curK);
+              open.set(nk,g+heur(nx,ny));
+            }
+          }
+        }
+
+        // Paint the bridge and merge components
+        const newComp = componentOf.get(rkA);
+        const oldComp = componentOf.get(rkB);
+        for (const pk of bridgePath) {
+          const px=pk%GRID_W, py=Math.floor(pk/GRID_W);
+          if (!grid[py][px].area) grid[py][px].area = 'road';
+          // Merge both components into newComp
+          if (componentOf.get(pk) === oldComp || !componentOf.has(pk)) {
+            componentOf.set(pk, newComp);
+          }
+        }
+        // Re-label all oldComp cells so future pairs see the merge
+        for (const [k,v] of componentOf) {
+          if (v === oldComp) componentOf.set(k, newComp);
+        }
+      }
+    }
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  STAGE 6 — reconnect orphaned clusters
+  //
+  //  After all roads are placed, scan every cluster's edge cells.
+  //  If none of them are adjacent to an existing road cell, the
+  //  cluster is "orphaned".  For each orphan, find the nearest
+  //  road cell on the entire grid and run A* to it, bypassing the
+  //  MIN_ROAD_LEN check so even short stubs get drawn.
+  // ══════════════════════════════════════════════════════════════
+  _stageReconnect(grid, allClusters) {
+    const dirs4 = [[0,1],[1,0],[-1,0],[0,-1]];
+    const costMap = this.CFG.roadTerrainCostPresets[this.CFG.roadPref] || this.CFG.roadTerrainCostPresets.terrain;
+
+    // Collect all current road cell keys
+    const roadCellKeys = new Set();
+    for (let y = 0; y < GRID_H; y++)
+      for (let x = 0; x < GRID_W; x++)
+        if (grid[y][x].area === 'road') roadCellKeys.add(y * GRID_W + x);
+
+    if (roadCellKeys.size === 0) return;  // no roads exist yet, nothing to connect to
+
+    // Build a clusterCells blocker (same as _stageRoads)
+    const clusterCells = new Set();
+    for (const c of allClusters) for (const k of c.cells) clusterCells.add(k);
+
+    for (const cluster of allClusters) {
+      // Is any edge cell already adjacent to a road?
+      const connected = cluster.edgeCells.some(([ex, ey]) =>
+        dirs4.some(([dx, dy]) => {
+          const nx = ex+dx, ny = ey+dy;
+          return nx>=0 && nx<GRID_W && ny>=0 && ny<GRID_H
+              && grid[ny][nx].area === 'road';
+        })
+      );
+      if (connected) continue;
+
+      // Find closest road cell to any edge cell (Manhattan, fast scan)
+      let bestDist = Infinity, bestRoadKey = -1, bestEdge = null;
+      for (const [ex, ey] of cluster.edgeCells) {
+        for (const rk of roadCellKeys) {
+          const rx = rk % GRID_W, ry = Math.floor(rk / GRID_W);
+          const d = Math.abs(ex - rx) + Math.abs(ey - ry);
+          if (d < bestDist) { bestDist = d; bestRoadKey = rk; bestEdge = [ex, ey]; }
+        }
+      }
+      if (bestRoadKey === -1 || !bestEdge) continue;
+
+      const [ex, ey] = bestEdge;
+      const rx = bestRoadKey % GRID_W, ry = Math.floor(bestRoadKey / GRID_W);
+
+      // A* from edge cell to nearest road cell, no min-length requirement
+      const key  = (x,y) => y*GRID_W+x;
+      const heur = (x,y) => Math.abs(x-rx)+Math.abs(y-ry);
+      const open = new Map(), gMap = new Map(), prev = new Map();
+      const s = key(ex, ey);
+      gMap.set(s, 0); open.set(s, heur(ex, ey));
+
+      let found = false;
+      while (open.size > 0) {
+        let curK=-1, curF=Infinity;
+        for (const [k,f] of open) { if (f<curF){curF=f;curK=k;} }
+        open.delete(curK);
+        const cx=curK%GRID_W, cy=Math.floor(curK/GRID_W);
+        if (grid[cy][cx].area === 'road') {
+          // Reconstruct path
+          const path=[]; let c=curK;
+          while(c!==undefined){path.push(c);c=prev.get(c);}
+          for (const pk of path) {
+            const px=pk%GRID_W, py=Math.floor(pk/GRID_W);
+            if (!grid[py][px].area) {
+              grid[py][px].area = 'road';
+              roadCellKeys.add(pk);
+            }
+          }
+          found = true; break;
+        }
+        for (const [dx,dy] of dirs4) {
+          const nx=cx+dx, ny=cy+dy;
+          if (nx<0||nx>=GRID_W||ny<0||ny>=GRID_H) continue;
+          const nk = key(nx,ny);
+          if (clusterCells.has(nk) && nk !== bestRoadKey) continue;
+          const t = grid[ny][nx].terrain||'grassland';
+          const stepCost = roadCellKeys.has(nk) ? this.CFG.roadOnRoadCost : (costMap[t]??2.0);
+          const g = (gMap.get(curK)||0) + stepCost;
+          if (!gMap.has(nk)||g<gMap.get(nk)) {
+            gMap.set(nk,g); prev.set(nk,curK);
+            open.set(nk,g+heur(nx,ny));
+          }
+        }
+      }
+    }
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  STAGE 1 — biomes
+  // ══════════════════════════════════════════════════════════════
+  _stageBiomes(grid, h, m) {
+    for (let y = 0; y < GRID_H; y++)
+      for (let x = 0; x < GRID_W; x++)
+        grid[y][x].terrain = this._biome(h[y][x], m[y][x]);
+  },
+
+  _biome(h, m) {
+    if (h > 0.74) return m > 0.52 ? 'mountain_valleys' : 'mountains';
+    if (h > 0.60) {
+      if (m > 0.62) return 'coniferous_forest';
+      if (m > 0.42) return 'hills';
+      return 'mountain_outcrops';
+    }
+    if (h > 0.45) {
+      if (m > 0.68) return 'deciduous_forest';
+      if (m > 0.48) return 'forest_edge';
+      if (m > 0.32) return 'upland_pasture';
+      return 'hills';
+    }
+    if (h > 0.30) {
+      if (m > 0.72) return 'bog';
+      if (m > 0.55) return 'deciduous_forest';
+      if (m > 0.40) return 'grassland';
+      return 'meadow';
+    }
+    if (m > 0.68) return 'wetland_margins';
+    if (m > 0.52) return 'bog';
+    if (m > 0.38) return 'grassland';
+    return 'meadow';
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  STAGE 2 — rivers
+  // ══════════════════════════════════════════════════════════════
+  _stageRivers(grid, h, rng) {
+    const dirs8 = [[0,1],[1,0],[-1,0],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]];
+    for (let r = 0; r < this.CFG.numRivers; r++) {
+      let x = Math.floor(rng() * GRID_W);
+      let y = Math.floor(rng() * GRID_H * this.CFG.riverStartZone);
+      const visited = new Set();
+      for (let step = 0; step < GRID_W * 2; step++) {
+        if (x<0||x>=GRID_W||y<0||y>=GRID_H) break;
+        const k = y*GRID_W+x;
+        if (visited.has(k)) break;
+        visited.add(k);
+        grid[y][x].terrain = 'river';
+        let bestH = h[y][x], bx=-1, by=-1;
+        for (const [dx,dy] of dirs8) {
+          const nx=x+dx, ny=y+dy;
+          if (nx>=0&&nx<GRID_W&&ny>=0&&ny<GRID_H&&h[ny][nx]<bestH) { bestH=h[ny][nx];bx=nx;by=ny; }
+        }
+        if (bx===-1) break;
+        x=bx; y=by;
+        for (const [dx,dy] of dirs8) {
+          const nx=x+dx,ny=y+dy;
+          if (nx>=0&&nx<GRID_W&&ny>=0&&ny<GRID_H&&grid[ny][nx].terrain!=='river')
+            if (rng()<0.25) grid[ny][nx].terrain='lakeshore';
+        }
+      }
+    }
+  },
+
+  // factionIdx: null = neutral (wilderness), number = owned by that faction
+  // nearSeeds:  if set, seeds are biased toward these cluster seeds
+  // excludeNear: clusters whose seeds define an exclusion radius
+  // allGlobalSeeds: additional clusters to enforce spacing from (cross-faction)
+  _stageClusters(grid, rng, areaType, factionIdx, count, minDist, sizeRange, goodTerrains, nearSeeds, heightMap, excludeNear, allGlobalSeeds) {
+    const clusters = [];
+    // Combine own-type seeds + global seeds for spacing checks
+    const spacingSeeds = (allGlobalSeeds || []).map(c => c.seed);
+    let attempts = 0;
+
+    while (clusters.length < count && attempts < 1200) {
+      attempts++;
+
+      let sx, sy;
+      if (nearSeeds && nearSeeds.length > 0) {
+        const anchor = nearSeeds[Math.floor(rng() * nearSeeds.length)].seed;
+        const angle  = rng() * Math.PI * 2;
+        const dist   = 6 + Math.floor(rng() * this.CFG.supplyNearOutpostRadius);
+        sx = Math.round(anchor[0] + Math.cos(angle) * dist);
+        sy = Math.round(anchor[1] + Math.sin(angle) * dist);
+      } else {
+        sx = 3 + Math.floor(rng() * (GRID_W - 6));
+        sy = 3 + Math.floor(rng() * (GRID_H - 6));
+      }
+
+      if (sx<0||sx>=GRID_W||sy<0||sy>=GRID_H) continue;
+      if (!goodTerrains.has(grid[sy][sx].terrain)) continue;
+      if (clusters.some(c => Math.hypot(sx-c.seed[0],sy-c.seed[1]) < minDist)) continue;
+      if (spacingSeeds.some(([ox,oy]) => Math.hypot(sx-ox,sy-oy) < minDist)) continue;
+      if (excludeNear && excludeNear.some(c => Math.hypot(sx-c.seed[0],sy-c.seed[1]) < this.CFG.wildernessMinDistFromOutpost)) continue;
+
+      const targetSize = sizeRange.min + Math.floor(rng() * (sizeRange.max - sizeRange.min + 1));
+      const cells      = new Set();
+      const frontier   = [[sx, sy]];
+      const dirs4      = [[0,1],[1,0],[-1,0],[0,-1]];
+
+      while (cells.size < targetSize && frontier.length > 0) {
+        const fi = Math.floor(rng() * frontier.length);
+        const [fx, fy] = frontier.splice(fi, 1)[0];
+        const fk = fy * GRID_W + fx;
+        if (cells.has(fk)) continue;
+        if (fx<0||fx>=GRID_W||fy<0||fy>=GRID_H) continue;
+        if (!goodTerrains.has(grid[fy][fx].terrain) && rng() > 0.25) continue;
+        cells.add(fk);
+        for (const [dx,dy] of dirs4) frontier.push([fx+dx, fy+dy]);
+      }
+
+      if (cells.size < sizeRange.min) continue;
+
+      for (const k of cells) {
+        const cx=k%GRID_W, cy=Math.floor(k/GRID_W);
+        grid[cy][cx].area    = areaType;
+        // faction is NOT stored on supply/wilderness — only outpost cells carry faction
+      }
+
+      const edgeCells = [];
+      for (const k of cells) {
+        const cx=k%GRID_W, cy=Math.floor(k/GRID_W);
+        if (dirs4.some(([dx,dy])=>{const nx=cx+dx,ny=cy+dy;return nx>=0&&nx<GRID_W&&ny>=0&&ny<GRID_H&&!cells.has(ny*GRID_W+nx);}))
+          edgeCells.push([cx,cy]);
+      }
+
+      clusters.push({ seed:[sx,sy], cells, edgeCells, faction:factionIdx });
+    }
+
+    return clusters;
+  },
+
+  // factionIdx: null for neutral roads (wilderness), number for faction-owned roads
+  _stageRoads(grid, outposts, supplies, wilds, factionIdx) {
+    const roadSet = new Set();
+    const MIN_ROAD_LEN = 5;
+
+    const clusterCells = new Set();
+    for (const c of [...outposts, ...supplies, ...wilds])
+      for (const k of c.cells) clusterCells.add(k);
+
+    const connect = (clusterA, clusterB) => {
+      let bestDist = Infinity, ax=-1, ay=-1, bx=-1, by=-1;
+      for (const [ex,ey] of clusterA.edgeCells) {
+        for (const [fx,fy] of clusterB.edgeCells) {
+          const d = Math.hypot(ex-fx, ey-fy);
+          if (d < bestDist) { bestDist=d; ax=ex;ay=ey;bx=fx;by=fy; }
+        }
+      }
+      if (ax===-1) return;
+      const path = this._aStar(ax, ay, bx, by, grid, roadSet, clusterCells);
+      if (path.length < MIN_ROAD_LEN) return;
+      for (const k of path) {
+        roadSet.add(k);
+        const cx=k%GRID_W, cy=Math.floor(k/GRID_W);
+        if (!grid[cy][cx].area) {
+          grid[cy][cx].area = 'road';
+          // roads carry no faction — only outpost cells do
+        }
+      }
+    };
+
+    const N = this.CFG.outpostConnectNearest;
+    for (let i = 0; i < outposts.length; i++) {
+      const me = outposts[i];
+      const sorted = outposts.filter((_,j)=>j!==i)
+        .sort((a,b)=>Math.hypot(...a.seed.map((v,k)=>v-me.seed[k]))-Math.hypot(...b.seed.map((v,k)=>v-me.seed[k])));
+      sorted.slice(0,N).forEach(nb => connect(me, nb));
+    }
+
+    if (this.CFG.supplyConnectToOutpost) {
+      for (const s of supplies) {
+        const nearest = [...outposts].sort((a,b)=>Math.hypot(...a.seed.map((v,k)=>v-s.seed[k]))-Math.hypot(...b.seed.map((v,k)=>v-s.seed[k])))[0];
+        if (nearest) connect(s, nearest);
+      }
+    }
+
+    if (this.CFG.wildernessConnect) {
+      const anchors = [...supplies, ...outposts];
+      for (const w of wilds) {
+        if (!anchors.length) continue;
+        const nearest = [...anchors].sort((a,b)=>Math.hypot(...a.seed.map((v,k)=>v-w.seed[k]))-Math.hypot(...b.seed.map((v,k)=>v-w.seed[k])))[0];
+        connect(w, nearest);
+      }
+    }
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  A* pathfinding — uses CFG.roadPref cost preset
+  // ══════════════════════════════════════════════════════════════
+  _aStar(x0, y0, x1, y1, grid, roadSet, clusterCells) {
+    const key     = (x,y) => y*GRID_W+x;
+    const heur    = (x,y) => Math.abs(x-x1)+Math.abs(y-y1);
+    const costMap = this.CFG.roadTerrainCostPresets[this.CFG.roadPref] || this.CFG.roadTerrainCostPresets.terrain;
+    const destKey = key(x1,y1);
+    const open  = new Map();
+    const gMap  = new Map();
+    const prev  = new Map();
+    const s = key(x0,y0);
+    gMap.set(s,0);
+    open.set(s,heur(x0,y0));
+    const dirs = [[0,1],[1,0],[-1,0],[0,-1]];
+
+    while (open.size > 0) {
+      let curK=-1, curF=Infinity;
+      for (const [k,f] of open) { if (f<curF){curF=f;curK=k;} }
+      open.delete(curK);
+      const cx=curK%GRID_W, cy=Math.floor(curK/GRID_W);
+      if (cx===x1&&cy===y1) {
+        const path=[]; let c=curK;
+        while(c!==undefined){path.push(c);c=prev.get(c);}
+        return path;
+      }
+      for (const [dx,dy] of dirs) {
+        const nx=cx+dx, ny=cy+dy;
+        if (nx<0||nx>=GRID_W||ny<0||ny>=GRID_H) continue;
+        const nk = key(nx,ny);
+        // Block passage through cluster interiors (allow only the exact destination)
+        if (clusterCells && clusterCells.has(nk) && nk !== destKey) continue;
+        const t  = grid[ny][nx].terrain||'grassland';
+        const stepCost = roadSet.has(nk) ? this.CFG.roadOnRoadCost : (costMap[t]??2.0);
+        const g = (gMap.get(curK)||0) + stepCost;
+        if (!gMap.has(nk)||g<gMap.get(nk)) {
+          gMap.set(nk,g); prev.set(nk,curK);
+          open.set(nk,g+heur(nx,ny));
+        }
+      }
+    }
+    return [];
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  HELPERS
+  // ══════════════════════════════════════════════════════════════
+  _rng(seed) {
+    let s = seed>>>0;
+    return ()=>{ s=Math.imul(s^(s>>>16),0x45d9f3b);s=Math.imul(s^(s>>>16),0x45d9f3b);s^=(s>>>16);return(s>>>0)/0xffffffff; };
+  },
+
+  _valueNoise(rng, octaves) {
+    const gGrids = octaves.map(({freq})=>{
+      const g=[];
+      for(let r=0;r<=freq+1;r++){g[r]=[];for(let c=0;c<=freq+1;c++)g[r][c]=rng();}
+      return g;
+    });
+    const smooth=t=>t*t*(3-2*t);
+    const lerp=(a,b,t)=>a+t*(b-a);
+    const bilerp=(g,nx,ny)=>{
+      const ix=Math.floor(nx),iy=Math.floor(ny),fx=nx-ix,fy=ny-iy;
+      const r0=g[iy]||g[g.length-1],r1=g[iy+1]||r0;
+      const a=r0[ix]??0,b=r0[ix+1]??a,c=r1[ix]??a,d=r1[ix+1]??b;
+      return lerp(lerp(a,b,smooth(fx)),lerp(c,d,smooth(fx)),smooth(fy));
+    };
+    const map=[];
+    let gMin=Infinity,gMax=-Infinity;
+    for(let y=0;y<GRID_H;y++){
+      map[y]=[];
+      for(let x=0;x<GRID_W;x++){
+        let v=0,w=0;
+        octaves.forEach(({freq,amp},i)=>{v+=bilerp(gGrids[i],x/GRID_W*freq,y/GRID_H*freq)*amp;w+=amp;});
+        map[y][x]=v/w;
+        if(map[y][x]<gMin)gMin=map[y][x];
+        if(map[y][x]>gMax)gMax=map[y][x];
+      }
+    }
+    const range=gMax-gMin||1;
+    for(let y=0;y<GRID_H;y++)
+      for(let x=0;x<GRID_W;x++)
+        map[y][x]=(map[y][x]-gMin)/range;
+    return map;
+  },
+};
+// ╚══════════════════════════════════════════════════════════════════════╝
+// END OF WORLD GENERATION
+// ╚══════════════════════════════════════════════════════════════════════╝
+
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  CLUSTER REGISTRY  (rebuilt each generation)                 ║
+// ╚══════════════════════════════════════════════════════════════╝
+// Index 0 = "none" (unclustered cells)
+// Populated by WorldGen.generate() via _buildClusterRegistry()
+let WORLD_CLUSTERS = { 0: 'none' };
+
+let grid          = [];
+let selectedTerrain = 'grassland';
+// selectedFeature encodes both area type and faction:
+//   'clear'      → wipe area + faction
+//   'road'       → area=road, faction=null
+//   'wilderness' → area=wilderness, faction=null
+//   'supply'     → area=supply, faction=null
+//   'outpost_0'  → area=outpost, faction=0
+//   'outpost_1'  → area=outpost, faction=1
+//   'outpost_2'  → area=outpost, faction=2
+let selectedFeature = 'road';
+let paintMode       = 'terrain';
+let isPainting      = false;
+
+function initGrid() {
+  grid = Array.from({ length: GRID_H }, () =>
+    Array.from({ length: GRID_W }, () => ({ terrain: null, area: null, faction: null, clusterIdx: 0 }))
+  );
+}
+
+function regenerate() {
+  const seedInput = (document.getElementById('paramSeed')?.value || '').trim();
+  WorldGen.CFG.seed = seedInput !== '' ? (parseInt(seedInput) || 0) : Math.floor(Math.random() * 0xffffff);
+  document.getElementById('seedLabel').textContent = `seed: ${WorldGen.CFG.seed}`;
+
+  GRID_W = Math.max(20, Math.min(160, parseInt(document.getElementById('paramGridW')?.value) || 56));
+  GRID_H = Math.max(20, Math.min(120, parseInt(document.getElementById('paramGridH')?.value) || 42));
+  canvas.width  = GRID_W * CELL_PX;
+  canvas.height = GRID_H * CELL_PX;
+  document.getElementById('gridDimLabel').textContent =
+    `${GRID_W}×${GRID_H} — ${(GRID_W*0.25).toFixed(1)}×${(GRID_H*0.25).toFixed(1)} mi`;
+
+  WorldGen.CFG.numRivers     = Math.max(0, parseInt(document.getElementById('paramRivers')?.value)    || 3);
+  WorldGen.CFG.numSupply     = Math.max(1, parseInt(document.getElementById('paramSupply')?.value)    || 6);
+  WorldGen.CFG.numWilderness = Math.max(1, parseInt(document.getElementById('paramWild')?.value)      || 8);
+  WorldGen.CFG.roughness     = document.getElementById('paramRoughness')?.value || 'medium';
+  WorldGen.CFG.roadPref      = document.getElementById('paramRoadPref')?.value  || 'terrain';
+
+  initGrid();
+  WorldGen.generate(grid);
+  render();
+  buildFactionLegend();
+  refreshTerrainStats();
+}
+
+
+
+function buildFactionLegend() {
+  const wrap = document.getElementById('factionLegend');
+  const rows = document.getElementById('factionLegendRows');
+  rows.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const fc = FACTION_COLORS[i];
+    const row = document.createElement('div');
+    row.className = 'legend-row';
+    row.style.marginBottom = '5px';
+    row.innerHTML = `
+      <span style="display:inline-block;width:10px;height:10px;border-radius:1px;
+        background:${fc.border};margin-right:5px;flex-shrink:0"></span>
+      <span style="color:${fc.border};font-size:11px">${fc.name} (${['TL','TR','BL'][i]})</span>`;
+    rows.appendChild(row);
+  }
+  wrap.style.display = '';
+}
+
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  CANVAS RENDERING                                            ║
+// ╚══════════════════════════════════════════════════════════════╝
+const canvas = document.getElementById('gridCanvas');
+const ctx    = canvas.getContext('2d');
+// canvas.width/height and gridDimLabel are set inside regenerate()
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let y = 0; y < GRID_H; y++)
+    for (let x = 0; x < GRID_W; x++)
+      drawCell(x, y);
+}
+
+function drawCell(x, y) {
+  const cell = grid[y][x];
+  const px   = x * CELL_PX;
+  const py   = y * CELL_PX;
+
+  // Terrain fill
+  const t = TERRAIN_TYPES[cell.terrain];
+  ctx.fillStyle = t ? t.color : '#1a1a14';
+  ctx.fillRect(px, py, CELL_PX, CELL_PX);
+
+  // Border: faction color only on outpost cells; everything else gets subtle terrain border
+  if (cell.area === 'outpost' && cell.faction !== null && cell.faction !== undefined && FACTION_COLORS[cell.faction]) {
+    ctx.strokeStyle = FACTION_COLORS[cell.faction].border;
+    ctx.lineWidth = 1.4;
+  } else {
+    ctx.strokeStyle = t ? t.border : '#2a2a20';
+    ctx.lineWidth = 0.4;
+  }
+  ctx.strokeRect(px + 0.7, py + 0.7, CELL_PX - 1.4, CELL_PX - 1.4);
+
+  // Area rendering
+  if (cell.area === 'road') {
+    ctx.font = `bold ${Math.floor(CELL_PX * 0.55)}px monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(240, 210, 140, 0.85)';
+    ctx.fillText('•', px + CELL_PX / 2, py + CELL_PX / 2 + 0.5);
+  } else if (cell.area && AREA_TYPES[cell.area]) {
+    const fontSize = Math.floor(CELL_PX * 0.68);
+    ctx.font = `${fontSize}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(AREA_TYPES[cell.area].emoji, px + CELL_PX / 2, py + CELL_PX / 2 + 1);
+  }
+}
+
+function highlightCell(x, y) {
+  const px = x * CELL_PX, py = y * CELL_PX;
+  ctx.strokeStyle = 'rgba(255,220,120,0.7)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(px + 0.75, py + 0.75, CELL_PX - 1.5, CELL_PX - 1.5);
+}
+
+let lastHighlight = null;
+function setHighlight(x, y) {
+  if (lastHighlight) {
+    const [lx, ly] = lastHighlight;
+    drawCell(lx, ly);
+  }
+  if (x !== null) {
+    highlightCell(x, y);
+    lastHighlight = [x, y];
+  } else {
+    lastHighlight = null;
+  }
+}
+
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  INTERACTION                                                 ║
+// ╚══════════════════════════════════════════════════════════════╝
+function cellAt(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left)  / CELL_PX);
+  const y = Math.floor((e.clientY - rect.top) / CELL_PX);
+  return (x >= 0 && x < GRID_W && y >= 0 && y < GRID_H) ? [x, y] : null;
+}
+
+function paint(x, y) {
+  const cell = grid[y][x];
+  if (paintMode === 'terrain') {
+    cell.terrain = selectedTerrain;
+  } else if (paintMode === 'feature') {
+    if (selectedFeature === 'clear') {
+      cell.area    = null;
+      cell.faction = null;
+    } else if (selectedFeature === 'road') {
+      cell.area    = 'road';
+      cell.faction = null;
+    } else if (selectedFeature === 'wilderness') {
+      cell.area    = 'wilderness';
+      cell.faction = null;
+    } else if (selectedFeature === 'supply') {
+      cell.area    = 'supply';
+      cell.faction = null;
+    } else if (selectedFeature.startsWith('outpost_')) {
+      const fi     = parseInt(selectedFeature.split('_')[1]);
+      cell.area    = 'outpost';
+      cell.faction = fi;
+    }
+  }
+  drawCell(x, y);
+  setHighlight(x, y);
+}
+
+canvas.addEventListener('mousedown', e => {
+  isPainting = true;
+  const pos = cellAt(e);
+  if (pos) paint(...pos);
+});
+canvas.addEventListener('mousemove', e => {
+  const pos = cellAt(e);
+  if (!pos) { setHighlight(null); updateCellInfo(null); hideTooltip(); return; }
+  const [x, y] = pos;
+  updateCellInfo(x, y);
+  showTooltip(x, y, e);
+  setHighlight(x, y);
+  if (isPainting) paint(x, y);
+});
+canvas.addEventListener('mouseup',    () => isPainting = false);
+canvas.addEventListener('mouseleave', () => { isPainting = false; setHighlight(null); hideTooltip(); });
+
+// ── Cluster tooltip ──────────────────────────────────────────────
+const tooltip = document.getElementById('clusterTooltip');
+
+function showTooltip(x, y, e) {
+  const cell = grid[y][x];
+  const name = WORLD_CLUSTERS[cell.clusterIdx];
+  if (!name || name === 'none' || !cell.clusterIdx) { hideTooltip(); return; }
+  tooltip.textContent = name;
+  tooltip.style.display = 'block';
+  tooltip.style.left = (e.clientX + 14) + 'px';
+  tooltip.style.top  = (e.clientY - 10) + 'px';
+}
+
+function hideTooltip() {
+  tooltip.style.display = 'none';
+}
+
+function updateCellInfo(x, y) {
+  const el = document.getElementById('cellInfo');
+  if (x === null) { el.innerHTML = 'Hover a cell to inspect'; return; }
+  const cell    = grid[y][x];
+  const terrain = cell.terrain ? (TERRAIN_TYPES[cell.terrain]?.label ?? cell.terrain) : '–';
+  const area    = cell.area    ? (AREA_TYPES[cell.area]?.label    ?? cell.area)    : '–';
+  const fc      = (cell.faction !== null && cell.faction !== undefined)
+                  ? FACTION_COLORS[cell.faction]?.name ?? `Faction ${cell.faction}`
+                  : '–';
+  const fcColor = (cell.faction !== null && cell.faction !== undefined)
+                  ? FACTION_COLORS[cell.faction]?.border : null;
+  const fcHtml  = fcColor
+    ? `<span class="val" style="color:${fcColor}">⚑ ${fc}</span>`
+    : `<span class="val">⚑ ${fc}</span>`;
+  const clusterName = cell.clusterIdx ? (WORLD_CLUSTERS[cell.clusterIdx] || '–') : '–';
+  el.innerHTML = `[${x}, ${y}] &nbsp; ${(x*0.25).toFixed(2)}, ${(y*0.25).toFixed(2)} mi<br>
+    <span class="val">⛰ ${terrain}</span><br>
+    <span class="val">📍 ${area}</span><br>${fcHtml}<br>
+    <span class="val" style="color:var(--dim)">◈ ${clusterName}</span>`;
+}
+
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  UI SETUP                                                    ║
+// ╚══════════════════════════════════════════════════════════════╝
+function buildTerrainPanel() {
+  const section = document.getElementById('terrainSection');
+  section.innerHTML = '<div class="section-title">Terrain Type</div>';
+  for (const [key, t] of Object.entries(TERRAIN_TYPES)) {
+    const btn = document.createElement('button');
+    btn.className = 'terrain-btn' + (key === selectedTerrain ? ' active' : '');
+    btn.dataset.terrain = key;
+    btn.innerHTML = `
+      <span class="swatch" style="background:${t.color}"></span>
+      <span style="flex:1">${t.label}</span>
+      <span class="terrain-pct" data-terrain-pct="${key}" style="font-size:10px;color:var(--dim);margin-left:4px"></span>`;
+    btn.addEventListener('click', () => {
+      selectedTerrain = key;
+      document.querySelectorAll('.terrain-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+    section.appendChild(btn);
+  }
+}
+
+function refreshTerrainStats() {
+  const counts = {};
+  let total = 0;
+  for (let y = 0; y < GRID_H; y++) {
+    for (let x = 0; x < GRID_W; x++) {
+      const t = grid[y][x].terrain;
+      if (t) { counts[t] = (counts[t] || 0) + 1; total++; }
+    }
+  }
+  for (const key of Object.keys(TERRAIN_TYPES)) {
+    const el = document.querySelector(`[data-terrain-pct="${key}"]`);
+    if (!el) continue;
+    const pct = total > 0 ? ((counts[key] || 0) / total * 100) : 0;
+    el.textContent = pct >= 0.5 ? pct.toFixed(1) + '%' : '';
+  }
+}
+
+function buildFeaturePanel() {
+  const section = document.getElementById('featureSection');
+  section.innerHTML = '<div class="section-title">Feature Brush</div>';
+
+  const features = [
+    { key:'clear',       label:'✕ Clear Cell',              color: null,    style: 'danger' },
+    { key:'road',        label:'• Road',                    color: null,    style: '' },
+    { key:'wilderness',  label:'🌿 Wilderness',             color: null,    style: '' },
+    { key:'supply',      label:'📦 Supply Area',            color: null,    style: '' },
+    { key:'outpost_0',   label:'🏰 Outpost — ' + FACTION_COLORS[0].name, color: FACTION_COLORS[0].border, style: '' },
+    { key:'outpost_1',   label:'🏰 Outpost — ' + FACTION_COLORS[1].name, color: FACTION_COLORS[1].border, style: '' },
+    { key:'outpost_2',   label:'🏰 Outpost — ' + FACTION_COLORS[2].name, color: FACTION_COLORS[2].border, style: '' },
+  ];
+
+  for (const f of features) {
+    const btn = document.createElement('button');
+    btn.className = 'btn' + (f.key === selectedFeature ? ' active' : '') + (f.style ? ' ' + f.style : '');
+    btn.dataset.featureKey = f.key;
+    btn.style.cssText = f.color
+      ? `border-color:${f.color}40; color:${f.color};`
+      : '';
+    if (f.key === selectedFeature && f.color) {
+      btn.style.cssText = `border-color:${f.color}; color:${f.color}; background:${f.color}18;`;
+    }
+    btn.innerHTML = f.label;
+    btn.addEventListener('click', () => {
+      selectedFeature = f.key;
+      section.querySelectorAll('[data-feature-key]').forEach(b => {
+        const fc2 = features.find(x => x.key === b.dataset.featureKey);
+        b.className = 'btn' + (fc2?.style ? ' ' + fc2.style : '');
+        b.style.cssText = fc2?.color ? `border-color:${fc2.color}40; color:${fc2.color};` : '';
+      });
+      btn.className = 'btn active' + (f.style ? ' ' + f.style : '');
+      btn.style.cssText = f.color
+        ? `border-color:${f.color}; color:${f.color}; background:${f.color}18;`
+        : '';
+    });
+    section.appendChild(btn);
+  }
+}
+
+// Mode buttons
+document.querySelectorAll('[data-mode]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    paintMode = btn.dataset.mode;
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('terrainSection').style.display = (paintMode === 'terrain') ? '' : 'none';
+    document.getElementById('featureSection').style.display  = (paintMode === 'feature')  ? '' : 'none';
+  });
+});
+
+// ── Clipboard helpers ────────────────────────────────────────────
+// Works on file://, http, and https.
+function copyTextToClipboard(text, btn) {
+  const flash = orig => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1800);
+  };
+  const orig = btn.textContent;
+
+  // Modern API (secure contexts)
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => flash(orig)).catch(() => legacyCopy());
+  } else {
+    legacyCopy();
+  }
+
+  function legacyCopy() {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      const ok = document.execCommand('copy');
+      if (ok) flash(orig); else showCopyDialog(text);
+    } catch {
+      showCopyDialog(text);
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+}
+
+// Last-resort: show text in a dialog the user can Ctrl+A / Cmd+A → Copy
+function showCopyDialog(text) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center';
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#1c1c16;border:1px solid #3a3a28;padding:16px;border-radius:4px;width:min(90vw,600px);display:flex;flex-direction:column;gap:10px';
+  const msg = document.createElement('div');
+  msg.style.cssText = 'font-family:Inconsolata,monospace;font-size:12px;color:#d4c9a0';
+  msg.textContent = 'Auto-copy failed. Select all below and copy manually:';
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'width:100%;height:200px;background:#12120e;color:#d4c9a0;border:1px solid #3a3a28;font-family:Inconsolata,monospace;font-size:11px;padding:8px;resize:vertical';
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕ Close';
+  closeBtn.style.cssText = 'align-self:flex-end;padding:5px 12px;background:transparent;border:1px solid #3a3a28;color:#d4c9a0;font-family:Inconsolata,monospace;cursor:pointer;border-radius:2px';
+  closeBtn.onclick = () => document.body.removeChild(overlay);
+  box.append(msg, ta, closeBtn);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  ta.focus(); ta.select();
+}
+
+// ── Copy Map Image ───────────────────────────────────────────────
+function copyMapImage() {
+  const dataURL = canvas.toDataURL('image/png');
+
+  // Build a full-screen overlay with the image — user right-clicks → Copy Image
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed; inset:0; background:rgba(0,0,0,0.82);
+    z-index:9999; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px;
+    cursor:pointer;
+  `;
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-family:Inconsolata,monospace;font-size:13px;color:#d4c9a0;letter-spacing:0.05em;';
+  hint.textContent = 'Right-click the image → Copy Image   ·   Click anywhere to close';
+
+  const img = document.createElement('img');
+  img.src = dataURL;
+  img.style.cssText = `
+    max-width: 90vw; max-height: 80vh;
+    image-rendering: pixelated;
+    border: 1px solid #3a3a28;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+    cursor: default;
+  `;
+  img.onclick = e => e.stopPropagation();  // clicking the image doesn't close
+
+  overlay.append(hint, img);
+  overlay.onclick = () => document.body.removeChild(overlay);
+  document.body.appendChild(overlay);
+}
+
+document.getElementById('copyImgBtn').addEventListener('click', copyMapImage);
+
+// ── Copy Gemini Prompt ───────────────────────────────────────────
+function copyGeminiPrompt() {
+  const btn = document.getElementById('copyPromptBtn');
+
+  const hexToRgb = h => {
+    const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
+    return `rgb(${r},${g},${b})`;
+  };
+
+  const terrainLines = Object.entries(TERRAIN_TYPES)
+    .map(([, t]) => `  • ${t.label}: ${hexToRgb(t.color)}`)
+    .join('\n');
+
+  const widthMi  = (GRID_W * 0.25).toFixed(1);
+  const heightMi = (GRID_H * 0.25).toFixed(1);
+
+  const namedClusters = Object.entries(WORLD_CLUSTERS)
+    .filter(([idx, name]) => idx !== '0' && name !== 'none')
+    .map(([, name]) => `  • ${name}`)
+    .join('\n') || '  (none)';
+
+  const prompt =
+`You are a master fantasy cartographer. I am attaching a procedurally generated grid map image. Your task is to produce an exceptional hand-drawn-style fantasy map illustration that is spatially faithful to the grid.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MAP READING GUIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SCALE
+${GRID_W} × ${GRID_H} cells — each cell = ¼ mile. Total area: ~${widthMi} × ${heightMi} miles.
+
+TERRAIN COLORS (solid cell fill)
+${terrainLines}
+
+FEATURE SYMBOLS (overlaid on terrain)
+  • 🏰  Outpost — fortified settlement
+  • •   Road — travelled path (centered dot)
+  • 🌿  Wilderness — untamed natural region
+  • 📦  Supply Area — resource depot or farmstead
+
+FACTION TERRITORIES (outpost cell border color)
+  • ${FACTION_COLORS[0].name} Faction — border color ${FACTION_COLORS[0].border} — anchored in the TOP-LEFT corner. Primary outpost is 4–6 cells wide.
+  • ${FACTION_COLORS[1].name} Faction — border color ${FACTION_COLORS[1].border} — anchored in the TOP-RIGHT corner.
+  • ${FACTION_COLORS[2].name} Faction — border color ${FACTION_COLORS[2].border} — anchored in the BOTTOM-LEFT corner.
+  Each faction also has three smaller secondary outposts (2×2, 2×1, 1×1) scattered across the map.
+
+NAMED LOCATIONS (label these on your map)
+${namedClusters}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ILLUSTRATION REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. SPATIAL FIDELITY — preserve every terrain region, road, outpost, and cluster in its correct position relative to the grid. Do not invent geography that isn't there.
+
+2. STYLE — classic parchment fantasy cartography. Think Tolkien's hand-drawn Middle-earth maps, early D&D campaign settings, or Patrick Stutzman's illustrated atlas work. Ink lines, watercolor washes, stippling, and hatch shading.
+
+3. TERRAIN SYMBOLS — replace flat color blocks with illustrated symbols appropriate to each terrain:
+   - Mountains/outcrops → jagged inked peaks with hatched shadow sides
+   - Coniferous/deciduous forest → clusters of stylized pine or oak trees
+   - Bog/wetland → ink reed tufts, standing water patches
+   - Grassland/meadow/pasture → fine grass-hatch strokes
+   - Caves → dark mouth openings in hillsides
+   - Rivers/lakeshore → fluid blue-ink lines with ripple marks
+   - Hills → rounded bumps with contour hatching
+
+4. ROADS — render as worn dirt tracks with thin double-line strokes and subtle texture, connecting all outposts and supply areas exactly as shown.
+
+5. FACTION FEEL — give each faction's corner territory a distinct atmosphere:
+   - ${FACTION_COLORS[0].name} Faction: aggressive, military architecture, cleared land, fortified roads
+   - ${FACTION_COLORS[1].name} Faction: scholarly or maritime, organized, structured
+   - ${FACTION_COLORS[2].name} Faction: ancient, overgrown, mysterious, nature-integrated
+
+6. LABELS — calligraphic place names for every named location listed above. Main outpost names in bold serif caps. Wilderness/supply areas in smaller italic script. Add a title banner at the top.
+
+7. CARTOGRAPHIC DETAILS — include: compass rose (top-right or bottom-right), decorative border (knotwork, runic, or rope motif), small legend panel, scale bar, and subtle parchment aging (foxing spots, vignette darkening at edges, faded ink).
+
+8. LIGHTING & DEPTH — imply soft top-left illumination. Mountain peaks catch light on their left faces; forests cast subtle shadow. Roads have slight embossing.
+
+Produce this as a single cohesive illustration as if it were the opening map of a beloved fantasy novel.`;
+
+  copyTextToClipboard(prompt, btn);
+}
+
+document.getElementById('copyPromptBtn').addEventListener('click', copyGeminiPrompt);
+
+// ── Import Map JSON ──────────────────────────────────────────────
+const importModal   = document.getElementById('importModal');
+const importTextarea= document.getElementById('importJsonText');
+const importError   = document.getElementById('importError');
+
+function openImportModal() {
+  importTextarea.value = '';
+  importError.textContent = '';
+  importModal.classList.add('open');
+  setTimeout(() => importTextarea.focus(), 50);
+}
+
+function closeImportModal() {
+  importModal.classList.remove('open');
+}
+
+function importMapJSON() {
+  importError.textContent = '';
+  let data;
+  try {
+    data = JSON.parse(importTextarea.value.trim());
+  } catch (e) {
+    importError.textContent = '✕ Invalid JSON — ' + e.message;
+    return;
+  }
+
+  // ── Validate required fields ──────────────────────────────────
+  if (!data.metadata || !data.map || !Array.isArray(data.map)) {
+    importError.textContent = '✕ Missing required fields: metadata and map array.';
+    return;
+  }
+  const { width, height, seed } = data.metadata;
+  if (!width || !height || width < 4 || height < 4) {
+    importError.textContent = '✕ metadata.width and metadata.height must be ≥ 4.';
+    return;
+  }
+
+  // ── Build reverse legend maps ─────────────────────────────────
+  // terrain: index → terrain key
+  const terrainLeg  = data.legends?.terrain  || {};
+  const featureLeg  = data.legends?.features || {};
+  const clusterLeg  = data.clusters          || {};
+
+  // ── Resize grid ───────────────────────────────────────────────
+  GRID_W = Math.max(4, Math.min(160, width));
+  GRID_H = Math.max(4, Math.min(120, height));
+  canvas.width  = GRID_W * CELL_PX;
+  canvas.height = GRID_H * CELL_PX;
+  document.getElementById('gridDimLabel').textContent =
+    `${GRID_W}×${GRID_H} — ${(GRID_W*0.25).toFixed(1)}×${(GRID_H*0.25).toFixed(1)} mi`;
+
+  // ── Update CFG metadata ───────────────────────────────────────
+  if (seed !== undefined) {
+    WorldGen.CFG.seed = seed;
+    document.getElementById('seedLabel').textContent = `seed: ${seed}`;
+    const seedEl = document.getElementById('paramSeed');
+    if (seedEl) seedEl.value = seed;
+  }
+  if (data.metadata.rivers    !== undefined) WorldGen.CFG.numRivers     = data.metadata.rivers;
+  if (data.metadata.supplyClusters    !== undefined) WorldGen.CFG.numSupply     = data.metadata.supplyClusters;
+  if (data.metadata.wildernessClusters!== undefined) WorldGen.CFG.numWilderness = data.metadata.wildernessClusters;
+
+  // ── Rebuild cluster registry from JSON ────────────────────────
+  WORLD_CLUSTERS = {};
+  for (const [idx, name] of Object.entries(clusterLeg)) {
+    WORLD_CLUSTERS[parseInt(idx)] = name;
+  }
+
+  // ── Feature index → area + faction ───────────────────────────
+  // Determine faction by cluster name matching faction colors
+  const factionNameToIdx = {};
+  FACTION_COLORS.forEach((fc, i) => { factionNameToIdx[fc.name] = i; });
+
+  const featureIdxToArea = {};
+  for (const [idx, name] of Object.entries(featureLeg)) {
+    featureIdxToArea[parseInt(idx)] = name;  // 'road','wilderness','supply','outpost','none'
+  }
+
+  // ── Populate grid ─────────────────────────────────────────────
+  initGrid();
+
+  let errors = 0;
+  for (const cell of data.map) {
+    const [x, y] = cell.coords ?? [];
+    if (x === undefined || y === undefined || x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) continue;
+
+    const gc = grid[y][x];
+
+    // Terrain
+    const terrainKey = terrainLeg[cell.terrain] || terrainLeg[String(cell.terrain)];
+    if (terrainKey && terrainKey !== 'none' && TERRAIN_TYPES[terrainKey]) {
+      gc.terrain = terrainKey;
+    }
+
+    // Feature / area
+    const areaName = featureIdxToArea[cell.feature] || featureIdxToArea[String(cell.feature)] || 'none';
+    if (areaName && areaName !== 'none') gc.area = areaName;
+
+    // Cluster index + faction (from cluster name)
+    const cidx = cell.cluster ?? 0;
+    gc.clusterIdx = cidx;
+    if (cidx && gc.area === 'outpost') {
+      const clusterName = clusterLeg[cidx] || clusterLeg[String(cidx)] || '';
+      for (const [fname, fidx] of Object.entries(factionNameToIdx)) {
+        if (clusterName.startsWith(fname)) { gc.faction = fidx; break; }
+      }
+    }
+  }
+
+  render();
+  refreshTerrainStats();
+  buildFactionLegend();
+  closeImportModal();
+}
+
+document.getElementById('importJsonBtn').addEventListener('click', openImportModal);
+document.getElementById('importCancelBtn').addEventListener('click', closeImportModal);
+document.getElementById('importConfirmBtn').addEventListener('click', importMapJSON);
+// Close on backdrop click
+importModal.addEventListener('click', e => { if (e.target === importModal) closeImportModal(); });
+
+// ── Copy Map JSON ────────────────────────────────────────────────
+function copyMapJSON() {
+  // Build terrain legend (index → key)
+  const terrainKeys = Object.keys(TERRAIN_TYPES);
+  const terrainLegend = { 0: 'none' };
+  terrainKeys.forEach((k, i) => { terrainLegend[i+1] = k; });
+  const terrainToIdx = {};
+  terrainKeys.forEach((k, i) => { terrainToIdx[k] = i+1; });
+
+  // Build feature legend
+  const featureLegend = {
+    0: 'none', 1: 'road', 2: 'wilderness', 3: 'supply', 4: 'outpost'
+  };
+  const areaToIdx = { road:1, wilderness:2, supply:3, outpost:4 };
+
+  // Build map array
+  const mapArr = [];
+  for (let y = 0; y < GRID_H; y++) {
+    for (let x = 0; x < GRID_W; x++) {
+      const cell = grid[y][x];
+      const terrainIdx  = terrainToIdx[cell.terrain]  ?? 0;
+      const featureIdx  = areaToIdx[cell.area]        ?? 0;
+      const clusterIdx  = cell.clusterIdx             ?? 0;
+      // Only emit non-trivial cells to keep the JSON compact
+      if (terrainIdx !== 0 || featureIdx !== 0 || clusterIdx !== 0) {
+        mapArr.push({ coords:[x,y], terrain:terrainIdx, feature:featureIdx, cluster:clusterIdx });
+      }
+    }
+  }
+
+  const out = {
+    metadata: {
+      width:              GRID_W,
+      height:             GRID_H,
+      seed:               WorldGen.CFG.seed,
+      rivers:             WorldGen.CFG.numRivers,
+      supplyClusters:     WorldGen.CFG.numSupply,
+      wildernessClusters: WorldGen.CFG.numWilderness,
+    },
+    legends: {
+      terrain: terrainLegend,
+      features: featureLegend,
+    },
+    clusters: WORLD_CLUSTERS,
+    map: mapArr,
+  };
+
+  copyTextToClipboard(JSON.stringify(out, null, 2), document.getElementById('copyJsonBtn'));
+}
+
+document.getElementById('copyJsonBtn').addEventListener('click', copyMapJSON);
+document.getElementById('regenBtn').addEventListener('click', regenerate);
+document.getElementById('clearBtn').addEventListener('click', () => {
+  for (let y = 0; y < GRID_H; y++)
+    for (let x = 0; x < GRID_W; x++) {
+      grid[y][x].area    = null;
+      grid[y][x].faction = null;
+    }
+  render();
+});
+
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  BOOT                                                        ║
+// ╚══════════════════════════════════════════════════════════════╝
+buildTerrainPanel();
+buildFeaturePanel();
+regenerate();
+</script>
+</body>
+</html>

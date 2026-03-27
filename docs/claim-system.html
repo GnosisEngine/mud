@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Claim System — A Guide for Claimants</title>
+<style>
+  :root {
+    --bg: #0c0b08;
+    --surface: #141210;
+    --surface2: #1c1916;
+    --border: #2c2820;
+    --border2: #3a342c;
+    --gold: #c8a24a;
+    --gold-dim: #7a6028;
+    --gold-faint: #1e1810;
+    --text: #ccc4b0;
+    --text-dim: #7a7060;
+    --text-bright: #e8dfc8;
+    --red: #8b2c2c;
+    --red-bright: #c04040;
+    --red-faint: #1a0e0e;
+    --green: #2a6050;
+    --green-bright: #48a080;
+    --green-faint: #0c1810;
+    --blue: #2a4060;
+    --blue-bright: #5890c0;
+    --blue-faint: #0c1018;
+    --purple: #48386a;
+    --purple-bright: #8870b8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Palatino Linotype', Palatino, Georgia, serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #sidebar-title {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 0 24px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-item:hover { background: var(--surface2); }
+
+  .nav-item.active {
+    border-left-color: var(--gold);
+    background: var(--gold-faint);
+  }
+
+  .nav-num {
+    font-size: 10px;
+    color: var(--gold-dim);
+    font-family: 'Courier New', monospace;
+    padding-top: 3px;
+    min-width: 16px;
+  }
+
+  .nav-item.active .nav-num { color: var(--gold); }
+
+  .nav-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .nav-item.active .nav-label { color: var(--text-bright); }
+
+  /* ── Main ── */
+  #main {
+    flex: 1;
+    max-width: 820px;
+    padding: 48px 56px;
+    overflow-y: auto;
+    height: 100vh;
+  }
+
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+
+  .chapter-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 12px;
+  }
+
+  .chapter h1 {
+    font-size: 32px;
+    font-weight: normal;
+    color: var(--text-bright);
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  .chapter p {
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .chapter p + p { }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+
+  /* ── Visual Panel ── */
+  .visual {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    margin: 28px 0;
+    position: relative;
+  }
+
+  .visual-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 20px;
+  }
+
+  /* ── Command Block ── */
+  .cmd-block {
+    background: #080807;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold-dim);
+    border-radius: 2px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+  }
+
+  .cmd-line { color: var(--text-dim); margin-bottom: 4px; }
+  .cmd-line:last-child { margin-bottom: 0; }
+  .cmd-input { color: var(--gold); }
+  .cmd-output { color: var(--text-dim); font-size: 12px; }
+  .cmd-comment { color: #4a4538; }
+
+  /* ── Insight Box ── */
+  .insight {
+    background: var(--gold-faint);
+    border: 1px solid var(--gold-dim);
+    border-radius: 3px;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .insight-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 8px;
+  }
+
+  .insight p { color: var(--text); margin: 0; font-size: 14px; }
+
+  .danger {
+    background: var(--red-faint);
+    border-color: var(--red);
+  }
+
+  .danger .insight-label { color: var(--red-bright); }
+
+  .safe {
+    background: var(--green-faint);
+    border-color: var(--green);
+  }
+
+  .safe .insight-label { color: var(--green-bright); }
+
+  /* ── Nav Buttons ── */
+  .nav-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-prev {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+  }
+
+  .btn-prev:hover {
+    border-color: var(--text-dim);
+    color: var(--text);
+  }
+
+  .btn-next {
+    background: var(--gold-faint);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+  }
+
+  .btn-next:hover {
+    background: #2a2010;
+    border-color: var(--gold);
+    color: var(--text-bright);
+  }
+
+  /* ── Visualization pieces ── */
+
+  .room-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .room {
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .room.unclaimed {
+    background: var(--surface2);
+    color: var(--text-dim);
+  }
+
+  .room.claimed {
+    background: #0e1a14;
+    border-color: var(--green);
+    color: var(--text);
+  }
+
+  .room.claimed .room-name { color: var(--green-bright); }
+
+  .room.contested {
+    background: #1a0e0e;
+    border-color: var(--red);
+  }
+
+  .room.contested .room-name { color: var(--red-bright); }
+
+  .room-name { font-weight: bold; }
+
+  .room-tax {
+    background: var(--gold-faint);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+  }
+
+  .room-flag {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    display: inline-block;
+  }
+
+  .flag-green { background: var(--green-bright); box-shadow: 0 0 6px var(--green-bright); }
+  .flag-gray { background: var(--text-dim); }
+  .flag-red { background: var(--red-bright); box-shadow: 0 0 6px var(--red-bright); }
+
+  /* Player tokens */
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+  }
+
+  .token {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .token-alice { background: var(--gold-faint); border: 1.5px solid var(--gold); color: var(--gold); }
+  .token-bob { background: var(--blue-faint); border: 1.5px solid var(--blue-bright); color: var(--blue-bright); }
+  .token-carol { background: #1a0a1e; border: 1.5px solid var(--purple-bright); color: var(--purple-bright); }
+  .token-npc { background: #1a1008; border: 1.5px solid #8a6030; color: #8a6030; }
+  .token-watcher { background: #0a0a10; border: 1.5px solid var(--text-dim); color: var(--text-dim); }
+
+  .player-status {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+
+  .player-status .highlight { color: var(--gold); }
+  .player-status .highlight-blue { color: var(--blue-bright); }
+  .player-status .highlight-red { color: var(--red-bright); }
+  .player-status .highlight-green { color: var(--green-bright); }
+  .player-status .highlight-purple { color: var(--purple-bright); }
+
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .flow-node {
+    padding: 8px 14px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .flow-arrow {
+    color: var(--text-dim);
+    padding: 0 8px;
+    font-size: 14px;
+  }
+
+  .flow-node.active-node {
+    background: var(--gold-faint);
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  .flow-node.danger-node {
+    background: var(--red-faint);
+    border-color: var(--red);
+    color: var(--red-bright);
+  }
+
+  .flow-node.safe-node {
+    background: var(--green-faint);
+    border-color: var(--green);
+    color: var(--green-bright);
+  }
+
+  /* Tax math */
+  .math-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+  }
+
+  .math-row:last-child { border-bottom: none; }
+  .math-label { color: var(--text-dim); }
+  .math-value { color: var(--text-bright); }
+  .math-value.gold { color: var(--gold); }
+  .math-value.red { color: var(--red-bright); }
+
+  /* Threat timer animation */
+  @keyframes drain {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+
+  .timer-bar-outer {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 12px 0;
+    overflow: hidden;
+  }
+
+  .timer-bar-inner {
+    height: 100%;
+    background: var(--red-bright);
+    border-radius: 2px;
+    width: 60%;
+    transition: width 0.3s;
+  }
+
+  .timer-bar-inner.animate {
+    animation: drain 8s linear forwards;
+  }
+
+  /* Submitter grid for revolt chapter */
+  .submitter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .submitter-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .submitter-cell .token {
+    width: 34px;
+    height: 34px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .submitter-cell .token:hover {
+    transform: scale(1.1);
+  }
+
+  .submitter-cell .token.defected {
+    background: var(--red-faint);
+    border-color: var(--red-bright);
+    color: var(--red-bright);
+  }
+
+  .submitter-cell .token.revolted {
+    background: var(--blue-faint);
+    border-color: var(--blue-bright);
+    color: var(--blue-bright);
+  }
+
+  .sub-name {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  /* Empire distribution */
+  .distribution-bar {
+    height: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    margin: 8px 0;
+  }
+
+  .dist-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    transition: width 0.5s;
+  }
+
+  /* Tooltip-style hint */
+  .aside {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-style: italic;
+    padding-left: 16px;
+    border-left: 2px solid var(--border2);
+    margin: 16px 0;
+  }
+
+  /* interactive elements */
+  .interactive-hint {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+
+  button.sim-btn {
+    padding: 7px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text-dim);
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+    margin-right: 8px;
+    margin-top: 8px;
+  }
+
+  button.sim-btn:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: var(--gold-faint);
+  }
+
+  button.sim-btn:active {
+    transform: scale(0.98);
+  }
+
+  .status-line {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    min-height: 18px;
+  }
+
+  .status-line .ok { color: var(--green-bright); }
+  .status-line .warn { color: var(--gold); }
+  .status-line .err { color: var(--red-bright); }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div id="sidebar-title">Claimant's Handbook</div>
+  <div class="nav-item active" onclick="goTo(0)">
+    <span class="nav-num">01</span>
+    <span class="nav-label">Staking Your First Claim</span>
+  </div>
+  <div class="nav-item" onclick="goTo(1)">
+    <span class="nav-num">02</span>
+    <span class="nav-label">The Threat</span>
+  </div>
+  <div class="nav-item" onclick="goTo(2)">
+    <span class="nav-num">03</span>
+    <span class="nav-label">Expanding Territory</span>
+  </div>
+  <div class="nav-item" onclick="goTo(3)">
+    <span class="nav-num">04</span>
+    <span class="nav-label">The Vulture Chain</span>
+  </div>
+  <div class="nav-item" onclick="goTo(4)">
+    <span class="nav-num">05</span>
+    <span class="nav-label">Warding Off Revolts</span>
+  </div>
+  <div class="nav-item" onclick="goTo(5)">
+    <span class="nav-num">06</span>
+    <span class="nav-label">Raiders for Hire</span>
+  </div>
+  <div class="nav-item" onclick="goTo(6)">
+    <span class="nav-num">07</span>
+    <span class="nav-label">Building an Empire</span>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- ═══════════════════════════════════════════════════════ CHAPTER 1 -->
+  <section class="chapter active" id="ch0">
+    <div class="chapter-eyebrow">Chapter 01 — The Basics</div>
+    <h1>Staking Your First Claim</h1>
+
+    <p>Supply areas are dangerous places. Resources spawn continuously, which means players and NPCs flood in to extract them. Most people share the space uneasily, each taking what they find. You can do the same — but there's another option.</p>
+
+    <p>When you stand in an unclaimed room, you can declare ownership over it. From that moment, every extractor in your room who submits to you owes you a cut of what they take.</p>
+
+    <div class="cmd-block">
+      <div class="cmd-line cmd-comment"># Standing in Room 7, which is unclaimed</div>
+      <div class="cmd-line cmd-input">&gt; claim 20</div>
+      <div class="cmd-line cmd-output">Room 7 claimed. Tax rate: 20%. Charter slot used: 1.</div>
+    </div>
+
+    <p>The number is your tax rate — a percentage of every resource yield extracted in this room by anyone who has submitted to you. The system collects it automatically, rounding up to the nearest whole number. You set it when you claim. You can claim different rooms at different rates.</p>
+
+    <div class="visual">
+      <div class="visual-label">Room state — before and after</div>
+      <div class="room-grid">
+        <div class="room unclaimed">
+          <span><span class="room-flag flag-gray"></span><span class="room-name">Room 7</span></span>
+          <span style="color:var(--text-dim);font-size:11px">unclaimed</span>
+        </div>
+        <div style="text-align:center;color:var(--text-dim);font-size:12px;font-family:'Courier New',monospace;padding:4px 0">▼ claim 20</div>
+        <div class="room claimed">
+          <span><span class="room-flag flag-green"></span><span class="room-name">Room 7</span></span>
+          <span class="room-tax">20% tax</span>
+        </div>
+      </div>
+
+      <div style="margin-top:20px">
+        <div class="visual-label">What happens when a submitter extracts</div>
+        <div class="math-row">
+          <span class="math-label">Bob extracts</span>
+          <span class="math-value">150 iron ore</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Tax (20%, rounded up)</span>
+          <span class="math-value red">− 30 ore → you</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Bob keeps</span>
+          <span class="math-value">120 ore</span>
+        </div>
+      </div>
+    </div>
+
+    <p>Your claim is only as durable as your presence. The moment you go offline, a five-minute grace timer begins. If you don't return before it expires, every room you've claimed reverts to unclaimed. The timer starts the instant you log out — not after some delay.</p>
+
+    <div class="insight danger">
+      <div class="insight-label">Vulnerability</div>
+      <p>A rival who knows your schedule can simply wait for your grace timer to expire, walk into your rooms, and stake their own claims. Presence isn't just encouraged — it's the entire foundation of ownership.</p>
+    </div>
+
+    <p>A freshly claimed room generates nothing on its own. If nobody is extracting there, you earn nothing. The claim is a tax structure, not a mine — it only produces income when submitters are working.</p>
+
+    <div class="nav-buttons">
+      <button class="btn btn-next" onclick="goTo(1)">next: the threat →</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ CHAPTER 2 -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-eyebrow">Chapter 02 — Enforcement</div>
+    <h1>The Threat</h1>
+
+    <p>Claiming a room doesn't stop people from extracting in it. Anyone can walk in and take resources without submitting. They'll keep 100% of what they take — and you'll see none of it. The claim only matters to people who have agreed to honor it.</p>
+
+    <p>To create that agreement, you issue a threat.</p>
+
+    <div class="cmd-block">
+      <div class="cmd-line cmd-comment"># Bob is in your room, extracting without submitting</div>
+      <div class="cmd-line cmd-input">&gt; threat bob 40</div>
+      <div class="cmd-line cmd-output">Threat issued to Bob. Submission duration: 40 min. Bob has 60 seconds to respond.</div>
+    </div>
+
+    <p>The number is the submission duration — how long Bob would be bound to your tax if he accepts. Maximum is 60 minutes. Bob now has one minute to decide.</p>
+
+    <div class="visual">
+      <div class="visual-label">The 60-second window</div>
+      <div class="interactive-hint">↓ watch the timer drain</div>
+      <div class="player-row">
+        <div class="token token-alice">A</div>
+        <span class="player-status">has threatened <span class="highlight-blue">Bob</span> — waiting</span>
+      </div>
+      <div class="player-row">
+        <div class="token token-bob">B</div>
+        <span class="player-status" id="bob-status">must respond within <span class="highlight-red" id="timer-display">60s</span></span>
+      </div>
+      <div class="timer-bar-outer">
+        <div class="timer-bar-inner" id="threat-timer"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+        <button class="sim-btn" onclick="simThreat('submit')">Bob submits</button>
+        <button class="sim-btn" onclick="simThreat('fight')">Bob fights</button>
+        <button class="sim-btn" onclick="simThreat('flee')">Bob flees</button>
+        <button class="sim-btn" onclick="simThreat('ignore')">Bob ignores</button>
+        <button class="sim-btn" onclick="simThreat('reset')">reset</button>
+      </div>
+      <div class="status-line" id="threat-result"></div>
+    </div>
+
+    <p>Each outcome has a distinct shape:</p>
+
+    <div class="insight safe">
+      <div class="insight-label">Bob Submits</div>
+      <p>Bob is protected from your violence for 40 minutes. He extracts, pays your tax automatically, keeps the rest. You cannot attack him while the submission holds — but he can attack you.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Bob Fights</div>
+      <p>If Bob wins, you drop everything you're carrying and all your claimed rooms transfer to him — including any active submission income. If Bob loses, he drops everything. Your claims remain yours.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Bob Flees</div>
+      <p>Bob escapes without submitting. He keeps everything he extracted. You keep your claims. He can be chased — fleeing is a command in the combat queue, not an instant teleport.</p>
+    </div>
+
+    <div class="insight danger">
+      <div class="insight-label">Bob Ignores (timeout)</div>
+      <p>The threat expires after 60 seconds with no answer. You may re-issue it, or simply kill Bob — nothing prevents you from escalating to violence at this point.</p>
+    </div>
+
+    <p>You can only have one active threat per player at a time. But you can threaten as many different people simultaneously as you want — sweeping through your rooms issuing threats is a viable patrol strategy.</p>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goTo(0)">← back</button>
+      <button class="btn btn-next" onclick="goTo(2)">next: expanding territory →</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ CHAPTER 3 -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-eyebrow">Chapter 03 — Scale</div>
+    <h1>Expanding Your Territory</h1>
+
+    <p>One claimed room produces modest income. The natural instinct is to claim more. You can — as many as you want — but each new room requires a charter slot, purchased with in-game currency. Charters have no hard ceiling. The limits that matter are softer and more dangerous.</p>
+
+    <div class="cmd-block">
+      <div class="cmd-line cmd-input">&gt; claim 25</div>
+      <div class="cmd-line cmd-output">Room 12 claimed. Tax rate: 25%. Charter slot used: 2.</div>
+      <div class="cmd-line" style="height:6px"></div>
+      <div class="cmd-line cmd-input">&gt; claim 15</div>
+      <div class="cmd-line cmd-output">Room 3 claimed. Tax rate: 15%. Charter slot used: 3.</div>
+    </div>
+
+    <p>Each room can carry a different tax rate. A dangerous, high-yield room might justify a higher rate. A quiet room in a low-traffic area might need a lower rate to attract extractors at all. The rates are a set of levers, not a single dial.</p>
+
+    <div class="visual">
+      <div class="visual-label">Three-room territory — sample configuration</div>
+      <div class="room-grid" id="room-grid">
+        <div class="room claimed">
+          <span><span class="room-flag flag-green"></span><span class="room-name">Room 3</span></span>
+          <span class="room-tax">15% tax</span>
+        </div>
+        <div class="room claimed">
+          <span><span class="room-flag flag-green"></span><span class="room-name">Room 7</span></span>
+          <span class="room-tax">20% tax</span>
+        </div>
+        <div class="room claimed">
+          <span><span class="room-flag flag-green"></span><span class="room-name">Room 12</span></span>
+          <span class="room-tax">25% tax</span>
+        </div>
+      </div>
+
+      <div style="margin-top:20px">
+        <div class="visual-label">Projected income — 3 active submitters, 100 ore each</div>
+        <div class="math-row">
+          <span class="math-label">Room 3 (15%)</span>
+          <span class="math-value gold">+15 ore</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Room 7 (20%)</span>
+          <span class="math-value gold">+20 ore</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Room 12 (25%)</span>
+          <span class="math-value gold">+25 ore</span>
+        </div>
+        <div class="math-row" style="border-top: 1px solid var(--border2); margin-top:4px; padding-top: 12px">
+          <span class="math-label">Total per extraction cycle</span>
+          <span class="math-value gold">60 ore</span>
+        </div>
+      </div>
+    </div>
+
+    <p>Each new room multiplies your income — but also multiplies your exposure. More rooms means more people inside your territory. More people means more potential challenges. You need to visit each room to stay aware of what's happening inside it. You cannot monitor everything from a single position.</p>
+
+    <div class="insight">
+      <div class="insight-label">The Patrol Problem</div>
+      <p>A claimant holding ten rooms cannot be in ten places at once. The rooms you aren't standing in are effectively unpatrolled — extractors work them without submitting, and you have no immediate way to know. Income is only realized when you enforce it.</p>
+    </div>
+
+    <p>This is where the system begins to exceed what one person can comfortably manage alone. The rooms scale linearly. The enforcement burden scales faster.</p>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goTo(1)">← back</button>
+      <button class="btn btn-next" onclick="goTo(3)">next: the vulture chain →</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ CHAPTER 4 -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-eyebrow">Chapter 04 — Aggression & Its Costs</div>
+    <h1>The Vulture Chain</h1>
+
+    <p>A common mistake among new claimants: treating violence as a clean solution. Someone won't submit. You escalate to combat. You win. Problem solved.</p>
+
+    <p>Supply areas are not empty. Other players are always nearby — extracting, watching, waiting. When you start a fight, you signal several things at once: your position, your health, your opponent's health, and the fact that your claims are in play.</p>
+
+    <div class="visual">
+      <div class="visual-label">A typical fight — observed</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="player-row">
+          <div class="token token-alice">A</div>
+          <span class="player-status"><span class="highlight">Alice</span> — threatens Bob, escalates to combat</span>
+        </div>
+        <div class="player-row">
+          <div class="token token-bob">B</div>
+          <span class="player-status"><span class="highlight-blue">Bob</span> — fights back, both taking damage</span>
+        </div>
+        <div class="player-row">
+          <div class="token token-watcher">W</div>
+          <span class="player-status" id="vulture-status">??? — standing nearby, waiting</span>
+        </div>
+      </div>
+
+      <div style="margin-top:16px">
+        <button class="sim-btn" onclick="simVulture(1)">both weaken</button>
+        <button class="sim-btn" onclick="simVulture(2)">watcher strikes Alice</button>
+        <button class="sim-btn" onclick="simVulture(3)">watcher strikes Bob</button>
+        <button class="sim-btn" onclick="simVulture(0)">reset</button>
+      </div>
+      <div class="status-line" id="vulture-result"></div>
+    </div>
+
+    <p>The watcher doesn't need to be stronger than either combatant. They just need to be patient. Two players who have been fighting are never at full health. A third party who held back is. The math favors the observer.</p>
+
+    <div class="insight danger">
+      <div class="insight-label">The Chain</div>
+      <p>Watcher kills Alice → inherits all her claims. Bob, also weakened, becomes the next target. Watcher kills Bob → takes any resources Bob was carrying. The watcher fought once, at full strength, against exhausted opponents — and walked away with everything.</p>
+    </div>
+
+    <p>This is not an exploit. It is the intended equilibrium. The vulture chain exists specifically to put a cost on aggression. Before issuing a threat you intend to escalate, you must account for everyone else who can see the fight about to happen.</p>
+
+    <p>The strategic response is not to avoid combat — it's to fight when observers are absent or accounted for. A busy supply area at peak hours is a terrible place for a territorial dispute. A quiet corner room at an off hour is a different calculation entirely.</p>
+
+    <div class="insight">
+      <div class="insight-label">What This Changes</div>
+      <p>A threat is not just a question between you and one person. It's a public signal in a room full of people with their own interests. The decision to escalate is a read of the entire room, not just your opponent.</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goTo(2)">← back</button>
+      <button class="btn btn-next" onclick="goTo(4)">next: warding off revolts →</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ CHAPTER 5 -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-eyebrow">Chapter 05 — The Interior Threat</div>
+    <h1>Warding Off Revolts</h1>
+
+    <p>Your submitters are not your employees. They have submitted because the alternative — fighting or fleeing — cost more than paying your tax. That calculation is not fixed. It changes every time they look at the other submitters in your territory and ask: could we take her?</p>
+
+    <p>The answer is almost certainly yes. A single submitter attacking you violates their submission and marks them as a target — too costly. But ten submitters acting together is a different equation entirely.</p>
+
+    <div class="visual">
+      <div class="visual-label">Your current submitters — click to simulate revolt planning</div>
+      <div class="interactive-hint">click players to toggle revolt participation</div>
+      <div class="submitter-grid" id="submitter-grid"></div>
+      <div class="status-line" id="revolt-status">Idle. No revolt forming.</div>
+      <div style="margin-top:8px">
+        <button class="sim-btn" onclick="simRevolt('defect')">one defects (tips you off)</button>
+        <button class="sim-btn" onclick="simRevolt('reset')">reset</button>
+      </div>
+    </div>
+
+    <p>The revolt is a prisoner's dilemma. Every individual submitter would be better off if the group revolts and succeeds. But any single person who defects — tipping you off, refusing to show up, or selling the plan — exposes everyone else and walks away clean.</p>
+
+    <div class="insight">
+      <div class="insight-label">Your Actual Defense</div>
+      <p>You don't need to be stronger than ten people. You need those ten people to not trust each other enough to coordinate. Keep submitters who don't know each other. Vary tax rates so their interests don't align. Make sure at least some of them have more to lose from your death than to gain.</p>
+    </div>
+
+    <p>There is also the penalty to consider. If a submitter attacks you and you both survive, their immunity is revoked permanently — and their tax obligation remains. They are now marked, vulnerable, and still paying you. A failed revolt attempt is one of the worst positions in the game.</p>
+
+    <div class="insight danger">
+      <div class="insight-label">The Asymmetry</div>
+      <p>Failed revolt: the attacker pays tax, can be killed on sight, and all other participants are exposed. Successful revolt: claims transfer to whoever lands the killing blow — not split among the group. Coordination is hard. The reward is concentrated. The downside is severe and personal.</p>
+    </div>
+
+    <p>The claimant who survives long-term is not the one with the highest tax rate. It's the one whose submitters have individually concluded that the current arrangement is better than the alternative.</p>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goTo(3)">← back</button>
+      <button class="btn btn-next" onclick="goTo(5)">next: raiders for hire →</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ CHAPTER 6 -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-eyebrow">Chapter 06 — Economic Weapons</div>
+    <h1>Raiders for Hire</h1>
+
+    <p>You don't always need to be present to apply pressure. NPC raiders can be contracted to descend on a rival's supply area — extracting resources, disrupting their submitters, and splitting the haul with you.</p>
+
+    <p>Raiders operate on contract terms you negotiate before they deploy. You specify the target area and your cut. They handle execution.</p>
+
+    <div class="cmd-block">
+      <div class="cmd-line cmd-comment"># Hiring a raid against a rival's territory</div>
+      <div class="cmd-line cmd-input">&gt; hire-raid area=northmine cut=60</div>
+      <div class="cmd-line cmd-output">Contract accepted. Raiders deploy at next cycle. Your cut: 60%. NPC cut: 40%.</div>
+    </div>
+
+    <div class="visual">
+      <div class="visual-label">Raid lifecycle</div>
+      <div class="flow">
+        <div class="flow-node active-node">Deploy</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Extract</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Combat risk</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Survivors exfil</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node active-node">Split haul</div>
+      </div>
+
+      <div style="margin-top:20px">
+        <div class="visual-label">Raid math — example outcome</div>
+        <div class="math-row">
+          <span class="math-label">NPCs deployed</span>
+          <span class="math-value">8</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">NPCs surviving (fled combat)</span>
+          <span class="math-value">5</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Total extracted</span>
+          <span class="math-value">320 ore</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Your cut (60%)</span>
+          <span class="math-value gold">+192 ore</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">NPC cut (40%)</span>
+          <span class="math-value">128 ore</span>
+        </div>
+      </div>
+    </div>
+
+    <p>NPCs will not die for you. When combat becomes unfavorable, they flee. This is by design — they are not occupation forces, they are opportunists. A well-defended rival territory with active players present may repel the raid entirely and you receive nothing.</p>
+
+    <div class="insight">
+      <div class="insight-label">Strategic Uses</div>
+      <p>Raids are economic disruption tools, not conquest tools. They cannot claim rooms. They cannot hold territory. What they can do: drain a rival's resource buffer, thin out their submitter population, and keep them on the defensive while you focus elsewhere.</p>
+    </div>
+
+    <p>The hire mechanic also creates a proxy war layer. A powerful claimant who doesn't want to expose their own character in a contested area can fund raids that do the economic damage from a distance. The rival has to fight NPCs rather than track down the actual aggressor.</p>
+
+    <div class="insight danger">
+      <div class="insight-label">The Risk</div>
+      <p>A rival who can identify you as the hirer may retaliate directly — and you've just made an enemy without the protection of being present for the conflict. Hired raids are most effective when the hiring can't be traced, or when you're prepared for escalation.</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goTo(4)">← back</button>
+      <button class="btn btn-next" onclick="goTo(6)">next: building an empire →</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ CHAPTER 7 -->
+  <section class="chapter" id="ch6">
+    <div class="chapter-eyebrow">Chapter 07 — The Full System</div>
+    <h1>Building an Empire</h1>
+
+    <p>At scale, one person cannot patrol ten rooms, monitor submitters for revolt signs, respond to threats, and guard against hired raids simultaneously. The solution is a group — but building one correctly is the hardest part of the claim system.</p>
+
+    <p>When a player joins your group, they automatically submit to you. They extract from your rooms, pay your tax, and receive a share of group tax income as wages. The distribution is negotiated on entry and can be customized per member.</p>
+
+    <div class="visual">
+      <div class="visual-label">Tax flow through a group — interactive</div>
+      <div class="interactive-hint">drag the slider to adjust Carol's distribution share</div>
+
+      <div style="margin-bottom:16px">
+        <div class="player-row" style="margin-bottom:6px">
+          <div class="token token-bob">B</div>
+          <div style="flex:1">
+            <div style="font-family:'Courier New',monospace;font-size:11px;color:var(--text-dim);margin-bottom:4px">Bob extracts 200 ore in Room 7 (20% tax)</div>
+            <div class="distribution-bar">
+              <div class="dist-segment" id="bar-bob" style="width:80%;background:#1a2030;color:var(--blue-bright);font-size:10px">Bob: 160</div>
+              <div class="dist-segment" id="bar-tax" style="width:20%;background:#1a1a0e;color:var(--gold)">40→ pool</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="player-row" style="margin-top:12px;margin-bottom:6px">
+          <div class="token token-alice">A</div>
+          <div style="flex:1">
+            <div style="font-family:'Courier New',monospace;font-size:11px;color:var(--text-dim);margin-bottom:4px">Tax pool: 40 ore → group distribution</div>
+            <div class="distribution-bar">
+              <div class="dist-segment" id="bar-alice" style="width:60%;background:#1e1808;color:var(--gold)">Alice: <span id="alice-val">24</span></div>
+              <div class="dist-segment" id="bar-carol" style="width:40%;background:#160a1e;color:var(--purple-bright)">Carol: <span id="carol-val">16</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;font-family:'Courier New',monospace;font-size:12px;color:var(--text-dim)">
+        <span>Carol's share:</span>
+        <input type="range" min="0" max="80" value="40" id="carol-slider" style="flex:1" oninput="updateDist(this.value)">
+        <span id="carol-pct" style="color:var(--purple-bright);min-width:30px">40%</span>
+      </div>
+
+      <div style="margin-top:16px">
+        <div class="visual-label">Carol's net position</div>
+        <div class="math-row">
+          <span class="math-label">Carol extracts</span>
+          <span class="math-value">200 ore</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Carol pays tax (20%)</span>
+          <span class="math-value red">− 40 ore</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Carol's distribution share</span>
+          <span class="math-value gold">+ <span id="carol-dist-val">16</span> ore</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Carol's effective net</span>
+          <span class="math-value" id="carol-net">176 ore</span>
+        </div>
+      </div>
+    </div>
+
+    <p>The distribution mechanic means a productive empire genuinely benefits its members. The more rooms producing tax income, the larger the pool — and Carol's fixed percentage of a growing pool means her real earnings increase as you expand. Joining a powerful group isn't just submission, it's an investment.</p>
+
+    <div class="insight">
+      <div class="insight-label">The Loyalty Mechanism</div>
+      <p>Carol isn't defending you out of loyalty or fear. She's defending you because you dying collapses the income stream she depends on. Unless she's positioned to inherit the claims herself, your death is her financial loss. Entanglement creates alignment.</p>
+    </div>
+
+    <p>When you die to another player, claims transfer to the killer — but your group remains intact. They'll hunt the killer, retrieve the territory, and restore the system. This makes your group members' self-interest synonymous with your survival in a way that no threat or submission ever could.</p>
+
+    <div class="insight danger">
+      <div class="insight-label">The Internal Politics</div>
+      <p>Distribution shares are negotiated individually. If Carol learns that Dave receives a higher share for similar work, she has a reason to resent you or Dave — or begin quietly organizing the same revolt you've been managing among your external submitters. The empire's internal politics mirror its external ones.</p>
+    </div>
+
+    <p>The endgame of the claim system is not the most rooms or the highest tax rate. It's an organization whose members have individually calculated that the system continuing is worth more than whatever they could gain by tearing it down. Power through entanglement — not strength.</p>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goTo(5)">← back</button>
+      <button class="btn btn-next" onclick="goTo(0)" style="color:var(--text-dim);border-color:var(--border2)">↺ start over</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  let current = 0;
+  const total = 7;
+
+  function goTo(n) {
+    document.querySelectorAll('.chapter').forEach((c,i) => {
+      c.classList.toggle('active', i === n);
+    });
+    document.querySelectorAll('.nav-item').forEach((item,i) => {
+      item.classList.toggle('active', i === n);
+    });
+    current = n;
+    const mainEl = document.getElementById('main');
+    mainEl.scrollTop = 0;
+    mainEl.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    if (n === 1) initThreat();
+    if (n === 3) initVulture();
+    if (n === 4) initRevolt();
+  }
+
+  // ── Chapter 2: Threat simulator ──
+  let threatTimer = null;
+  let threatSecs = 60;
+
+  function initThreat() {
+    clearThreat();
+  }
+
+  function clearThreat() {
+    if (threatTimer) clearInterval(threatTimer);
+    threatTimer = null;
+    threatSecs = 60;
+    const bar = document.getElementById('threat-timer');
+    bar.style.width = '100%';
+    bar.style.background = 'var(--red-bright)';
+    document.getElementById('timer-display').textContent = '60s';
+    document.getElementById('bob-status').innerHTML = 'must respond within <span class="highlight-red" id="timer-display">60s</span>';
+    document.getElementById('threat-result').innerHTML = '';
+  }
+
+  function startThreatTimer() {
+    if (threatTimer) return;
+    threatTimer = setInterval(() => {
+      threatSecs--;
+      const bar = document.getElementById('threat-timer');
+      bar.style.width = (threatSecs/60*100) + '%';
+      const disp = document.getElementById('timer-display');
+      if (disp) disp.textContent = threatSecs + 's';
+      if (threatSecs <= 0) {
+        clearInterval(threatTimer);
+        document.getElementById('threat-result').innerHTML = '<span class="warn">Threat expired. Alice may re-issue or escalate to combat.</span>';
+      }
+    }, 200);
+  }
+
+  function simThreat(action) {
+    if (threatTimer) clearInterval(threatTimer);
+    const result = document.getElementById('threat-result');
+    const bobStatus = document.getElementById('bob-status');
+    const bar = document.getElementById('threat-timer');
+
+    if (action === 'reset') { clearThreat(); return; }
+
+    if (action === 'submit') {
+      bar.style.width = '100%';
+      bar.style.background = 'var(--green-bright)';
+      result.innerHTML = '<span class="ok">Bob submits. Protected from Alice for 40 min. Tax paid automatically. Bob can still attack Alice.</span>';
+      bobStatus.innerHTML = 'submitted — <span class="highlight-green">protected</span>, paying 20% tax';
+    } else if (action === 'fight') {
+      bar.style.width = '100%';
+      bar.style.background = 'var(--red-bright)';
+      result.innerHTML = '<span class="warn">Combat begins. Winner takes all — loser drops resources. If Alice loses, her claims transfer to Bob.</span>';
+      bobStatus.innerHTML = '<span class="highlight-red">in combat</span>';
+    } else if (action === 'flee') {
+      bar.style.width = '20%';
+      bar.style.background = '#5a5040';
+      result.innerHTML = '<span class="warn">Bob flees. Keeps his resources. No submission. Alice keeps claims. Pursuit is possible.</span>';
+      bobStatus.innerHTML = '<span class="highlight-red">fleeing</span> — no submission made';
+    } else if (action === 'ignore') {
+      startThreatTimer();
+    }
+  }
+
+  // ── Chapter 4: Vulture simulator ──
+  let vultureState = 0;
+
+  function initVulture() {
+    vultureState = 0;
+    document.getElementById('vulture-status').textContent = '??? — standing nearby, watching';
+    document.getElementById('vulture-result').textContent = '';
+  }
+
+  function simVulture(state) {
+    const status = document.getElementById('vulture-status');
+    const result = document.getElementById('vulture-result');
+    if (state === 0) { initVulture(); return; }
+    if (state === 1) {
+      status.innerHTML = '<span class="highlight-red">Watcher</span> — both combatants weakened, waiting for the right moment';
+      result.innerHTML = '<span class="warn">Alice and Bob are both at low health. The watcher is at full strength.</span>';
+    } else if (state === 2) {
+      status.innerHTML = '<span class="highlight-red">Watcher kills Alice</span> — claims transfer';
+      result.innerHTML = '<span class="err">Alice dies. All her claimed rooms transfer to the Watcher. Bob is next, still weakened.</span>';
+    } else if (state === 3) {
+      status.innerHTML = '<span class="highlight-red">Watcher kills Bob</span> — takes his resources';
+      result.innerHTML = '<span class="err">Bob dies. Watcher takes dropped resources. Fought twice, at full strength, against exhausted opponents.</span>';
+    }
+  }
+
+  // ── Chapter 5: Revolt simulator ──
+  const subNames = ['Eve','Frank','Grace','Hank','Iris','Jake','Kim','Leo','Mia','Nina'];
+  let revolters = new Set();
+  let defected = false;
+
+  function initRevolt() {
+    revolters.clear();
+    defected = false;
+    const grid = document.getElementById('submitter-grid');
+    grid.innerHTML = '';
+    subNames.forEach((name, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'submitter-cell';
+      cell.innerHTML = `<div class="token token-bob" id="sub-${i}" onclick="toggleRevolter(${i},'${name}')">${name[0]}</div><div class="sub-name">${name}</div>`;
+      grid.appendChild(cell);
+    });
+    document.getElementById('revolt-status').innerHTML = 'Idle. No revolt forming.';
+  }
+
+  function toggleRevolter(i, name) {
+    if (defected) return;
+    const tok = document.getElementById('sub-' + i);
+    if (revolters.has(i)) {
+      revolters.delete(i);
+      tok.className = 'token token-bob';
+    } else {
+      revolters.add(i);
+      tok.className = 'token token-bob revolted';
+    }
+    updateRevoltStatus();
+  }
+
+  function updateRevoltStatus() {
+    const status = document.getElementById('revolt-status');
+    const n = revolters.size;
+    if (n === 0) {
+      status.innerHTML = 'Idle. No revolt forming.';
+    } else if (n < 4) {
+      status.innerHTML = `<span class="warn">${n} planning revolt — too few. You could defeat them alone.</span>`;
+    } else if (n < 8) {
+      status.innerHTML = `<span class="warn">${n} coordinating — dangerous. Each one is betting the others won't defect.</span>`;
+    } else {
+      status.innerHTML = `<span class="err">${n} ready — overwhelming numbers. But one defection collapses everything.</span>`;
+    }
+  }
+
+  function simRevolt(action) {
+    if (action === 'reset') { initRevolt(); return; }
+    if (action === 'defect' && revolters.size > 0 && !defected) {
+      defected = true;
+      const first = Array.from(revolters)[0];
+      const name = subNames[first];
+      const tok = document.getElementById('sub-' + first);
+      tok.className = 'token token-alice defected';
+      revolters.forEach(i => {
+        if (i !== first) {
+          document.getElementById('sub-' + i).className = 'token token-watcher';
+        }
+      });
+      document.getElementById('revolt-status').innerHTML =
+        `<span class="err">${name} told Alice. Revolt exposed. All participants are now marked targets. The submission tax still applies.</span>`;
+    } else if (action === 'defect' && revolters.size === 0) {
+      document.getElementById('revolt-status').innerHTML =
+        '<span class="warn">Select some revolters first.</span>';
+    }
+  }
+
+  // ── Chapter 7: Distribution slider ──
+  function updateDist(val) {
+    val = parseInt(val);
+    document.getElementById('carol-pct').textContent = val + '%';
+    const alicePct = 100 - val;
+    const aliceOre = Math.round(40 * alicePct / 100);
+    const carolOre = Math.round(40 * val / 100);
+
+    document.getElementById('bar-alice').style.width = alicePct + '%';
+    document.getElementById('bar-carol').style.width = val + '%';
+    document.getElementById('alice-val').textContent = aliceOre;
+    document.getElementById('carol-val').textContent = carolOre;
+    document.getElementById('carol-val').textContent = carolOre;
+    document.getElementById('carol-dist-val').textContent = carolOre;
+
+    const net = 200 - 40 + carolOre;
+    const netEl = document.getElementById('carol-net');
+    netEl.textContent = net + ' ore';
+    netEl.style.color = net >= 200 ? 'var(--green-bright)' : 'var(--text-bright)';
+  }
+</script>
+</body>
+</html>
