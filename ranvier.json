@@ -1,6 +1,7 @@
 {
   "port": 4000,
   "bundles": [
+    "time",
     "claims",
     "fancy-rooms",
     "areas",

@@ -2,13 +2,13 @@
 'use strict';
 
 const path  = require('path');
-const { Log }     = require('../lib/log');
-const { Graph }   = require('../lib/graph');
-const { Db }      = require('../lib/db');
-const { replay }  = require('../lib/replay');
+const { Log } = require('../lib/log');
+const { Graph } = require('../lib/graph');
+const { Db } = require('../lib/db');
+const { replay }= require('../lib/replay');
 const { compact } = require('../lib/compaction');
-const { Store }   = require('../lib/store');
-
+const { Store } = require('../lib/store');
+const world = require('../lib/world')
 /**
  * ranvier-storage bundle
  *
@@ -60,7 +60,7 @@ module.exports = {
      * begins accepting connections — safe to do async I/O here.
      */
     startup: state => async () => {
-      console.log('[claims-storage] initialising...');
+      console.log('[claims-storage] initializing...');
 
       // Layer 3 — log
       const log = new Log(DATA_DIR, COMPACT_THRESHOLD);
@@ -79,6 +79,7 @@ module.exports = {
 
       // Register on GameState so other bundles can reach it
       state.StorageManager = { store };
+      state.WorldManager = world
 
       // Expiry flush timer — checks for timed-out claims on interval
       expiryTimer = setInterval(async () => {

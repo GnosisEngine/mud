@@ -30,7 +30,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const raw        = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'data', 'world.json'), 'utf8'));
+let raw        = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'data', 'world.json'), 'utf8'));
 const DIRECTIONS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
 // ---------------------------------------------------------------------------
@@ -197,6 +197,17 @@ const clusterMap = (() => {
   return clusters;
 })();
 
+// ----
+// Legends
+// ---
+
+const terrainLegend = raw.legends.terrain
+const featuresLegend = raw.legends.features
+
+// Clean Up
+
+raw = undefined
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -327,10 +338,24 @@ function getDirection(from, to) {
   return null;
 }
 
+/**
+ * 
+ * @param {*} room 
+ */
+function getTerrainForRoom(room) {
+  const entry = getEntryByCoords(room.coords[0], room.coords[1]);
+
+  return {
+    id: entry.terrain,
+    key: terrainLegend[entry.terrain]
+  }
+}
+
 module.exports = {
   getEntryByCoords,
   getClusters,
   getRoadPairs,
   getPathBetweenClusters,
-  getDirection
+  getDirection,
+  getTerrainForRoom
 };
