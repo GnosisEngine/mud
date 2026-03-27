@@ -38862,7 +38862,7 @@
         26
       ],
       "terrain": 7,
-      "feature": 4,
+      "feature": 1,
       "cluster": 50
     },
     {
@@ -38871,7 +38871,7 @@
         26
       ],
       "terrain": 7,
-      "feature": 4,
+      "feature": 0,
       "cluster": 50
     },
     {
@@ -38880,7 +38880,7 @@
         26
       ],
       "terrain": 1,
-      "feature": 4,
+      "feature": 0,
       "cluster": 5
     },
     {
@@ -38889,7 +38889,7 @@
         26
       ],
       "terrain": 1,
-      "feature": 4,
+      "feature": 0,
       "cluster": 5
     },
     {
@@ -38898,7 +38898,7 @@
         26
       ],
       "terrain": 1,
-      "feature": 4,
+      "feature": 0,
       "cluster": 5
     },
     {
