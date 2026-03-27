@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "simple-crafting",
+  "name": "crafting",
   "version": "1.0.0",
   "description": "Ranvier bundle for a simple crafting system",
   "dependencies": {

@@ -15,7 +15,7 @@
     "npc-behaviors",
     "player-events",
     "quests",
-    "simple-crafting",
+    "crafting",
     "vendor-npcs",
     "player-groups",
     "progressive-respawn",
