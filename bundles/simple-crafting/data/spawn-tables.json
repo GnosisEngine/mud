@@ -1,0 +1,431 @@
+{
+  "default": [
+    {
+      "resourceKey": "alluvial_gold",
+      "spawnWeight": 5,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "clay",
+      "spawnWeight": 5,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "bog": [
+    {
+      "resourceKey": "bog_iron",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "medicinal_herbs",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 1,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "cave": [
+    {
+      "resourceKey": "alum",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "argentite",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "chalcopyrite",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "honey",
+      "spawnWeight": 1,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "rock_salt",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "sulfur",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "forest_coniferous": [
+    {
+      "resourceKey": "pine_resin",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 1,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "forest_deciduous": [
+    {
+      "resourceKey": "oak_bark",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "oak_timber",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "pine_bark",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "yew",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "yew_bark",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "hills": [
+    {
+      "resourceKey": "alum",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "clay",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "galena",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "hematite",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "malachite",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 6,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "forest_edge": [
+    {
+      "resourceKey": "honey",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "medicinal_herbs",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 6,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "grassland": [
+    {
+      "resourceKey": "weld",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "woad",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "meadow": [
+    {
+      "resourceKey": "flax",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "hemp",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "weld",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "woad",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "lakeshore": [
+    {
+      "resourceKey": "clay",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "salt",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "mountain_outcrop": [
+    {
+      "resourceKey": "hematite",
+      "spawnWeight": 1,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "mountain_valley": [
+    {
+      "resourceKey": "brine",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "mountain": [
+    {
+      "resourceKey": "alum",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "argentite",
+      "spawnWeight": 1,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "chalcopyrite",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "lode_cassiterite",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "magnetite",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "rock_salt",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "sulfur",
+      "spawnWeight": 3,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 1,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "river": [
+    {
+      "resourceKey": "alluvial_gold",
+      "spawnWeight": 1,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "clay",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "flax",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "hemp",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "stream_cassiterite",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ],
+  "pasture": [
+    {
+      "resourceKey": "wool",
+      "spawnWeight": 10,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    },
+    {
+      "resourceKey": "madder",
+      "spawnWeight": 6,
+      "min": 1,
+      "max": 2,
+      "maxDensity": 3
+    }
+  ]
+}

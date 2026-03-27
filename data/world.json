@@ -11,20 +11,20 @@
     "terrain": {
       "0": "none",
       "1": "bog",
-      "2": "caves",
-      "3": "coniferous_forest",
-      "4": "deciduous_forest",
+      "2": "cave",
+      "3": "forest_coniferous",
+      "4": "forest_deciduous",
       "5": "hills",
       "6": "forest_edge",
       "7": "grassland",
       "8": "meadow",
       "9": "lakeshore",
-      "10": "mountain_outcrops",
-      "11": "mountain_valleys",
-      "12": "mountains",
+      "10": "mountain_outcrop",
+      "11": "mountain_valley",
+      "12": "mountain",
       "13": "river",
-      "14": "upland_pasture",
-      "15": "wetland_margins"
+      "14": "pasture",
+      "15": "wetland"
     },
     "features": {
       "0": "none",

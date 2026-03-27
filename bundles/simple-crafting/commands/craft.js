@@ -1,67 +1,75 @@
+// resources/commands/craft.js
 'use strict';
 
-const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B, CommandManager, ItemType } = require('ranvier');
-const Crafting = require('../lib/Crafting');
-const say = B.sayAt;
-const ItemUtil = require('../../lib/lib/ItemUtil');
+const ResourceContainer = require('../lib/ResourceContainer');
+const ResourceDefinitions = require('../lib/ResourceDefinitions');
 
+const say = B.sayAt;
 const subcommands = new CommandManager();
 
-/** LIST **/
+function getCraftingCategories(state) {
+  const categories = [
+    { type: ItemType.POTION, title: 'Potion', items: [] },
+    { type: ItemType.WEAPON, title: 'Weapon', items: [] },
+    { type: ItemType.ARMOR,  title: 'Armor',  items: [] },
+  ];
+
+  const recipes = require('../data/recipes.json');
+
+  for (const recipe of recipes) {
+    const recipeItem = state.ItemFactory.create(
+      state.AreaManager.getAreaByReference(recipe.item),
+      recipe.item
+    );
+    const catIndex = categories.findIndex(c => c.type === recipeItem.type);
+    if (catIndex === -1) continue;
+    recipeItem.hydrate(state);
+    categories[catIndex].items.push({ item: recipeItem, recipe: recipe.recipe });
+  }
+
+  return categories;
+}
+
 subcommands.add({
   name: 'list',
   command: state => (args, player) => {
-    const craftingCategories = getCraftingCategories(state);
+    const categories = getCraftingCategories(state);
 
-    // list categories
     if (!args || !args.length) {
       say(player, '<b>Crafting Categories</b>');
       say(player, B.line(40));
-
-      return craftingCategories.forEach((category, index) => {
-        say(player, sprintf('%2d) %s', parseInt(index, 10) + 1, craftingCategories[index].title));
-      });
+      categories.forEach((cat, i) => say(player, `${i + 1}) ${cat.title}`));
+      return;
     }
 
-    let [itemCategory, itemNumber] = args.split(' ');
+    let [catArg, itemArg] = args.split(' ');
+    const catIndex = parseInt(catArg, 10) - 1;
+    const category = categories[catIndex];
+    if (!category) return say(player, 'Invalid category.');
 
-    itemCategory = parseInt(itemCategory, 10) - 1;
-    const category = craftingCategories[itemCategory];
-    if (!category) {
-      return say(player, "Invalid category.");
-    }
-
-    // list items within a category
-    if (!itemNumber) {
+    if (!itemArg) {
       say(player, `<b>${category.title}</b>`);
       say(player, B.line(40));
-
-      if (!category.items.length) {
-        return say(player, B.center(40, "No recipes."));
-      }
-
-      return category.items.forEach((categoryEntry, index) => {
-        say(player, sprintf('%2d) ', index + 1) + ItemUtil.display(categoryEntry.item));
-      });
+      if (!category.items.length) return say(player, B.center(40, 'No recipes.'));
+      category.items.forEach((entry, i) => say(player, `${i + 1}) ${entry.item.name}`));
+      return;
     }
 
-    itemNumber = parseInt(itemNumber, 10) - 1;
-    const item = category.items[itemNumber];
-    if (!item) {
-      return say(player, "Invalid item.");
-    }
+    const itemIndex = parseInt(itemArg, 10) - 1;
+    const entry = category.items[itemIndex];
+    if (!entry) return say(player, 'Invalid item.');
 
-    say(player, ItemUtil.renderItem(state, item.item, player));
+    say(player, `${entry.item.name}`);
     say(player, '<b>Recipe:</b>');
-    for (const [resource, amount] of Object.entries(item.recipe)) {
-      const ingredient = Crafting.getResourceItem(resource);
-      say(player, `  ${ItemUtil.display(ingredient)} x ${amount}`);
+    for (const [key, amount] of Object.entries(entry.recipe)) {
+      const def = ResourceDefinitions.getDefinition(key);
+      const title = def ? def.title : key;
+      say(player, `  ${title} x${amount}`);
     }
-  }
+  },
 });
 
-/** CREATE **/
 subcommands.add({
   name: 'create',
   command: state => (args, player) => {
@@ -69,32 +77,23 @@ subcommands.add({
       return say(player, "Create what? 'craft create 1 1' for example.");
     }
 
-    const isInvalidSelection = categoryList => category =>
-      isNaN(category) || category < 0 || category > categoryList.length;
+    const categories = getCraftingCategories(state);
+    let [catArg, itemArg] = args.split(' ');
+    const catIndex = parseInt(catArg, 10) - 1;
+    const category = categories[catIndex];
+    if (!category) return say(player, 'Invalid category.');
 
-    const craftingCategories = getCraftingCategories(state);
-    const isInvalidCraftingCategory = isInvalidSelection(craftingCategories);
+    const itemIndex = parseInt(itemArg, 10) - 1;
+    const entry = category.items[itemIndex];
+    if (!entry) return say(player, 'Invalid item.');
 
-    let [itemCategory, itemNumber] = args.split(' ');
-
-    itemCategory = parseInt(itemCategory, 10) - 1;
-    if (isInvalidCraftingCategory(itemCategory)) {
-      return say(player, "Invalid category.");
-    }
-
-    const category = craftingCategories[itemCategory];
-    const isInvalidCraftableItem = isInvalidSelection(category.items);
-    itemNumber = parseInt(itemNumber, 10) - 1;
-    if (isInvalidCraftableItem(itemNumber)) {
-      return say(player, "Invalid item.");
-    }
-
-    const item = category.items[itemNumber];
-    // check to see if player has resources available
-    for (const [resource, recipeRequirement] of Object.entries(item.recipe)) {
-      const playerResource = player.getMeta(`resources.${resource}`) || 0;
-      if (playerResource < recipeRequirement) {
-        return say(player, `You don't have enough resources. 'craft list ${args}' to see recipe. You need ${recipeRequirement - playerResource} more ${resource}.`);
+    for (const [key, required] of Object.entries(entry.recipe)) {
+      const held = ResourceContainer.getHeld(player);
+      if ((held[key] || 0) < required) {
+        const def = ResourceDefinitions.getDefinition(key);
+        const title = def ? def.title : key;
+        const shortfall = required - (held[key] || 0);
+        return say(player, `You need ${shortfall} more ${title}.`);
       }
     }
 
@@ -102,78 +101,33 @@ subcommands.add({
       return say(player, "You can't hold any more items.");
     }
 
-    // deduct resources
-    for (const [resource, amount] of Object.entries(item.recipe)) {
-      player.setMeta(`resources.${resource}`, player.getMeta(`resources.${resource}`) - amount);
-      const resItem = Crafting.getResourceItem(resource);
-      say(player, `<green>You spend ${amount} x ${ItemUtil.display(resItem)}.</green>`);
+    for (const [key, amount] of Object.entries(entry.recipe)) {
+      const result = ResourceContainer.remove(player, key, amount);
+      if (!result.ok) {
+        return say(player, 'Something went wrong crafting that item.');
+      }
     }
 
-    state.ItemManager.add(item.item);
-    player.addItem(item.item);
-    say(player, `<b><green>You create: ${ItemUtil.display(item.item)}.</green></b>`);
+    state.ItemManager.add(entry.item);
+    player.addItem(entry.item);
+    say(player, `<b><green>You create: ${entry.item.name}.</green></b>`);
     player.save();
-  }
+  },
 });
 
 module.exports = {
   usage: 'craft <list/create> [category #] [item #]',
   command: state => (args, player) => {
-    if (!args.length) {
+    if (!args || !args.length) {
       return say(player, "Missing craft command. See 'help craft'");
     }
 
-    const [ command, ...subArgs ] = args.split(' ');
-
+    const [command, ...subArgs] = args.split(' ');
     const subcommand = subcommands.find(command);
     if (!subcommand) {
-      return say(player, "Invalid command. Use craft list or craft create.");
+      return say(player, 'Invalid command. Use craft list or craft create.');
     }
 
     subcommand.command(state)(subArgs.join(' '), player);
-  }
+  },
 };
-
-function getCraftingCategories(state) {
-  let craftingCategories = [
-    {
-      type: ItemType.POTION,
-      title: "Potion",
-      items: []
-    },
-    {
-      type: ItemType.WEAPON,
-      title: "Weapon",
-      items: []
-    },
-    {
-      type: ItemType.ARMOR,
-      title: "Armor",
-      items: []
-    },
-  ];
-
-  const recipes = Crafting.getRecipes();
-  for (const recipe of recipes) {
-    const recipeItem = state.ItemFactory.create(
-      state.AreaManager.getAreaByReference(recipe.item),
-      recipe.item
-    );
-
-    const catIndex = craftingCategories.findIndex(cat => {
-      return cat.type === recipeItem.type;
-    });
-
-    if (catIndex === -1) {
-      continue;
-    }
-
-  recipeItem.hydrate(state);
-    craftingCategories[catIndex].items.push({
-      item: recipeItem,
-      recipe: recipe.recipe
-    });
-  }
-
-  return craftingCategories;
-}

@@ -1,46 +1,53 @@
+// resources/commands/gather.js
 'use strict';
 
-const { Random } = require('rando-js');
 const { Broadcast: B } = require('ranvier');
-const ArgParser = require('../../lib/lib/ArgParser');
-const ItemUtil = require('../../lib/lib/ItemUtil');
-const Crafting = require('../lib/Crafting');
+const GatherLogic = require('../lib/GatherLogic');
+const ResourceDefinitions = require('../lib/ResourceDefinitions');
 
 module.exports = {
   command: state => (args, player) => {
-    if (!args || !args.length) {
-      return B.sayAt(player, "Gather what?");
-    }
+    const room = player.room;
+    const roomItems = [...room.items];
 
-    let node = ArgParser.parseDot(args, player.room.items);
+    const result = GatherLogic.execute(player, room, args, {
+      roomItems,
+      splitResolver: options => {
+        const claimsBundle = state.BundleManager && state.BundleManager.getBundle('claims');
+        if (!claimsBundle) return null;
+        return claimsBundle.getSplitForRoom(room);
+      },
+      roomDropper: (r, resourceKey, amount) => {
+        const def = ResourceDefinitions.getDefinition(resourceKey);
+        const title = def ? def.title : resourceKey;
+        B.sayAt(player, `<yellow>Some ${title} spills to the ground.</yellow>`);
+      },
+      removeNode: node => {
+        room.removeItem(node);
+        state.ItemManager.remove(node);
+      },
+    });
 
-    if (!node) {
-      return B.sayAt(player, "You don't see anything like that here.");
-    }
-
-    const resource = node.getMeta('resource');
-    if (!resource) {
-      return B.sayAt(player, "You can't gather anything from that.");
-    }
-
-    if (!player.getMeta('resources')) {
-      player.setMeta('resources', {});
-    }
-
-    for (const material in resource.materials) {
-      const entry = resource.materials[material];
-      const amount = Random.inRange(entry.min, entry.max);
-      if (amount) {
-        const resItem = Crafting.getResourceItem(material);
-        const metaKey = `resources.${material}`;
-        player.setMeta(metaKey, (player.getMeta(metaKey) || 0) + amount);
-        B.sayAt(player, `<green>You gather: ${ItemUtil.display(resItem)} x${amount}.`);
+    if (!result.ok) {
+      switch (result.reason) {
+        case 'no_args':
+          return B.sayAt(player, 'Gather what?');
+        case 'not_found':
+          return B.sayAt(player, "You don't see anything like that here.");
+        case 'not_gatherable':
+          return B.sayAt(player, "You can't gather anything from that.");
+        case 'nothing_yielded':
+          return B.sayAt(player, 'You find nothing useful.');
       }
+      return;
     }
 
-    // destroy node, will be respawned
-    state.ItemManager.remove(node);
-    B.sayAt(player, `${ItemUtil.display(node)} ${resource.depletedMessage}`);
-    node = null;
-  }
+    for (const [resourceKey, amount] of Object.entries(result.yields)) {
+      const def = ResourceDefinitions.getDefinition(resourceKey);
+      const title = def ? def.title : resourceKey;
+      B.sayAt(player, `<green>You gather: ${title} x${amount}.</green>`);
+    }
+
+    B.sayAt(player, `The ${result.node.name} ${result.depletedMessage}`);
+  },
 };

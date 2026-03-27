@@ -1,31 +1,37 @@
+// resources/commands/resources.js
 'use strict';
 
 const { Broadcast: B } = require('ranvier');
-const Crafting = require('../lib/Crafting');
-const ItemUtil = require('../../lib/lib/ItemUtil');
+const ResourceContainer = require('../lib/ResourceContainer');
+const ResourceDefinitions = require('../lib/ResourceDefinitions');
+const { CARRY_MULTIPLIER } = ResourceContainer;
 
 module.exports = {
-  aliases: [ "materials" ],
+  aliases: ['materials'],
   command: state => (args, player) => {
-    const playerResources = player.getMeta('resources');
+    const held = ResourceContainer.getHeld(player);
+    const keys = Object.keys(held);
 
-    if (!playerResources) {
-      return B.sayAt(player, "You haven't gathered any resources.");
+    if (!keys.length) {
+      return B.sayAt(player, "You aren't carrying any resources.");
     }
+
+    const currentWeight = ResourceContainer.getTotalWeight(player);
+    const capacity = (player.getAttribute('strength') || 0) * CARRY_MULTIPLIER;
 
     B.sayAt(player, '<b>Resources</b>');
     B.sayAt(player, B.line(40));
-    let totalAmount = 0;
-    for (const resourceKey in playerResources) {
-      const amount = playerResources[resourceKey];
-      totalAmount += amount;
 
-      const resItem = Crafting.getResourceItem(resourceKey);
-      B.sayAt(player, `${ItemUtil.display(resItem)} x ${amount}`);
+    for (const key of keys) {
+      const amount = held[key];
+      const def = ResourceDefinitions.getDefinition(key);
+      const title = def ? def.title : key;
+      const unitWeight = def ? def.weight : 0;
+      const totalWeight = (unitWeight * amount).toFixed(2);
+      B.sayAt(player, `  ${title} x${amount} <dim>(${totalWeight}kg)</dim>`);
     }
 
-    if (!totalAmount) {
-      return B.sayAt(player, "You haven't gathered any resources.");
-    }
-  }
+    B.sayAt(player, B.line(40));
+    B.sayAt(player, `Weight: ${currentWeight.toFixed(2)}kg / ${capacity.toFixed(2)}kg`);
+  },
 };

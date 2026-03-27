@@ -1,10 +1,338 @@
 {
-  "plant_material": {
-    "title": "Plant Material",
-    "quality": "common"
+  "alluvial_gold": {
+    "title": "Alluvial Gold",
+    "quality": "common",
+    "weight": 1.4,
+    "rotTicks": null,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
   },
-  "rose_petal": {
-    "title": "Rose Petal",
-    "quality": "uncommon"
+  "alum": {
+    "title": "Alum",
+    "quality": "common",
+    "weight": 16.4,
+    "rotTicks": null,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "argentite": {
+    "title": "Argentite",
+    "quality": "uncommon",
+    "weight": 3.8,
+    "rotTicks": null,
+    "requires": {
+      "skills": [
+        "mining"
+      ],
+      "effects": []
+    }
+  },
+  "beeswax": {
+    "title": "Beeswax",
+    "quality": "common",
+    "weight": 28.8,
+    "rotTicks": 3669120,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "bog_iron": {
+    "title": "Bog Iron",
+    "quality": "common",
+    "weight": 7.3,
+    "rotTicks": 282240,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "brine": {
+    "title": "Brine",
+    "quality": "common",
+    "weight": 23.1,
+    "rotTicks": 10080,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "chalcopyrite": {
+    "title": "Chalcopyrite",
+    "quality": "common",
+    "weight": 6.6,
+    "rotTicks": 282240,
+    "requires": {
+      "skills": [
+        "mining"
+      ],
+      "effects": []
+    }
+  },
+  "clay": {
+    "title": "Clay",
+    "quality": "common",
+    "weight": 14.6,
+    "rotTicks": 10080,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "flax": {
+    "title": "Flax",
+    "quality": "common",
+    "weight": 69.2,
+    "rotTicks": 10080,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "galena": {
+    "title": "Galena",
+    "quality": "common",
+    "weight": 3.7,
+    "rotTicks": null,
+    "requires": {
+      "skills": [
+        "mining"
+      ],
+      "effects": []
+    }
+  },
+  "hematite": {
+    "title": "Hematite",
+    "quality": "common",
+    "weight": 5.4,
+    "rotTicks": null,
+    "requires": {
+      "skills": [
+        "mining"
+      ],
+      "effects": []
+    }
+  },
+  "hemp": {
+    "title": "Hemp",
+    "quality": "common",
+    "weight": 69.2,
+    "rotTicks": 10080,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "honey": {
+    "title": "Honey",
+    "quality": "common",
+    "weight": 19.8,
+    "rotTicks": 3669120,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "lode_cassiterite": {
+    "title": "Lode Cassiterite",
+    "quality": "uncommon",
+    "weight": 4.0,
+    "rotTicks": null,
+    "requires": {
+      "skills": [
+        "mining"
+      ],
+      "effects": []
+    }
+  },
+  "magnetite": {
+    "title": "Magnetite",
+    "quality": "common",
+    "weight": 5.3,
+    "rotTicks": null,
+    "requires": {
+      "skills": [
+        "mining"
+      ],
+      "effects": []
+    }
+  },
+  "malachite": {
+    "title": "Malachite",
+    "quality": "uncommon",
+    "weight": 7.0,
+    "rotTicks": null,
+    "requires": {
+      "skills": [
+        "mining"
+      ],
+      "effects": []
+    }
+  },
+  "medicinal_herbs": {
+    "title": "Medicinal Herbs",
+    "quality": "common",
+    "weight": 184.0,
+    "rotTicks": 1440,
+    "requires": {
+      "skills": [
+        "herbalism"
+      ],
+      "effects": []
+    }
+  },
+  "oak_bark": {
+    "title": "Oak Bark",
+    "quality": "common",
+    "weight": 55.3,
+    "rotTicks": 1440,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "oak_timber": {
+    "title": "Oak Timber",
+    "quality": "common",
+    "weight": 36.9,
+    "rotTicks": 282240,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "pine_bark": {
+    "title": "Pine Bark",
+    "quality": "common",
+    "weight": 60.3,
+    "rotTicks": 1440,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "pine_resin": {
+    "title": "Pine Resin",
+    "quality": "common",
+    "weight": 25.9,
+    "rotTicks": 282240,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "potash": {
+    "title": "Potash",
+    "quality": "common",
+    "weight": 15.4,
+    "rotTicks": 282240,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "rock_salt": {
+    "title": "Rock Salt",
+    "quality": "common",
+    "weight": 12.8,
+    "rotTicks": null,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "salt": {
+    "title": "Salt",
+    "quality": "common",
+    "weight": 23.1,
+    "rotTicks": null,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "stream_cassiterite": {
+    "title": "Stream Cassiterite",
+    "quality": "uncommon",
+    "weight": 4.0,
+    "rotTicks": null,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "sulfur": {
+    "title": "Sulfur",
+    "quality": "common",
+    "weight": 13.4,
+    "rotTicks": null,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "weld": {
+    "title": "Weld",
+    "quality": "common",
+    "weight": 138.0,
+    "rotTicks": 1440,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "woad": {
+    "title": "Woad",
+    "quality": "common",
+    "weight": 30.7,
+    "rotTicks": 1440,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "wool": {
+    "title": "Wool",
+    "quality": "common",
+    "weight": 231.0,
+    "rotTicks": 10080,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "yew": {
+    "title": "Yew",
+    "quality": "common",
+    "weight": 41.3,
+    "rotTicks": 3669120,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "yew_bark": {
+    "title": "Yew Bark",
+    "quality": "common",
+    "weight": 55.3,
+    "rotTicks": 1440,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
+  },
+  "madder": {
+    "title": "Madder",
+    "quality": "common",
+    "weight": 29.0,
+    "rotTicks": 10080,
+    "requires": {
+      "skills": [],
+      "effects": []
+    }
   }
 }
