@@ -1,6 +1,10 @@
+'use strict';
+
 // bundles/time-bundle/commands/time.js
 const { Broadcast: B } = require('ranvier');
 const say = B.sayAt;
+
+// bundles/time-bundle/commands/time.js
 
 'use strict';
 
@@ -8,25 +12,39 @@ const {
   TICKS_PER_DAY,
   DAYS_PER_YEAR,
   tickToComponents,
+  isMoonObservable,
 } = require('../lib/time-math');
 
 module.exports = {
   usage: 'time',
+
   command: state => (args, player) => {
-    const ts  = state.TimeService;
-    const tick = ts.getTick();
+    const ts   = state.TimeService;
+    // @TODO remove this args usage later
+    const tick = (args && args.trim() !== '') ? parseInt(args.trim(), 10) : ts.getTick();
     const { year, dayOfMonth, isHoliday } = tickToComponents(tick);
 
-    const position   = ts.getTimePosition();
-    const dayPhase   = ts.getDayPhase();
-    const moonPhase  = ts.getMoonPhase();
-    const moonSky    = ts.getMoonSkyPosition();
-    const month      = ts.getMonth();
-    const dayOfWeek  = ts.getDayOfWeek();
+    const position   = ts.getTimePosition(tick);
+    const dayPhase   = ts.getDayPhase(tick);
+    const moonPhase  = ts.getMoonPhase(tick);
+    const moonSky    = ts.getMoonSkyPosition(tick);
+    const month      = ts.getMonth(tick);
+    const dayOfWeek  = ts.getDayOfWeek(tick);
+    const hour       = ts.getHour(tick);
 
-    const skyLine = moonSky.name === 'Below Horizon'
-      ? `${dayPhase.emoji} ${dayPhase.name}`
-      : `${moonPhase.emoji} ${moonPhase.name}  ${moonSky.emoji} ${moonSky.name}`;
+    const sunIsUp     = hour >= 6 && hour < 21;
+    const moonVisible = isMoonObservable(tick);
+
+    let skyLine;
+    if (sunIsUp && moonVisible) {
+      skyLine = `${dayPhase.emoji} ${dayPhase.name}  ${moonPhase.emoji} ${moonPhase.name}  ${moonSky.emoji} ${moonSky.name}`;
+    } else if (sunIsUp) {
+      skyLine = `${dayPhase.emoji} ${dayPhase.name}`;
+    } else if (moonVisible) {
+      skyLine = `${moonPhase.emoji} ${moonPhase.name}  ${moonSky.emoji} ${moonSky.name}`;
+    } else {
+      skyLine = `${dayPhase.emoji} ${dayPhase.name}`;
+    }
 
     const dateLine = isHoliday
       ? `${dayOfWeek.name}, ${month.name}, Year ${year}`

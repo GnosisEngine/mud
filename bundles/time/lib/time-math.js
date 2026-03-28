@@ -154,33 +154,45 @@ function getMoonSkyPosition(tick) {
   return { ...MOON_SKY_POSITIONS[skyIndex], index: skyIndex };
 }
 
+function isMoonObservable(tick) {
+  const { moonDay } = tickToComponents(tick);
+  const phaseIndex  = DAY_TO_MOON_PHASE_INDEX[moonDay];
+  const skyIndex    = PHASE_HOUR_TO_MOON_SKY_INDEX[phaseIndex][tickToComponents(tick).hour];
+  if (skyIndex === 0) return false;
+  if (phaseIndex === 0) return false;
+  return true;
+}
+
 function getTimePosition(tick) {
   const { hour, moonDay } = tickToComponents(tick);
 
-  const sunStart = 6;
-  const sunEnd   = 18;
-  if (hour >= sunStart && hour < sunEnd) {
-    const slot  = Math.floor((hour - sunStart) / 3);
-    const slots = ['•', '•', '•', '•'];
-    slots[slot] = '🌞';
-    return `[ ${slots.join(' ')} ]`;
+  let sunSlot = null;
+  if (hour >= 6 && hour < 21) {
+    if      (hour < 9)  sunSlot = 0;
+    else if (hour < 13) sunSlot = 1;
+    else if (hour < 18) sunSlot = 2;
+    else                sunSlot = 3;
   }
 
-  const phaseIndex = DAY_TO_MOON_PHASE_INDEX[moonDay];
-  const skyIndex   = PHASE_HOUR_TO_MOON_SKY_INDEX[phaseIndex][hour];
-
-  if (skyIndex === 0) {
-    return `[ • • • • ]`;
+  let moonSlot = null;
+  if (isMoonObservable(tick)) {
+    const phaseIndex     = DAY_TO_MOON_PHASE_INDEX[moonDay];
+    const riseHour       = PHASE_HOUR_TO_MOON_SKY_INDEX[phaseIndex].indexOf(1);
+    const hoursSinceRise = (hour - riseHour + 24) % 24;
+    moonSlot             = Math.min(Math.floor(hoursSinceRise / 3), 3);
   }
 
-  const visibleHours = PHASE_HOUR_TO_MOON_SKY_INDEX[phaseIndex]
-    .map((sky, h) => sky > 0 ? h : -1)
-    .filter(h => h !== -1);
+  const moonEmoji = getMoonPhase(tick).emoji;
+  const slots     = ['•', '•', '•', '•'];
 
-  const posInArc    = visibleHours.indexOf(hour);
-  const slot        = Math.min(Math.floor(posInArc / (visibleHours.length / 4)), 3);
-  const slots       = ['•', '•', '•', '•'];
-  slots[slot]       = getMoonPhase(tick).emoji;
+  for (let i = 0; i < 4; i++) {
+    const hasSun  = sunSlot  === i;
+    const hasMoon = moonSlot === i;
+    if (hasSun && hasMoon) slots[i] = '🌞' + moonEmoji;
+    else if (hasSun)       slots[i] = '🌞';
+    else if (hasMoon)      slots[i] = moonEmoji;
+  }
+
   return `[ ${slots.join(' ')} ]`;
 }
 
@@ -222,6 +234,7 @@ module.exports = {
   getMinute,
   getMoonPhase,
   getDayPhase,
+  isMoonObservable,
   getMoonSkyPosition,
   getTimePosition,
   getFormalTime,

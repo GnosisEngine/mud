@@ -336,20 +336,39 @@ test('every phase has exactly 12 visible hours', () => {
 
 console.log('\n── getTimePosition ───────────────────────────────');
 
-test('hour 6: sun at slot 0', () => {
-  eq(getTimePosition(6 * TICKS_PER_HOUR), '[ 🌞 • • • ]');
+test('hour 6: sun at slot 0 (Full Moon below horizon)', () => {
+  const tick = moonDayForPhase[4] * DAY + 6 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ 🌞 • • • ]');
 });
 
-test('hour 9: sun at slot 1', () => {
-  eq(getTimePosition(9 * TICKS_PER_HOUR), '[ • 🌞 • • ]');
+test('hour 9: sun at slot 1 (Full Moon below horizon)', () => {
+  const tick = moonDayForPhase[4] * DAY + 9 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ • 🌞 • • ]');
 });
 
-test('hour 12: sun at slot 2', () => {
-  eq(getTimePosition(12 * TICKS_PER_HOUR), '[ • • 🌞 • ]');
+test('hour 12: sun at slot 1 (Full Moon below horizon)', () => {
+  const tick = moonDayForPhase[4] * DAY + 12 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ • 🌞 • • ]');
 });
 
-test('hour 15: sun at slot 3', () => {
-  eq(getTimePosition(15 * TICKS_PER_HOUR), '[ • • • 🌞 ]');
+test('hour 13: sun at slot 2 (Full Moon below horizon)', () => {
+  const tick = moonDayForPhase[4] * DAY + 13 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ • • 🌞 • ]');
+});
+
+test('hour 17: sun at slot 2 (Full Moon below horizon)', () => {
+  const tick = moonDayForPhase[4] * DAY + 17 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ • • 🌞 • ]');
+});
+
+test('hour 18: sun at slot 3 (Full Moon below horizon)', () => {
+  const tick = moonDayForPhase[4] * DAY + 18 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ 🌕 • • 🌞 ]');
+});
+
+test('hour 20: sun at slot 3 (Dusk)', () => {
+  const tick = moonDayForPhase[4] * DAY + 20 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ 🌕 • • 🌞 ]');
 });
 
 test('New Moon at hour 0: below horizon, all dots', () => {
@@ -357,35 +376,44 @@ test('New Moon at hour 0: below horizon, all dots', () => {
   eq(getTimePosition(tick), '[ • • • • ]');
 });
 
-test('New Moon at hour 19: below horizon, all dots', () => {
-  const tick = moonDayForPhase[0] * DAY + 19 * TICKS_PER_HOUR;
+test('New Moon at hour 22: below horizon, all dots', () => {
+  const tick = moonDayForPhase[0] * DAY + 22 * TICKS_PER_HOUR;
   eq(getTimePosition(tick), '[ • • • • ]');
 });
 
-test('Full Moon at hour 18: moon emoji at slot 2', () => {
-  const tick = moonDayForPhase[4] * DAY + 18 * TICKS_PER_HOUR;
-  eq(getTimePosition(tick), '[ • • 🌕 • ]');
+test('New Moon at hour 6: sun only, moon suppressed', () => {
+  const tick = moonDayForPhase[0] * DAY + 6 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ 🌞 • • • ]');
 });
 
-test('Full Moon at hour 21: moon emoji at slot 3', () => {
+test('Full Moon at hour 21: moon only at slot 1', () => {
   const tick = moonDayForPhase[4] * DAY + 21 * TICKS_PER_HOUR;
-  eq(getTimePosition(tick), '[ • • • 🌕 ]');
-});
-
-test('Full Moon at hour 0: moon emoji at slot 0', () => {
-  const tick = moonDayForPhase[4] * DAY + 0 * TICKS_PER_HOUR;
-  eq(getTimePosition(tick), '[ 🌕 • • • ]');
-});
-
-test('Full Moon at hour 3: moon emoji at slot 1', () => {
-  const tick = moonDayForPhase[4] * DAY + 3 * TICKS_PER_HOUR;
   eq(getTimePosition(tick), '[ • 🌕 • • ]');
 });
 
-test('Waxing Crescent uses 🌒 emoji in its night window', () => {
-  const tick = moonDayForPhase[1] * DAY + 18 * TICKS_PER_HOUR;
-  const result = getTimePosition(tick);
-  ok(result.includes('🌒'), `expected 🌒 in "${result}"`);
+test('Full Moon at hour 0: moon only at slot 2', () => {
+  const tick = moonDayForPhase[4] * DAY + 0 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ • • 🌕 • ]');
+});
+
+test('Full Moon at hour 3: moon only at slot 3', () => {
+  const tick = moonDayForPhase[4] * DAY + 3 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ • • • 🌕 ]');
+});
+
+test('Last Quarter at sunrise shows sun east moon west', () => {
+  const tick = moonDayForPhase[6] * DAY + 6 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ 🌞 • 🌗 • ]');
+});
+
+test('Waning Gibbous at sunrise shows sun east moon setting west', () => {
+  const tick = moonDayForPhase[5] * DAY + 6 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ 🌞 • • 🌖 ]');
+});
+
+test('Waxing Crescent is below horizon at hour 21', () => {
+  const tick = moonDayForPhase[1] * DAY + 21 * TICKS_PER_HOUR;
+  eq(getTimePosition(tick), '[ • • • • ]');
 });
 
 test('Last Quarter uses 🌗 emoji in its night window', () => {
@@ -394,10 +422,10 @@ test('Last Quarter uses 🌗 emoji in its night window', () => {
   ok(result.includes('🌗'), `expected 🌗 in "${result}"`);
 });
 
-test('sun window hours 6-17 always show sun regardless of moon phase', () => {
+test('sun window hours 6-20 always show sun regardless of moon phase', () => {
   MOON_PHASES.forEach((_, phaseIndex) => {
     const moonDay = moonDayForPhase[phaseIndex];
-    for (let h = 6; h < 18; h++) {
+    for (let h = 6; h < 21; h++) {
       const tick   = moonDay * DAY + h * TICKS_PER_HOUR;
       const result = getTimePosition(tick);
       ok(result.includes('🌞'), `phase ${phaseIndex} hour ${h}: expected sun, got "${result}"`);
