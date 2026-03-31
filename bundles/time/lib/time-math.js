@@ -188,8 +188,8 @@ function getTimePosition(tick) {
   for (let i = 0; i < 4; i++) {
     const hasSun  = sunSlot  === i;
     const hasMoon = moonSlot === i;
-    if (hasSun && hasMoon) slots[i] = '🌞' + moonEmoji;
-    else if (hasSun)       slots[i] = '🌞';
+    if (hasSun && hasMoon) slots[i] = '☀️' + moonEmoji;
+    else if (hasSun)       slots[i] = '☀️';
     else if (hasMoon)      slots[i] = moonEmoji;
   }
 
