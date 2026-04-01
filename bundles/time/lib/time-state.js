@@ -2,7 +2,7 @@
 
 const { TICKS_PER_DAY, getMoonPhase, getDayPhase } = require('./time-math');
 
-const MS_PER_TICK = 1000;
+const MS_PER_TICK = 10;
 
 let currentTick = 0;
 let accumulated = 0;

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room Editor — Fief</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0b07;
+  --panel: #12100a;
+  --cell-empty: #100e09;
+  --cell-room: #1c1608;
+  --cell-hover: #22190a;
+  --cell-sel: #2e2108;
+  --grid-line: #242010;
+  --grid-line-accent: #48401a;
+  --text: #b09028;
+  --text-dim: #5a4e1a;
+  --text-bright: #e0bc48;
+  --text-faint: #2e2a10;
+  --accent: #c0982e;
+  --accent2: #806428;
+  --danger-border: #702010;
+  --danger-text: #c04020;
+  --door: #8a6028;
+  --locked: #a83020;
+  --border: #342e10;
+  --border-bright: #806428;
+  --input-bg: #0a0804;
+  --green: #88c840;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  color: var(--text-bright);
+  letter-spacing: 3px;
+  white-space: nowrap;
+}
+
+.sep {
+  color: var(--border);
+  user-select: none;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolbar-label {
+  color: var(--text-dim);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+input[type="text"] {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  padding: 2px 6px;
+}
+
+input[type="text"]:focus { outline: none; border-color: var(--accent); }
+
+.btn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  padding: 1px 9px;
+  cursor: pointer;
+  transition: all 0.1s;
+  letter-spacing: 1px;
+}
+.btn:hover { border-color: var(--accent); color: var(--text-bright); background: var(--cell-sel); }
+.btn.primary { border-color: var(--accent2); color: var(--accent); }
+.btn.primary:hover { border-color: var(--text-bright); background: var(--cell-sel); }
+.btn.danger { border-color: var(--danger-border); color: var(--danger-text); }
+.btn.danger:hover { background: #1a0804; }
+
+.num-display {
+  font-size: 18px;
+  color: var(--text-bright);
+  min-width: 28px;
+  text-align: center;
+}
+
+/* MAIN */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* GRID SIDE */
+.grid-side {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.grid-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.axis-label {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+  letter-spacing: 3px;
+  padding: 4px 0;
+}
+
+.grid-row-wrap {
+  display: flex;
+  align-items: stretch;
+}
+
+.ew-label {
+  color: var(--text-dim);
+  font-size: 13px;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.grid {
+  display: grid;
+  border: 1px solid var(--border);
+}
+
+.cell {
+  width: 88px;
+  height: 62px;
+  border: 1px solid var(--grid-line);
+  background: var(--cell-empty);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.08s, background 0.08s;
+  padding: 3px 4px;
+}
+.cell:hover { border-color: var(--grid-line-accent); background: var(--cell-hover); }
+.cell.has-room { background: var(--cell-room); border-color: var(--border); }
+.cell.has-room:hover { border-color: var(--accent2); background: var(--cell-hover); }
+.cell.selected { background: var(--cell-sel) !important; border-color: var(--accent) !important; box-shadow: inset 0 0 10px rgba(192,152,46,0.15); }
+
+.cell-title {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.2;
+  word-break: break-word;
+  max-height: 40px;
+  overflow: hidden;
+}
+.cell.has-room .cell-title { color: var(--text-bright); }
+
+.cell-coords {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  font-size: 11px;
+  color: var(--text-faint);
+  font-family: monospace;
+}
+
+/* exit dots */
+.exit-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: var(--accent2);
+  border-radius: 1px;
+}
+.exit-dot.n { top: 0; left: 50%; transform: translateX(-50%); }
+.exit-dot.s { bottom: 0; left: 50%; transform: translateX(-50%); }
+.exit-dot.e { right: 0; top: 50%; transform: translateY(-50%); }
+.exit-dot.w { left: 0; top: 50%; transform: translateY(-50%); }
+.exit-dot.u { top: 2px; right: 2px; }
+.exit-dot.d { bottom: 2px; left: 2px; }
+
+/* EDITOR PANEL */
+.editor-panel {
+  width: 310px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editor-header {
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.editor-panel-title {
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+
+.editor-room-id {
+  font-size: 12px;
+  color: var(--accent2);
+  font-family: 'Courier New', monospace;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field { display: flex; flex-direction: column; gap: 2px; }
+
+.field-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.field input[type="text"],
+.field textarea {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  padding: 3px 7px;
+  resize: vertical;
+}
+
+.field textarea { min-height: 56px; }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+
+.hint { font-size: 11px; color: var(--text-faint); letter-spacing: 0px; font-family: monospace; margin-top: 1px; }
+
+/* EXITS */
+.exits-compass {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 3px;
+  margin: 4px 0 2px;
+}
+
+.exit-btn {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text-faint);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  padding: 3px 0;
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 1px;
+  transition: all 0.08s;
+  user-select: none;
+}
+.exit-btn:hover { border-color: var(--accent2); color: var(--text); }
+.exit-btn.active { background: var(--cell-sel); border-color: var(--accent); color: var(--text-bright); }
+.exit-btn.ph { visibility: hidden; cursor: default; }
+.exit-btn.ctr { visibility: visible; cursor: default; color: var(--text-faint); font-size: 12px; pointer-events: none; }
+
+.exit-options {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.exit-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  background: var(--input-bg);
+}
+
+.exit-option-dir {
+  color: var(--accent);
+  font-size: 13px;
+  width: 46px;
+  letter-spacing: 1px;
+}
+
+.exit-option-checks { display: flex; gap: 10px; }
+
+.chk {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-dim);
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.chk input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
+.chk.door-on { color: var(--door); }
+.chk.lock-on { color: var(--locked); }
+
+.empty-hint {
+  color: var(--text-faint);
+  font-size: 14px;
+  text-align: center;
+  padding: 30px 10px;
+  letter-spacing: 2px;
+  line-height: 1.8;
+}
+
+/* OUTPUT */
+.output-bar {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  padding: 7px 12px;
+}
+
+.output-controls {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.output-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  flex: 1;
+}
+
+#yaml-output {
+  width: 100%;
+  height: 100px;
+  background: #07060400;
+  border: 1px solid #2a2e14;
+  color: var(--green);
+  font-family: 'Courier New', monospace;
+  font-size: 11.5px;
+  padding: 6px 8px;
+  resize: vertical;
+  background: #060500;
+}
+#yaml-output:focus { outline: none; border-color: var(--green); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚔ ROOM EDITOR</h1>
+  <span class="sep">│</span>
+  <div class="toolbar-group">
+    <span class="toolbar-label">AREA:</span>
+    <input type="text" id="area-id" value="myarea" style="width:90px" title="Area ID prefix for exit roomId references">
+  </div>
+  <span class="sep">│</span>
+  <div class="toolbar-group">
+    <span class="toolbar-label">COLS:</span>
+    <button class="btn" onclick="resizeGrid('cols',-1)">−</button>
+    <span id="cols-disp" class="num-display">10</span>
+    <button class="btn" onclick="resizeGrid('cols',1)">+</button>
+  </div>
+  <div class="toolbar-group">
+    <span class="toolbar-label">ROWS:</span>
+    <button class="btn" onclick="resizeGrid('rows',-1)">−</button>
+    <span id="rows-disp" class="num-display">10</span>
+    <button class="btn" onclick="resizeGrid('rows',1)">+</button>
+  </div>
+  <span class="sep">│</span>
+  <div class="toolbar-group">
+    <span class="toolbar-label">Z-LEVEL:</span>
+    <button class="btn" onclick="changeZ(-1)" title="Down one level">▼</button>
+    <span id="z-disp" class="num-display">0</span>
+    <button class="btn" onclick="changeZ(1)" title="Up one level">▲</button>
+  </div>
+  <span class="sep">│</span>
+  <div class="toolbar-group" style="color:var(--text-faint);font-size:13px;letter-spacing:1px;">
+    CLICK=select/create &nbsp; RIGHT-CLICK=delete
+  </div>
+</header>
+
+<div class="main">
+
+  <div class="grid-side">
+    <div class="grid-wrapper">
+      <div class="axis-label">── NORTH ──</div>
+      <div class="grid-row-wrap">
+        <div class="ew-label">W</div>
+        <div class="grid" id="room-grid"></div>
+        <div class="ew-label">E</div>
+      </div>
+      <div class="axis-label">── SOUTH ──</div>
+    </div>
+  </div>
+
+  <div class="editor-panel">
+    <div class="editor-header">
+      <span class="editor-panel-title">ROOM DETAILS</span>
+      <span class="editor-room-id" id="editor-room-id">—</span>
+    </div>
+    <div class="editor-body" id="editor-body">
+      <div class="empty-hint">[ SELECT A CELL<br>TO BEGIN EDITING ]</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="output-bar">
+  <div class="output-controls">
+    <span class="output-label">YAML OUTPUT</span>
+    <button class="btn primary" onclick="generateYAML('selected')">▶ SELECTED ROOM</button>
+    <button class="btn primary" onclick="generateYAML('all')">▶ ALL ROOMS</button>
+    <button class="btn" onclick="copyYAML(this)">⎘ COPY</button>
+  </div>
+  <textarea id="yaml-output" readonly placeholder="# Select a room and click ▶ SELECTED ROOM to generate YAML"></textarea>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+
+const S = {
+  rooms: {},   // key "x,y,z" → room object
+  cols: 10,
+  rows: 10,
+  z: 0,
+  sel: null,   // currently selected key
+};
+
+const DIR_OFFSETS = {
+  north: [0,1,0], south: [0,-1,0],
+  east:  [1,0,0], west:  [-1,0,0],
+  up:    [0,0,1], down:  [0,0,-1],
+};
+
+const DIR_ABBR = {
+  north:'N', south:'S', east:'E', west:'W', up:'U', down:'D'
+};
+
+// Compass layout for the 3x4 exit grid
+// Each row is [col0, col1, col2]; values are direction keys or null (placeholder) or 'ctr' (center dot)
+const COMPASS_LAYOUT = [
+  [null,    'north', null   ],
+  ['west',  'ctr',   'east' ],
+  [null,    'south', null   ],
+  ['up',    null,    'down' ],
+];
+
+function key(x,y,z)  { return `${x},${y},${z}`; }
+function pk(k)       { const [x,y,z]=k.split(',').map(Number); return {x,y,z}; }
+
+// ─── Grid Rendering ───────────────────────────────────────────────────────────
+
+function renderGrid() {
+  const grid = document.getElementById('room-grid');
+  grid.style.gridTemplateColumns = `repeat(${S.cols}, 88px)`;
+  grid.innerHTML = '';
+
+  for (let row = 0; row < S.rows; row++) {
+    const y = S.rows - 1 - row;   // top row = highest Y (north)
+    for (let col = 0; col < S.cols; col++) {
+      const x = col;
+      const k = key(x, y, S.z);
+      const room = S.rooms[k];
+
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (room ? ' has-room' : '') + (S.sel === k ? ' selected' : '');
+      cell.dataset.key = k;
+
+      if (room) {
+        const t = document.createElement('div');
+        t.className = 'cell-title';
+        t.textContent = room.title || '(untitled)';
+        cell.appendChild(t);
+
+        // Exit direction dots
+        const exits = room.exits || {};
+        for (const [dir, abbr] of Object.entries(DIR_ABBR)) {
+          if (exits[dir]) {
+            const dot = document.createElement('div');
+            dot.className = `exit-dot ${abbr.toLowerCase()}`;
+            cell.appendChild(dot);
+          }
+        }
+      }
+
+      const coords = document.createElement('div');
+      coords.className = 'cell-coords';
+      coords.textContent = `${x},${y}`;
+      cell.appendChild(coords);
+
+      cell.addEventListener('click', () => onCellClick(k));
+      cell.addEventListener('contextmenu', e => { e.preventDefault(); onCellRightClick(k); });
+
+      grid.appendChild(cell);
+    }
+  }
+}
+
+// ─── Cell Interactions ────────────────────────────────────────────────────────
+
+function onCellClick(k) {
+  if (!S.rooms[k]) {
+    S.rooms[k] = { title: '', desc: '', items: '', npcs: '', exits: {} };
+  }
+  S.sel = k;
+  renderGrid();
+  renderEditor();
+}
+
+function onCellRightClick(k) {
+  if (!S.rooms[k]) return;
+  if (confirm(`Delete room at ${k}?`)) {
+    delete S.rooms[k];
+    if (S.sel === k) S.sel = null;
+    renderGrid();
+    renderEditor();
+  }
+}
+
+// ─── Editor Rendering ─────────────────────────────────────────────────────────
+
+function renderEditor() {
+  const body = document.getElementById('editor-body');
+  const idEl = document.getElementById('editor-room-id');
+
+  const k = S.sel;
+  const room = k ? S.rooms[k] : null;
+
+  if (!room) {
+    idEl.textContent = '—';
+    body.innerHTML = '<div class="empty-hint">[ SELECT A CELL<br>TO BEGIN EDITING ]</div>';
+    return;
+  }
+
+  const {x,y,z} = pk(k);
+  const areaId = document.getElementById('area-id').value || 'myarea';
+  const roomId  = `${x}_${y}_${z}`;
+  idEl.textContent = `${areaId}:${roomId}`;
+
+  body.innerHTML = `
+    <div class="field">
+      <div class="field-label">TITLE</div>
+      <input type="text" id="f-title" value="${esc(room.title)}" placeholder="Room title...">
+    </div>
+    <div class="field">
+      <div class="field-label">DESCRIPTION</div>
+      <textarea id="f-desc" rows="4" placeholder="Describe this room...">${esc(room.desc)}</textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">ITEMS</div>
+      <textarea id="f-items" rows="2" placeholder="items:torch 2&#10;items:crate">${esc(room.items)}</textarea>
+      <div class="hint">one per line: area:id [count]</div>
+    </div>
+    <div class="field">
+      <div class="field-label">NPCS</div>
+      <textarea id="f-npcs" rows="2" placeholder="npcs:guard 1&#10;npcs:merchant">${esc(room.npcs)}</textarea>
+      <div class="hint">one per line: area:id [count]</div>
+    </div>
+    <div class="field">
+      <div class="field-label">EXITS</div>
+      <div class="exits-compass" id="exits-compass"></div>
+      <div class="exit-options"  id="exit-options"></div>
+    </div>
+    <button class="btn danger" style="margin-top:4px" onclick="deleteSelected()">✕ DELETE ROOM</button>
+  `;
+
+  // Live-update listeners
+  document.getElementById('f-title').addEventListener('input', e => {
+    room.title = e.target.value;
+    renderGrid();
+  });
+  document.getElementById('f-desc').addEventListener('input', e => { room.desc  = e.target.value; });
+  document.getElementById('f-items').addEventListener('input', e => { room.items = e.target.value; });
+  document.getElementById('f-npcs').addEventListener('input', e => { room.npcs  = e.target.value; });
+
+  renderExits(k);
+}
+
+// ─── Exits ────────────────────────────────────────────────────────────────────
+
+function renderExits(k) {
+  const room = S.rooms[k];
+  const compass = document.getElementById('exits-compass');
+  compass.innerHTML = '';
+
+  for (const row of COMPASS_LAYOUT) {
+    for (const cell of row) {
+      const btn = document.createElement('div');
+      if (cell === null) {
+        btn.className = 'exit-btn ph';
+        btn.textContent = '.';
+      } else if (cell === 'ctr') {
+        btn.className = 'exit-btn ctr';
+        btn.textContent = '·';
+      } else {
+        const active = !!(room.exits && room.exits[cell]);
+        btn.className = 'exit-btn' + (active ? ' active' : '');
+        btn.textContent = DIR_ABBR[cell];
+        btn.title = cell;
+        btn.addEventListener('click', () => toggleExit(k, cell));
+      }
+      compass.appendChild(btn);
+    }
+  }
+
+  renderExitOptions(k);
+}
+
+function renderExitOptions(k) {
+  const room  = S.rooms[k];
+  const cont  = document.getElementById('exit-options');
+  cont.innerHTML = '';
+
+  const active = Object.keys(room.exits || {});
+  if (!active.length) return;
+
+  for (const dir of active) {
+    const ex  = room.exits[dir];
+    const row = document.createElement('div');
+    row.className = 'exit-option-row';
+    row.innerHTML = `
+      <span class="exit-option-dir">${DIR_ABBR[dir]}</span>
+      <div class="exit-option-checks">
+        <label class="chk ${ex.door ? 'door-on' : ''}">
+          <input type="checkbox" ${ex.door ? 'checked' : ''} data-dir="${dir}" data-prop="door"> DOOR
+        </label>
+        <label class="chk ${ex.locked ? 'lock-on' : ''}">
+          <input type="checkbox" ${ex.locked ? 'checked' : ''} data-dir="${dir}" data-prop="locked"> LOCKED
+        </label>
+      </div>`;
+    cont.appendChild(row);
+  }
+
+  cont.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', e => {
+      const {dir, prop} = e.target.dataset;
+      room.exits[dir][prop] = e.target.checked;
+      // if unlocking door too, keep locked consistent
+      if (prop === 'door' && !e.target.checked) room.exits[dir].locked = false;
+      renderExits(k);
+    });
+  });
+}
+
+function toggleExit(k, dir) {
+  const room = S.rooms[k];
+  if (room.exits[dir]) {
+    delete room.exits[dir];
+  } else {
+    room.exits[dir] = { door: false, locked: false };
+  }
+  renderExits(k);
+  renderGrid();
+}
+
+function deleteSelected() {
+  if (!S.sel) return;
+  if (confirm(`Delete room at ${S.sel}?`)) {
+    delete S.rooms[S.sel];
+    S.sel = null;
+    renderGrid();
+    renderEditor();
+  }
+}
+
+// ─── Grid / Z Controls ───────────────────────────────────────────────────────
+
+function resizeGrid(axis, delta) {
+  if (axis === 'cols') {
+    S.cols = Math.max(3, Math.min(30, S.cols + delta));
+    document.getElementById('cols-disp').textContent = S.cols;
+  } else {
+    S.rows = Math.max(3, Math.min(30, S.rows + delta));
+    document.getElementById('rows-disp').textContent = S.rows;
+  }
+  renderGrid();
+}
+
+function changeZ(delta) {
+  S.z += delta;
+  document.getElementById('z-disp').textContent = S.z;
+  // deselect if active room is on a different level
+  if (S.sel && pk(S.sel).z !== S.z) S.sel = null;
+  renderGrid();
+  renderEditor();
+}
+
+// ─── YAML Generation ─────────────────────────────────────────────────────────
+
+function parseEntityLines(text) {
+  if (!text || !text.trim()) return [];
+  return text.trim().split('\n').map(line => {
+    line = line.trim();
+    if (!line) return null;
+    const parts = line.split(/\s+/);
+    return { id: parts[0], maxLoadSize: parts[1] ? parseInt(parts[1]) || 1 : 1 };
+  }).filter(Boolean);
+}
+
+function roomToYAML(k, areaId) {
+  const {x,y,z} = pk(k);
+  const room     = S.rooms[k];
+  const roomId   = `${x}_${y}_${z}`;
+  const L        = [];
+
+  L.push(`- id: ${roomId}`);
+  L.push(`  title: "${(room.title||'Untitled').replace(/\\/g,'\\\\').replace(/"/g,'\\"')}"`);
+
+  const desc = (room.desc||'').trim();
+  if (desc) {
+    L.push(`  desc: |`);
+    desc.split('\n').forEach(l => L.push(`    ${l}`));
+  } else {
+    L.push(`  desc: ""`);
+  }
+
+  L.push(`  coordinates: [${x}, ${y}, ${z}]`);
+
+  const items = parseEntityLines(room.items);
+  if (items.length) {
+    L.push(`  items:`);
+    items.forEach(it => { L.push(`    - id: '${it.id}'`); L.push(`      maxLoadSize: ${it.maxLoadSize}`); });
+  }
+
+  const npcs = parseEntityLines(room.npcs);
+  if (npcs.length) {
+    L.push(`  npcs:`);
+    npcs.forEach(n => { L.push(`    - id: '${n.id}'`); L.push(`      maxLoadSize: ${n.maxLoadSize}`); });
+  }
+
+  const exits = room.exits || {};
+  const exitDirs = Object.keys(exits);
+  if (exitDirs.length) {
+    L.push(`  exits:`);
+    for (const dir of exitDirs) {
+      const [dx,dy,dz] = DIR_OFFSETS[dir];
+      const tid = `${x+dx}_${y+dy}_${z+dz}`;
+      const ex  = exits[dir];
+      L.push(`    ${dir}:`);
+      L.push(`      roomId: '${areaId}:${tid}'`);
+      if (ex.door) {
+        L.push(`      door:`);
+        L.push(`        closed: true`);
+        L.push(`        locked: ${!!ex.locked}`);
+      }
+    }
+  }
+
+  return L.join('\n');
+}
+
+function generateYAML(mode) {
+  const areaId = document.getElementById('area-id').value || 'myarea';
+  const out    = document.getElementById('yaml-output');
+
+  if (mode === 'selected') {
+    if (!S.sel || !S.rooms[S.sel]) { out.value = '# No room selected.'; return; }
+    out.value = roomToYAML(S.sel, areaId);
+    return;
+  }
+
+  const keys = Object.keys(S.rooms);
+  if (!keys.length) { out.value = '# No rooms defined.'; return; }
+
+  keys.sort((a,b) => {
+    const pa=pk(a), pb=pk(b);
+    if (pa.z !== pb.z) return pa.z - pb.z;
+    if (pa.y !== pb.y) return pb.y - pa.y;
+    return pa.x - pb.x;
+  });
+
+  out.value = keys.map(k => roomToYAML(k, areaId)).join('\n\n');
+}
+
+function copyYAML(btn) {
+  const val = document.getElementById('yaml-output').value;
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ COPIED';
+    setTimeout(() => btn.textContent = orig, 1600);
+  });
+}
+
+// ─── Utility ─────────────────────────────────────────────────────────────────
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+renderGrid();
+renderEditor();
+</script>
+</body>
+</html>
