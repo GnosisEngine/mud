@@ -23,7 +23,7 @@ module.exports = {
     B.sayAt(player, B.line(40));
 
     for (const key of keys) {
-      const amount = held[key];
+      const amount = ResourceContainer.getAmount(player, key);
       const def = ResourceDefinitions.getDefinition(key);
       const title = def ? def.title : key;
       const unitWeight = def ? def.weight : 0;

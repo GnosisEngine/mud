@@ -4,7 +4,6 @@
 const ResourceVisibility = require('./ResourceVisibility');
 const ResourceSplit = require('./ResourceSplit');
 const ResourceDefinitions = require('./ResourceDefinitions');
-const ResourceRot = require('./ResourceRot');
 
 function findNode(args, roomItems) {
   if (!args || !args.trim().length) return null;
@@ -60,18 +59,21 @@ function execute(player, room, args, options) {
     return { ok: false, reason: 'nothing_yielded' };
   }
 
-  const allocation = ResourceSplit.distribute(player, room, yields, { splitResolver, roomDropper });
-
+  const expiryTicks = {};
   if (currentTick !== null) {
-    for (const { entity, amounts } of allocation) {
-      for (const [resourceKey, amount] of Object.entries(amounts)) {
-        const rotTicks = ResourceDefinitions.getRotTicks(resourceKey);
-        if (rotTicks !== null) {
-          ResourceRot.addRotEntry(entity, resourceKey, amount, currentTick + rotTicks);
-        }
+    for (const resourceKey of Object.keys(yields)) {
+      const rotTicks = ResourceDefinitions.getRotTicks(resourceKey);
+      if (rotTicks !== null) {
+        expiryTicks[resourceKey] = currentTick + rotTicks;
       }
     }
   }
+
+  const allocation = ResourceSplit.distribute(player, room, yields, {
+    splitResolver,
+    roomDropper,
+    expiryTicks,
+  });
 
   removeNode(node);
 

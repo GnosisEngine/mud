@@ -7,7 +7,7 @@ const TerrainResolver = require('./TerrainResolver');
 const SPAWN_TICK_MS = 30000;
 const SPAWNABLE_ZONE_TYPES = new Set(['SUPPLY', 'WILDERNESS']);
 const RESOURCE_ITEM_TYPE = 'RESOURCE';
-const RESOURCES_AREA_NAME = 'resources';
+const RESOURCES_AREA_NAME = 'craft';
 
 function _countResourceNodesInRoom(room, resourceKey) {
   let count = 0;

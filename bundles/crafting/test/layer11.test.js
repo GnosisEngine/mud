@@ -58,7 +58,7 @@ function mockState(players, currentTick) {
   players.forEach(function(p, i) { playerMap.set('p' + i, p); });
 
   return {
-    ClockBundle: {
+    TimeBundle: {
       getCurrentTick: function() { return currentTick || 1000; },
     },
     PlayerManager: {
@@ -106,7 +106,7 @@ test('processes expired rot entries for online players', function() {
   const poll = setInterval(function() {}, 0);
   clearInterval(poll);
 
-  const currentTick = state.ClockBundle.getCurrentTick();
+  const currentTick = state.TimeBundle.getCurrentTick();
   const result = ResourceRot.processEntity(player, currentTick);
   assert.strictEqual(result.rotted.honey, 4);
   assert.deepStrictEqual(RC.getHeld(player), {});

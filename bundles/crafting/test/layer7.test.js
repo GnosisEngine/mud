@@ -428,6 +428,29 @@ test('craft.js exports usage and command function using ResourceContainer.remove
   assert.ok(src.includes('.remove('));
 });
 
+test('returns insufficient for perishable when initiator lacks enough', () => {
+  TL.clearAll();
+  const a = mockEntity(10, { honey: [9999] });
+  const b = mockEntity(10);
+  const result = TL.initiate(a, b, { honey: 3 });
+  assert.strictEqual(result.ok, false);
+  assert.strictEqual(result.reason, 'insufficient');
+  assert.strictEqual(result.key, 'honey');
+});
+
+test('perishable trade transfers expiry ticks to recipient', () => {
+  TL.clearAll();
+  const a = mockEntity(10, { honey: [1000, 2000, 3000] });
+  const b = mockEntity(10);
+  TL.initiate(a, b, { honey: 2 }, { timeoutMs: 60000 });
+  TL.accept(a, b);
+  assert.strictEqual(RC.getAmount(a, 'honey'), 1);
+  assert.strictEqual(RC.getAmount(b, 'honey'), 2);
+  const bTicks = RC.getHeld(b).honey.slice().sort((x, y) => x - y);
+  assert.deepStrictEqual(bTicks, [1000, 2000]);
+  TL.clearAll();
+});
+
 console.log('\nTradeLogic timeout (async)');
 
 async function runAsyncTests() {

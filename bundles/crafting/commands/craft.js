@@ -25,7 +25,7 @@ function getCraftingCategories(state) {
     const catIndex = categories.findIndex(c => c.type === recipeItem.type);
     if (catIndex === -1) continue;
     recipeItem.hydrate(state);
-    categories[catIndex].items.push({ item: recipeItem, recipe: recipe.recipe });
+    categories[catIndex].items.push({ item: recipeItem, recipe: recipe.recipe, itemRef: recipe.item });
   }
 
   return categories;
@@ -88,11 +88,10 @@ subcommands.add({
     if (!entry) return say(player, 'Invalid item.');
 
     for (const [key, required] of Object.entries(entry.recipe)) {
-      const held = ResourceContainer.getHeld(player);
-      if ((held[key] || 0) < required) {
+      if (ResourceContainer.getAmount(player, key) < required) {
         const def = ResourceDefinitions.getDefinition(key);
         const title = def ? def.title : key;
-        const shortfall = required - (held[key] || 0);
+        const shortfall = required - ResourceContainer.getAmount(player, key);
         return say(player, `You need ${shortfall} more ${title}.`);
       }
     }
@@ -108,9 +107,12 @@ subcommands.add({
       }
     }
 
-    state.ItemManager.add(entry.item);
-    player.addItem(entry.item);
-    say(player, `<b><green>You create: ${entry.item.name}.</green></b>`);
+    const area = state.AreaManager.getAreaByReference(entry.itemRef);
+    const newItem = state.ItemFactory.create(area, entry.itemRef);
+    newItem.hydrate(state);
+    state.ItemManager.add(newItem);
+    player.addItem(newItem);
+    say(player, `<b><green>You create: ${newItem.name}.</green></b>`);
     player.save();
   },
 });

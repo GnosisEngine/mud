@@ -30,7 +30,8 @@
 const fs   = require('fs');
 const path = require('path');
 
-let raw        = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'data', 'world.json'), 'utf8'));
+const raw = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'data', 'world.json'), 'utf8'));
+//const raw        = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'data', 'world.json'), 'utf8'));
 const DIRECTIONS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
 // ---------------------------------------------------------------------------
@@ -197,17 +198,6 @@ const clusterMap = (() => {
   return clusters;
 })();
 
-// ----
-// Legends
-// ---
-
-const terrainLegend = raw.legends.terrain
-const featuresLegend = raw.legends.features
-
-// Clean Up
-
-raw = undefined
-
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -231,35 +221,28 @@ function getClusters() {
 }
 
 /**
- * Finds the shortest traversable path between two clusters using A*.
+ * Finds the shortest traversable path between two grid coordinates using A*.
  *
- * Pathfinding starts from the centroid of the start cluster and searches
- * outward across all gameplay tiles (roads, wilderness, supply, outpost).
- * The search terminates when any tile belonging to the end cluster is reached.
+ * Searches outward across all gameplay tiles (roads, wilderness, supply,
+ * outpost). The search terminates when any tile belonging to the same cluster
+ * as the end coord is reached.
  *
- * The returned cluster list contains only the named clusters encountered
- * along the tile path, in traversal order, with duplicates collapsed.
- * Road tiles are traversed but do not appear as clusters in the result.
- *
- * @param {number} startClusterId
- * @param {number} endClusterId
+ * @param {number[]} startCoords - [x, y] origin
+ * @param {number[]} endCoords   - [x, y] destination
  * @returns {{ clusters: object[], coords: number[][] } | null}
  */
-function getPathBetweenClusters(startClusterId, endClusterId) {
-  const start = find(startClusterId);
-  const end   = find(endClusterId);
+function getPath(startCoords, endCoords) {
+  const [ex, ey] = endCoords;
+  const endKey   = `${Math.round(ex)},${Math.round(ey)}`;
+  const endTile  = coordMap.get(endKey);
+  const endCluster = endTile ? find(endTile.cluster) : null;
 
-  const startCentroid = centroids[start];
-  const endCentroid   = centroids[end];
-  if (!startCentroid || !endCentroid) return null;
-
-  // Manhattan distance to end centroid — admissible heuristic for grid A*
-  const [ex, ey] = endCentroid;
+  // Manhattan distance to end coord — admissible heuristic for grid A*
   const h = (x, y) => Math.abs(x - ex) + Math.abs(y - ey);
 
-  const startKey = `${Math.round(startCentroid[0])},${Math.round(startCentroid[1])}`;
+  const startKey = `${Math.round(startCoords[0])},${Math.round(startCoords[1])}`;
   const gScore   = new Map([[startKey, 0]]);
-  const fScore   = new Map([[startKey, h(...startCentroid)]]);
+  const fScore   = new Map([[startKey, h(...startCoords)]]);
   const prev     = new Map([[startKey, null]]);
   const open     = new Set([startKey]);
 
@@ -276,7 +259,8 @@ function getPathBetweenClusters(startClusterId, endClusterId) {
 
     // Stop as soon as we step onto any tile in the destination cluster
     const curTile = coordMap.get(cur);
-    if (curTile && find(curTile.cluster) === end) { foundKey = cur; break; }
+    if (curTile && endCluster && find(curTile.cluster) === endCluster) { foundKey = cur; break; }
+    if (cur === endKey) { foundKey = cur; break; }
 
     const [x, y] = cur.split(',').map(Number);
     const ng = (gScore.get(cur) ?? 0) + 1;
@@ -319,6 +303,21 @@ function getPathBetweenClusters(startClusterId, endClusterId) {
 }
 
 /**
+ * Finds the shortest traversable path between two clusters using A*.
+ * Resolves each cluster to its centroid and delegates to getPath().
+ *
+ * @param {number} startClusterId
+ * @param {number} endClusterId
+ * @returns {{ clusters: object[], coords: number[][] } | null}
+ */
+function getPathBetweenClusters(startClusterId, endClusterId) {
+  const startCentroid = centroids[find(startClusterId)];
+  const endCentroid   = centroids[find(endClusterId)];
+  if (!startCentroid || !endCentroid) return null;
+  return getPath(startCentroid, endCentroid);
+}
+
+/**
  * Returns the compass direction needed to move from one coord to another.
  * The two coords must be adjacent (one step apart on either axis).
  *
@@ -338,24 +337,16 @@ function getDirection(from, to) {
   return null;
 }
 
-/**
- * 
- * @param {*} room 
- */
-function getTerrainForRoom(room) {
-  const entry = getEntryByCoords(room.coords[0], room.coords[1]);
-
-  return {
-    id: entry.terrain,
-    key: terrainLegend[entry.terrain]
-  }
-}
-
 module.exports = {
+  world,
+  coordMap,
+  pairs,
+  centroids,
+  clusterMap,
   getEntryByCoords,
   getClusters,
   getRoadPairs,
+  getPath,
   getPathBetweenClusters,
   getDirection,
-  getTerrainForRoom
 };

@@ -68,7 +68,7 @@
   title: "Training Room 2"
   coordinates: [ 2, 1, 0 ]
   items:
-    - id: "craft:greenplant"
+    - id: "craft:madder"
       respawnChance: 30
   npcs:
     - id: "limbo:trainingdummy"
@@ -88,7 +88,7 @@
   title: "Training Room 3"
   coordinates: [ 3, 1, 0 ]
   items:
-    - id: "craft:redrose"
+    - id: "craft:woad"
       respawnChance: 15
   exits:
     - roomId: "limbo:training2"

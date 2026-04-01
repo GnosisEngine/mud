@@ -28,8 +28,7 @@ function initiate(initiator, target, resourceMap, options = {}) {
   }
 
   for (const [key, amount] of Object.entries(resourceMap)) {
-    const held = ResourceContainer.getHeld(initiator);
-    if ((held[key] || 0) < amount) {
+    if (ResourceContainer.getAmount(initiator, key) < amount) {
       return { ok: false, reason: 'insufficient', key };
     }
   }

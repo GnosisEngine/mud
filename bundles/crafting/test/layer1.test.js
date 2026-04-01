@@ -272,5 +272,30 @@ test('validation rejects resource missing rotTicks field', function() {
   }
 });
 
+console.log('\nisPerishable');
+
+test('isPerishable returns true for a resource with rotTicks', function() {
+  assert.strictEqual(RD.isPerishable('medicinal_herbs'), true);
+  assert.strictEqual(RD.isPerishable('honey'), true);
+  assert.strictEqual(RD.isPerishable('woad'), true);
+});
+
+test('isPerishable returns false for a resource with null rotTicks', function() {
+  assert.strictEqual(RD.isPerishable('alluvial_gold'), false);
+  assert.strictEqual(RD.isPerishable('rock_salt'), false);
+  assert.strictEqual(RD.isPerishable('galena'), false);
+});
+
+test('isPerishable returns false for unknown key', function() {
+  assert.strictEqual(RD.isPerishable('does_not_exist'), false);
+});
+
+test('isPerishable is consistent with getRotTicks across all keys', function() {
+  for (const key of RD.getAllKeys()) {
+    const expected = RD.getRotTicks(key) !== null;
+    assert.strictEqual(RD.isPerishable(key), expected, key + ' mismatch');
+  }
+});
+
 console.log('\n' + (passed + failed) + ' tests: ' + passed + ' passed, ' + failed + ' failed\n');
 process.exit(failed > 0 ? 1 : 0);

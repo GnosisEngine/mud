@@ -93,11 +93,16 @@ function isValidKey(key) {
   return key in _resources;
 }
 
+function isPerishable(key) {
+  return getRotTicks(key) !== null;
+}
+
 module.exports = {
   getDefinition,
   getWeight,
   getRequirements,
   getRotTicks,
+  isPerishable,
   getAllKeys,
   getSpawnTable,
   isValidKey,

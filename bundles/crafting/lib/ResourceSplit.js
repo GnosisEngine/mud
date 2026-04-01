@@ -25,9 +25,9 @@ function _applyFloorSplit(yields, splits) {
   return { shares, remainder };
 }
 
-function _tryAdd(entity, resourceKey, amount, room, roomDropper, allocation) {
+function _tryAdd(entity, resourceKey, amount, room, roomDropper, allocation, expiryTick) {
   if (amount <= 0) return;
-  const result = ResourceContainer.add(entity, resourceKey, amount);
+  const result = ResourceContainer.add(entity, resourceKey, amount, expiryTick);
   if (result.ok) {
     if (!allocation.has(entity)) allocation.set(entity, {});
     const map = allocation.get(entity);
@@ -44,13 +44,14 @@ function _allocationToArray(allocation) {
 function distribute(player, room, yields, options = {}) {
   const splitResolver = options.splitResolver || null;
   const roomDropper = options.roomDropper || function() {};
+  const expiryTicks = options.expiryTicks || {};
   const allocation = new Map();
 
   const splits = splitResolver ? splitResolver(room) : null;
 
   if (!splits || splits.length === 0) {
     for (const [resourceKey, amount] of Object.entries(yields)) {
-      _tryAdd(player, resourceKey, amount, room, roomDropper, allocation);
+      _tryAdd(player, resourceKey, amount, room, roomDropper, allocation, expiryTicks[resourceKey]);
     }
     return _allocationToArray(allocation);
   }
@@ -63,12 +64,12 @@ function distribute(player, room, yields, options = {}) {
 
   for (const { entity, amounts } of shares) {
     for (const [resourceKey, amount] of Object.entries(amounts)) {
-      _tryAdd(entity, resourceKey, amount, room, roomDropper, allocation);
+      _tryAdd(entity, resourceKey, amount, room, roomDropper, allocation, expiryTicks[resourceKey]);
     }
   }
 
   for (const [resourceKey, amount] of Object.entries(remainder)) {
-    _tryAdd(player, resourceKey, amount, room, roomDropper, allocation);
+    _tryAdd(player, resourceKey, amount, room, roomDropper, allocation, expiryTicks[resourceKey]);
   }
 
   return _allocationToArray(allocation);

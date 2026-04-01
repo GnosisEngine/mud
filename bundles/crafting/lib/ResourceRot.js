@@ -3,6 +3,8 @@
 
 const ResourceContainer = require('./ResourceContainer');
 
+const ROT_DIRTY_KEY = 'resourceRotDirty';
+
 function addRotEntry(entity, resourceKey, amount, expiresAt) {
   if (expiresAt === null || expiresAt === undefined) return;
   if (typeof amount !== 'number' || amount <= 0) return;
@@ -10,11 +12,16 @@ function addRotEntry(entity, resourceKey, amount, expiresAt) {
   const entries = entity.getMeta('resourceRot') || [];
   entries.push({ key: resourceKey, amount, expiresAt });
   entity.setMeta('resourceRot', entries);
+  entity.setMeta(ROT_DIRTY_KEY, true);
 }
 
 function getRotEntries(entity) {
   const entries = entity.getMeta('resourceRot') || [];
   return entries.map(e => ({ ...e }));
+}
+
+function isDirty(entity) {
+  return entity.getMeta(ROT_DIRTY_KEY) === true;
 }
 
 function processEntity(entity, currentTick) {
@@ -37,7 +44,8 @@ function processEntity(entity, currentTick) {
   }
 
   entity.setMeta('resourceRot', surviving);
+  if (surviving.length === 0) entity.setMeta(ROT_DIRTY_KEY, false);
   return { rotted };
 }
 
-module.exports = { addRotEntry, getRotEntries, processEntity };
+module.exports = { addRotEntry, getRotEntries, isDirty, processEntity };

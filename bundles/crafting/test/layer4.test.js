@@ -4,6 +4,7 @@
 const assert = require('assert');
 const RS = require('../lib/ResourceSplit');
 const RC = require('../lib/ResourceContainer');
+const RD = require('../lib/ResourceDefinitions');
 
 let passed = 0;
 let failed = 0;
@@ -36,9 +37,12 @@ function makeDropTracker() {
   return { dropper: function(room, key, amount) { drops.push({ room: room, key: key, amount: amount }); }, drops: drops };
 }
 
-// alluvial_gold: 1.4kg, no rot
-// honey: 19.8kg, perishable
-// wool: 231kg, very heavy
+// alluvial_gold: 1.4kg, non-perishable
+// honey: 19.8kg, perishable  (requires expiryTick)
+// wool: 231kg, very heavy, perishable
+
+const HONEY_EXPIRY = 9999;
+const honeyTicks = { honey: HONEY_EXPIRY };
 
 console.log('\nLayer 4 - ResourceSplit\n');
 console.log('solo gather - no split resolver');
@@ -46,26 +50,39 @@ console.log('solo gather - no split resolver');
 test('all yield goes to gatherer when no splitResolver provided', function() {
   const player = mockEntity(10);
   RS.distribute(player, mockRoom(), { alluvial_gold: 5 });
-  assert.strictEqual(RC.getHeld(player).alluvial_gold, 5);
+  assert.strictEqual(RC.getAmount(player, 'alluvial_gold'), 5);
 });
 
 test('all yield goes to gatherer when splitResolver returns null', function() {
   const player = mockEntity(10);
   RS.distribute(player, mockRoom(), { alluvial_gold: 5 }, { splitResolver: function() { return null; } });
-  assert.strictEqual(RC.getHeld(player).alluvial_gold, 5);
+  assert.strictEqual(RC.getAmount(player, 'alluvial_gold'), 5);
 });
 
 test('all yield goes to gatherer when splitResolver returns empty array', function() {
   const player = mockEntity(10);
   RS.distribute(player, mockRoom(), { alluvial_gold: 5 }, { splitResolver: function() { return []; } });
-  assert.strictEqual(RC.getHeld(player).alluvial_gold, 5);
+  assert.strictEqual(RC.getAmount(player, 'alluvial_gold'), 5);
 });
 
-test('multiple resource types distributed to solo gatherer', function() {
+test('multiple non-perishable resource types distributed to solo gatherer', function() {
   const player = mockEntity(10);
-  RS.distribute(player, mockRoom(), { alluvial_gold: 4, honey: 2 });
-  assert.strictEqual(RC.getHeld(player).alluvial_gold, 4);
-  assert.strictEqual(RC.getHeld(player).honey, 2);
+  RS.distribute(player, mockRoom(), { alluvial_gold: 4, rock_salt: 2 });
+  assert.strictEqual(RC.getAmount(player, 'alluvial_gold'), 4);
+  assert.strictEqual(RC.getAmount(player, 'rock_salt'), 2);
+});
+
+test('perishable distributed to solo gatherer with expiryTicks', function() {
+  const player = mockEntity(10);
+  RS.distribute(player, mockRoom(), { honey: 3 }, { expiryTicks: honeyTicks });
+  assert.strictEqual(RC.getAmount(player, 'honey'), 3);
+  assert.ok(RC.getHeld(player).honey.every(t => t === HONEY_EXPIRY));
+});
+
+test('perishable without expiryTicks is silently skipped', function() {
+  const player = mockEntity(10);
+  RS.distribute(player, mockRoom(), { honey: 3 });
+  assert.strictEqual(RC.getAmount(player, 'honey'), 0);
 });
 
 console.log('\nsplit gather - basic distribution');
@@ -76,8 +93,8 @@ test('50/50 split distributes evenly', function() {
   RS.distribute(player, mockRoom(), { alluvial_gold: 10 }, {
     splitResolver: makeSplitResolver([{ entity: other, percentage: 0.5 }])
   });
-  assert.strictEqual(RC.getHeld(player).alluvial_gold, 5);
-  assert.strictEqual(RC.getHeld(other).alluvial_gold, 5);
+  assert.strictEqual(RC.getAmount(player, 'alluvial_gold'), 5);
+  assert.strictEqual(RC.getAmount(other, 'alluvial_gold'), 5);
 });
 
 test('70/30 split distributes correctly', function() {
@@ -86,8 +103,8 @@ test('70/30 split distributes correctly', function() {
   RS.distribute(player, mockRoom(), { alluvial_gold: 10 }, {
     splitResolver: makeSplitResolver([{ entity: other, percentage: 0.3 }])
   });
-  assert.strictEqual(RC.getHeld(player).alluvial_gold, 7);
-  assert.strictEqual(RC.getHeld(other).alluvial_gold, 3);
+  assert.strictEqual(RC.getAmount(player, 'alluvial_gold'), 7);
+  assert.strictEqual(RC.getAmount(other, 'alluvial_gold'), 3);
 });
 
 test('three-way split distributes to all parties', function() {
@@ -97,20 +114,32 @@ test('three-way split distributes to all parties', function() {
   RS.distribute(player, mockRoom(), { alluvial_gold: 9 }, {
     splitResolver: makeSplitResolver([{ entity: b, percentage: 0.33 }, { entity: c, percentage: 0.33 }])
   });
-  assert.ok((RC.getHeld(b).alluvial_gold || 0) >= 2);
-  assert.ok((RC.getHeld(c).alluvial_gold || 0) >= 2);
+  assert.ok(RC.getAmount(b, 'alluvial_gold') >= 2);
+  assert.ok(RC.getAmount(c, 'alluvial_gold') >= 2);
 });
 
-test('multiple resource types split correctly', function() {
+test('mixed types split correctly including perishable', function() {
   const player = mockEntity(10);
   const other = mockEntity(10);
   RS.distribute(player, mockRoom(), { alluvial_gold: 10, honey: 2 }, {
-    splitResolver: makeSplitResolver([{ entity: other, percentage: 0.5 }])
+    splitResolver: makeSplitResolver([{ entity: other, percentage: 0.5 }]),
+    expiryTicks: honeyTicks,
   });
-  assert.strictEqual(RC.getHeld(player).alluvial_gold, 5);
-  assert.strictEqual(RC.getHeld(other).alluvial_gold, 5);
-  assert.strictEqual(RC.getHeld(player).honey, 1);
-  assert.strictEqual(RC.getHeld(other).honey, 1);
+  assert.strictEqual(RC.getAmount(player, 'alluvial_gold'), 5);
+  assert.strictEqual(RC.getAmount(other, 'alluvial_gold'), 5);
+  assert.strictEqual(RC.getAmount(player, 'honey'), 1);
+  assert.strictEqual(RC.getAmount(other, 'honey'), 1);
+});
+
+test('split perishable units all carry the correct expiry tick', function() {
+  const player = mockEntity(10);
+  const other = mockEntity(10);
+  RS.distribute(player, mockRoom(), { honey: 4 }, {
+    splitResolver: makeSplitResolver([{ entity: other, percentage: 0.5 }]),
+    expiryTicks: honeyTicks,
+  });
+  assert.ok(RC.getHeld(player).honey.every(t => t === HONEY_EXPIRY));
+  assert.ok(RC.getHeld(other).honey.every(t => t === HONEY_EXPIRY));
 });
 
 console.log('\nremainder handling');
@@ -121,8 +150,8 @@ test('floor remainder goes to gatherer', function() {
   RS.distribute(player, mockRoom(), { alluvial_gold: 3 }, {
     splitResolver: makeSplitResolver([{ entity: other, percentage: 0.5 }])
   });
-  const p = RC.getHeld(player).alluvial_gold || 0;
-  const o = RC.getHeld(other).alluvial_gold || 0;
+  const p = RC.getAmount(player, 'alluvial_gold');
+  const o = RC.getAmount(other, 'alluvial_gold');
   assert.strictEqual(p + o, 3);
   assert.ok(p >= o);
 });
@@ -132,10 +161,11 @@ test('total distributed always equals total yielded', function() {
   const b = mockEntity(10);
   const c = mockEntity(10);
   RS.distribute(player, mockRoom(), { alluvial_gold: 7, honey: 3 }, {
-    splitResolver: makeSplitResolver([{ entity: b, percentage: 0.33 }, { entity: c, percentage: 0.33 }])
+    splitResolver: makeSplitResolver([{ entity: b, percentage: 0.33 }, { entity: c, percentage: 0.33 }]),
+    expiryTicks: honeyTicks,
   });
-  const totalGold = (RC.getHeld(player).alluvial_gold||0) + (RC.getHeld(b).alluvial_gold||0) + (RC.getHeld(c).alluvial_gold||0);
-  const totalHoney = (RC.getHeld(player).honey||0) + (RC.getHeld(b).honey||0) + (RC.getHeld(c).honey||0);
+  const totalGold = RC.getAmount(player, 'alluvial_gold') + RC.getAmount(b, 'alluvial_gold') + RC.getAmount(c, 'alluvial_gold');
+  const totalHoney = RC.getAmount(player, 'honey') + RC.getAmount(b, 'honey') + RC.getAmount(c, 'honey');
   assert.strictEqual(totalGold, 7);
   assert.strictEqual(totalHoney, 3);
 });
@@ -143,7 +173,6 @@ test('total distributed always equals total yielded', function() {
 console.log('\noverflow - recipient cannot carry');
 
 test('overflow drops to room when gatherer is at capacity', function() {
-  // strength=7, cap=70kg. Fill with 50 alluvial_gold (50*1.4=70kg). Then try to add more.
   const player = mockEntity(7);
   RC.add(player, 'alluvial_gold', 50);
   const tracker = makeDropTracker();
@@ -157,9 +186,9 @@ test('overflow drops to room when gatherer is at capacity', function() {
 
 test('overflow drops to room when split recipient is at capacity', function() {
   const player = mockEntity(10);
-  const other = mockEntity(1); // cap=10kg, wool=231kg so can't carry any wool
+  const other = mockEntity(1);
   const tracker = makeDropTracker();
-  RC.add(other, 'alluvial_gold', 7); // fill other to ~9.8kg (7*1.4)
+  RC.add(other, 'alluvial_gold', 7);
   RS.distribute(player, mockRoom(), { alluvial_gold: 10 }, {
     splitResolver: makeSplitResolver([{ entity: other, percentage: 0.5 }]),
     roomDropper: tracker.dropper
@@ -173,7 +202,7 @@ test('overflow roomDropper receives correct room reference', function() {
   RC.add(player, 'alluvial_gold', 50);
   const tracker = makeDropTracker();
   const room = mockRoom();
-  RS.distribute(player, room, { honey: 5 }, { roomDropper: tracker.dropper });
+  RS.distribute(player, room, { honey: 5 }, { roomDropper: tracker.dropper, expiryTicks: honeyTicks });
   for (const drop of tracker.drops) { assert.strictEqual(drop.room, room); }
 });
 
@@ -205,7 +234,7 @@ test('empty yields object does nothing', function() {
 test('missing roomDropper option does not throw on overflow', function() {
   const player = mockEntity(7);
   RC.add(player, 'alluvial_gold', 50);
-  assert.doesNotThrow(function() { RS.distribute(player, mockRoom(), { honey: 10 }); });
+  assert.doesNotThrow(function() { RS.distribute(player, mockRoom(), { honey: 10 }, { expiryTicks: honeyTicks }); });
 });
 
 test('splitResolver is called with room argument', function() {
@@ -242,6 +271,18 @@ test('split gather returns entries for both gatherer and recipient', function() 
   assert.strictEqual(oe.amounts.alluvial_gold, 5);
 });
 
+test('allocation amounts for perishable reflect actual count added', function() {
+  const player = mockEntity(10);
+  const other = mockEntity(10);
+  const result = RS.distribute(player, mockRoom(), { honey: 4 }, {
+    splitResolver: makeSplitResolver([{ entity: other, percentage: 0.5 }]),
+    expiryTicks: honeyTicks,
+  });
+  const pe = result.find(function(e) { return e.entity === player; });
+  const oe = result.find(function(e) { return e.entity === other; });
+  assert.strictEqual((pe ? pe.amounts.honey : 0) + (oe ? oe.amounts.honey : 0), 4);
+});
+
 test('overflow to room is NOT included in allocation', function() {
   const player = mockEntity(7);
   RC.add(player, 'alluvial_gold', 50);
@@ -271,7 +312,7 @@ test('allocation amounts reflect what was actually added including remainder', f
 
 test('multiple resource types each appear in allocation', function() {
   const player = mockEntity(10);
-  const result = RS.distribute(player, mockRoom(), { alluvial_gold: 3, honey: 1 });
+  const result = RS.distribute(player, mockRoom(), { alluvial_gold: 3, honey: 1 }, { expiryTicks: honeyTicks });
   assert.strictEqual(result.length, 1);
   assert.strictEqual(result[0].amounts.alluvial_gold, 3);
   assert.strictEqual(result[0].amounts.honey, 1);

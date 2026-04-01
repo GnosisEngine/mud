@@ -2,22 +2,14 @@
 'use strict';
 
 const assert = require('assert');
-const RR = require('../lib/ResourceRot');
 const RC = require('../lib/ResourceContainer');
 
 let passed = 0;
 let failed = 0;
 
 function test(name, fn) {
-  try {
-    fn();
-    console.log('  \u2713 ' + name);
-    passed++;
-  } catch (e) {
-    console.error('  \u2717 ' + name);
-    console.error('    ' + e.message);
-    failed++;
-  }
+  try { fn(); console.log('  \u2713 ' + name); passed++; }
+  catch (e) { console.error('  \u2717 ' + name); console.error('    ' + e.message); failed++; }
 }
 
 function mockEntity(strength, resources) {
@@ -25,218 +17,151 @@ function mockEntity(strength, resources) {
   resources = resources || {};
   const store = { resources: Object.assign({}, resources) };
   return {
-    getMeta: function(key) {
-      return key.split('.').reduce(function(o, k) { return o != null ? o[k] : undefined; }, store);
-    },
+    getMeta: function(key) { return key.split('.').reduce(function(o,k){ return o!=null?o[k]:undefined; }, store); },
     setMeta: function(key, val) {
       const parts = key.split('.');
       let cur = store;
-      for (let i = 0; i < parts.length - 1; i++) {
-        if (cur[parts[i]] == null) cur[parts[i]] = {};
-        cur = cur[parts[i]];
-      }
-      cur[parts[parts.length - 1]] = val;
+      for (let i = 0; i < parts.length - 1; i++) { if (cur[parts[i]]==null) cur[parts[i]]= {}; cur=cur[parts[i]]; }
+      cur[parts[parts.length-1]] = val;
     },
-    getAttribute: function(attr) {
-      return attr === 'strength' ? strength : 0;
-    },
+    getAttribute: function(attr) { return attr === 'strength' ? strength : 0; }
   };
 }
 
-console.log('\nLayer 9 - ResourceRot\n');
+// honey:           19.8kg, perishable
+// medicinal_herbs: 184kg,  perishable, shortest timer
+// alluvial_gold:   1.4kg,  non-perishable
+// rock_salt:       12.8kg, non-perishable
 
-console.log('addRotEntry');
+console.log('\nLayer 9 - ResourceContainer.isDirty + processRot\n');
 
-test('appends entry to empty resourceRot array', function() {
-  const e = mockEntity();
-  RR.addRotEntry(e, 'honey', 4, 1000);
-  const entries = RR.getRotEntries(e);
-  assert.strictEqual(entries.length, 1);
-  assert.strictEqual(entries[0].key, 'honey');
-  assert.strictEqual(entries[0].amount, 4);
-  assert.strictEqual(entries[0].expiresAt, 1000);
+console.log('isDirty');
+
+test('returns false for entity with no resources', function() {
+  assert.strictEqual(RC.isDirty(mockEntity()), false);
 });
 
-test('appends second entry independently for same resource key', function() {
-  const e = mockEntity();
-  RR.addRotEntry(e, 'honey', 4, 1000);
-  RR.addRotEntry(e, 'honey', 3, 1060);
-  const entries = RR.getRotEntries(e);
-  assert.strictEqual(entries.length, 2);
-  assert.strictEqual(entries[0].expiresAt, 1000);
-  assert.strictEqual(entries[1].expiresAt, 1060);
+test('returns false for entity with only non-perishables', function() {
+  const e = mockEntity(10, { alluvial_gold: 5, rock_salt: 3 });
+  assert.strictEqual(RC.isDirty(e), false);
 });
 
-test('appends entries for different resource keys independently', function() {
-  const e = mockEntity();
-  RR.addRotEntry(e, 'honey', 2, 500);
-  RR.addRotEntry(e, 'alluvial_gold', 5, 700);
-  const entries = RR.getRotEntries(e);
-  assert.strictEqual(entries.length, 2);
-  assert.ok(entries.find(function(en) { return en.key === 'honey'; }));
-  assert.ok(entries.find(function(en) { return en.key === 'alluvial_gold'; }));
+test('returns true for entity with a perishable', function() {
+  const e = mockEntity(10, { honey: [5000, 6000] });
+  assert.strictEqual(RC.isDirty(e), true);
 });
 
-test('no-op when expiresAt is null', function() {
-  const e = mockEntity();
-  RR.addRotEntry(e, 'honey', 4, null);
-  assert.strictEqual(RR.getRotEntries(e).length, 0);
+test('returns true when perishable and non-perishable coexist', function() {
+  const e = mockEntity(10, { alluvial_gold: 5, honey: [9999] });
+  assert.strictEqual(RC.isDirty(e), true);
 });
 
-test('no-op when expiresAt is undefined', function() {
-  const e = mockEntity();
-  RR.addRotEntry(e, 'honey', 4, undefined);
-  assert.strictEqual(RR.getRotEntries(e).length, 0);
+test('returns false after all perishables removed', function() {
+  const e = mockEntity(10, { honey: [1000] });
+  RC.remove(e, 'honey', 1);
+  assert.strictEqual(RC.isDirty(e), false);
 });
 
-test('no-op when amount is zero', function() {
-  const e = mockEntity();
-  RR.addRotEntry(e, 'honey', 0, 1000);
-  assert.strictEqual(RR.getRotEntries(e).length, 0);
-});
+console.log('\nprocessRot - no expiry');
 
-test('no-op when amount is negative', function() {
-  const e = mockEntity();
-  RR.addRotEntry(e, 'honey', -1, 1000);
-  assert.strictEqual(RR.getRotEntries(e).length, 0);
-});
-
-console.log('\ngetRotEntries');
-
-test('returns empty array when no rot entries exist', function() {
-  const e = mockEntity();
-  assert.deepStrictEqual(RR.getRotEntries(e), []);
-});
-
-test('returns a copy - mutations do not affect stored entries', function() {
-  const e = mockEntity();
-  RR.addRotEntry(e, 'honey', 4, 1000);
-  const entries = RR.getRotEntries(e);
-  entries[0].amount = 999;
-  assert.strictEqual(RR.getRotEntries(e)[0].amount, 4);
-});
-
-console.log('\nprocessEntity - no expiry');
-
-test('returns empty rotted map when nothing is expired', function() {
-  const e = mockEntity(10, { honey: 4 });
-  RR.addRotEntry(e, 'honey', 4, 2000);
-  const result = RR.processEntity(e, 1000);
+test('returns empty rotted map when nothing has expired', function() {
+  const e = mockEntity(10, { honey: [9999, 9999] });
+  const result = RC.processRot(e, 1000);
   assert.deepStrictEqual(result.rotted, {});
 });
 
-test('non-expired entries remain after processing', function() {
-  const e = mockEntity(10, { honey: 4 });
-  RR.addRotEntry(e, 'honey', 4, 2000);
-  RR.processEntity(e, 1000);
-  assert.strictEqual(RR.getRotEntries(e).length, 1);
+test('surviving entries remain untouched', function() {
+  const e = mockEntity(10, { honey: [9999, 9999] });
+  RC.processRot(e, 1000);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 2);
 });
 
-test('no-op on entity with no rot entries', function() {
-  const e = mockEntity(10, { honey: 4 });
-  const result = RR.processEntity(e, 1000);
+test('no-op on entity with no perishables', function() {
+  const e = mockEntity(10, { alluvial_gold: 5 });
+  const result = RC.processRot(e, 1000);
   assert.deepStrictEqual(result.rotted, {});
-  assert.strictEqual(RC.getHeld(e).honey, 4);
+  assert.strictEqual(RC.getAmount(e, 'alluvial_gold'), 5);
 });
 
-console.log('\nprocessEntity - expiry');
-
-test('removes resource amount when entry expires', function() {
-  const e = mockEntity(10, { honey: 4 });
-  RR.addRotEntry(e, 'honey', 4, 500);
-  RR.processEntity(e, 1000);
-  assert.ok(!RC.getHeld(e).honey);
+test('no-op on entity with empty resource map', function() {
+  const e = mockEntity();
+  const result = RC.processRot(e, 1000);
+  assert.deepStrictEqual(result.rotted, {});
 });
 
-test('returns correct rotted amount', function() {
-  const e = mockEntity(10, { honey: 4 });
-  RR.addRotEntry(e, 'honey', 4, 500);
-  const result = RR.processEntity(e, 1000);
-  assert.strictEqual(result.rotted.honey, 4);
+console.log('\nprocessRot - expiry');
+
+test('removes expired entries and reports count', function() {
+  const e = mockEntity(10, { honey: [500, 500] });
+  const result = RC.processRot(e, 1000);
+  assert.strictEqual(result.rotted.honey, 2);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 0);
 });
 
-test('expired entry is removed from rot array', function() {
-  const e = mockEntity(10, { honey: 4 });
-  RR.addRotEntry(e, 'honey', 4, 500);
-  RR.processEntity(e, 1000);
-  assert.strictEqual(RR.getRotEntries(e).length, 0);
+test('tick equal to currentTick is treated as expired', function() {
+  const e = mockEntity(10, { honey: [1000] });
+  const result = RC.processRot(e, 1000);
+  assert.strictEqual(result.rotted.honey, 1);
 });
 
-test('expiresAt equal to currentTick is treated as expired', function() {
-  const e = mockEntity(10, { honey: 4 });
-  RR.addRotEntry(e, 'honey', 4, 1000);
-  const result = RR.processEntity(e, 1000);
-  assert.strictEqual(result.rotted.honey, 4);
+test('removes key entirely when all entries expire', function() {
+  const e = mockEntity(10, { honey: [100, 200] });
+  RC.processRot(e, 1000);
+  assert.ok(!('honey' in RC.getHeld(e)));
 });
 
 test('processes only expired entries leaving future ones intact', function() {
-  const e = mockEntity(25, { honey: 7 });
-  RC.add(e, 'clay', 5);
-  RR.addRotEntry(e, 'honey', 4, 500);
-  RR.addRotEntry(e, 'honey', 3, 2000);
-  RR.addRotEntry(e, 'clay', 5, 3000);
-  RR.processEntity(e, 1000);
-  assert.strictEqual(RC.getHeld(e).honey, 3);
-  assert.strictEqual(RC.getHeld(e).clay, 5);
-  assert.strictEqual(RR.getRotEntries(e).length, 2);
-});
-
-test('accumulates rotted totals across multiple expired entries for same key', function() {
-  const e = mockEntity(10, { honey: 7 });
-  RR.addRotEntry(e, 'honey', 4, 400);
-  RR.addRotEntry(e, 'honey', 3, 500);
-  const result = RR.processEntity(e, 1000);
-  assert.strictEqual(result.rotted.honey, 7);
-});
-
-test('accumulates rotted totals across different keys', function() {
-  const e = mockEntity(20, { honey: 4 });
-  RC.add(e, 'clay', 5);
-  RR.addRotEntry(e, 'honey', 4, 400);
-  RR.addRotEntry(e, 'clay', 5, 500);
-  const result = RR.processEntity(e, 1000);
-  assert.strictEqual(result.rotted.honey, 4);
-  assert.strictEqual(result.rotted.clay, 5);
-});
-
-console.log('\nprocessEntity - trade-away case (Math.min)');
-
-test('rots only held amount when player traded some away', function() {
-  const e = mockEntity(10, { honey: 2 });
-  RR.addRotEntry(e, 'honey', 4, 500);
-  const result = RR.processEntity(e, 1000);
+  const e = mockEntity(10, { honey: [500, 500, 9999, 9999] });
+  const result = RC.processRot(e, 1000);
   assert.strictEqual(result.rotted.honey, 2);
-  assert.ok(!RC.getHeld(e).honey);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 2);
 });
 
-test('expired entry is cleared even when held amount is zero', function() {
-  const e = mockEntity(10, {});
-  RR.addRotEntry(e, 'honey', 4, 500);
-  const result = RR.processEntity(e, 1000);
-  assert.strictEqual(RR.getRotEntries(e).length, 0);
+test('accumulates count across multiple expired entries for same key', function() {
+  const e = mockEntity(10, { honey: [100, 200, 300] });
+  const result = RC.processRot(e, 1000);
+  assert.strictEqual(result.rotted.honey, 3);
+});
+
+test('processes multiple perishable keys independently', function() {
+  const e = mockEntity(20, { honey: [500, 500], medicinal_herbs: [400, 9999] });
+  const result = RC.processRot(e, 1000);
+  assert.strictEqual(result.rotted.honey, 2);
+  assert.strictEqual(result.rotted.medicinal_herbs, 1);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 0);
+  assert.strictEqual(RC.getAmount(e, 'medicinal_herbs'), 1);
+});
+
+test('non-perishable keys are not touched', function() {
+  const e = mockEntity(10, { alluvial_gold: 5, honey: [500] });
+  RC.processRot(e, 1000);
+  assert.strictEqual(RC.getAmount(e, 'alluvial_gold'), 5);
+});
+
+test('rotted map omits keys where nothing expired', function() {
+  const e = mockEntity(10, { honey: [9999], medicinal_herbs: [500] });
+  const result = RC.processRot(e, 1000);
+  assert.ok(!('honey' in result.rotted));
+  assert.strictEqual(result.rotted.medicinal_herbs, 1);
+});
+
+console.log('\nprocessRot - multiple calls (simulating poll loop)');
+
+test('second call is a no-op after everything already rotted', function() {
+  const e = mockEntity(10, { honey: [500] });
+  RC.processRot(e, 1000);
+  const result = RC.processRot(e, 2000);
   assert.deepStrictEqual(result.rotted, {});
 });
 
-test('rotted map omits key entirely when nothing was actually removed', function() {
-  const e = mockEntity(10, {});
-  RR.addRotEntry(e, 'honey', 4, 500);
-  const result = RR.processEntity(e, 1000);
-  assert.ok(!('honey' in result.rotted));
-});
-
-console.log('\nprocessEntity - offline rot');
-
-test('processes all entries expired during offline period in one call', function() {
-  const e = mockEntity(35, { honey: 10, clay: 8 });
-  RR.addRotEntry(e, 'honey', 4, 100);
-  RR.addRotEntry(e, 'honey', 6, 200);
-  RR.addRotEntry(e, 'clay', 8, 300);
-  RR.addRotEntry(e, 'honey', 2, 5000);
-  const result = RR.processEntity(e, 1000);
-  assert.strictEqual(result.rotted.honey, 10);
-  assert.strictEqual(result.rotted.clay, 8);
-  assert.strictEqual(RR.getRotEntries(e).length, 1);
-  assert.strictEqual(RR.getRotEntries(e)[0].expiresAt, 5000);
+test('entries added between polls are processed on the next poll', function() {
+  const e = mockEntity(10);
+  RC.add(e, 'honey', 2, 3000);
+  const first = RC.processRot(e, 1000);
+  assert.deepStrictEqual(first.rotted, {});
+  assert.strictEqual(RC.getAmount(e, 'honey'), 2);
+  const second = RC.processRot(e, 5000);
+  assert.strictEqual(second.rotted.honey, 2);
 });
 
 console.log('\n' + (passed + failed) + ' tests: ' + passed + ' passed, ' + failed + ' failed\n');

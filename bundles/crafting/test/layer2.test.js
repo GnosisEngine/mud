@@ -29,23 +29,54 @@ function mockEntity(strength, resources) {
   };
 }
 
-// alluvial_gold: 1.4kg, no rot — lightweight non-perishable
-// honey: 19.8kg, perishable — medium weight
-// wool: 231kg — very heavy
-// argentite: 3.8kg, mining skill required
+// Resource reference:
+//   alluvial_gold: 1.4kg,  rotTicks: null    — non-perishable, lightweight
+//   argentite:     3.8kg,  rotTicks: null    — non-perishable, mining skill required
+//   rock_salt:    12.8kg,  rotTicks: null    — non-perishable
+//   honey:        19.8kg,  rotTicks: 3669120 — perishable
+//   wool:        231.0kg,  rotTicks: 10080   — perishable, very heavy
+//   medicinal_herbs: 184kg, rotTicks: 1440   — perishable, shortest timer
 
 console.log('\nLayer 2 - ResourceContainer\n');
-console.log('getHeld');
+console.log('getAmount');
+
+test('returns 0 for key not present', function() {
+  assert.strictEqual(RC.getAmount(mockEntity(), 'alluvial_gold'), 0);
+});
+
+test('returns plain number for non-perishable', function() {
+  const e = mockEntity(10, { alluvial_gold: 7 });
+  assert.strictEqual(RC.getAmount(e, 'alluvial_gold'), 7);
+});
+
+test('returns array length for perishable', function() {
+  const e = mockEntity(10, { honey: [1000, 2000, 3000] });
+  assert.strictEqual(RC.getAmount(e, 'honey'), 3);
+});
+
+test('returns 0 for perishable with empty array', function() {
+  const e = mockEntity(10, { honey: [] });
+  assert.strictEqual(RC.getAmount(e, 'honey'), 0);
+});
+
+console.log('\ngetHeld');
 
 test('returns empty object when no resources set', function() {
   assert.deepStrictEqual(RC.getHeld(mockEntity()), {});
 });
 
-test('returns copy not reference', function() {
+test('returns copy not reference for non-perishable', function() {
   const e = mockEntity(10, { alluvial_gold: 5 });
   const held = RC.getHeld(e);
   held.alluvial_gold = 999;
   assert.strictEqual(RC.getHeld(e).alluvial_gold, 5);
+});
+
+test('returns copy not reference for perishable array', function() {
+  const e = mockEntity(10, { honey: [1000, 2000] });
+  const held = RC.getHeld(e);
+  held.honey.push(9999);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 2);
 });
 
 console.log('\ngetTotalWeight');
@@ -54,8 +85,8 @@ test('zero for empty inventory', function() {
   assert.strictEqual(RC.getTotalWeight(mockEntity()), 0);
 });
 
-test('correctly sums weight across multiple resources', function() {
-  const e = mockEntity(10, { alluvial_gold: 10, honey: 2 });
+test('correctly sums weight across non-perishable and perishable', function() {
+  const e = mockEntity(10, { alluvial_gold: 10, honey: [1000, 2000] });
   const expected = (1.4 * 10) + (19.8 * 2);
   assert.ok(Math.abs(RC.getTotalWeight(e) - expected) < 0.0001);
 });
@@ -67,7 +98,6 @@ test('returns ok:true when under capacity', function() {
 });
 
 test('returns over_capacity when weight would exceed strength * multiplier', function() {
-  // wool is 231kg, strength=1 means capacity=10kg
   const result = RC.canAdd(mockEntity(1), 'wool', 1);
   assert.strictEqual(result.ok, false);
   assert.strictEqual(result.reason, 'over_capacity');
@@ -92,71 +122,115 @@ test('returns invalid_amount for negative amount', function() {
 });
 
 test('exactly at capacity returns ok:true', function() {
-  // alluvial_gold: 1.4kg. strength=5 → capacity=50kg. 50/1.4=35.71... not exact.
-  // Use strength=7 → capacity=70. 70/1.4=50 exactly.
+  // alluvial_gold: 1.4kg. strength=7 → capacity=70kg. 70/1.4=50 exactly.
   const e = mockEntity(7);
-  const exactAmount = 50; // 50 * 1.4 = 70kg = capacity
-  assert.deepStrictEqual(RC.canAdd(e, 'alluvial_gold', exactAmount), { ok: true });
+  assert.deepStrictEqual(RC.canAdd(e, 'alluvial_gold', 50), { ok: true });
 });
 
 test('one unit over capacity returns over_capacity', function() {
   const e = mockEntity(7);
-  const overAmount = 51; // 51 * 1.4 = 71.4kg > 70kg capacity
-  const result = RC.canAdd(e, 'alluvial_gold', overAmount);
+  const result = RC.canAdd(e, 'alluvial_gold', 51);
   assert.strictEqual(result.ok, false);
   assert.strictEqual(result.reason, 'over_capacity');
 });
 
-console.log('\nadd');
+console.log('\nadd - non-perishable');
 
-test('adds resource to empty inventory', function() {
+test('adds non-perishable to empty inventory', function() {
   const e = mockEntity();
   RC.add(e, 'alluvial_gold', 3);
-  assert.strictEqual(RC.getHeld(e).alluvial_gold, 3);
+  assert.strictEqual(RC.getAmount(e, 'alluvial_gold'), 3);
 });
 
-test('accumulates on top of existing amount', function() {
+test('accumulates non-perishable on top of existing', function() {
   const e = mockEntity(10, { alluvial_gold: 5 });
   RC.add(e, 'alluvial_gold', 3);
-  assert.strictEqual(RC.getHeld(e).alluvial_gold, 8);
+  assert.strictEqual(RC.getAmount(e, 'alluvial_gold'), 8);
 });
 
-test('returns ok:true on success', function() {
+test('returns ok:true on non-perishable success', function() {
   assert.deepStrictEqual(RC.add(mockEntity(), 'alluvial_gold', 10), { ok: true });
 });
 
 test('returns failure and does not mutate on over_capacity', function() {
-  const e = mockEntity(1); // capacity=10, wool=231kg
+  const e = mockEntity(1);
   const result = RC.add(e, 'wool', 1);
   assert.strictEqual(result.ok, false);
   assert.deepStrictEqual(RC.getHeld(e), {});
 });
 
-console.log('\nremove');
+console.log('\nadd - perishable');
 
-test('removes correct amount', function() {
-  const e = mockEntity(10, { alluvial_gold: 10 });
-  RC.remove(e, 'alluvial_gold', 4);
-  assert.strictEqual(RC.getHeld(e).alluvial_gold, 6);
+test('adds perishable with expiry tick', function() {
+  const e = mockEntity(10);
+  RC.add(e, 'honey', 1, 5000);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 1);
+  assert.deepStrictEqual(RC.getHeld(e).honey, [5000]);
 });
 
-test('removes key entirely when amount reaches zero', function() {
+test('multiple units add multiple expiry entries', function() {
+  const e = mockEntity(10);
+  RC.add(e, 'honey', 3, 5000);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 3);
+  assert.deepStrictEqual(RC.getHeld(e).honey, [5000, 5000, 5000]);
+});
+
+test('accumulates perishable on top of existing', function() {
+  const e = mockEntity(10, { honey: [1000, 2000] });
+  RC.add(e, 'honey', 2, 3000);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 4);
+});
+
+test('different batch expiries coexist in array', function() {
+  const e = mockEntity(10);
+  RC.add(e, 'honey', 2, 1000);
+  RC.add(e, 'honey', 1, 2000);
+  const ticks = RC.getHeld(e).honey.slice().sort((a, b) => a - b);
+  assert.deepStrictEqual(ticks, [1000, 1000, 2000]);
+});
+
+test('returns missing_expiry when expiryTick omitted for perishable', function() {
+  const result = RC.add(mockEntity(10), 'honey', 1);
+  assert.strictEqual(result.ok, false);
+  assert.strictEqual(result.reason, 'missing_expiry');
+});
+
+test('returns missing_expiry when expiryTick is null for perishable', function() {
+  const result = RC.add(mockEntity(10), 'honey', 1, null);
+  assert.strictEqual(result.ok, false);
+  assert.strictEqual(result.reason, 'missing_expiry');
+});
+
+test('over_capacity check fires before missing_expiry check', function() {
+  const result = RC.add(mockEntity(1), 'wool', 1);
+  assert.strictEqual(result.reason, 'over_capacity');
+});
+
+console.log('\nremove - non-perishable');
+
+test('removes correct amount from non-perishable', function() {
+  const e = mockEntity(10, { alluvial_gold: 10 });
+  RC.remove(e, 'alluvial_gold', 4);
+  assert.strictEqual(RC.getAmount(e, 'alluvial_gold'), 6);
+});
+
+test('removes key entirely when non-perishable reaches zero', function() {
   const e = mockEntity(10, { alluvial_gold: 5 });
   RC.remove(e, 'alluvial_gold', 5);
   assert.ok(!('alluvial_gold' in RC.getHeld(e)));
 });
 
-test('returns insufficient when not enough held', function() {
+test('returns insufficient when not enough non-perishable held', function() {
   const e = mockEntity(10, { alluvial_gold: 2 });
   const result = RC.remove(e, 'alluvial_gold', 5);
   assert.strictEqual(result.ok, false);
   assert.strictEqual(result.reason, 'insufficient');
 });
 
-test('does not mutate on insufficient', function() {
+test('does not mutate on insufficient non-perishable', function() {
   const e = mockEntity(10, { alluvial_gold: 2 });
   RC.remove(e, 'alluvial_gold', 5);
-  assert.strictEqual(RC.getHeld(e).alluvial_gold, 2);
+  assert.strictEqual(RC.getAmount(e, 'alluvial_gold'), 2);
 });
 
 test('returns unknown_resource for invalid key', function() {
@@ -172,25 +246,54 @@ test('returns invalid_amount for zero', function() {
   assert.strictEqual(result.reason, 'invalid_amount');
 });
 
+console.log('\nremove - perishable');
+
+test('removes soonest-expiring entries first', function() {
+  const e = mockEntity(10, { honey: [3000, 1000, 2000] });
+  RC.remove(e, 'honey', 1);
+  const remaining = RC.getHeld(e).honey;
+  assert.ok(!remaining.includes(1000), 'soonest tick 1000 should be gone');
+  assert.strictEqual(remaining.length, 2);
+});
+
+test('removes key entirely when perishable array empties', function() {
+  const e = mockEntity(10, { honey: [1000, 2000] });
+  RC.remove(e, 'honey', 2);
+  assert.ok(!('honey' in RC.getHeld(e)));
+});
+
+test('returns insufficient when perishable count too low', function() {
+  const e = mockEntity(10, { honey: [1000] });
+  const result = RC.remove(e, 'honey', 5);
+  assert.strictEqual(result.ok, false);
+  assert.strictEqual(result.reason, 'insufficient');
+});
+
+test('does not mutate perishable on insufficient', function() {
+  const e = mockEntity(10, { honey: [1000, 2000] });
+  RC.remove(e, 'honey', 5);
+  assert.strictEqual(RC.getAmount(e, 'honey'), 2);
+});
+
 console.log('\ntransfer - atomicity');
 
-test('transfers resources from one entity to another', function() {
+test('transfers non-perishable from one entity to another', function() {
   const from = mockEntity(10, { alluvial_gold: 10 });
   const to = mockEntity(10);
   RC.transfer(from, to, { alluvial_gold: 5 });
-  assert.strictEqual(RC.getHeld(from).alluvial_gold, 5);
-  assert.strictEqual(RC.getHeld(to).alluvial_gold, 5);
+  assert.strictEqual(RC.getAmount(from, 'alluvial_gold'), 5);
+  assert.strictEqual(RC.getAmount(to, 'alluvial_gold'), 5);
 });
 
-test('transfers multiple resource types atomically', function() {
-  const from = mockEntity(10, { alluvial_gold: 10, honey: 3 });
+test('transfers mixed types atomically', function() {
+  const from = mockEntity(10, { alluvial_gold: 10, honey: [1000, 2000, 3000] });
   const to = mockEntity(10);
   const result = RC.transfer(from, to, { alluvial_gold: 3, honey: 1 });
   assert.strictEqual(result.ok, true);
-  assert.strictEqual(RC.getHeld(from).alluvial_gold, 7);
-  assert.strictEqual(RC.getHeld(from).honey, 2);
-  assert.strictEqual(RC.getHeld(to).alluvial_gold, 3);
-  assert.strictEqual(RC.getHeld(to).honey, 1);
+  assert.strictEqual(RC.getAmount(from, 'alluvial_gold'), 7);
+  assert.strictEqual(RC.getAmount(from, 'honey'), 2);
+  assert.strictEqual(RC.getAmount(to, 'alluvial_gold'), 3);
+  assert.strictEqual(RC.getAmount(to, 'honey'), 1);
 });
 
 test('does not mutate either entity when from has insufficient', function() {
@@ -199,28 +302,28 @@ test('does not mutate either entity when from has insufficient', function() {
   const result = RC.transfer(from, to, { alluvial_gold: 5 });
   assert.strictEqual(result.ok, false);
   assert.strictEqual(result.reason, 'insufficient');
-  assert.strictEqual(RC.getHeld(from).alluvial_gold, 2);
+  assert.strictEqual(RC.getAmount(from, 'alluvial_gold'), 2);
   assert.deepStrictEqual(RC.getHeld(to), {});
 });
 
 test('does not mutate either entity when to is over capacity', function() {
-  const from = mockEntity(10, { wool: 1 });
-  const to = mockEntity(1); // capacity=10, wool=231kg
+  const from = mockEntity(10, { wool: [9999] });
+  const to = mockEntity(1);
   const result = RC.transfer(from, to, { wool: 1 });
   assert.strictEqual(result.ok, false);
   assert.strictEqual(result.reason, 'over_capacity');
-  assert.strictEqual(RC.getHeld(from).wool, 1);
+  assert.strictEqual(RC.getAmount(from, 'wool'), 1);
   assert.deepStrictEqual(RC.getHeld(to), {});
 });
 
 test('partial failure in multi-resource map leaves both entities unchanged', function() {
-  const from = mockEntity(10, { alluvial_gold: 10, honey: 1 });
+  const from = mockEntity(10, { alluvial_gold: 10, honey: [9999] });
   const to = mockEntity(10);
   const result = RC.transfer(from, to, { alluvial_gold: 5, honey: 5 });
   assert.strictEqual(result.ok, false);
   assert.strictEqual(result.reason, 'insufficient');
-  assert.strictEqual(RC.getHeld(from).alluvial_gold, 10);
-  assert.strictEqual(RC.getHeld(from).honey, 1);
+  assert.strictEqual(RC.getAmount(from, 'alluvial_gold'), 10);
+  assert.strictEqual(RC.getAmount(from, 'honey'), 1);
   assert.deepStrictEqual(RC.getHeld(to), {});
 });
 
@@ -231,6 +334,32 @@ test('returns unknown_resource for invalid key in map', function() {
   assert.strictEqual(result.reason, 'unknown_resource');
 });
 
+console.log('\ntransfer - expiry preservation');
+
+test('transfers soonest-expiring perishable units first', function() {
+  const from = mockEntity(10, { honey: [3000, 1000, 2000] });
+  const to = mockEntity(10);
+  RC.transfer(from, to, { honey: 2 });
+  const received = RC.getHeld(to).honey;
+  assert.ok(received.includes(1000), 'soonest tick 1000 should transfer');
+  assert.ok(received.includes(2000), 'second soonest tick 2000 should transfer');
+  assert.ok(!received.includes(3000), 'longest-lived tick 3000 should stay');
+});
+
+test('transferred expiry ticks are preserved exactly', function() {
+  const from = mockEntity(10, { honey: [1234, 5678] });
+  const to = mockEntity(10);
+  RC.transfer(from, to, { honey: 1 });
+  assert.ok(RC.getHeld(to).honey.includes(1234), 'exact tick should be preserved');
+});
+
+test('receiver accumulates expiry entries from multiple transfers', function() {
+  const from = mockEntity(10, { honey: [1000, 2000, 3000] });
+  const to = mockEntity(10, { honey: [9000] });
+  RC.transfer(from, to, { honey: 2 });
+  assert.strictEqual(RC.getAmount(to, 'honey'), 3);
+});
+
 console.log('\nsteal');
 
 test('transfers resource from victim to thief', function() {
@@ -238,8 +367,16 @@ test('transfers resource from victim to thief', function() {
   const victim = mockEntity(10, { alluvial_gold: 20 });
   const result = RC.steal(thief, victim, 'alluvial_gold', 8);
   assert.strictEqual(result.ok, true);
-  assert.strictEqual(RC.getHeld(thief).alluvial_gold, 8);
-  assert.strictEqual(RC.getHeld(victim).alluvial_gold, 12);
+  assert.strictEqual(RC.getAmount(thief, 'alluvial_gold'), 8);
+  assert.strictEqual(RC.getAmount(victim, 'alluvial_gold'), 12);
+});
+
+test('steals soonest-expiring perishable units', function() {
+  const thief = mockEntity(10);
+  const victim = mockEntity(10, { honey: [5000, 1000, 3000] });
+  RC.steal(thief, victim, 'honey', 1);
+  assert.ok(RC.getHeld(thief).honey.includes(1000));
+  assert.strictEqual(RC.getAmount(victim, 'honey'), 2);
 });
 
 test('fails if victim does not have enough', function() {
@@ -249,17 +386,17 @@ test('fails if victim does not have enough', function() {
   assert.strictEqual(result.ok, false);
   assert.strictEqual(result.reason, 'insufficient');
   assert.deepStrictEqual(RC.getHeld(thief), {});
-  assert.strictEqual(RC.getHeld(victim).alluvial_gold, 3);
+  assert.strictEqual(RC.getAmount(victim, 'alluvial_gold'), 3);
 });
 
 test('fails if thief cannot carry', function() {
-  const thief = mockEntity(1); // capacity=10kg, wool=231kg
-  const victim = mockEntity(10, { wool: 5 });
+  const thief = mockEntity(1);
+  const victim = mockEntity(10, { wool: [9999, 9999, 9999, 9999, 9999] });
   const result = RC.steal(thief, victim, 'wool', 1);
   assert.strictEqual(result.ok, false);
   assert.strictEqual(result.reason, 'over_capacity');
   assert.deepStrictEqual(RC.getHeld(thief), {});
-  assert.strictEqual(RC.getHeld(victim).wool, 5);
+  assert.strictEqual(RC.getAmount(victim, 'wool'), 5);
 });
 
 test('returns unknown_resource for invalid key', function() {
@@ -270,11 +407,17 @@ test('returns unknown_resource for invalid key', function() {
 
 console.log('\ngetDrops + clearAll');
 
-test('getDrops returns copy of all held resources', function() {
+test('getDrops returns amount map for non-perishables', function() {
   const e = mockEntity(10, { argentite: 5, alluvial_gold: 20 });
   const drops = RC.getDrops(e);
   assert.strictEqual(drops.argentite, 5);
   assert.strictEqual(drops.alluvial_gold, 20);
+});
+
+test('getDrops returns count for perishables', function() {
+  const e = mockEntity(10, { honey: [1000, 2000, 3000] });
+  const drops = RC.getDrops(e);
+  assert.strictEqual(drops.honey, 3);
 });
 
 test('getDrops returns empty object for entity with no resources', function() {
@@ -284,11 +427,11 @@ test('getDrops returns empty object for entity with no resources', function() {
 test('getDrops does not clear entity resources', function() {
   const e = mockEntity(10, { alluvial_gold: 10 });
   RC.getDrops(e);
-  assert.strictEqual(RC.getHeld(e).alluvial_gold, 10);
+  assert.strictEqual(RC.getAmount(e, 'alluvial_gold'), 10);
 });
 
 test('clearAll empties all resources', function() {
-  const e = mockEntity(10, { alluvial_gold: 5, honey: 2 });
+  const e = mockEntity(10, { alluvial_gold: 5, honey: [1000, 2000] });
   RC.clearAll(e);
   assert.deepStrictEqual(RC.getHeld(e), {});
 });
@@ -299,15 +442,21 @@ test('clearAll on already empty entity does not throw', function() {
 
 console.log('\nno ghost keys');
 
-test('zero-value keys are not retained after remove', function() {
+test('zero-value non-perishable keys not retained after remove', function() {
   const e = mockEntity(10, { alluvial_gold: 3 });
   RC.remove(e, 'alluvial_gold', 3);
   assert.ok(!('alluvial_gold' in RC.getHeld(e)));
 });
 
+test('empty perishable array key not retained after remove', function() {
+  const e = mockEntity(10, { honey: [1000] });
+  RC.remove(e, 'honey', 1);
+  assert.ok(!('honey' in RC.getHeld(e)));
+});
+
 test('failed add leaves no trace in inventory', function() {
   const e = mockEntity(1);
-  RC.add(e, 'wool', 1); // wool=231kg, capacity=10kg
+  RC.add(e, 'wool', 1, 9999);
   assert.deepStrictEqual(RC.getHeld(e), {});
 });
 

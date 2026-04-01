@@ -4,7 +4,7 @@
 const TerrainResolver = require('../lib/TerrainResolver');
 const SpawnLoop = require('../lib/SpawnLoop');
 const NpcDeathHandler = require('../lib/NpcDeathHandler');
-const ResourceRot = require('../lib/ResourceRot');
+const ResourceContainer = require('../lib/ResourceContainer');
 const startupPoll = require('../../lib/lib/StartupPoll');
 
 const ROT_POLL_TICK_MS = 1000;
@@ -19,31 +19,21 @@ module.exports = {
         setInterval(() => SpawnLoop.tick(state), SpawnLoop.SPAWN_TICK_MS);
 
         setInterval(() => {
-          // @TODO
-          // const currentTick = state.ClockBundle.getCurrentTick();
-          // for (const [, player] of state.PlayerManager.players) {
-          //   const { rotted } = ResourceRot.processEntity(player, currentTick);
-          //   if (Object.keys(rotted).length) {
-          //     player.emit('resource:rotted', { player, rotted });
-          //   }
-          // }
+          if (!state.TimeService) return;
+          const currentTick = state.TimeService.getTick();
+          for (const [, player] of state.PlayerManager.players) {
+            if (!ResourceContainer.isDirty(player)) continue;
+            const { rotted } = ResourceContainer.processRot(player, currentTick);
+            if (Object.keys(rotted).length) {
+              player.emit('resource:rotted', { player, rotted });
+            }
+          }
         }, ROT_POLL_TICK_MS);
 
         // @todo
         // state.MobManager.on('npcCreated', npc => {
         //   npc.on('killed', () => NpcDeathHandler.handleKilled(npc, state));
         // });
-
-        state.PlayerManager.on('playerEnter', player => {
-          // @TODO
-          // player.on('enter', () => {
-          //   const currentTick = state.ClockBundle.getCurrentTick();
-          //   const { rotted } = ResourceRot.processEntity(player, currentTick);
-          //   if (Object.keys(rotted).length) {
-          //     player.emit('resource:rotted', { player, rotted });
-          //   }
-          // });
-        });
       }
     )
   }

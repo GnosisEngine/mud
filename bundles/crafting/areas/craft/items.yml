@@ -1,38 +1,521 @@
 ---
-- id: greenplant
-  name: "Green Plant"
+- id: alluvial_gold
+  name: "Alluvial Gold"
   type: RESOURCE
-  roomDesc: "Green Plant"
-  keywords: [ "green", "plant", "resource" ]
-  description: "An oddly bright green plant whose thorns shine as the light hits them. Perhaps you could <b><cyan>gather</cyan></b> it."
+  roomDesc: "Alluvial Gold"
+  keywords: [ "alluvial", "gold", "flecks", "stream", "deposit" ]
+  description: "Flecks of gold glint from the bed of a shallow stream. With patience, it could be <b><cyan>gathered</cyan></b>."
   metadata:
-    level: 1
-    itemLevel: 1
     quality: common
     noPickup: true
     resource:
-      depletedMessage: "withers, having been stripped of usable materials."
+      resourceKey: alluvial_gold
+      depletedMessage: "has been picked clean, only plain gravel remaining."
       materials:
-        plant_material:
+        alluvial_gold:
           min: 1
           max: 3
-- id: redrose
-  name: "Red Rose"
+- id: alum
+  name: "Alum"
   type: RESOURCE
-  roomDesc: "Red Rose"
-  keywords: [ "red", "rose", "resource" ]
-  description: "An oddly bright red rose whose thorns shine as the light hits them. Perhaps you could <b><cyan>gather</cyan></b> it."
+  roomDesc: "Alum"
+  keywords: [ "alum", "mineral", "crust", "deposit" ]
+  description: "A whitish mineral crust lines the rock face, left by seeping groundwater. It could be <b><cyan>gathered</cyan></b>."
   metadata:
-    level: 1
-    itemLevel: 1
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: alum
+      depletedMessage: "is exhausted, the deposit stripped bare."
+      materials:
+        alum:
+          min: 1
+          max: 2
+- id: argentite
+  name: "Argentite"
+  type: RESOURCE
+  roomDesc: "Argentite"
+  keywords: [ "argentite", "silver", "vein", "ore" ]
+  description: "A dark, lead-grey vein cuts through the surrounding rock. The trained eye would know it could be <b><cyan>gathered</cyan></b>."
+  metadata:
     quality: uncommon
     noPickup: true
     resource:
-      depletedMessage: "withers, having been stripped of usable materials."
+      resourceKey: argentite
+      depletedMessage: "crumbles away, the seam spent."
       materials:
-        plant_material:
-          min: 2
+        argentite:
+          min: 1
           max: 3
-        rose_petal:
+- id: beeswax
+  name: "Beeswax"
+  type: RESOURCE
+  roomDesc: "Beeswax"
+  keywords: [ "beeswax", "hive", "wax", "comb" ]
+  description: "A wild hive hangs heavy in the hollow of a tree, its combs thick with wax. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: beeswax
+      depletedMessage: "falls silent, emptied of its stores."
+      materials:
+        beeswax:
           min: 1
           max: 2
+- id: bog_iron
+  name: "Bog Iron"
+  type: RESOURCE
+  roomDesc: "Bog Iron"
+  keywords: [ "bog", "iron", "nodules", "peat", "deposit" ]
+  description: "Rust-brown nodules of iron ore protrude from the peat, drawn up by the bog over long years. They could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: bog_iron
+      depletedMessage: "settles back into the mire, depleted."
+      materials:
+        bog_iron:
+          min: 1
+          max: 2
+- id: brine
+  name: "Brine"
+  type: RESOURCE
+  roomDesc: "Brine"
+  keywords: [ "brine", "spring", "seep", "salt" ]
+  description: "A saline spring seeps from a crack in the rock face, leaving a white crust at its edges. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: brine
+      depletedMessage: "dries up, the seam exhausted."
+      materials:
+        brine:
+          min: 1
+          max: 2
+- id: chalcopyrite
+  name: "Chalcopyrite"
+  type: RESOURCE
+  roomDesc: "Chalcopyrite"
+  keywords: [ "chalcopyrite", "copper", "ore", "vein" ]
+  description: "Veins of brassy yellow ore streak through the rock. The trained eye would know it could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: chalcopyrite
+      depletedMessage: "crumbles away, the seam spent."
+      materials:
+        chalcopyrite:
+          min: 1
+          max: 2
+- id: clay
+  name: "Clay"
+  type: RESOURCE
+  roomDesc: "Clay"
+  keywords: [ "clay", "seam", "bank", "deposit" ]
+  description: "A thick seam of grey clay sits exposed along the bank, soft and workable. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: clay
+      depletedMessage: "is exhausted, the deposit stripped bare."
+      materials:
+        clay:
+          min: 1
+          max: 2
+- id: flax
+  name: "Flax"
+  type: RESOURCE
+  roomDesc: "Flax"
+  keywords: [ "flax", "stalks", "plant" ]
+  description: "Tall stalks of flax stand in dense patches, their fibres ready for harvest. They could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: flax
+      depletedMessage: "droops and withers, stripped of its growth."
+      materials:
+        flax:
+          min: 1
+          max: 2
+- id: galena
+  name: "Galena"
+  type: RESOURCE
+  roomDesc: "Galena"
+  keywords: [ "galena", "lead", "ore", "vein" ]
+  description: "Silvery-grey cubes of lead ore jut from the hillside. The trained eye would know it could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: galena
+      depletedMessage: "crumbles away, the seam spent."
+      materials:
+        galena:
+          min: 1
+          max: 3
+- id: hematite
+  name: "Hematite"
+  type: RESOURCE
+  roomDesc: "Hematite"
+  keywords: [ "hematite", "iron", "ore", "deposit" ]
+  description: "A band of reddish-black iron ore runs along the exposed rock. The trained eye would know it could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: hematite
+      depletedMessage: "crumbles away, the seam spent."
+      materials:
+        hematite:
+          min: 1
+          max: 2
+- id: hemp
+  name: "Hemp"
+  type: RESOURCE
+  roomDesc: "Hemp"
+  keywords: [ "hemp", "plant", "stalks" ]
+  description: "Dense hemp plants crowd the riverbank, their stalks thick and fibrous. They could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: hemp
+      depletedMessage: "droops and withers, stripped of its growth."
+      materials:
+        hemp:
+          min: 1
+          max: 2
+- id: honey
+  name: "Honey"
+  type: RESOURCE
+  roomDesc: "Honey"
+  keywords: [ "honey", "hive", "comb", "amber" ]
+  description: "A wild hive hangs from a rock shelf, dripping with amber honey. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: honey
+      depletedMessage: "falls silent, emptied of its stores."
+      materials:
+        honey:
+          min: 1
+          max: 2
+- id: lode_cassiterite
+  name: "Lode Cassiterite"
+  type: RESOURCE
+  roomDesc: "Lode Cassiterite"
+  keywords: [ "lode", "cassiterite", "tin", "ore", "vein" ]
+  description: "A pale, streaky tin ore seam runs through the rock face. The trained eye would know it could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: uncommon
+    noPickup: true
+    resource:
+      resourceKey: lode_cassiterite
+      depletedMessage: "crumbles away, the seam spent."
+      materials:
+        lode_cassiterite:
+          min: 1
+          max: 3
+- id: magnetite
+  name: "Magnetite"
+  type: RESOURCE
+  roomDesc: "Magnetite"
+  keywords: [ "magnetite", "iron", "ore", "deposit" ]
+  description: "Dark, metallic ore protrudes from the cliff face, faintly magnetic to the touch. The trained eye would know it could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: magnetite
+      depletedMessage: "crumbles away, the seam spent."
+      materials:
+        magnetite:
+          min: 1
+          max: 3
+- id: malachite
+  name: "Malachite"
+  type: RESOURCE
+  roomDesc: "Malachite"
+  keywords: [ "malachite", "copper", "ore", "green", "vein" ]
+  description: "Bands of vivid green copper ore run through the grey rock. The trained eye would know it could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: uncommon
+    noPickup: true
+    resource:
+      resourceKey: malachite
+      depletedMessage: "crumbles away, the seam spent."
+      materials:
+        malachite:
+          min: 1
+          max: 3
+- id: medicinal_herbs
+  name: "Medicinal Herbs"
+  type: RESOURCE
+  roomDesc: "Medicinal Herbs"
+  keywords: [ "medicinal", "herbs", "plants", "patch" ]
+  description: "A dense patch of plants crowds a sheltered hollow, barely distinguishable from weeds without the right knowledge. They could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: medicinal_herbs
+      depletedMessage: "droops and withers, stripped of its growth."
+      materials:
+        medicinal_herbs:
+          min: 1
+          max: 2
+- id: oak_bark
+  name: "Oak Bark"
+  type: RESOURCE
+  roomDesc: "Oak Bark"
+  keywords: [ "oak", "bark", "tree" ]
+  description: "A mature oak stands close, its bark thick and ridged. Some could be <b><cyan>gathered</cyan></b> without killing the tree."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: oak_bark
+      depletedMessage: "stands bare where the bark was taken."
+      materials:
+        oak_bark:
+          min: 1
+          max: 2
+- id: oak_timber
+  name: "Oak Timber"
+  type: RESOURCE
+  roomDesc: "Oak Timber"
+  keywords: [ "oak", "timber", "log", "fallen" ]
+  description: "A fallen oak lies across the ground, its wood dense and workable. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: oak_timber
+      depletedMessage: "has been fully worked, nothing left to take."
+      materials:
+        oak_timber:
+          min: 1
+          max: 2
+- id: pine_bark
+  name: "Pine Bark"
+  type: RESOURCE
+  roomDesc: "Pine Bark"
+  keywords: [ "pine", "bark", "tree" ]
+  description: "A tall pine stands nearby, its outer bark thick and fibrous. Some could be <b><cyan>gathered</cyan></b> without killing the tree."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: pine_bark
+      depletedMessage: "stands bare where the bark was taken."
+      materials:
+        pine_bark:
+          min: 1
+          max: 2
+- id: pine_resin
+  name: "Pine Resin"
+  type: RESOURCE
+  roomDesc: "Pine Resin"
+  keywords: [ "pine", "resin", "sap", "amber" ]
+  description: "Amber resin beads along cracks in a pine's bark, hardened where it met the air. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: pine_resin
+      depletedMessage: "has been fully worked, nothing left to take."
+      materials:
+        pine_resin:
+          min: 1
+          max: 2
+- id: potash
+  name: "Potash"
+  type: RESOURCE
+  roomDesc: "Potash"
+  keywords: [ "potash", "ash", "pit", "debris" ]
+  description: "Grey ash and charred debris sit in a shallow pit, still leachable into useful lye. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: potash
+      depletedMessage: "has been sifted through, nothing useful remaining."
+      materials:
+        potash:
+          min: 1
+          max: 2
+- id: rock_salt
+  name: "Rock Salt"
+  type: RESOURCE
+  roomDesc: "Rock Salt"
+  keywords: [ "rock", "salt", "vein", "mineral" ]
+  description: "A thick vein of pale mineral salt cuts through the surrounding rock. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: rock_salt
+      depletedMessage: "is exhausted, the deposit stripped bare."
+      materials:
+        rock_salt:
+          min: 1
+          max: 2
+- id: salt
+  name: "Salt"
+  type: RESOURCE
+  roomDesc: "Salt"
+  keywords: [ "salt", "pan", "crystals", "crust" ]
+  description: "A shallow pan of brine has dried to a crust of white salt crystals. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: salt
+      depletedMessage: "dries up, the seam exhausted."
+      materials:
+        salt:
+          min: 1
+          max: 2
+- id: stream_cassiterite
+  name: "Stream Cassiterite"
+  type: RESOURCE
+  roomDesc: "Stream Cassiterite"
+  keywords: [ "stream", "cassiterite", "tin", "pebbles", "gravel" ]
+  description: "Dark, rounded pebbles of tin ore sit among the stream gravel. A patient eye could find them and <b><cyan>gather</cyan></b> them."
+  metadata:
+    quality: uncommon
+    noPickup: true
+    resource:
+      resourceKey: stream_cassiterite
+      depletedMessage: "has been picked clean, only plain gravel remaining."
+      materials:
+        stream_cassiterite:
+          min: 1
+          max: 3
+- id: sulfur
+  name: "Sulfur"
+  type: RESOURCE
+  roomDesc: "Sulfur"
+  keywords: [ "sulfur", "deposit", "vent", "yellow" ]
+  description: "Yellow sulfur deposits crust the rock near a thermal vent, pungent and brittle. They could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: sulfur
+      depletedMessage: "crumbles to dust, the deposit exhausted."
+      materials:
+        sulfur:
+          min: 1
+          max: 2
+- id: weld
+  name: "Weld"
+  type: RESOURCE
+  roomDesc: "Weld"
+  keywords: [ "weld", "plant", "dye", "flowers" ]
+  description: "Tall weld plants stand in a loose cluster, their stems heavy with yellow dye-bearing flowers. They could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: weld
+      depletedMessage: "droops and withers, stripped of its growth."
+      materials:
+        weld:
+          min: 1
+          max: 2
+- id: woad
+  name: "Woad"
+  type: RESOURCE
+  roomDesc: "Woad"
+  keywords: [ "woad", "plant", "dye", "leaves" ]
+  description: "Rosettes of woad leaves spread low across the open ground, their blue dye locked in the flesh. They could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: woad
+      depletedMessage: "droops and withers, stripped of its growth."
+      materials:
+        woad:
+          min: 1
+          max: 2
+- id: wool
+  name: "Wool"
+  type: RESOURCE
+  roomDesc: "Wool"
+  keywords: [ "wool", "fleece", "raw" ]
+  description: "A fleece of raw wool clings to a bramble where a sheep passed through, still warm. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: wool
+      depletedMessage: "has been gathered clean."
+      materials:
+        wool:
+          min: 1
+          max: 2
+- id: yew
+  name: "Yew"
+  type: RESOURCE
+  roomDesc: "Yew"
+  keywords: [ "yew", "timber", "wood", "branch" ]
+  description: "A section of yew wood lies where an old branch came down, the grain dense and slow-grown. It could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: yew
+      depletedMessage: "has been fully worked, nothing left to take."
+      materials:
+        yew:
+          min: 1
+          max: 2
+- id: yew_bark
+  name: "Yew Bark"
+  type: RESOURCE
+  roomDesc: "Yew Bark"
+  keywords: [ "yew", "bark", "tree" ]
+  description: "A yew stands nearby, its reddish-brown bark flaking at the edges. Some could be <b><cyan>gathered</cyan></b> with care."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: yew_bark
+      depletedMessage: "stands bare where the bark was taken."
+      materials:
+        yew_bark:
+          min: 1
+          max: 2
+- id: madder
+  name: "Madder"
+  type: RESOURCE
+  roomDesc: "Madder"
+  keywords: [ "madder", "plant", "dye", "roots" ]
+  description: "Low madder plants sprawl across the ground, their roots rich with red dye. They could be <b><cyan>gathered</cyan></b>."
+  metadata:
+    quality: common
+    noPickup: true
+    resource:
+      resourceKey: madder
+      depletedMessage: "droops and withers, stripped of its growth."
+      materials:
+        madder:
+          min: 1
+          max: 2
+- id: potion_health
+  name: "Healing Draught"
+  type: POTION
+  roomDesc: "Healing Draught"
+  keywords: [ "healing", "draught", "potion", "health" ]
+  description: "A small clay vessel sealed with beeswax, its contents smelling of honey and crushed herbs. It looks drinkable."
+  metadata:
+    quality: common

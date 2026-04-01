@@ -106,7 +106,7 @@ function mockState({
     AreaManager: {
       areas,
       getArea(name) {
-        if (name === 'resources') return resourcesArea;
+        if (name === 'craft') return resourcesArea;
         return null;
       },
     },
