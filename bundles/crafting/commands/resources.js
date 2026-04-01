@@ -4,6 +4,7 @@
 const { Broadcast: B } = require('ranvier');
 const ResourceContainer = require('../lib/ResourceContainer');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
+const Colors = require('../../colors/lib/Colors');
 const { CARRY_MULTIPLIER } = ResourceContainer;
 
 module.exports = {
@@ -28,7 +29,7 @@ module.exports = {
       const title = def ? def.title : key;
       const unitWeight = def ? def.weight : 0;
       const totalWeight = (unitWeight * amount).toFixed(2);
-      B.sayAt(player, `  ${title} x${amount} <dim>(${totalWeight}kg)</dim>`);
+      B.sayAt(player, Colors.parse(`  ${title} x${amount} <dim>(${totalWeight}kg)</dim>`));
     }
 
     B.sayAt(player, B.line(40));

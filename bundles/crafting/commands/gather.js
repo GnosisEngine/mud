@@ -12,11 +12,9 @@ module.exports = {
 
     const result = GatherLogic.execute(player, room, args, {
       roomItems,
-      splitResolver: options => {
-        const claimsBundle = state.BundleManager && state.BundleManager.getBundle('claims');
-        if (!claimsBundle) return null;
-        return claimsBundle.getSplitForRoom(room);
-      },
+      currentTick: state.TimeService ? state.TimeService.getTick() : null,
+      // @todo: inject split resolver from claims bundle at startup
+      splitResolver: null,
       roomDropper: (r, resourceKey, amount) => {
         const def = ResourceDefinitions.getDefinition(resourceKey);
         const title = def ? def.title : resourceKey;
@@ -38,11 +36,16 @@ module.exports = {
           return B.sayAt(player, "You can't gather anything from that.");
         case 'nothing_yielded':
           return B.sayAt(player, 'You find nothing useful.');
+        case 'over_capacity':
+          return B.sayAt(player, "You're carrying too much to gather anything.");
       }
       return;
     }
 
-    for (const [resourceKey, amount] of Object.entries(result.yields)) {
+    const playerAlloc = result.allocation.find(a => a.entity === player);
+    const received = playerAlloc ? playerAlloc.amounts : {};
+
+    for (const [resourceKey, amount] of Object.entries(received)) {
       const def = ResourceDefinitions.getDefinition(resourceKey);
       const title = def ? def.title : resourceKey;
       B.sayAt(player, `<green>You gather: ${title} x${amount}.</green>`);

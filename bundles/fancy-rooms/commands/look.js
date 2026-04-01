@@ -129,8 +129,8 @@ function lookEntity(state, player, args) {
 // ─── room renderers ───────────────────────────────────────────────────────────
 
 function describeItem(item) {
-  const isResource = item.hasBehavior && item.hasBehavior('resource')
-  const emoji = isResource ? '🪨' : getItemEmoji(item.keywords)
+  const isResource = (item.hasBehavior && item.hasBehavior('resource')) || (item.getMeta && !!item.getMeta('resource'))
+  const emoji = isResource ? '🪨 ' : getItemEmoji(item.keywords)
   const name  = item.roomDesc || item.name
   return `${Colors.rgb(180, 180, 160)} ${emoji} ${name}${Colors.RESET}`
 }

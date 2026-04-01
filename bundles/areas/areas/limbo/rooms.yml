@@ -7,6 +7,12 @@
     - id: "limbo:woodenchest"
       respawnChance: 20
       replaceOnRespawn: true
+    - id: "craft:medicinal_herbs"
+      respawnChance: 100
+    - id: "craft:honey"
+      respawnChance: 100
+    - id: "craft:woad"
+      respawnChance: 100
   script: "white"
   exits:
     - roomId: "limbo:black"
@@ -30,6 +36,10 @@
   items:
     - id: "limbo:sliceofcheese"
       respawnChance: 10
+    - id: "craft:alluvial_gold"
+      respawnChance: 100
+    - id: "craft:rock_salt"
+      respawnChance: 100
   npcs: ["limbo:wiseoldman", "limbo:puppy"]
   exits:
     - roomId: "limbo:white"

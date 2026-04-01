@@ -9,7 +9,7 @@ function findNode(args, roomItems) {
   if (!args || !args.trim().length) return null;
   const keyword = args.trim().toLowerCase();
   for (const item of roomItems) {
-    if (item.type !== 'RESOURCE') continue;
+    if (!item.getMeta || !item.getMeta('resource')) continue;
     const keywords = item.keywords || [];
     if (keywords.some(function(k) { return k.toLowerCase().includes(keyword); })) return item;
   }
@@ -74,6 +74,10 @@ function execute(player, room, args, options) {
     roomDropper,
     expiryTicks,
   });
+
+  if (allocation.length === 0) {
+    return { ok: false, reason: 'over_capacity' };
+  }
 
   removeNode(node);
 
