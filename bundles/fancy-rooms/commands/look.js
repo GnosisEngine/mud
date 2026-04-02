@@ -185,6 +185,7 @@ module.exports = {
       }
 
       const room = player.room
+
       if (!room) return player.socket.write('You are nowhere.\r\n')
 
       const waypoints = (player.metadata && player.metadata.waypoints) || []
@@ -209,19 +210,19 @@ module.exports = {
 
       if (room.items && room.items.size) {
         for (const item of room.items) {
-          player.socket.write(describeItem(item) + '\r\n')
+          B.sayAt(player, describeItem(item) + '\r\n')
         }
       }
 
       if (room.npcs && room.npcs.size) {
         for (const npc of room.npcs) {
-          player.socket.write(describeNpc(npc, player, state) + '\r\n')
+          B.sayAt(player, describeNpc(npc, player, state) + '\r\n')
         }
       }
 
       for (const other of room.players) {
         if (other === player) continue
-        player.socket.write(describePlayer(other) + '\r\n')
+        B.sayAt(player, describePlayer(other) + '\r\n')
       }
     }
   }

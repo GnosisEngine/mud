@@ -8,7 +8,6 @@ const { Db } = require('../lib/db');
 const { replay }= require('../lib/replay');
 const { compact } = require('../lib/compaction');
 const { Store } = require('../lib/store');
-const world = require('../lib/world')
 /**
  * ranvier-storage bundle
  *
@@ -79,7 +78,6 @@ module.exports = {
 
       // Register on GameState so other bundles can reach it
       state.StorageManager = { store };
-      state.WorldManager = world
 
       // Expiry flush timer — checks for timed-out claims on interval
       expiryTimer = setInterval(async () => {

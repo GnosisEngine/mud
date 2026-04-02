@@ -78,7 +78,10 @@ module.exports = {
       return;
     }
 
-    const item = ArgParser.parseDot(search, source);
+    //const item = ArgParser.parseDot(search, source);
+    const item = source === player.room.items
+      ? state.getTarget(player.room, search, ['item'])
+      : ArgParser.parseDot(search, source);
     if (!item) {
       return Broadcast.sayAt(player, "You don't see anything like that here.");
     }

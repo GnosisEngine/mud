@@ -11,10 +11,19 @@ module.exports = {
 
     let target = ArgParser.parseDot(arg, player.room.players);
 
-    if (!target) {
-      if (arg === 'self') {
-        target = player;
-      } else {
+    // if (!target) {
+    //   if (arg === 'self') {
+    //     target = player;
+    //   } else {
+    //     return Broadcast.sayAt(player, "You can't find anyone named that.");
+    //   }
+    // }
+
+    if (arg === 'self') {
+      target = player;
+    } else {
+      target = state.getTarget(player.room, arg, ['player']);
+      if (!target) {
         return Broadcast.sayAt(player, "You can't find anyone named that.");
       }
     }

@@ -29,18 +29,25 @@ module.exports = {
     }
 
     // prioritize players before npcs
-    let target = dot(targetRecip, player.room.players);
+    // let target = dot(targetRecip, player.room.players);
 
-    if (!target) {
-      target = dot(targetRecip, player.room.npcs);
-      if (target) {
-        const accepts = target.getBehavior('accepts');
-        if (!accepts || !accepts.includes(targetItem.entityReference)) {
-          return B.sayAt(player, 'They don\'t want that.');
-        }
-      } 
+    // if (!target) {
+    //   target = dot(targetRecip, player.room.npcs);
+    //   if (target) {
+    //     const accepts = target.getBehavior('accepts');
+    //     if (!accepts || !accepts.includes(targetItem.entityReference)) {
+    //       return B.sayAt(player, 'They don\'t want that.');
+    //     }
+    //   } 
+    // }
+    let target = state.getTarget(player.room, targetRecip, ['player', 'npc']);
+
+    if (target?.isNpc) {
+      const accepts = target.getBehavior('accepts');
+      if (!accepts || !accepts.includes(targetItem.entityReference)) {
+        return B.sayAt(player, 'They don\'t want that.');
+      }
     }
-
     if (!target) {
       return B.sayAt(player, 'They aren\'t here.');
     }

@@ -24,10 +24,15 @@ module.exports = {
     const fromList = player.inventory;
     const fromArg = parts[0];
     const toArg = parts[1];
+    // const item = dot(fromArg, fromList);
+    // const toContainer = dot(toArg, player.room.items) ||
+    //                     dot(toArg, player.inventory) ||
+    //                     dot(toArg, player.equipment);
+
     const item = dot(fromArg, fromList);
-    const toContainer = dot(toArg, player.room.items) ||
-                        dot(toArg, player.inventory) ||
-                        dot(toArg, player.equipment);
+    const toContainer = state.getTarget(player.room, toArg, ['item'])
+      ?? dot(toArg, player.inventory)
+      ?? dot(toArg, player.equipment);
 
     if (!item) {
       return B.sayAt(player, "You don't have that item.");

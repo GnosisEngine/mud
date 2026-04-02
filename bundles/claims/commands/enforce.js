@@ -33,9 +33,13 @@ module.exports = {
     }
 
     // Find target by name in current room
-    const target = [...room.players].find(
-      p => p.name.toLowerCase() === targetName.toLowerCase() && p !== player
-    );
+    // const target = [...room.players].find(
+    //   p => p.name.toLowerCase() === targetName.toLowerCase() && p !== player
+    // );
+
+    const target = state.getTarget(room, targetName, ['player']);
+    if (target === player) return say(player, "You can't enforce against yourself.");
+
     if (!target) return say(player,  `${targetName} is not in this room.`);
 
     if (enforcement.hasThreat(player.name, target.name)) {

@@ -27,7 +27,8 @@ module.exports = {
       exitDirection = parts[1];
     }
 
-    const roomExit = CommandParser.canGo(player, exitDirection);
+    // const roomExit = CommandParser.canGo(player, exitDirection);
+    const roomExit = state.getTarget(player.room, exitDirection, ['exit']);
 
     if (roomExit) {
       const roomExitRoom = state.RoomManager.getRoom(roomExit.roomId);
@@ -45,7 +46,11 @@ module.exports = {
       }
     }
 
-    const item = ArgParser.parseDot(args, [ ...player.inventory, ...player.room.items ]);
+    // const item = ArgParser.parseDot(args, [ ...player.inventory, ...player.room.items ]);
+    const item = state.getTarget(player.room, args, ['item'])
+      ?? [...player.inventory].find(
+        i => i.name.toLowerCase().includes(args.toLowerCase())
+      );
 
     if (item) {
       return handleItem(player, item, action);

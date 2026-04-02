@@ -33,7 +33,8 @@ subcommands.add({
       return say(player, "Invite whom?");
     }
 
-    const target = Parser.parseDot(args, player.room.players);
+    // const target = Parser.parseDot(args, player.room.players);
+    const target = state.getTarget(player.room, args, ['player']);
 
     if (target === player) {
       return say(player, "You ask yourself if you want to join your own group. You humbly accept.");
@@ -82,7 +83,8 @@ subcommands.add({
       return say(player, "Join whose group?");
     }
 
-    const target = Parser.parseDot(args, player.room.players);
+    //const target = Parser.parseDot(args, player.room.players);
+    const target = state.getTarget(player.room, args, ['player']);
 
     if (!target) {
       return say(player, "They aren't here.");
@@ -110,7 +112,8 @@ subcommands.add({
       return say(player, "Decline whose invite?");
     }
 
-    const target = Parser.parseDot(args, player.room.players);
+    // const target = Parser.parseDot(args, player.room.players);
+    const target = state.getTarget(player.room, args, ['player']);
 
     if (!target) {
       return say(player, "They aren't here.");

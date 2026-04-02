@@ -2,8 +2,9 @@
 
 const { Random } = require('rando-js');
 const { Damage, Logger } = require('ranvier');
-const Parser = require('../../lib/lib/ArgParser');
+// const Parser = require('../../lib/lib/ArgParser');
 const CombatErrors = require('./CombatErrors');
+const { getTarget } = require('../../fancy-rooms/lib/Targeter')
 
 /**
  * This class is an example implementation of a Diku-style real time combat system. Combatants
@@ -166,7 +167,8 @@ class Combat {
       possibleTargets = [...possibleTargets, ...attacker.room.players];
     }
 
-    const target = Parser.parseDot(search, possibleTargets);
+    // const target = Parser.parseDot(search, possibleTargets);
+    const target = getTarget(attacker.room, search, ['npc', 'player']);
 
     if (!target) {
       return null;
