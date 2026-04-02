@@ -117,7 +117,7 @@ function build(tile, exits, legends) {
     coordinates: [x, y, 0],
     metadata:    {
       terrain:     terrainName,
-      worldCoords: [x, y],
+      // worldCoords: [x, y],
     },
     description: desc,
   };

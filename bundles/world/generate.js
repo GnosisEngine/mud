@@ -12,7 +12,7 @@ const { build: buildRoom }           = require('./lib/RoomBuilder');
 const { serializeManifest, serializeRooms } = require('./lib/YamlSerializer');
 const { write }           = require('./lib/AreaWriter');
 
-const WORLD_JSON_PATH = path.resolve(__dirname, '../../data/world.json');
+const WORLD_JSON_PATH = path.resolve(__dirname, 'data/world.json');
 const DEFAULT_OUTPUT  = path.resolve(__dirname, 'areas');
 
 // ---------------------------------------------------------------------------
