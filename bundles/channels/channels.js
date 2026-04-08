@@ -1,7 +1,9 @@
+// bundles/channels/channels.js
 'use strict';
 
 const {
   AreaAudience,
+  Broadcast,
   PartyAudience,
   PrivateAudience,
   RoomAudience,
@@ -9,6 +11,9 @@ const {
 } = require('ranvier');
 
 const { Channel } = require('ranvier').Channel;
+const canSpeak = require('../moderation/lib/canSpeak');
+
+class BlockedByCommunicationEffect extends Error { }
 
 module.exports = [
   new Channel({
@@ -19,6 +24,11 @@ module.exports = [
     audience: new WorldAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
+        const { blocked, effect } = canSpeak(sender, 'chat');
+        if (blocked) {
+          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          throw new BlockedByCommunicationEffect();
+        }
         return colorify(`🌐 You chat, '${message}'`);
       },
 
@@ -35,6 +45,11 @@ module.exports = [
     audience: new RoomAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
+        const { blocked, effect } = canSpeak(sender, 'say');
+        if (blocked) {
+          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          throw new BlockedByCommunicationEffect();
+        }
         return colorify(`💬 You say, '${message}'`);
       },
 
@@ -51,6 +66,11 @@ module.exports = [
     audience: new PrivateAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
+        const { blocked, effect } = canSpeak(sender, 'tell');
+        if (blocked) {
+          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          throw new BlockedByCommunicationEffect();
+        }
         return colorify(`👂 You tell ${target.name}, '${message}'`);
       },
 
@@ -67,6 +87,11 @@ module.exports = [
     audience: new AreaAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
+        const { blocked, effect } = canSpeak(sender, 'yell');
+        if (blocked) {
+          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          throw new BlockedByCommunicationEffect();
+        }
         return colorify(`🗯️  You yell, '${message}'`);
       },
 
@@ -83,6 +108,11 @@ module.exports = [
     audience: new PartyAudience(),
     formatter: {
       sender: function (sender, target, message, colorify) {
+        const { blocked, effect } = canSpeak(sender, 'gtell');
+        if (blocked) {
+          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          throw new BlockedByCommunicationEffect();
+        }
         return colorify(`👥 You tell the group, '${message}'`);
       },
 

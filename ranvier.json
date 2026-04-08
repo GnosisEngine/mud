@@ -3,6 +3,7 @@
   "bundles": [
     "world",
     "time",
+    "moderation",
     "claims",
     "fancy-rooms",
     "areas",

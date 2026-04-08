@@ -1,7 +1,12 @@
+// bundles/commands/commands/emote.js
 'use strict';
 
 const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
+const canSpeak = require('../../moderation/lib/canSpeak');
+
+const FIND_TARGETS_REGEXP = /~((?:\d+\.)?[^\s.,!?"']+)/gi;
+const REPLACE_TARGETS_REGEXP = /~(?:\d+\.)?[^\s.,!?"']+/;
 
 module.exports = {
   usage: 'emote <message>',
@@ -13,10 +18,11 @@ module.exports = {
       return Broadcast.sayAt(player, 'Yes, but what do you want to emote?');
     }
 
-    const FIND_TARGETS_REGEXP = /~((?:\d+\.)?[^\s.,!?"']+)/gi;
-    const REPLACE_TARGETS_REGEXP = /~(?:\d+\.)?[^\s.,!?"']+/;
+    const { blocked, effect } = canSpeak(player, 'emote');
+    if (blocked) {
+      return Broadcast.sayAt(player, effect.config.blockedMessage);
+    }
 
-    // Build an array of items matching the emote targets (specified by ~<target> in the emote.
     let execResult;
     let matchedTargets = [];
     while ((execResult = FIND_TARGETS_REGEXP.exec(args)) !== null) {
@@ -29,10 +35,9 @@ module.exports = {
       }
     }
 
-    // Replace the initial emote message with the found targets and broadcast to the room.
     const emoteMessage = matchedTargets
       .reduce((string, target) => string.replace(REPLACE_TARGETS_REGEXP, target.name), `${player.name} ${args}`)
-      .replace(/([^.?!])$/, '$1.');  // Enforce punctuation
+      .replace(/([^.?!])$/, '$1.');
 
     player.room.players.forEach(presentPlayer => {
       if (presentPlayer === player) {
