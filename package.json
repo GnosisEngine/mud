@@ -10,11 +10,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "start": "node ./ranvier -v",
-    "init": "node ./util/init-bundles.js",
-    "update-bundle-remote": "node ./util/update-bundle-url.js",
-    "remove-bundle": "node ./util/remove-bundle.js",
-    "install-bundle": "node ./util/install-bundle.js"
+    "setup": "npm install && node util/setup.js",
+    "start": "node ./ranvier -v"
   },
   "dependencies": {
     "commander": "^2.19.0",
