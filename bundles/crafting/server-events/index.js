@@ -6,8 +6,7 @@ const SpawnLoop = require('../lib/SpawnLoop');
 const NpcDeathHandler = require('../lib/NpcDeathHandler');
 const ResourceContainer = require('../lib/ResourceContainer');
 const startupPoll = require('../../lib/lib/StartupPoll');
-
-const ROT_POLL_TICK_MS = 1000;
+const { SPAWN_TICK_MS, ROT_POLL_TICK_MS } = require('../constants');
 
 module.exports = {
   listeners: {
@@ -16,7 +15,7 @@ module.exports = {
       async () => {
         TerrainResolver.init(room => state.WorldManager.getTerrainForRoom(room));
 
-        setInterval(() => SpawnLoop.tick(state), SpawnLoop.SPAWN_TICK_MS);
+        setInterval(() => SpawnLoop.tick(state), SPAWN_TICK_MS);
 
         setInterval(() => {
           if (!state.TimeService) return;

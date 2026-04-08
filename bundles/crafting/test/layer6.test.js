@@ -6,6 +6,7 @@ const SpawnLoop = require('../lib/SpawnLoop');
 const NpcDeathHandler = require('../lib/NpcDeathHandler');
 const RC = require('../lib/ResourceContainer');
 const TR = require('../lib/TerrainResolver');
+const { SPAWN_TICK_MS } = require('../constants');
 
 let passed = 0;
 let failed = 0;
@@ -54,7 +55,7 @@ function mockResourceItem(resourceKey) {
     type: 'RESOURCE',
     getMeta(key) { return store[key]; },
     setMeta(key, val) { store[key] = val; },
-    hydrate: () => {},
+    hydrate: () => { },
   };
 }
 
@@ -73,7 +74,7 @@ function mockNonResourceItem() {
     id: `item_${++_itemIdCounter}`,
     type: 'OBJECT',
     getMeta() { return undefined; },
-    setMeta() {},
+    setMeta() { },
   };
 }
 
@@ -470,7 +471,7 @@ test('NPC resources are cleared even when orphaned', () => {
 console.log('\nconstants');
 
 test('SPAWN_TICK_MS is a positive number', () => {
-  assert.ok(typeof SpawnLoop.SPAWN_TICK_MS === 'number' && SpawnLoop.SPAWN_TICK_MS > 0);
+  assert.ok(typeof SPAWN_TICK_MS === 'number' && SPAWN_TICK_MS > 0);
 });
 
 test('SPAWNABLE_ZONE_TYPES includes SUPPLY and WILDERNESS', () => {

@@ -1,9 +1,8 @@
 // resources/lib/ResourceContainer.js
 'use strict';
 
+const { CARRY_MULTIPLIER } = require('../constants');
 const ResourceDefinitions = require('./ResourceDefinitions');
-
-const CARRY_MULTIPLIER = 10;
 
 function _getHeldMap(entity) {
   return entity.getMeta('resources') || {};

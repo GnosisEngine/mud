@@ -102,5 +102,9 @@
   "maxIdleTime": 20,
   "logoutGraceMs": 30000,
   "compactThreshold": 10000,
-  "dataDir": "data"
+  "dataDir": "data",
+  "carryCapacityMultiplier": 10,
+  "resourceSpawnTickMs": 30000,
+  "rotPollTickMS": 1000,
+  "tradeTimeoutMs": 10000
 }

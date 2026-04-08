@@ -4,7 +4,6 @@
 const SpawnTable = require('./SpawnTable');
 const TerrainResolver = require('./TerrainResolver');
 
-const SPAWN_TICK_MS = 30000;
 const SPAWNABLE_ZONE_TYPES = new Set(['SUPPLY', 'WILDERNESS']);
 const RESOURCE_ITEM_TYPE = 'RESOURCE';
 const RESOURCES_AREA_NAME = 'craft';
@@ -58,7 +57,6 @@ function tick(state) {
 
 module.exports = {
   tick,
-  SPAWN_TICK_MS,
   SPAWNABLE_ZONE_TYPES,
   RESOURCES_AREA_NAME,
 };
