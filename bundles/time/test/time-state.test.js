@@ -1,7 +1,7 @@
 // bundles/time-bundle/test/time-state.test.js
 
 const assert = require('assert');
-const state  = require('../lib/time-state');
+const state = require('../lib/time-state');
 const { TICKS_PER_DAY, getDayPhase, getMoonPhase, MOON_CYCLE_DAYS } = require('../lib/time-math');
 
 let passed = 0;
@@ -19,8 +19,8 @@ function test(label, fn) {
   }
 }
 
-function eq(a, b)   { assert.deepStrictEqual(a, b); }
-function ok(v)      { assert.ok(v); }
+function eq(a, b) { assert.deepStrictEqual(a, b); }
+function ok(v) { assert.ok(v); }
 
 function setup() { state.reset(); }
 

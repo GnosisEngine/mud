@@ -107,5 +107,38 @@
   "resourceSpawnTickMs": 30000,
   "rotPollTickMS": 1000,
   "tradeTimeoutMs": 10000,
-  "maxRoomWidth": 72
+  "maxRoomWidth": 72,
+  "msPerTick": 250,
+  "ticksPerHour": 60,
+  "ticksPerDay": 1440,
+  "daysPerMonth": 28,
+  "monthsPerYear": 13,
+  "daysPerYear": 365,
+  "daysPerWeek": 7,
+  "holidayDayOfYear": 364,
+  "monthNames": [
+    "Frostholm",
+    "Ashveil",
+    "Thornmere",
+    "Gloomwatch",
+    "Emberdawn",
+    "Verdannis",
+    "Solmara",
+    "Heathen",
+    "Goldenveil",
+    "Harrowmede",
+    "Duskfall",
+    "Wintermarch",
+    "Bleakstone"
+  ],
+  "holidayName": "The Unmarked Day",
+  "dayNames": [
+    "Solday",
+    "Moonday",
+    "Ironday",
+    "Ashday",
+    "Thornday",
+    "Stillday",
+    "Veilday"
+  ]
 }

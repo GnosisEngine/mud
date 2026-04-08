@@ -2,13 +2,12 @@
 
 'use strict';
 
-const path        = require('path');
-const timeState   = require('../lib/time-state');
-const timeStore   = require('../lib/time-store');
+const path = require('path');
+const timeState = require('../lib/time-state');
+const timeStore = require('../lib/time-store');
 const broadcaster = require('../lib/time-broadcaster');
-const timeMath    = require('../lib/time-math');
-
-const TICK_INTERVAL_MS = 250;
+const timeMath = require('../lib/time-math');
+const { MS_PER_TICK } = require('../constants');
 
 let dataPath = path.join(__dirname, '../../data/time-bundle/tick.json');
 
@@ -18,17 +17,17 @@ function configure(options) {
 
 function buildTimeService() {
   return {
-    getTick:            ()     => timeState.get(),
-    getFormalTime:      (tick) => timeMath.getFormalTime(tick !== undefined ? tick : timeState.get()),
-    getMonth:           (tick) => timeMath.getMonth(tick !== undefined ? tick : timeState.get()),
-    getDayOfWeek:       (tick) => timeMath.getDayOfWeek(tick !== undefined ? tick : timeState.get()),
-    getDayOfMonth:      (tick) => timeMath.getDayOfMonth(tick !== undefined ? tick : timeState.get()),
-    getHour:            (tick) => timeMath.getHour(tick !== undefined ? tick : timeState.get()),
-    getMinute:          (tick) => timeMath.getMinute(tick !== undefined ? tick : timeState.get()),
-    getMoonPhase:       (tick) => timeMath.getMoonPhase(tick !== undefined ? tick : timeState.get()),
-    getDayPhase:        (tick) => timeMath.getDayPhase(tick !== undefined ? tick : timeState.get()),
+    getTick: () => timeState.get(),
+    getFormalTime: (tick) => timeMath.getFormalTime(tick !== undefined ? tick : timeState.get()),
+    getMonth: (tick) => timeMath.getMonth(tick !== undefined ? tick : timeState.get()),
+    getDayOfWeek: (tick) => timeMath.getDayOfWeek(tick !== undefined ? tick : timeState.get()),
+    getDayOfMonth: (tick) => timeMath.getDayOfMonth(tick !== undefined ? tick : timeState.get()),
+    getHour: (tick) => timeMath.getHour(tick !== undefined ? tick : timeState.get()),
+    getMinute: (tick) => timeMath.getMinute(tick !== undefined ? tick : timeState.get()),
+    getMoonPhase: (tick) => timeMath.getMoonPhase(tick !== undefined ? tick : timeState.get()),
+    getDayPhase: (tick) => timeMath.getDayPhase(tick !== undefined ? tick : timeState.get()),
     getMoonSkyPosition: (tick) => timeMath.getMoonSkyPosition(tick !== undefined ? tick : timeState.get()),
-    getTimePosition:    (tick) => timeMath.getTimePosition(tick !== undefined ? tick : timeState.get()),
+    getTimePosition: (tick) => timeMath.getTimePosition(tick !== undefined ? tick : timeState.get()),
   };
 }
 
@@ -49,11 +48,11 @@ module.exports = {
 
       let lastMs = Date.now();
       const interval = setInterval(() => {
-        const now   = Date.now();
+        const now = Date.now();
         const delta = now - lastMs;
-        lastMs      = now;
+        lastMs = now;
         timeState.advance(delta);
-      }, TICK_INTERVAL_MS);
+      }, MS_PER_TICK);
 
       state.TimeService = buildTimeService();
 

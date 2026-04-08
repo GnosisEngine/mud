@@ -9,8 +9,6 @@ const say = B.sayAt;
 'use strict';
 
 const {
-  TICKS_PER_DAY,
-  DAYS_PER_YEAR,
   tickToComponents,
   isMoonObservable,
 } = require('../lib/time-math');
@@ -19,20 +17,20 @@ module.exports = {
   usage: 'time',
 
   command: state => (args, player) => {
-    const ts   = state.TimeService;
+    const ts = state.TimeService;
     // @TODO remove this args usage later
     const tick = (args && args.trim() !== '') ? parseInt(args.trim(), 10) : ts.getTick();
     const { year, dayOfMonth, isHoliday } = tickToComponents(tick);
 
-    const position   = ts.getTimePosition(tick);
-    const dayPhase   = ts.getDayPhase(tick);
-    const moonPhase  = ts.getMoonPhase(tick);
-    const moonSky    = ts.getMoonSkyPosition(tick);
-    const month      = ts.getMonth(tick);
-    const dayOfWeek  = ts.getDayOfWeek(tick);
-    const hour       = ts.getHour(tick);
+    const position = ts.getTimePosition(tick);
+    const dayPhase = ts.getDayPhase(tick);
+    const moonPhase = ts.getMoonPhase(tick);
+    const moonSky = ts.getMoonSkyPosition(tick);
+    const month = ts.getMonth(tick);
+    const dayOfWeek = ts.getDayOfWeek(tick);
+    const hour = ts.getHour(tick);
 
-    const sunIsUp     = hour >= 6 && hour < 21;
+    const sunIsUp = hour >= 6 && hour < 21;
     const moonVisible = isMoonObservable(tick);
 
     let skyLine;

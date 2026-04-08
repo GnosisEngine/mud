@@ -43,78 +43,78 @@ function ok(v, msg) { assert.ok(v, msg); }
 
 const DAY = TICKS_PER_DAY;
 const HOLIDAY_TICK = HOLIDAY_DAY_OF_YEAR * DAY;
-const YEAR2_TICK   = DAYS_PER_YEAR * DAY;
+const YEAR2_TICK = DAYS_PER_YEAR * DAY;
 
 console.log('\n── tickToComponents ──────────────────────────────');
 
 test('tick 0: first minute of year 1', () => {
   const c = tickToComponents(0);
-  eq(c.year,       1);
-  eq(c.dayOfYear,  0);
-  eq(c.month,      1);
+  eq(c.year, 1);
+  eq(c.dayOfYear, 0);
+  eq(c.month, 1);
   eq(c.dayOfMonth, 1);
-  eq(c.dayOfWeek,  0);
-  eq(c.hour,       0);
-  eq(c.minute,     0);
-  eq(c.isHoliday,  false);
-  eq(c.moonDay,    0);
+  eq(c.dayOfWeek, 0);
+  eq(c.hour, 0);
+  eq(c.minute, 0);
+  eq(c.isHoliday, false);
+  eq(c.moonDay, 0);
 });
 
 test('tick 30: minute 30 of hour 0', () => {
   const c = tickToComponents(30);
   eq(c.minute, 30);
-  eq(c.hour,   0);
+  eq(c.hour, 0);
 });
 
 test('tick 60: top of hour 1', () => {
   const c = tickToComponents(60);
-  eq(c.hour,   1);
+  eq(c.hour, 1);
   eq(c.minute, 0);
 });
 
 test('tick 1439: last minute of day 0', () => {
   const c = tickToComponents(1439);
-  eq(c.hour,       23);
-  eq(c.minute,     59);
-  eq(c.dayOfYear,  0);
+  eq(c.hour, 23);
+  eq(c.minute, 59);
+  eq(c.dayOfYear, 0);
   eq(c.dayOfMonth, 1);
 });
 
 test('tick DAY: first tick of day 1 (2nd day)', () => {
   const c = tickToComponents(DAY);
-  eq(c.dayOfYear,  1);
+  eq(c.dayOfYear, 1);
   eq(c.dayOfMonth, 2);
-  eq(c.hour,       0);
-  eq(c.minute,     0);
+  eq(c.hour, 0);
+  eq(c.minute, 0);
 });
 
 test('day 27: last day of month 1', () => {
   const c = tickToComponents(27 * DAY);
-  eq(c.month,      1);
+  eq(c.month, 1);
   eq(c.dayOfMonth, 28);
-  eq(c.isHoliday,  false);
+  eq(c.isHoliday, false);
 });
 
 test('day 28: first day of month 2 (Ashveil)', () => {
   const c = tickToComponents(28 * DAY);
-  eq(c.month,      2);
+  eq(c.month, 2);
   eq(c.dayOfMonth, 1);
-  eq(c.isHoliday,  false);
+  eq(c.isHoliday, false);
 });
 
 test('day 364: The Unmarked Day', () => {
   const c = tickToComponents(HOLIDAY_TICK);
-  eq(c.isHoliday,  true);
-  eq(c.month,      null);
+  eq(c.isHoliday, true);
+  eq(c.month, null);
   eq(c.dayOfMonth, null);
-  eq(c.year,       1);
+  eq(c.year, 1);
 });
 
 test('day 365: first day of year 2', () => {
   const c = tickToComponents(YEAR2_TICK);
-  eq(c.year,       2);
-  eq(c.dayOfYear,  0);
-  eq(c.month,      1);
+  eq(c.year, 2);
+  eq(c.dayOfYear, 0);
+  eq(c.month, 1);
   eq(c.dayOfMonth, 1);
 });
 
@@ -174,21 +174,21 @@ test('tick 60: minute resets to 0', () => eq(getMinute(60), 0));
 console.log('\n── getMoonPhase ──────────────────────────────────');
 
 const moonTable = [
-  [0,  'New Moon',        '🌑'],
-  [1,  'New Moon',        '🌑'],
-  [3,  'New Moon',        '🌑'],
-  [4,  'Waxing Crescent', '🌒'],
-  [6,  'Waxing Crescent', '🌒'],
-  [7,  'First Quarter',   '🌓'],
-  [10, 'First Quarter',   '🌓'],
-  [11, 'Waxing Gibbous',  '🌔'],
-  [13, 'Waxing Gibbous',  '🌔'],
-  [14, 'Full Moon',       '🌕'],
-  [17, 'Full Moon',       '🌕'],
-  [18, 'Waning Gibbous',  '🌖'],
-  [20, 'Waning Gibbous',  '🌖'],
-  [21, 'Last Quarter',    '🌗'],
-  [24, 'Last Quarter',    '🌗'],
+  [0, 'New Moon', '🌑'],
+  [1, 'New Moon', '🌑'],
+  [3, 'New Moon', '🌑'],
+  [4, 'Waxing Crescent', '🌒'],
+  [6, 'Waxing Crescent', '🌒'],
+  [7, 'First Quarter', '🌓'],
+  [10, 'First Quarter', '🌓'],
+  [11, 'Waxing Gibbous', '🌔'],
+  [13, 'Waxing Gibbous', '🌔'],
+  [14, 'Full Moon', '🌕'],
+  [17, 'Full Moon', '🌕'],
+  [18, 'Waning Gibbous', '🌖'],
+  [20, 'Waning Gibbous', '🌖'],
+  [21, 'Last Quarter', '🌗'],
+  [24, 'Last Quarter', '🌗'],
   [25, 'Waning Crescent', '🌘'],
   [27, 'Waning Crescent', '🌘'],
 ];
@@ -196,7 +196,7 @@ const moonTable = [
 moonTable.forEach(([day, name, emoji]) => {
   test(`moon day ${day}: ${name}`, () => {
     const phase = getMoonPhase(day * DAY);
-    eq(phase.name,  name);
+    eq(phase.name, name);
     eq(phase.emoji, emoji);
   });
 });
@@ -208,26 +208,26 @@ test('moon cycle resets at day 28', () => {
 console.log('\n── getDayPhase ───────────────────────────────────');
 
 const phaseTable = [
-  [0,  'Midnight',  '🌃'],
-  [4,  'Midnight',  '🌃'],
-  [5,  'Dawn',      '🌄'],
-  [6,  'Sunrise',   '🌅'],
-  [7,  'Morning',   '🌤️'],
-  [11, 'Morning',   '🌤️'],
-  [12, 'Noon',      '☀️'],
+  [0, 'Midnight', '🌃'],
+  [4, 'Midnight', '🌃'],
+  [5, 'Dawn', '🌄'],
+  [6, 'Sunrise', '🌅'],
+  [7, 'Morning', '🌤️'],
+  [11, 'Morning', '🌤️'],
+  [12, 'Noon', '☀️'],
   [13, 'Afternoon', '🌞'],
   [17, 'Afternoon', '🌞'],
-  [18, 'Sunset',    '🌇'],
-  [19, 'Dusk',      '🌆'],
-  [20, 'Dusk',      '🌆'],
-  [21, 'Night',     '🌉'],
-  [23, 'Night',     '🌉'],
+  [18, 'Sunset', '🌇'],
+  [19, 'Dusk', '🌆'],
+  [20, 'Dusk', '🌆'],
+  [21, 'Night', '🌉'],
+  [23, 'Night', '🌉'],
 ];
 
 phaseTable.forEach(([hour, name, emoji]) => {
   test(`hour ${hour}: ${name}`, () => {
     const phase = getDayPhase(hour * 60);
-    eq(phase.name,  name);
+    eq(phase.name, name);
     eq(phase.emoji, emoji);
   });
 });
@@ -239,13 +239,13 @@ test('tick 0: full formal string', () => {
 });
 
 test('ordinal: 2nd, 3rd, 4th, 11th, 12th, 21st, 22nd', () => {
-  eq(getFormalTime(1 * DAY),   'Moonday, the 2nd of Frostholm, Year 1, 00:00');
-  eq(getFormalTime(2 * DAY),   'Ironday, the 3rd of Frostholm, Year 1, 00:00');
-  eq(getFormalTime(3 * DAY),   'Ashday, the 4th of Frostholm, Year 1, 00:00');
-  eq(getFormalTime(10 * DAY),  'Ashday, the 11th of Frostholm, Year 1, 00:00');
-  eq(getFormalTime(11 * DAY),  'Thornday, the 12th of Frostholm, Year 1, 00:00');
-  eq(getFormalTime(20 * DAY),  'Veilday, the 21st of Frostholm, Year 1, 00:00');
-  eq(getFormalTime(21 * DAY),  'Solday, the 22nd of Frostholm, Year 1, 00:00');
+  eq(getFormalTime(1 * DAY), 'Moonday, the 2nd of Frostholm, Year 1, 00:00');
+  eq(getFormalTime(2 * DAY), 'Ironday, the 3rd of Frostholm, Year 1, 00:00');
+  eq(getFormalTime(3 * DAY), 'Ashday, the 4th of Frostholm, Year 1, 00:00');
+  eq(getFormalTime(10 * DAY), 'Ashday, the 11th of Frostholm, Year 1, 00:00');
+  eq(getFormalTime(11 * DAY), 'Thornday, the 12th of Frostholm, Year 1, 00:00');
+  eq(getFormalTime(20 * DAY), 'Veilday, the 21st of Frostholm, Year 1, 00:00');
+  eq(getFormalTime(21 * DAY), 'Solday, the 22nd of Frostholm, Year 1, 00:00');
 });
 
 test('time padding: hour 09 minute 05', () => {
@@ -426,7 +426,7 @@ test('sun window hours 6-20 always show sun regardless of moon phase', () => {
   MOON_PHASES.forEach((_, phaseIndex) => {
     const moonDay = moonDayForPhase[phaseIndex];
     for (let h = 6; h < 21; h++) {
-      const tick   = moonDay * DAY + h * TICKS_PER_HOUR;
+      const tick = moonDay * DAY + h * TICKS_PER_HOUR;
       const result = getTimePosition(tick);
       ok(result.includes('☀️'), `phase ${phaseIndex} hour ${h}: expected sun, got "${result}"`);
     }

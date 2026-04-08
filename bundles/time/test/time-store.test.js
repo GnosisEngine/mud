@@ -1,10 +1,10 @@
 // bundles/time-bundle/test/time-store.test.js
 
 const assert = require('assert');
-const fs     = require('fs');
-const os     = require('os');
-const path   = require('path');
-const store  = require('../lib/time-store');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const store = require('../lib/time-store');
 
 let passed = 0;
 let failed = 0;
@@ -28,7 +28,7 @@ function tempPath() {
 }
 
 function cleanup(p) {
-  try { fs.unlinkSync(p); } catch (_) {}
+  try { fs.unlinkSync(p); } catch (_) { }
 }
 
 console.log('\nload');
@@ -123,7 +123,7 @@ test('save creates the file', () => {
 
 test('save creates intermediate directories', () => {
   const dir = path.join(os.tmpdir(), `time-store-dir-${Date.now()}`);
-  const p   = path.join(dir, 'nested', 'tick.json');
+  const p = path.join(dir, 'nested', 'tick.json');
   store.configure(p);
   store.save(7);
   eq(store.load(), 7);

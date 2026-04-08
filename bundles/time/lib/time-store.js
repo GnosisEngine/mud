@@ -1,6 +1,6 @@
 // bundles/time-bundle/lib/time-store.js
 
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const DEFAULT_PATH = path.join(__dirname, '../../../data/tick.json');

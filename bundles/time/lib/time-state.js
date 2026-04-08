@@ -1,8 +1,7 @@
 // bundles/time-bundle/lib/time-state.js
 
-const { TICKS_PER_DAY, getMoonPhase, getDayPhase } = require('./time-math');
-
-const MS_PER_TICK = 10;
+const { MS_PER_TICK, TICKS_PER_DAY } = require('../constants');
+const { getMoonPhase, getDayPhase } = require('./time-math');
 
 let currentTick = 0;
 let accumulated = 0;
@@ -10,8 +9,8 @@ let lastDayPhaseIndex = -1;
 let lastMoonPhaseIndex = -1;
 
 const listeners = {
-  dayRollover:     [],
-  dayPhaseChange:  [],
+  dayRollover: [],
+  dayPhaseChange: [],
   moonPhaseChange: [],
 };
 
@@ -29,7 +28,7 @@ function off(event, fn) {
 
 function set(tick) {
   currentTick = tick;
-  lastDayPhaseIndex  = getDayPhase(tick).index;
+  lastDayPhaseIndex = getDayPhase(tick).index;
   lastMoonPhaseIndex = getMoonPhase(tick).index;
 }
 
@@ -51,7 +50,7 @@ function advance(deltaMs) {
       emit('dayRollover', currentTick);
     }
 
-    const dayPhase  = getDayPhase(currentTick);
+    const dayPhase = getDayPhase(currentTick);
     const moonPhase = getMoonPhase(currentTick);
 
     if (dayPhase.index !== lastDayPhaseIndex) {
@@ -69,10 +68,10 @@ function advance(deltaMs) {
 function reset() {
   currentTick = 0;
   accumulated = 0;
-  lastDayPhaseIndex  = -1;
+  lastDayPhaseIndex = -1;
   lastMoonPhaseIndex = -1;
-  listeners.dayRollover    = [];
-  listeners.dayPhaseChange  = [];
+  listeners.dayRollover = [];
+  listeners.dayPhaseChange = [];
   listeners.moonPhaseChange = [];
 }
 

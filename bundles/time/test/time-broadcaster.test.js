@@ -1,8 +1,8 @@
 // bundles/time-bundle/test/time-broadcaster.test.js
 
-const assert       = require('assert');
-const timeState    = require('../lib/time-state');
-const broadcaster  = require('../lib/time-broadcaster');
+const assert = require('assert');
+const timeState = require('../lib/time-state');
+const broadcaster = require('../lib/time-broadcaster');
 const { TICKS_PER_DAY, MOON_CYCLE_DAYS, DAY_PHASES, MOON_PHASES } = require('../lib/time-math');
 
 let passed = 0;
@@ -21,7 +21,7 @@ function test(label, fn) {
 }
 
 function eq(a, b) { assert.deepStrictEqual(a, b); }
-function ok(v)    { assert.ok(v); }
+function ok(v) { assert.ok(v); }
 
 function makePlayerManager(players) {
   return { forEach: fn => players.forEach(fn) };
@@ -114,7 +114,7 @@ test('no broadcast when phase does not change', () => {
 
 test('broadcasts correct message for each day phase transition', () => {
   const dayPhaseEntryHours = [5, 6, 7, 12, 13, 18, 19, 21];
-  const expectedEmojis     = ['🌄','🌅','🌤️','☀️','🌞','🌇','🌆','🌉'];
+  const expectedEmojis = ['🌄', '🌅', '🌤️', '☀️', '🌞', '🌇', '🌆', '🌉'];
 
   dayPhaseEntryHours.forEach((hour, i) => {
     setup();
@@ -140,7 +140,7 @@ test('player with no broadcast events receives nothing when no phase change', ()
   eq(p.received.length, 0);
 });
 
-const MOON_EMOJIS = new Set(['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘']);
+const MOON_EMOJIS = new Set(['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘']);
 
 function isMoonMsg(msg) {
   return MOON_EMOJIS.has([...msg][0]);
