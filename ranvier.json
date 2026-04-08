@@ -106,5 +106,6 @@
   "carryCapacityMultiplier": 10,
   "resourceSpawnTickMs": 30000,
   "rotPollTickMS": 1000,
-  "tradeTimeoutMs": 10000
+  "tradeTimeoutMs": 10000,
+  "maxRoomWidth": 72
 }

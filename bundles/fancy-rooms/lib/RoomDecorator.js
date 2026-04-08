@@ -3,8 +3,7 @@
 // bundles/fancy-rooms/lib/RoomDecorator.js
 
 const Colors = require('../../colors/lib/Colors')
-
-const DEFAULT_WIDTH = 72
+const { DEFAULT_WIDTH } = require('../constants')
 
 // Colors.visibleLength strips ANSI and returns the JS UTF-16 code-unit count.
 // Supplementary-plane emoji (U+1F000+) are surrogate pairs so .length === 2,
@@ -63,7 +62,7 @@ function lerp(a, b, t) { return Math.round(a + (b - a) * t) }
 function borderColor(col, row, totalCols, totalRows) {
   const tx = col / (totalCols - 1)
   const ty = (totalRows - 1 - row) / (totalRows - 1)
-  const t  = (tx + ty) / 2
+  const t = (tx + ty) / 2
   return Colors.rgb(lerp(80, 255, t), lerp(45, 215, t), 0)
 }
 
@@ -109,8 +108,8 @@ function shimmerText(text) {
   }).join('') + Colors.RESET
 }
 
-const AREA_PAREN = Colors.rgb( 80, 110, 220)
-const AREA_NAME  = Colors.rgb(130, 165, 255)
+const AREA_PAREN = Colors.rgb(80, 110, 220)
+const AREA_NAME = Colors.rgb(130, 165, 255)
 
 function areaTag(name) {
   return `${AREA_PAREN}(${AREA_NAME} ${name} ${AREA_PAREN})${Colors.RESET}`
@@ -136,16 +135,16 @@ function resolveTimeBar(state, room) {
 function decorate(room, width = DEFAULT_WIDTH, options = {}) {
   const { waypointLabel = null, state = null } = options
 
-  const EL = Colors.rgb(150, 140,  80)
-  const DM = Colors.rgb( 80,  30, 120)
+  const EL = Colors.rgb(150, 140, 80)
+  const DM = Colors.rgb(80, 30, 120)
   const DC = Colors.rgb(200, 100, 255)
 
-  const inner  = width - 4
+  const inner = width - 4
   const titleW = width - 2
 
-  const titleRaw  = room.title || 'Unknown'
-  const areaName  = room.area ? room.area.title : null
-  const rawDesc   = (room.description || '').replace(/[\r\n]+/g, ' ').replace(/  +/g, ' ').trim()
+  const titleRaw = room.title || 'Unknown'
+  const areaName = room.area ? room.area.title : null
+  const rawDesc = (room.description || '').replace(/[\r\n]+/g, ' ').replace(/  +/g, ' ').trim()
   const descLines = wordWrap(Colors.parse(rawDesc), inner)
 
   const exits = (typeof room.getExits === 'function'
@@ -157,15 +156,15 @@ function decorate(room, width = DEFAULT_WIDTH, options = {}) {
   const totalRows = 4 + descLines.length + (exits.length ? 2 : 0)
   const W = width
 
-  const g  = (char, col, row) => gc(char, col, row, W, totalRows)
+  const g = (char, col, row) => gc(char, col, row, W, totalRows)
   const hr = (char, c1, c2, row) => hrun(char, c1, c2, row, W, totalRows)
 
-  const timeBar    = resolveTimeBar(state, room)
-  const tbw        = timeBar ? Colors.visibleLength(timeBar) : 0
+  const timeBar = resolveTimeBar(state, room)
+  const tbw = timeBar ? Colors.visibleLength(timeBar) : 0
   // time bar is inset 3 dashes from the corner: ╔═══[ ... ]═══...═╗
   // bar occupies columns TB_INDENT+1 through TB_INDENT+tbw, so first free col is TB_INDENT+1+tbw
-  const TB_INDENT  = 3
-  const tbEnd      = TB_INDENT + 1 + tbw
+  const TB_INDENT = 3
+  const tbEnd = TB_INDENT + 1 + tbw
 
   const out = []
   let row = 0
@@ -173,77 +172,77 @@ function decorate(room, width = DEFAULT_WIDTH, options = {}) {
   // top border
   if (areaName) {
     const tagVisualLen = areaName.length + 4
-    const MIN_RIGHT    = 5
+    const MIN_RIGHT = 5
     // left dashes = TB_INDENT (before bar) + bar + gap dashes up to tag
     // total left budget consumed by bar region: TB_INDENT + tbw
-    const leftDashes   = Math.max(1, W - 2 - (timeBar ? tbEnd : 0) - tagVisualLen - MIN_RIGHT)
-    const midStart     = timeBar ? tbEnd : 1
-    const midEnd       = midStart + leftDashes - 1
-    const tagStart     = midEnd + 1
-    const rightStart   = tagStart + tagVisualLen
-    const rightEnd     = W - 2
+    const leftDashes = Math.max(1, W - 2 - (timeBar ? tbEnd : 0) - tagVisualLen - MIN_RIGHT)
+    const midStart = timeBar ? tbEnd : 1
+    const midEnd = midStart + leftDashes - 1
+    const tagStart = midEnd + 1
+    const rightStart = tagStart + tagVisualLen
+    const rightEnd = W - 2
     out.push(
       g('╔', 0, row) +
       (timeBar ? hr('═', 1, TB_INDENT, row) + timeBar : '') +
       hr('═', midStart, midEnd, row) +
       areaTag(areaName) +
       hr('═', rightStart, rightEnd, row) +
-      g('╗', W-1, row)
+      g('╗', W - 1, row)
     )
   } else if (timeBar) {
     out.push(
       g('╔', 0, row) +
       hr('═', 1, TB_INDENT, row) +
       timeBar +
-      hr('═', tbEnd, W-2, row) +
-      g('╗', W-1, row)
+      hr('═', tbEnd, W - 2, row) +
+      g('╗', W - 1, row)
     )
   } else {
-    out.push(g('╔', 0, row) + hr('═', 1, W-2, row) + g('╗', W-1, row))
+    out.push(g('╔', 0, row) + hr('═', 1, W - 2, row) + g('╗', W - 1, row))
   }
   row++
 
   // title
   const titleStyled = gradientTitle(titleRaw)
-  const titlePad    = Math.max(0, titleW - Colors.visibleLength(titleRaw))
-  const padL        = Math.floor(titlePad / 2)
-  const padR        = titlePad - padL
-  out.push(g('║', 0, row) + ' '.repeat(padL) + titleStyled + ' '.repeat(padR) + g('║', W-1, row))
+  const titlePad = Math.max(0, titleW - Colors.visibleLength(titleRaw))
+  const padL = Math.floor(titlePad / 2)
+  const padR = titlePad - padL
+  out.push(g('║', 0, row) + ' '.repeat(padL) + titleStyled + ' '.repeat(padR) + g('║', W - 1, row))
   row++
 
   // gem separator — ⭐ (2 wide) if waypoint, ◆ (1 wide) otherwise
-  const gem      = waypointLabel ? '⭐' : '◆'
+  const gem = waypointLabel ? '⭐' : '◆'
   const gemWidth = waypointLabel ? 2 : 1
-  const gemC     = waypointLabel ? Colors.rgb(255, 230, 80) : Colors.rgb(255, 210, 40)
+  const gemC = waypointLabel ? Colors.rgb(255, 230, 80) : Colors.rgb(255, 210, 40)
   const totalDashes = W - 2 - gemWidth
-  const gemL     = Math.floor(totalDashes / 2)
-  const gemR     = totalDashes - gemL
+  const gemL = Math.floor(totalDashes / 2)
+  const gemR = totalDashes - gemL
   out.push(
     g('╠', 0, row) +
     hr('═', 1, gemL, row) +
     `${gemC}${gem}${Colors.RESET}` +
     hr('═', gemL + 1 + gemWidth, gemL + gemWidth + gemR, row) +
-    g('╣', W-1, row)
+    g('╣', W - 1, row)
   )
   row++
 
   // description
   for (const line of descLines) {
     const shimmered = shimmerText(pad(line, inner))
-    out.push(g('║', 0, row) + ` ${shimmered} ` + g('║', W-1, row))
+    out.push(g('║', 0, row) + ` ${shimmered} ` + g('║', W - 1, row))
     row++
   }
 
   // exits
   if (exits.length) {
-    out.push(g('╠', 0, row) + hr('─', 1, W-2, row) + g('╣', W-1, row))
+    out.push(g('╠', 0, row) + hr('─', 1, W - 2, row) + g('╣', W - 1, row))
     row++
 
     const exitList = exits.map(exit => {
       let doorEmoji = ''
       if (state) {
         const exitRoom = state.RoomManager.getRoom(exit.roomId)
-        const door     = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room))
+        const door = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room))
         if (door) {
           doorEmoji = door.locked ? ' 🔒' : door.closed ? ' 🚪' : ' ⬛'
         }
@@ -252,13 +251,13 @@ function decorate(room, width = DEFAULT_WIDTH, options = {}) {
     }).join(' ')
 
     const exitLabel = `${EL}Exits:${Colors.RESET} ${exitList}`
-    out.push(g('║', 0, row) + ` ${pad(exitLabel, inner)} ` + g('║', W-1, row))
+    out.push(g('║', 0, row) + ` ${pad(exitLabel, inner)} ` + g('║', W - 1, row))
     row++
   }
 
-  out.push(g('╚', 0, row) + hr('═', 1, W-2, row) + g('╝', W-1, row))
+  out.push(g('╚', 0, row) + hr('═', 1, W - 2, row) + g('╝', W - 1, row))
 
   return out.join('\r\n')
 }
 
-module.exports = { decorate, wordWrap, visualLength: Colors.visibleLength, DEFAULT_WIDTH }
+module.exports = { decorate, wordWrap, visualLength: Colors.visibleLength }
