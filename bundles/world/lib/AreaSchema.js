@@ -2,9 +2,9 @@
 'use strict';
 
 const ZONE_TYPE_MAP = {
-  supply:     'SUPPLY',
+  supply: 'SUPPLY',
   wilderness: 'WILDERNESS',
-  outpost:    'OUTPOST',
+  outpost: 'OUTPOST',
 };
 
 /**

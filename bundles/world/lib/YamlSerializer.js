@@ -64,7 +64,6 @@ function _serializeRoom(room) {
   lines.push(`  coordinates: [${room.coordinates.join(', ')}]`);
   lines.push(`  metadata:`);
   lines.push(`    terrain: ${room.metadata.terrain}`);
-  // lines.push(`    worldCoords: [${room.metadata.worldCoords.join(', ')}]`);
   lines.push(`  description: ${quoteAlways(room.description)}`);
 
   if (room.exits && room.exits.length > 0) {

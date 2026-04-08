@@ -48,7 +48,7 @@ function _dominantFeature(featureNames) {
   for (const name of featureNames) {
     const priority = FEATURE_PRIORITY.indexOf(name);
     if (priority > best) {
-      best     = priority;
+      best = priority;
       bestName = name;
     }
   }
@@ -73,8 +73,8 @@ function _dominantFeature(featureNames) {
  */
 function resolve(rawTiles, rawClusters, legends) {
   const { featuresByName } = legends;
-  const roadFeatureId      = featuresByName.road;
-  const noneFeatureId      = featuresByName.none;
+  const roadFeatureId = featuresByName.road;
+  const noneFeatureId = featuresByName.none;
 
   // Build a temporary coord index from all non-empty tiles for adjacency checks
   const rawCoordMap = new Map();
@@ -121,7 +121,7 @@ function resolve(rawTiles, rawClusters, legends) {
   // their feature names, pick the name from the lowest raw cluster ID.
   // ---------------------------------------------------------------------------
 
-  const featureNameById  = {};
+  const featureNameById = {};
   for (const [id, name] of Object.entries(legends.features)) {
     featureNameById[Number(id)] = name;
   }
@@ -144,7 +144,7 @@ function resolve(rawTiles, rawClusters, legends) {
   // Collect feature names per canonical cluster from its tiles
   const featureNamesPerCanonical = {};
   for (const tile of tiles) {
-    const cid  = tile.canonicalCluster;
+    const cid = tile.canonicalCluster;
     const name = featureNameById[tile.feature] || null;
     if (!featureNamesPerCanonical[cid]) featureNamesPerCanonical[cid] = new Set();
     if (name) featureNamesPerCanonical[cid].add(name);
@@ -154,15 +154,15 @@ function resolve(rawTiles, rawClusters, legends) {
 
   // Named clusters (non-zero)
   for (const [canonIdStr, rawIds] of Object.entries(rawIdsByCanonical)) {
-    const canonId  = Number(canonIdStr);
+    const canonId = Number(canonIdStr);
     const lowestId = rawIds.sort((a, b) => a - b)[0];
-    const name     = rawClusters[String(lowestId)] || `Cluster ${lowestId}`;
+    const name = rawClusters[String(lowestId)] || `Cluster ${lowestId}`;
     const featureNames = featureNamesPerCanonical[canonId]
       ? [...featureNamesPerCanonical[canonId]]
       : [];
 
     clusterIndex.set(canonId, {
-      id:              canonId,
+      id: canonId,
       name,
       dominantFeature: _dominantFeature(featureNames),
     });

@@ -10,24 +10,24 @@ const { getRoomId } = require('./AreaSchema');
 // ---------------------------------------------------------------------------
 
 const FALLBACK_TITLE = 'Open Ground';
-const FALLBACK_DESC  = 'Unremarkable ground stretches away in every direction.';
+const FALLBACK_DESC = 'Unremarkable ground stretches away in every direction.';
 
 const TERRAIN_TITLES = {
-  bog:               'Bogland',
-  cave:              'Cave',
+  bog: 'Bogland',
+  cave: 'Cave',
   forest_coniferous: 'Coniferous Forest',
-  forest_deciduous:  'Deciduous Forest',
-  hills:             'Hillside',
-  forest_edge:       'Forest Edge',
-  grassland:         'Grassland',
-  meadow:            'Meadow',
-  lakeshore:         'Lakeshore',
-  mountain_outcrop:  'Mountain Outcrop',
-  mountain_valley:   'Mountain Valley',
-  mountain:          'Mountain',
-  river:             'Riverbank',
-  pasture:           'Pasture',
-  wetland:           'Wetland',
+  forest_deciduous: 'Deciduous Forest',
+  hills: 'Hillside',
+  forest_edge: 'Forest Edge',
+  grassland: 'Grassland',
+  meadow: 'Meadow',
+  lakeshore: 'Lakeshore',
+  mountain_outcrop: 'Mountain Outcrop',
+  mountain_valley: 'Mountain Valley',
+  mountain: 'Mountain',
+  river: 'Riverbank',
+  pasture: 'Pasture',
+  wetland: 'Wetland',
 };
 
 const TERRAIN_DESCS = {
@@ -85,7 +85,7 @@ const ROAD_DESC =
 // Feature name → title modifier function
 function _applyFeatureTitleModifier(baseTitle, featureName) {
   if (featureName === 'outpost') return `${baseTitle} Settlement`;
-  if (featureName === 'road')    return `${baseTitle} Road`;
+  if (featureName === 'road') return `${baseTitle} Road`;
   return baseTitle;
 }
 
@@ -102,21 +102,21 @@ function _applyFeatureTitleModifier(baseTitle, featureName) {
  * @returns {object}         - room data ready for YamlSerializer
  */
 function build(tile, exits, legends) {
-  const [x, y]     = tile.coords;
+  const [x, y] = tile.coords;
   const terrainName = legends.terrain[String(tile.terrain)] || 'none';
   const featureName = legends.features[String(tile.feature)] || 'none';
-  const isRoad      = featureName === 'road';
+  const isRoad = featureName === 'road';
 
   const baseTitle = TERRAIN_TITLES[terrainName] || FALLBACK_TITLE;
-  const title     = _applyFeatureTitleModifier(baseTitle, featureName);
-  const desc      = isRoad ? ROAD_DESC : (TERRAIN_DESCS[terrainName] || FALLBACK_DESC);
+  const title = _applyFeatureTitleModifier(baseTitle, featureName);
+  const desc = isRoad ? ROAD_DESC : (TERRAIN_DESCS[terrainName] || FALLBACK_DESC);
 
   const room = {
-    id:          getRoomId(x, y),
+    id: getRoomId(x, y),
     title,
     coordinates: [x, y, 0],
-    metadata:    {
-      terrain:     terrainName,
+    metadata: {
+      terrain: terrainName,
       // worldCoords: [x, y],
     },
     description: desc,

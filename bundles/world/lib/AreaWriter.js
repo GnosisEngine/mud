@@ -1,7 +1,7 @@
 // bundles/world/lib/AreaWriter.js
 'use strict';
 
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 /**
@@ -42,7 +42,7 @@ function write(outputRoot, folderName, manifestYaml, roomsYaml) {
   const areaPath = getOutputPath(outputRoot, folderName);
   fs.mkdirSync(areaPath, { recursive: true });
   fs.writeFileSync(path.join(areaPath, 'manifest.yml'), manifestYaml, 'utf8');
-  fs.writeFileSync(path.join(areaPath, 'rooms.yml'),    roomsYaml,    'utf8');
+  fs.writeFileSync(path.join(areaPath, 'rooms.yml'), roomsYaml, 'utf8');
 }
 
 module.exports = { write, getOutputPath };

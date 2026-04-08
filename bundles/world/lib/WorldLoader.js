@@ -1,16 +1,16 @@
 // bundles/world/lib/WorldLoader.js
 'use strict';
 
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
 
-const REQUIRED_META_FIELDS    = ['width', 'height'];
-const REQUIRED_LEGEND_KEYS    = ['terrain', 'features'];
-const REQUIRED_FEATURE_NAMES  = ['none', 'road', 'wilderness', 'supply', 'outpost'];
+const REQUIRED_META_FIELDS = ['width', 'height'];
+const REQUIRED_LEGEND_KEYS = ['terrain', 'features'];
+const REQUIRED_FEATURE_NAMES = ['none', 'road', 'wilderness', 'supply', 'outpost'];
 
 function _invertLegend(legend, label) {
   const inverse = {};
-  const seen    = {};
+  const seen = {};
 
   for (const [id, name] of Object.entries(legend)) {
     if (typeof name !== 'string' || !name.length) {
@@ -21,7 +21,7 @@ function _invertLegend(legend, label) {
         `WorldLoader: ${label} legend has duplicate name "${name}" at IDs ${seen[name]} and ${id}`
       );
     }
-    seen[name]    = id;
+    seen[name] = id;
     inverse[name] = Number(id);
   }
 
@@ -56,9 +56,9 @@ function _validateMap(map) {
   if (
     !Array.isArray(sample.coords) ||
     sample.coords.length !== 2 ||
-    typeof sample.terrain  !== 'number' ||
-    typeof sample.feature  !== 'number' ||
-    typeof sample.cluster  !== 'number'
+    typeof sample.terrain !== 'number' ||
+    typeof sample.feature !== 'number' ||
+    typeof sample.cluster !== 'number'
   ) {
     throw new Error(
       'WorldLoader: map entries must have coords:[x,y], terrain, feature, and cluster fields'
@@ -113,7 +113,7 @@ function load(worldJsonPath) {
   }
 
   const featuresByName = _invertLegend(legends.features, 'features');
-  const terrainsByName = _invertLegend(legends.terrain,  'terrain');
+  const terrainsByName = _invertLegend(legends.terrain, 'terrain');
 
   const unknownTerrains = new Set();
   for (const tile of map) {
@@ -130,8 +130,8 @@ function load(worldJsonPath) {
   return {
     tiles: map,
     legends: {
-      terrain:        legends.terrain,
-      features:       legends.features,
+      terrain: legends.terrain,
+      features: legends.features,
       featuresByName,
       terrainsByName,
     },

@@ -11,7 +11,7 @@
  * clusterTiles: Map<canonicalId, tile[]>  — all tiles grouped by canonical cluster
  */
 function build(resolvedTiles) {
-  const coordMap    = new Map();
+  const coordMap = new Map();
   const clusterTiles = new Map();
 
   for (const tile of resolvedTiles) {

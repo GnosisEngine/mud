@@ -22,8 +22,8 @@ function _buildCentroids(clusterTiles) {
 
 function _buildRoadPairs(tiles, coordMap, featuresByName) {
   const roadId = featuresByName.road;
-  const pairs  = [];
-  const seen   = new Set();
+  const pairs = [];
+  const seen = new Set();
 
   for (const tile of tiles) {
     if (tile.feature !== roadId) continue;
@@ -49,7 +49,7 @@ function _buildClusterMap(clusterTiles, clusterIndex) {
 
   for (const [id, tiles] of clusterTiles.entries()) {
     const entry = clusterIndex.get(id);
-    const name  = entry ? entry.name : `Cluster(${id})`;
+    const name = entry ? entry.name : `Cluster(${id})`;
     clusterMap[id] = { id, name, rooms: tiles };
   }
 
@@ -61,18 +61,18 @@ function _buildClusterMap(clusterTiles, clusterIndex) {
 // ---------------------------------------------------------------------------
 
 function _getPath(startCoords, endCoords, coordMap, clusterMap) {
-  const [ex, ey]   = endCoords;
-  const endKey     = `${Math.round(ex)},${Math.round(ey)}`;
-  const endTile    = coordMap.get(endKey);
+  const [ex, ey] = endCoords;
+  const endKey = `${Math.round(ex)},${Math.round(ey)}`;
+  const endTile = coordMap.get(endKey);
   const endCluster = endTile ? endTile.canonicalCluster : null;
 
   const h = (x, y) => Math.abs(x - ex) + Math.abs(y - ey);
 
   const startKey = `${Math.round(startCoords[0])},${Math.round(startCoords[1])}`;
-  const gScore   = new Map([[startKey, 0]]);
-  const fScore   = new Map([[startKey, h(...startCoords)]]);
-  const prev     = new Map([[startKey, null]]);
-  const open     = new Set([startKey]);
+  const gScore = new Map([[startKey, 0]]);
+  const fScore = new Map([[startKey, h(...startCoords)]]);
+  const prev = new Map([[startKey, null]]);
+  const open = new Set([startKey]);
 
   let foundKey = null;
 
@@ -89,7 +89,7 @@ function _getPath(startCoords, endCoords, coordMap, clusterMap) {
     if (cur === endKey) { foundKey = cur; break; }
 
     const [x, y] = cur.split(',').map(Number);
-    const ng     = (gScore.get(cur) ?? 0) + 1;
+    const ng = (gScore.get(cur) ?? 0) + 1;
 
     for (const [dx, dy] of DIRECTIONS) {
       const nx = x + dx, ny = y + dy;
@@ -110,7 +110,7 @@ function _getPath(startCoords, endCoords, coordMap, clusterMap) {
   for (let cur = foundKey; cur !== null; cur = prev.get(cur)) tilePath.unshift(cur);
 
   const clusters = [];
-  const coords   = [];
+  const coords = [];
   let lastCluster = null;
 
   for (const key of tilePath) {
@@ -139,12 +139,12 @@ function _getPath(startCoords, endCoords, coordMap, clusterMap) {
  * @returns {object} WorldService — registered as state.WorldManager at runtime
  */
 function build(loaded, resolved, index) {
-  const { legends }               = loaded;
-  const { tiles, clusterIndex }   = resolved;
+  const { legends } = loaded;
+  const { tiles, clusterIndex } = resolved;
   const { coordMap, clusterTiles } = index;
 
-  const centroids  = _buildCentroids(clusterTiles);
-  const roadPairs  = _buildRoadPairs(tiles, coordMap, legends.featuresByName);
+  const centroids = _buildCentroids(clusterTiles);
+  const roadPairs = _buildRoadPairs(tiles, coordMap, legends.featuresByName);
   const clusterMap = _buildClusterMap(clusterTiles, clusterIndex);
 
   return {
@@ -199,7 +199,7 @@ function build(loaded, resolved, index) {
      */
     getPathBetweenClusters(startId, endId) {
       const start = centroids[startId];
-      const end   = centroids[endId];
+      const end = centroids[endId];
       if (!start || !end) return null;
       return _getPath(start, end, coordMap, clusterMap);
     },
@@ -211,10 +211,10 @@ function build(loaded, resolved, index) {
     getDirection(from, to) {
       const dx = to[0] - from[0];
       const dy = to[1] - from[1];
-      if (dx ===  1 && dy === 0) return 'east';
+      if (dx === 1 && dy === 0) return 'east';
       if (dx === -1 && dy === 0) return 'west';
-      if (dx ===  0 && dy === 1) return 'south';
-      if (dx ===  0 && dy === -1) return 'north';
+      if (dx === 0 && dy === 1) return 'south';
+      if (dx === 0 && dy === -1) return 'north';
       return null;
     },
 

@@ -3,13 +3,12 @@
 
 const path = require('path');
 const { Log } = require('../lib/log');
-const { Graph } = require('../lib/graph');
 const { Db } = require('../lib/db');
 const { replay } = require('../lib/replay');
 const { compact } = require('../lib/compaction');
 const { Store } = require('../lib/store');
 const { DATA_DIR, COMPACT_THRESHOLD, LOGOUT_GRACE_MS } = require('../constants');
-
+const { Logger } = require('ranvier')
 /**
  * ranvier-storage bundle
  *
@@ -53,7 +52,7 @@ module.exports = {
      * begins accepting connections — safe to do async I/O here.
      */
     startup: state => async () => {
-      console.log('[claims-storage] initializing...');
+      Logger.log('[claims-storage] initializing...')
 
       // Layer 3 — log
       const log = new Log(DATA_DIR, COMPACT_THRESHOLD);
@@ -85,7 +84,7 @@ module.exports = {
       // Prevent the timer from keeping the process alive on shutdown
       if (expiryTimer.unref) expiryTimer.unref();
 
-      console.log('[claims-storage] ready');
+      Logger.log('[claims-storage] ready')
     },
 
     /**

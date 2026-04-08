@@ -3,17 +3,17 @@
 
 const path = require('path');
 
-const { load }            = require('./lib/WorldLoader');
-const { resolve }         = require('./lib/ClusterResolver');
+const { load } = require('./lib/WorldLoader');
+const { resolve } = require('./lib/ClusterResolver');
 const { build: buildIdx } = require('./lib/TileIndex');
 const { getFolderName, getZoneType } = require('./lib/AreaSchema');
-const { resolve: resolveExits }      = require('./lib/ExitResolver');
-const { build: buildRoom }           = require('./lib/RoomBuilder');
+const { resolve: resolveExits } = require('./lib/ExitResolver');
+const { build: buildRoom } = require('./lib/RoomBuilder');
 const { serializeManifest, serializeRooms } = require('./lib/YamlSerializer');
-const { write }           = require('./lib/AreaWriter');
+const { write } = require('./lib/AreaWriter');
 
 const WORLD_JSON_PATH = path.resolve(__dirname, 'data/world.json');
-const DEFAULT_OUTPUT  = path.resolve(__dirname, 'areas');
+const DEFAULT_OUTPUT = path.resolve(__dirname, 'areas');
 
 // ---------------------------------------------------------------------------
 // CLI flags
@@ -40,10 +40,10 @@ function parseArgs(argv) {
 // ---------------------------------------------------------------------------
 
 function generateArea(clusterId, tiles, clusterIndex, coordMap, legends, args) {
-  const entry       = clusterIndex.get(clusterId);
-  const folderName  = getFolderName(clusterId);
-  const zoneType    = getZoneType(entry ? entry.dominantFeature : null);
-  const title       = entry ? entry.name : `Cluster ${clusterId}`;
+  const entry = clusterIndex.get(clusterId);
+  const folderName = getFolderName(clusterId);
+  const zoneType = getZoneType(entry ? entry.dominantFeature : null);
+  const title = entry ? entry.name : `Cluster ${clusterId}`;
 
   const manifestYaml = serializeManifest({ title, zoneType });
 
@@ -74,7 +74,7 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
 
   console.log('[world-gen] loading world.json...');
-  const loaded   = load(WORLD_JSON_PATH);
+  const loaded = load(WORLD_JSON_PATH);
   const resolved = resolve(loaded.tiles, loaded.clusters, loaded.legends);
   const { coordMap, clusterTiles } = buildIdx(resolved.tiles);
   const { clusterIndex } = resolved;

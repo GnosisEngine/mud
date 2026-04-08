@@ -4,10 +4,10 @@
 const { getRoomRef } = require('./AreaSchema');
 
 const NEIGHBORS = [
-  { dx:  1, dy:  0, direction: 'east'  },
-  { dx: -1, dy:  0, direction: 'west'  },
-  { dx:  0, dy:  1, direction: 'south' },
-  { dx:  0, dy: -1, direction: 'north' },
+  { dx: 1, dy: 0, direction: 'east' },
+  { dx: -1, dy: 0, direction: 'west' },
+  { dx: 0, dy: 1, direction: 'south' },
+  { dx: 0, dy: -1, direction: 'north' },
 ];
 
 /**
@@ -28,7 +28,7 @@ const NEIGHBORS = [
  */
 function resolve(tile, coordMap) {
   const [x, y] = tile.coords;
-  const exits  = [];
+  const exits = [];
 
   for (const { dx, dy, direction } of NEIGHBORS) {
     const neighbor = coordMap.get(`${x + dx},${y + dy}`);
