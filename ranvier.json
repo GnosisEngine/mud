@@ -99,5 +99,8 @@
   "moveCommand": "move",
   "skillLag": 2000,
   "defaultMaxPlayerInventory": 16,
-  "maxIdleTime": 20
+  "maxIdleTime": 20,
+  "logoutGraceMs": 30000,
+  "compactThreshold": 10000,
+  "dataDir": "data"
 }

@@ -14,8 +14,8 @@ const ID_LENGTH = 8;
  * l_3kPqYcWm  → collateral listing
  */
 
-const generateClaimId       = () => `c_${nanoid(ID_LENGTH)}`;
-const generateCollateralId  = () => `l_${nanoid(ID_LENGTH)}`;
+const generateClaimId = () => `c_${nanoid(ID_LENGTH)}`;
+const generateCollateralId = () => `l_${nanoid(ID_LENGTH)}`;
 
 module.exports = {
   generateClaimId,

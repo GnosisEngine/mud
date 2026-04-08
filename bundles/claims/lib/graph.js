@@ -42,7 +42,7 @@ class Graph {
       taxRateLocked,
       autoRenewEnabled,
       extensionExpiry: null,
-      expiresAt:       null,
+      expiresAt: null,
     };
   }
 
@@ -99,7 +99,7 @@ class Graph {
    * @param {object} data
    */
   applySnapshot({ id, roomId, ownerId, claimedAt, taxRate, taxRateLocked,
-                  autoRenewEnabled, extensionExpiry, expiresAt }) {
+    autoRenewEnabled, extensionExpiry, expiresAt }) {
     this.claims[id] = {
       id,
       roomId,

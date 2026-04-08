@@ -1,6 +1,6 @@
 'use strict';
 
-const store       = require('../lib/store');
+const store = require('../lib/store');
 const enforcement = require('../lib/enforcement');
 
 /**

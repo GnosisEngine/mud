@@ -1,10 +1,11 @@
 // bundles/ranvier-storage/lib/log.js
 'use strict';
 
-const fs       = require('fs');
-const path     = require('path');
+const fs = require('fs');
+const path = require('path');
 const readline = require('readline');
 const { encode, decode } = require('./codec');
+const { Config } = require('ranvier');
 
 /**
  * All filesystem interaction for the claims event log lives here.
@@ -23,11 +24,11 @@ class Log {
    * @param {string} dataDir — absolute path to the bundle's data directory
    * @param {number} compactThreshold — line count that triggers mid-session compaction
    */
-  constructor(dataDir, compactThreshold = 10000) {
-    this.logPath          = path.join(dataDir, 'claims.log');
-    this.tmpPath          = path.join(dataDir, 'claims.log.tmp');
+  constructor(dataDir, compactThreshold = Config.get('compactThreshold')) {
+    this.logPath = path.join(dataDir, 'claims.log');
+    this.tmpPath = path.join(dataDir, 'claims.log.tmp');
     this.compactThreshold = compactThreshold;
-    this.lineCount        = 0;
+    this.lineCount = 0;
 
     fs.mkdirSync(dataDir, { recursive: true });
 
@@ -68,7 +69,7 @@ class Log {
   async *readAll() {
     const fileStream = fs.createReadStream(this.logPath);
     const rl = readline.createInterface({
-      input:     fileStream,
+      input: fileStream,
       crlfDelay: Infinity,
     });
 

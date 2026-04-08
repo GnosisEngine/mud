@@ -38,8 +38,8 @@ const HANDLERS = {
  */
 async function replay(log) {
   const graph = new Graph();
-  let   total = 0;
-  let   skipped = 0;
+  let total = 0;
+  let skipped = 0;
 
   for await (const { opcode, data } of log.readAll()) {
     const handler = HANDLERS[opcode];

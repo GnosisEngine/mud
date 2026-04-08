@@ -8,7 +8,7 @@
  *                                duration, endsAt, timeoutHandle }>
  */
 
-const threats     = new Map();
+const threats = new Map();
 const submissions = new Map();
 
 // ---------------------------------------------------------------------------

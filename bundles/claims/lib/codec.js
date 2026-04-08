@@ -54,10 +54,10 @@
 // Helpers
 // ---------------------------------------------------------------------------
 
-const nil      = (v) => (v === null || v === undefined) ? '-' : v;
-const ts36     = (v) => (v === null || v === undefined) ? '-' : v.toString(36);
-const fromTs   = (s) => s === '-' ? null : parseInt(s, 36);
-const bool     = (v) => v ? '1' : '0';
+const nil = (v) => (v === null || v === undefined) ? '-' : v;
+const ts36 = (v) => (v === null || v === undefined) ? '-' : v.toString(36);
+const fromTs = (s) => s === '-' ? null : parseInt(s, 36);
+const bool = (v) => v ? '1' : '0';
 const fromBool = (s) => s === '1';
 
 // ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ const ENCODERS = {
     `R ${id}`,
 
   S: ({ id, roomId, ownerId, claimedAt, taxRate, taxRateLocked,
-        autoRenewEnabled, extensionExpiry, expiresAt }) =>
+    autoRenewEnabled, extensionExpiry, expiresAt }) =>
     `S ${id} ${roomId} ${ownerId} ${ts36(claimedAt)} ${taxRate} ` +
     `${bool(taxRateLocked)} ${bool(autoRenewEnabled)} ` +
     `${ts36(extensionExpiry)} ${ts36(expiresAt)}`,
@@ -97,9 +97,9 @@ const ENCODERS = {
 const DECODERS = {
   C: ([id, roomId, ownerId, claimedAt, taxRate, taxRateLocked, autoRenewEnabled]) => ({
     id, roomId, ownerId,
-    claimedAt:        fromTs(claimedAt),
-    taxRate:          Number(taxRate),
-    taxRateLocked:    fromBool(taxRateLocked),
+    claimedAt: fromTs(claimedAt),
+    taxRate: Number(taxRate),
+    taxRateLocked: fromBool(taxRateLocked),
     autoRenewEnabled: fromBool(autoRenewEnabled),
   }),
 
@@ -114,15 +114,15 @@ const DECODERS = {
   R: ([id]) => ({ id }),
 
   S: ([id, roomId, ownerId, claimedAt, taxRate, taxRateLocked,
-       autoRenewEnabled, extensionExpiry, expiresAt]) => ({
-    id, roomId, ownerId,
-    claimedAt:        fromTs(claimedAt),
-    taxRate:          Number(taxRate),
-    taxRateLocked:    fromBool(taxRateLocked),
-    autoRenewEnabled: fromBool(autoRenewEnabled),
-    extensionExpiry:  fromTs(extensionExpiry),
-    expiresAt:        fromTs(expiresAt),
-  }),
+    autoRenewEnabled, extensionExpiry, expiresAt]) => ({
+      id, roomId, ownerId,
+      claimedAt: fromTs(claimedAt),
+      taxRate: Number(taxRate),
+      taxRateLocked: fromBool(taxRateLocked),
+      autoRenewEnabled: fromBool(autoRenewEnabled),
+      extensionExpiry: fromTs(extensionExpiry),
+      expiresAt: fromTs(expiresAt),
+    }),
 };
 
 // ---------------------------------------------------------------------------

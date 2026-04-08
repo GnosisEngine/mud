@@ -1,7 +1,7 @@
 // bundles/ranvier-storage/lib/db.js
 'use strict';
 
-const path    = require('path');
+const path = require('path');
 const Database = require('better-sqlite3');
 
 /**
@@ -160,7 +160,7 @@ class Db {
   listPackage(pkg) {
     this._stmts.insert.run(this._serialize({
       ...pkg,
-      status:   pkg.status   ?? 'O',
+      status: pkg.status ?? 'O',
       lenderId: pkg.lenderId ?? null,
     }));
   }

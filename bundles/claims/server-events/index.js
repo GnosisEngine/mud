@@ -1,13 +1,15 @@
 // bundles/ranvier-storage/index.js
 'use strict';
 
-const path  = require('path');
+const path = require('path');
 const { Log } = require('../lib/log');
 const { Graph } = require('../lib/graph');
 const { Db } = require('../lib/db');
-const { replay }= require('../lib/replay');
+const { replay } = require('../lib/replay');
 const { compact } = require('../lib/compaction');
 const { Store } = require('../lib/store');
+const { DATA_DIR, COMPACT_THRESHOLD, LOGOUT_GRACE_MS } = require('../constants');
+
 /**
  * ranvier-storage bundle
  *
@@ -30,19 +32,11 @@ const { Store } = require('../lib/store');
  */
 
 // ---------------------------------------------------------------------------
-// Configuration
-// ---------------------------------------------------------------------------
-
-const DATA_DIR          = path.resolve(__dirname, '../data');
-const COMPACT_THRESHOLD = 10000;   // lines before mid-session compaction
-const LOGOUT_GRACE_MS   = 30000;   // ms between expiry flush checks (30s)
-
-// ---------------------------------------------------------------------------
 // Bundle state — module-scoped, initialised in startup listener
 // ---------------------------------------------------------------------------
 
-let store         = null;
-let expiryTimer   = null;
+let store = null;
+let expiryTimer = null;
 
 // ---------------------------------------------------------------------------
 // Ranvier bundle export

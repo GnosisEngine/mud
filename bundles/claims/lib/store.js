@@ -1,18 +1,11 @@
 // bundles/ranvier-storage/lib/store.js
 'use strict';
 
-const { now }                = require('./codec');
-const { generateClaimId,
-        generateCollateralId } = require('./ids');
-const { compact }            = require('./compaction');
-
-/**
- * Grace period after logout before a player's claims expire.
- * Exactly 5 minutes — a core rule of the claims system.
- * Callers use this constant when computing the expiresAt timestamp:
- *   store.armExpiryForPlayer(ownerId, Date.now() + LOGOUT_GRACE_MS)
- */
-const LOGOUT_GRACE_MS = 5 * 60 * 1000; // 300000ms
+const { now } = require('./codec');
+const { generateClaimId, generateCollateralId } = require('./ids');
+const { compact } = require('./compaction');
+const { Config } = require('ranvier');
+const { LOGOUT_GRACE_MS } = require('../constants');
 
 /**
  * The public API. The only layer consumers ever touch directly.
@@ -37,9 +30,9 @@ class Store {
    * @param {import('./db').Db}       db
    */
   constructor(log, graph, db) {
-    this._log   = log;
+    this._log = log;
     this._graph = graph;
-    this._db    = db;
+    this._db = db;
   }
 
   // ---------------------------------------------------------------------------
@@ -84,9 +77,9 @@ class Store {
       throw new Error(`store: room ${roomId} is already claimed by ${existing.ownerId} — expire it first`);
     }
 
-    const id        = generateClaimId();
+    const id = generateClaimId();
     const claimedAt = now();
-    const data      = { id, roomId, ownerId, claimedAt, taxRate, taxRateLocked, autoRenewEnabled };
+    const data = { id, roomId, ownerId, claimedAt, taxRate, taxRateLocked, autoRenewEnabled };
 
     await this._write('C', data, () => this._graph.applyClaim(data));
 
@@ -271,7 +264,7 @@ class Store {
       requestedAmount,
       durationDays,
       yieldFloor,
-      status:   'O',
+      status: 'O',
       lenderId: null,
     });
 
@@ -388,4 +381,4 @@ class Store {
   }
 }
 
-module.exports = { Store, LOGOUT_GRACE_MS };
+module.exports = { Store };
