@@ -7,7 +7,7 @@ const CombatErrors = require('../combat/lib/CombatErrors');
 
 module.exports = {
   listeners: {
-    useAbility: state => function (ability, args) {
+    useAbility: () => function(ability, args) {
       if (!this.playerClass.hasAbility(ability.id)) {
         return B.sayAt(this, 'Your class cannot use that ability.');
       }
@@ -60,11 +60,11 @@ module.exports = {
         }
 
         if (e instanceof SkillErrors.PassiveError) {
-          return B.sayAt(this, `That skill is passive.`);
+          return B.sayAt(this, 'That skill is passive.');
         }
 
         if (e instanceof SkillErrors.NotEnoughResourcesError) {
-          return B.sayAt(this, `You do not have enough resources.`);
+          return B.sayAt(this, 'You do not have enough resources.');
         }
 
         Logger.error(e.message);
@@ -75,7 +75,7 @@ module.exports = {
     /**
      * Handle player leveling up
      */
-    level: state => function () {
+    level: state => function() {
       const abilities = this.playerClass.abilityTable;
       if (!(this.level in this.playerClass.abilityTable)) {
         return;

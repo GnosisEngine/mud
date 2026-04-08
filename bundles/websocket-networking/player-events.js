@@ -2,11 +2,11 @@
 
 module.exports = {
   listeners: {
-    attributeUpdate: state => function () {
+    attributeUpdate: () => function() {
       updateAttributes.call(this);
     },
 
-    login: state => function () {
+    login: () => function() {
       this.socket.command('sendData', 'quests', this.questTracker.serialize().active);
 
       const effects = this.effects.entries().filter(effect => !effect.config.hidden).map(effect => effect.serialize());
@@ -15,15 +15,15 @@ module.exports = {
       updateAttributes.call(this);
     },
 
-    combatantAdded: state => function () {
+    combatantAdded: () => function() {
       updateTargets.call(this);
     },
 
-    combatantRemoved: state => function () {
+    combatantRemoved: () => function() {
       updateTargets.call(this);
     },
 
-    updateTick: state => function () {
+    updateTick: () => function() {
       const effects = this.effects.entries().filter(effect => !effect.config.hidden).map(effect => ({
         name: effect.name,
         elapsed: effect.elapsed,
@@ -44,13 +44,13 @@ module.exports = {
       updateTargets.call(this);
     },
 
-    effectRemoved: state => function () {
+    effectRemoved: () => function() {
       if (!this.effects.size) {
         this.socket.command('sendData', 'effects', []);
       }
     },
 
-    questProgress: state => function () {
+    questProgress: () => function() {
       this.socket.command('sendData', 'quests', this.questTracker.serialize().active);
     },
   }
@@ -58,8 +58,8 @@ module.exports = {
 
 function updateAttributes() {
   // example of sending player data to a websocket client. This data is not sent to the default telnet socket
-  let attributes = {};
-  for (const [name, attribute] of this.attributes) {
+  const attributes = {};
+  for (const [name] of this.attributes) {
     attributes[name] = {
       current: this.getAttribute(name),
       max: this.getMaxAttribute(name),

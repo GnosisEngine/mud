@@ -7,7 +7,7 @@ module.exports = {
      * @param {string} slot
      * @param {Item} item
      */
-    equip: state => function (slot, item) {
+    equip: state => function(slot, item) {
       if (!item.metadata.stats) {
         return;
       }

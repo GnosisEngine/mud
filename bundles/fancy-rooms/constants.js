@@ -1,5 +1,6 @@
-const { Config } = require('ranvier')
+'use strict';
+const { Config } = require('ranvier');
 
-const DEFAULT_WIDTH = Config.get('maxRoomWidth')
+const DEFAULT_WIDTH = Config.get('maxRoomWidth');
 
-module.exports = { DEFAULT_WIDTH }
+module.exports = { DEFAULT_WIDTH };

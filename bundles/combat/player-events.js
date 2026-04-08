@@ -1,4 +1,5 @@
 'use strict';
+const { Logger } = require('ranvier');
 
 // Set to true to show the numeric health bar in the combat prompt.
 // In production this is off — the pip row and bar fills carry the information.
@@ -39,7 +40,7 @@ module.exports = {
     // updateTick
     // Drives the combat loop, injects arc language and status flavor.
     // -----------------------------------------------------------------------
-    updateTick: state => function () {
+    updateTick: state => function() {
       Combat.startRegeneration(state, this);
 
       let hadActions = false;
@@ -100,7 +101,7 @@ module.exports = {
     // hit
     // You struck a target. Build attacker-pov message.
     // -----------------------------------------------------------------------
-    hit: state => function (damage, target, finalAmount) {
+    hit: () => function(damage, target, finalAmount) {
       if (damage.metadata.hidden) {
         return;
       }
@@ -135,7 +136,7 @@ module.exports = {
     // heal
     // You healed a target. Build healer-pov message.
     // -----------------------------------------------------------------------
-    heal: state => function (heal, target, finalAmount) {
+    heal: () => function(heal, target, finalAmount) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -166,7 +167,7 @@ module.exports = {
     // damaged
     // You were struck. Build target-pov message and check for death.
     // -----------------------------------------------------------------------
-    damaged: state => function (damage, finalAmount) {
+    damaged: state => function(damage, finalAmount) {
       if (damage.metadata.hidden || damage.attribute !== 'health') {
         return;
       }
@@ -193,7 +194,7 @@ module.exports = {
     // healed
     // You received a heal. Build target-pov message.
     // -----------------------------------------------------------------------
-    healed: state => function (heal, finalAmount) {
+    healed: () => function(heal, finalAmount) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -224,7 +225,7 @@ module.exports = {
         Logger.error('No startingRoom defined in ranvier.json');
       }
 
-      return function (killer) {
+      return function(killer) {
         this.removePrompt('combat');
         ArcTracker.reset(this);
 
@@ -261,7 +262,7 @@ module.exports = {
           const lostExp = Math.floor(this.experience * 0.2);
           this.experience -= lostExp;
           this.save();
-          B.sayAt(this, `<red>The setback costs you something. You feel diminished.</red>`);
+          B.sayAt(this, '<red>The setback costs you something. You feel diminished.</red>');
 
           B.prompt(this);
         });
@@ -272,7 +273,7 @@ module.exports = {
     // deathblow
     // You killed a target. Award XP, proxy to party.
     // -----------------------------------------------------------------------
-    deathblow: state => function (target, skipParty) {
+    deathblow: () => function(target, skipParty) {
       const xp = LevelUtil.mobExp(target.level);
 
       if (this.party && !skipParty) {
@@ -321,14 +322,14 @@ function promptBuilder(promptee) {
   const getHealthPercentage = entity =>
     Math.floor((entity.getAttribute('health') / entity.getMaxAttribute('health')) * 100);
 
-  const formatProgressBar = (name, progress, entity) => {
+  const formatProgressBar = (name, progress) => {
     const pad = B.line(nameWidth - name.length, ' ');
     // No explicit numbers — the bar length tells the story.
     return `<b>${name}${pad}</b>: ${progress}`;
   };
 
-  let currentPerc = getHealthPercentage(promptee);
-  let progress    = B.progress(progWidth, currentPerc, 'green');
+  const currentPerc = getHealthPercentage(promptee);
+  const progress    = B.progress(progWidth, currentPerc, 'green');
   let buf         = formatProgressBar(playerName, progress, promptee);
 
   for (const target of promptee.combatants) {

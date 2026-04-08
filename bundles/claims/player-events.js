@@ -8,15 +8,15 @@ module.exports = {
    */
   listeners: {
     /**
-     * 
+     *
      */
-    login: state => function () {
-      const store = state.StorageManager.store
-      store.disarmExpiryForPlayer(this.name)
+    login: state => function() {
+      const store = state.StorageManager.store;
+      store.disarmExpiryForPlayer(this.name);
 
       this.socket.on('close', () => {
-        store.armExpiryForPlayer(this.name)
-      })
+        store.armExpiryForPlayer(this.name);
+      });
     }
   },
 };

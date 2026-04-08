@@ -1,4 +1,5 @@
-const { Config } = require('ranvier')
+'use strict';
+const { Config } = require('ranvier');
 
 const MS_PER_TICK = Config.get('msPerTick');
 const TICKS_PER_HOUR = Config.get('ticksPerHour');
@@ -26,4 +27,4 @@ module.exports = {
   HOLIDAY_NAME,
   DAY_NAMES,
   MS_PER_TICK
-}
+};

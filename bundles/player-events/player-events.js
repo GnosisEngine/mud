@@ -10,7 +10,7 @@ module.exports = {
      * Handle a player movement command. From: 'commands' input event.
      * movementCommand is a result of CommandParser.parse
      */
-    move: state => function (movementCommand) {
+    move: state => function(movementCommand) {
       const { roomExit } = movementCommand;
 
       if (!roomExit) {
@@ -28,11 +28,11 @@ module.exports = {
 
       if (door) {
         if (door.locked) {
-          return B.sayAt(this, "The door is locked.");
+          return B.sayAt(this, 'The door is locked.');
         }
 
         if (door.closed) {
-          return B.sayAt(this, "The door is closed.");
+          return B.sayAt(this, 'The door is closed.');
         }
       }
 
@@ -57,20 +57,20 @@ module.exports = {
       }
     },
 
-    save: state => async function (callback) {
+    save: state => async function(callback) {
       await state.PlayerManager.save(this);
       if (typeof callback === 'function') {
         callback();
       }
     },
 
-    commandQueued: state => function (commandIndex) {
+    commandQueued: () => function(commandIndex) {
       const command = this.commandQueue.queue[commandIndex];
       const ttr = sprintf('%.1f', this.commandQueue.getTimeTilRun(commandIndex));
       B.sayAt(this, `<bold><yellow>Executing</yellow> '<white>${command.label}</white>' <yellow>in</yellow> <white>${ttr}</white> <yellow>seconds.</yellow>`);
     },
 
-    updateTick: state => function () {
+    updateTick: state => function() {
       if (this.commandQueue.hasPending && this.commandQueue.lagRemaining <= 0) {
         B.sayAt(this);
         this.commandQueue.execute();
@@ -94,7 +94,7 @@ module.exports = {
      * Handle player gaining experience
      * @param {number} amount Exp gained
      */
-    experience: state => function (amount) {
+    experience: () => function(amount) {
       B.sayAt(this, `<blue>You gained <bold>${amount}</bold> experience!</blue>`);
 
       const totalTnl = LevelUtil.expToLevel(this.level + 1);
@@ -102,7 +102,7 @@ module.exports = {
       // level up, currently wraps experience if they gain more than needed for multiple levels
       if (this.experience + amount > totalTnl) {
         B.sayAt(this, '                                   <bold><blue>!Level Up!</blue></bold>');
-        B.sayAt(this, B.progress(80, 100, "blue"));
+        B.sayAt(this, B.progress(80, 100, 'blue'));
 
         let nextTnl = totalTnl;
         while (this.experience + amount > nextTnl) {

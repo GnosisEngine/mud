@@ -1,5 +1,7 @@
-const { resolve } = require('path')
-const { Config } = require('ranvier')
+'use strict';
+
+const { resolve } = require('path');
+const { Config } = require('ranvier');
 
 const DATA_DIR = resolve(__dirname, Config.get('dataDir'));
 

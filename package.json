@@ -12,7 +12,9 @@
   "scripts": {
     "setup": "npm install && node util/setup.js",
     "start": "node ./ranvier -v",
-    "test": "node --trace-warnings test/integration/run.js"
+    "test": "node --trace-warnings test/integration/run.js",
+    "lint": "eslint bundles/**/*.js",
+    "lint:fix": "eslint --fix bundles/**/*.js"
   },
   "dependencies": {
     "commander": "^2.19.0",
@@ -26,6 +28,7 @@
     "winston": "^2.4.4"
   },
   "devDependencies": {
+    "eslint": "^8.57.1",
     "git-url-parse": "^11.1.2"
   },
   "workspaces": [
