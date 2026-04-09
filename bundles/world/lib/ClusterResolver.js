@@ -87,8 +87,9 @@ function resolve(rawTiles, rawClusters, legends) {
   const uf = _makeUF();
 
   // Walk every non-road, non-zero-cluster tile.
-  // If it touches a neighbour with a different cluster ID but the same feature
-  // type, union them — they are one logical area split across raw IDs.
+  // If it touches a neighbour with a different cluster ID, union them —
+  // roads are the natural boundary between areas, not feature type.
+  // Supply, wilderness, and outpost tiles may all coexist within one cluster.
   for (const tile of rawCoordMap.values()) {
     if (tile.cluster === 0 || tile.feature === roadFeatureId) continue;
 
@@ -99,8 +100,7 @@ function resolve(rawTiles, rawClusters, legends) {
         neighbor &&
         neighbor.cluster !== 0 &&
         neighbor.feature !== roadFeatureId &&
-        neighbor.cluster !== tile.cluster &&
-        neighbor.feature === tile.feature
+        neighbor.cluster !== tile.cluster
       ) {
         uf.union(tile.cluster, neighbor.cluster);
       }

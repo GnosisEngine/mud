@@ -11,6 +11,7 @@ const { getRoomId } = require('./AreaSchema');
 
 const FALLBACK_TITLE = 'Open Ground';
 const FALLBACK_DESC = 'Unremarkable ground stretches away in every direction.';
+const FEATURE_NONE = new Set(['none']);
 
 const TERRAIN_TITLES = {
   bog: 'Bogland',
@@ -111,14 +112,14 @@ function build(tile, exits, legends) {
   const title = _applyFeatureTitleModifier(baseTitle, featureName);
   const desc = isRoad ? ROAD_DESC : (TERRAIN_DESCS[terrainName] || FALLBACK_DESC);
 
+  const keywords = [terrainName];
+  keywords.push(featureName);
+
   const room = {
     id: getRoomId(x, y),
     title,
     coordinates: [x, y, 0],
-    metadata: {
-      terrain: terrainName,
-      // worldCoords: [x, y],
-    },
+    keywords,
     description: desc,
   };
 

@@ -20,13 +20,17 @@ const DEFAULT_OUTPUT = path.resolve(__dirname, 'areas');
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const args = { dryRun: false, clusterId: null, output: DEFAULT_OUTPUT };
+  const args = { dryRun: false, clusterId: null, random: false, full: false, output: DEFAULT_OUTPUT };
 
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--dry-run') {
       args.dryRun = true;
     } else if (argv[i] === '--cluster' && argv[i + 1] !== undefined) {
       args.clusterId = Number(argv[++i]);
+    } else if (argv[i] === '--random') {
+      args.random = true;
+    } else if (argv[i] === '--full') {
+      args.full = true;
     } else if (argv[i] === '--output' && argv[i + 1] !== undefined) {
       args.output = path.resolve(argv[++i]);
     }
@@ -58,8 +62,13 @@ function generateArea(clusterId, tiles, clusterIndex, coordMap, legends, args) {
     console.log(`\n--- ${folderName} (${title}) [${tiles.length} rooms] ---`);
     console.log('manifest.yml:');
     console.log(manifestYaml);
-    console.log('rooms.yml (first room only):');
-    console.log(roomsYaml.split('\n\n')[0]);
+    if (args.full) {
+      console.log('rooms.yml:');
+      console.log(roomsYaml);
+    } else {
+      console.log('rooms.yml (first room only):');
+      console.log(roomsYaml.split('\n\n')[0]);
+    }
     return;
   }
 
@@ -81,6 +90,12 @@ function main() {
 
   if (args.dryRun) {
     console.log('[world-gen] DRY RUN — no files will be written');
+  }
+
+  if (args.random && args.clusterId === null) {
+    const ids = [...clusterTiles.keys()];
+    args.clusterId = ids[Math.floor(Math.random() * ids.length)];
+    console.log(`[world-gen] random cluster selected: ${args.clusterId}`);
   }
 
   if (args.clusterId !== null) {

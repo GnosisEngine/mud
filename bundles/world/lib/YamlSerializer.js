@@ -39,7 +39,7 @@ function quoteAlways(str) {
 function serializeManifest({ title, zoneType }) {
   let out = `title: ${quoteIfNeeded(title)}\n`;
   if (zoneType) {
-    out += `metadata:\n`;
+    out += 'metadata:\n';
     out += `  zoneType: ${zoneType}\n`;
   }
   return out;
@@ -62,12 +62,18 @@ function _serializeRoom(room) {
   lines.push(`- id: ${quoteIfNeeded(room.id)}`);
   lines.push(`  title: ${quoteIfNeeded(room.title)}`);
   lines.push(`  coordinates: [${room.coordinates.join(', ')}]`);
-  lines.push(`  metadata:`);
-  lines.push(`    terrain: ${room.metadata.terrain}`);
+
+  if (room.keywords && room.keywords.length > 0) {
+    lines.push('  keywords:');
+    for (const kw of room.keywords) {
+      lines.push(`    - ${kw}`);
+    }
+  }
+
   lines.push(`  description: ${quoteAlways(room.description)}`);
 
   if (room.exits && room.exits.length > 0) {
-    lines.push(`  exits:`);
+    lines.push('  exits:');
     for (const exit of room.exits) {
       lines.push(_serializeExit(exit).replace(/\n$/, ''));
     }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Room Editor — Fief</title>
+<title>Area Editor — Fief</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
@@ -11,28 +11,30 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0d0b07;
-  --panel: #12100a;
-  --cell-empty: #100e09;
-  --cell-room: #1c1608;
-  --cell-hover: #22190a;
-  --cell-sel: #2e2108;
-  --grid-line: #242010;
+  --bg:               #0d0b07;
+  --panel:            #12100a;
+  --cell-empty:       #100e09;
+  --cell-room:        #1c1608;
+  --cell-hover:       #22190a;
+  --cell-sel:         #2e2108;
+  --grid-line:        #242010;
   --grid-line-accent: #48401a;
-  --text: #b09028;
-  --text-dim: #5a4e1a;
-  --text-bright: #e0bc48;
-  --text-faint: #2e2a10;
-  --accent: #c0982e;
-  --accent2: #806428;
-  --danger-border: #702010;
-  --danger-text: #c04020;
-  --door: #8a6028;
-  --locked: #a83020;
-  --border: #342e10;
-  --border-bright: #806428;
-  --input-bg: #0a0804;
-  --green: #88c840;
+  --text:             #b09028;
+  --text-dim:         #5a4e1a;
+  --text-bright:      #e0bc48;
+  --text-faint:       #2e2a10;
+  --accent:           #c0982e;
+  --accent2:          #806428;
+  --danger-border:    #702010;
+  --danger-text:      #c04020;
+  --door:             #8a6028;
+  --locked:           #a83020;
+  --border:           #342e10;
+  --border-bright:    #806428;
+  --input-bg:         #0a0804;
+  --green:            #88c840;
+  --section-bg:       #0f0d08;
+  --section-border:   #2a2510;
 }
 
 body {
@@ -46,39 +48,36 @@ body {
   overflow: hidden;
 }
 
-/* HEADER */
+/* ── HEADER ─────────────────────────────────────────────── */
 header {
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 7px 14px;
+  gap: 14px;
+  padding: 6px 14px;
   border-bottom: 1px solid var(--border);
   background: var(--panel);
   flex-shrink: 0;
-  flex-wrap: wrap;
 }
 
 header h1 {
   font-family: 'Cinzel', serif;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--text-bright);
   letter-spacing: 3px;
   white-space: nowrap;
 }
 
-.sep {
-  color: var(--border);
-  user-select: none;
-}
-
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.sep { color: var(--border); user-select: none; }
 
 .toolbar-label {
   color: var(--text-dim);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.header-hint {
+  margin-left: auto;
+  color: var(--text-faint);
   font-size: 13px;
   letter-spacing: 1px;
 }
@@ -91,34 +90,9 @@ input[type="text"] {
   font-size: 16px;
   padding: 2px 6px;
 }
-
 input[type="text"]:focus { outline: none; border-color: var(--accent); }
 
-.btn {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: 'VT323', monospace;
-  font-size: 15px;
-  padding: 1px 9px;
-  cursor: pointer;
-  transition: all 0.1s;
-  letter-spacing: 1px;
-}
-.btn:hover { border-color: var(--accent); color: var(--text-bright); background: var(--cell-sel); }
-.btn.primary { border-color: var(--accent2); color: var(--accent); }
-.btn.primary:hover { border-color: var(--text-bright); background: var(--cell-sel); }
-.btn.danger { border-color: var(--danger-border); color: var(--danger-text); }
-.btn.danger:hover { background: #1a0804; }
-
-.num-display {
-  font-size: 18px;
-  color: var(--text-bright);
-  min-width: 28px;
-  text-align: center;
-}
-
-/* MAIN */
+/* ── MAIN LAYOUT ────────────────────────────────────────── */
 .main {
   display: flex;
   flex: 1;
@@ -126,7 +100,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   min-height: 0;
 }
 
-/* GRID SIDE */
+/* ── GRID SIDE ──────────────────────────────────────────── */
 .grid-side {
   flex: 1;
   overflow: auto;
@@ -139,7 +113,6 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 .grid-wrapper {
   display: inline-flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .axis-label {
@@ -180,16 +153,15 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   transition: border-color 0.08s, background 0.08s;
   padding: 3px 4px;
 }
-.cell:hover { border-color: var(--grid-line-accent); background: var(--cell-hover); }
-.cell.has-room { background: var(--cell-room); border-color: var(--border); }
+.cell:hover        { border-color: var(--grid-line-accent); background: var(--cell-hover); }
+.cell.has-room     { background: var(--cell-room); border-color: var(--border); }
 .cell.has-room:hover { border-color: var(--accent2); background: var(--cell-hover); }
-.cell.incomplete { border-color: #7a1a0a !important; box-shadow: inset 0 0 0 1px #7a1a0a; }
-.cell.selected { border-color: var(--accent) !important; box-shadow: inset 0 0 12px rgba(192,152,46,0.22) !important; }
+.cell.incomplete   { border-color: #7a1a0a !important; box-shadow: inset 0 0 0 1px #7a1a0a; }
+.cell.selected     { border-color: var(--accent) !important; box-shadow: inset 0 0 12px rgba(192,152,46,0.22) !important; }
 
 .cell-title {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   font-size: 13px;
   color: var(--text-dim);
@@ -204,23 +176,19 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 
 .cell-coords {
   position: absolute;
-  top: 2px;
-  right: 3px;
+  top: 2px; right: 3px;
   font-size: 11px;
   color: var(--text-faint);
   font-family: monospace;
 }
 
-/* feature badge — true bottom-right corner */
 .feature-badge {
   position: absolute;
-  bottom: 2px;
-  right: 3px;
+  bottom: 2px; right: 3px;
   font-size: 12px;
   line-height: 1;
 }
 
-/* exit indicators */
 .exit-ind {
   position: absolute;
   display: flex;
@@ -230,72 +198,123 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   line-height: 1;
   pointer-events: none;
 }
-/* plain dot exits */
 .exit-ind.dot {
-  width: 5px;
-  height: 5px;
+  width: 5px; height: 5px;
   background: var(--accent2);
   border-radius: 1px;
   font-size: 0;
 }
-.exit-ind.n { top: 0;      left: 50%;  transform: translateX(-50%); }
-.exit-ind.s { bottom: 0;   left: 50%;  transform: translateX(-50%); }
-.exit-ind.e { right: 0;    top: 50%;   transform: translateY(-50%); }
-.exit-ind.w { left: 0;     top: 50%;   transform: translateY(-50%); }
+.exit-ind.n { top: 0;      left: 50%;   transform: translateX(-50%); }
+.exit-ind.s { bottom: 0;   left: 50%;   transform: translateX(-50%); }
+.exit-ind.e { right: 0;    top: 50%;    transform: translateY(-50%); }
+.exit-ind.w { left: 0;     top: 50%;    transform: translateY(-50%); }
 .exit-ind.u { top: 1px;    right: 13px; }
 .exit-ind.d { bottom: 14px; left: 2px; }
 
-/* EDITOR PANEL */
-.editor-panel {
-  width: 310px;
+/* ── RIGHT SIDEBAR ──────────────────────────────────────── */
+.sidebar {
+  width: 330px;
   flex-shrink: 0;
   border-left: 1px solid var(--border);
   background: var(--panel);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  gap: 0;
 }
 
-.editor-header {
-  padding: 8px 11px;
+/* ── SECTION CARDS ──────────────────────────────────────── */
+.section {
   border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   flex-shrink: 0;
 }
 
-.editor-panel-title {
-  font-size: 13px;
-  color: var(--text-dim);
-  letter-spacing: 2px;
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 11px 5px;
+  border-bottom: 1px solid var(--section-border);
+  background: var(--section-bg);
 }
 
-.editor-room-id {
-  font-size: 12px;
+.section-title {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+}
+
+.section-sub {
+  font-size: 11px;
   color: var(--accent2);
   font-family: 'Courier New', monospace;
-  max-width: 160px;
+  max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.editor-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 11px;
+.section-body {
+  padding: 9px 11px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
+/* ── BUTTONS ────────────────────────────────────────────── */
+.btn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  padding: 1px 9px;
+  cursor: pointer;
+  transition: all 0.1s;
+  letter-spacing: 1px;
+}
+.btn:hover          { border-color: var(--accent); color: var(--text-bright); background: var(--cell-sel); }
+.btn.primary        { border-color: var(--accent2); color: var(--accent); }
+.btn.primary:hover  { border-color: var(--text-bright); background: var(--cell-sel); }
+.btn.danger         { border-color: var(--danger-border); color: var(--danger-text); }
+.btn.danger:hover   { background: #1a0804; }
+.btn.active-tab     { border-color: var(--accent); color: var(--text-bright); background: var(--cell-sel); }
+
+.num-display {
+  font-size: 18px;
+  color: var(--text-bright);
+  min-width: 28px;
+  text-align: center;
+}
+
+/* ── CANVAS SECTION ─────────────────────────────────────── */
+.canvas-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ctrl-label {
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+/* ── ROOM SECTION ───────────────────────────────────────── */
 .field { display: flex; flex-direction: column; gap: 2px; }
 
 .field-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-dim);
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }
 
 .field input[type="text"],
@@ -309,11 +328,10 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   padding: 3px 7px;
   resize: vertical;
 }
-
-.field textarea { min-height: 56px; }
+.field textarea   { min-height: 52px; }
 .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
 
-.hint { font-size: 11px; color: var(--text-faint); letter-spacing: 0px; font-family: monospace; margin-top: 1px; }
+.hint { font-size: 11px; color: var(--text-faint); font-family: monospace; margin-top: 1px; }
 
 .field select {
   width: 100%;
@@ -335,12 +353,21 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 .kw-row { display: flex; gap: 6px; }
 .kw-row .field { flex: 1; }
 
-/* EXITS */
+.empty-hint {
+  color: var(--text-faint);
+  font-size: 14px;
+  text-align: center;
+  padding: 22px 10px;
+  letter-spacing: 2px;
+  line-height: 1.8;
+}
+
+/* ── EXITS ──────────────────────────────────────────────── */
 .exits-compass {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 3px;
-  margin: 4px 0 2px;
+  margin: 2px 0;
 }
 
 .exit-btn {
@@ -356,14 +383,14 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
+  min-height: 36px;
   padding: 3px 2px;
   position: relative;
 }
-.exit-btn:hover { border-color: var(--accent2); color: var(--text); }
-.exit-btn.active { background: var(--cell-sel); border-color: var(--accent); color: var(--text-bright); }
-.exit-btn.ph { visibility: hidden; cursor: default; pointer-events: none; }
-.exit-btn.ctr { cursor: default; color: var(--text-faint); font-size: 12px; pointer-events: none; }
+.exit-btn:hover      { border-color: var(--accent2); color: var(--text); }
+.exit-btn.active     { background: var(--cell-sel); border-color: var(--accent); color: var(--text-bright); }
+.exit-btn.ph         { visibility: hidden; cursor: default; pointer-events: none; }
+.exit-btn.ctr        { cursor: default; color: var(--text-faint); font-size: 12px; pointer-events: none; }
 
 .exit-btn-label { line-height: 1; pointer-events: none; }
 
@@ -377,47 +404,37 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   line-height: 1;
   cursor: pointer;
 }
-.exit-corner-chk.door { left: 3px; color: var(--door); }
-.exit-corner-chk.door.on { color: var(--text-bright); }
-.exit-corner-chk.lock { right: 3px; color: var(--locked); }
-.exit-corner-chk.lock.on { color: var(--text-bright); }
+.exit-corner-chk.door       { left: 3px;  color: var(--door); }
+.exit-corner-chk.door.on    { color: var(--text-bright); }
+.exit-corner-chk.lock       { right: 3px; color: var(--locked); }
+.exit-corner-chk.lock.on    { color: var(--text-bright); }
 .exit-corner-chk input[type="checkbox"] {
   accent-color: var(--accent);
   cursor: pointer;
-  width: 10px;
-  height: 10px;
+  width: 10px; height: 10px;
   margin: 0;
 }
 
-.empty-hint {
-  color: var(--text-faint);
-  font-size: 14px;
-  text-align: center;
-  padding: 30px 10px;
-  letter-spacing: 2px;
-  line-height: 1.8;
-}
-
-/* OUTPUT */
-.output-bar {
-  flex-shrink: 0;
-  border-top: 1px solid var(--border);
-  background: var(--panel);
-  padding: 7px 12px;
-}
-
-.output-controls {
+/* ── DATA SECTION ───────────────────────────────────────── */
+.data-tabs {
   display: flex;
-  gap: 7px;
-  margin-bottom: 5px;
-  align-items: center;
+  gap: 5px;
 }
 
-.output-label {
-  font-size: 13px;
+.data-panel { display: flex; flex-direction: column; gap: 6px; }
+.data-panel.hidden { display: none; }
+
+.data-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-msg {
+  font-size: 12px;
   color: var(--text-dim);
-  letter-spacing: 2px;
-  flex: 1;
+  letter-spacing: 1px;
 }
 
 #yaml-output { display: none; }
@@ -427,18 +444,18 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   font-size: 12px;
 }
 .cm-container .CodeMirror {
-  height: 110px;
+  height: 130px;
   font-family: 'Courier New', monospace;
   font-size: 12px;
   background: #060500;
   color: var(--green);
 }
-.cm-container-input .CodeMirror { height: 100px; }
-.CodeMirror-scroll { padding: 2px 0; }
-.CodeMirror-gutters { display: none; }
+.cm-container-input .CodeMirror { height: 120px; }
+.CodeMirror-scroll   { padding: 2px 0; }
+.CodeMirror-gutters  { display: none; }
 
-/* scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* ── SCROLLBAR ──────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
@@ -446,52 +463,20 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 </head>
 <body>
 
+<!-- ═══ HEADER ══════════════════════════════════════════════════════ -->
 <header>
-  <h1>⚔ ROOM EDITOR</h1>
+  <h1>⚔ AREA EDITOR</h1>
   <span class="sep">│</span>
-  <div class="toolbar-group">
-    <span class="toolbar-label">AREA:</span>
-    <input type="text" id="area-id" value="myarea" style="width:90px" title="Area ID prefix for exit roomId references">
-  </div>
-  <span class="sep">│</span>
-  <div class="toolbar-group">
-    <span class="toolbar-label">COLS:</span>
-    <button class="btn" onclick="resizeGrid('cols',-1)">−</button>
-    <span id="cols-disp" class="num-display">14</span>
-    <button class="btn" onclick="resizeGrid('cols',1)">+</button>
-  </div>
-  <div class="toolbar-group">
-    <span class="toolbar-label">ROWS:</span>
-    <button class="btn" onclick="resizeGrid('rows',-1)">−</button>
-    <span id="rows-disp" class="num-display">10</span>
-    <button class="btn" onclick="resizeGrid('rows',1)">+</button>
-  </div>
-  <span class="sep">│</span>
-  <div class="toolbar-group">
-    <span class="toolbar-label">Z-LEVEL:</span>
-    <button class="btn" onclick="changeZ(-1)" title="Down one level">▼</button>
-    <span id="z-disp" class="num-display">0</span>
-    <button class="btn" onclick="changeZ(1)" title="Up one level">▲</button>
-  </div>
-  <span class="sep">│</span>
-  <div class="toolbar-group">
-    <span class="toolbar-label">PAN:</span>
-    <button class="btn" onclick="pan(-1,0)" title="Pan west">◀</button>
-    <button class="btn" onclick="pan(0,-1)" title="Pan south">▼</button>
-    <button class="btn" onclick="pan(0,1)"  title="Pan north">▲</button>
-    <button class="btn" onclick="pan(1,0)"  title="Pan east">▶</button>
-    <button class="btn primary" onclick="recenter()" title="Center on rooms">⊙ CENTER</button>
-  </div>
-  <span class="sep">│</span>
-  <div class="toolbar-group" style="color:var(--text-faint);font-size:13px;letter-spacing:1px;">
-    CLICK=select/create &nbsp; RIGHT-CLICK=delete
-  </div>
-  <span class="sep">│</span>
-  <button class="btn primary" onclick="toggleImport()">⤓ IMPORT YAML</button>
+  <span class="toolbar-label">AREA:</span>
+  <input type="text" id="area-id" value="myarea" style="width:100px"
+         title="Area ID prefix used in exit roomId references">
+  <span class="header-hint">CLICK = select / create &nbsp;·&nbsp; RIGHT-CLICK = delete</span>
 </header>
 
+<!-- ═══ MAIN ════════════════════════════════════════════════════════ -->
 <div class="main">
 
+  <!-- ── GRID ─────────────────────────────────────────────────────── -->
   <div class="grid-side">
     <div class="grid-wrapper">
       <div class="axis-label">── NORTH ──</div>
@@ -504,40 +489,101 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
     </div>
   </div>
 
-  <div class="editor-panel">
-    <div class="editor-header">
-      <span class="editor-panel-title">ROOM DETAILS</span>
-      <span class="editor-room-id" id="editor-room-id">—</span>
+  <!-- ── RIGHT SIDEBAR ─────────────────────────────────────────────── -->
+  <div class="sidebar">
+
+    <!-- ┌─ CANVAS ──────────────────────────────────────────────────┐ -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">CANVAS</span>
+      </div>
+      <div class="section-body">
+
+        <div class="canvas-row">
+          <div class="ctrl-group">
+            <span class="ctrl-label">COLS</span>
+            <button class="btn" onclick="resizeGrid('cols',-1)">−</button>
+            <span id="cols-disp" class="num-display">14</span>
+            <button class="btn" onclick="resizeGrid('cols',1)">+</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">ROWS</span>
+            <button class="btn" onclick="resizeGrid('rows',-1)">−</button>
+            <span id="rows-disp" class="num-display">10</span>
+            <button class="btn" onclick="resizeGrid('rows',1)">+</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">Z</span>
+            <button class="btn" onclick="changeZ(-1)" title="Down one level">▼</button>
+            <span id="z-disp" class="num-display">0</span>
+            <button class="btn" onclick="changeZ(1)"  title="Up one level">▲</button>
+          </div>
+        </div>
+
+        <div class="canvas-row">
+          <span class="ctrl-label">PAN</span>
+          <div class="ctrl-group">
+            <button class="btn" onclick="pan(-1,0)"  title="Pan west">◀</button>
+            <button class="btn" onclick="pan(0,-1)"  title="Pan south">▼</button>
+            <button class="btn" onclick="pan(0,1)"   title="Pan north">▲</button>
+            <button class="btn" onclick="pan(1,0)"   title="Pan east">▶</button>
+          </div>
+          <button class="btn primary" onclick="recenter()" title="Center on rooms">⊙ CENTER</button>
+        </div>
+
+      </div>
     </div>
-    <div class="editor-body" id="editor-body">
-      <div class="empty-hint">[ SELECT A CELL<br>TO BEGIN EDITING ]</div>
+    <!-- └───────────────────────────────────────────────────────────┘ -->
+
+    <!-- ┌─ ROOM ────────────────────────────────────────────────────┐ -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">ROOM</span>
+        <span class="section-sub" id="editor-room-id">—</span>
+      </div>
+      <div class="section-body" id="editor-body">
+        <div class="empty-hint">[ SELECT A CELL<br>TO BEGIN EDITING ]</div>
+      </div>
     </div>
-  </div>
+    <!-- └───────────────────────────────────────────────────────────┘ -->
 
-</div>
+    <!-- ┌─ DATA ────────────────────────────────────────────────────┐ -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">DATA</span>
+        <div class="data-tabs">
+          <button class="btn active-tab" id="tab-export" onclick="showDataTab('export')">EXPORT</button>
+          <button class="btn"            id="tab-import" onclick="showDataTab('import')">IMPORT</button>
+        </div>
+      </div>
+      <div class="section-body">
 
-</div>
+        <!-- Export panel -->
+        <div class="data-panel" id="panel-export">
+          <div class="data-actions">
+            <button class="btn primary" onclick="generateYAML('selected')">▶ SELECTED</button>
+            <button class="btn primary" onclick="generateYAML('all')">▶ ALL ROOMS</button>
+            <button class="btn" onclick="copyYAML(this)">⎘ COPY</button>
+          </div>
+          <div id="yaml-output-container" class="cm-container"></div>
+          <textarea id="yaml-output" readonly></textarea>
+        </div>
 
-<div id="import-bar" style="display:none; flex-shrink:0; border-top:1px solid var(--border); background:var(--panel); padding:7px 12px;">
-  <div class="output-controls">
-    <span class="output-label">IMPORT YAML</span>
-    <button class="btn primary" onclick="importYAML()">⤓ LOAD INTO EDITOR</button>
-    <button class="btn" onclick="toggleImport()">✕ CLOSE</button>
-    <span id="import-status" style="font-size:13px; color:var(--text-dim); letter-spacing:1px;"></span>
-  </div>
-  <div id="yaml-input-container" class="cm-container cm-container-input"></div>
-</div>
+        <!-- Import panel -->
+        <div class="data-panel hidden" id="panel-import">
+          <div class="data-actions">
+            <button class="btn primary" onclick="importYAML()">⤓ LOAD INTO EDITOR</button>
+            <span class="status-msg" id="import-status"></span>
+          </div>
+          <div id="yaml-input-container" class="cm-container cm-container-input"></div>
+        </div>
 
-<div class="output-bar">
-  <div class="output-controls">
-    <span class="output-label">YAML OUTPUT</span>
-    <button class="btn primary" onclick="generateYAML('selected')">▶ SELECTED ROOM</button>
-    <button class="btn primary" onclick="generateYAML('all')">▶ ALL ROOMS</button>
-    <button class="btn" onclick="copyYAML(this)">⎘ COPY</button>
-  </div>
-  <div id="yaml-output-container" class="cm-container"></div>
-  <textarea id="yaml-output" readonly></textarea>
-</div>
+      </div>
+    </div>
+    <!-- └───────────────────────────────────────────────────────────┘ -->
+
+  </div><!-- .sidebar -->
+</div><!-- .main -->
 
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -549,8 +595,8 @@ const S = {
   z: 0,
   sel: null,
   pending: null,
-  offsetX: 0,   // world X of leftmost grid column
-  offsetY: 0,   // world Y of bottom grid row
+  offsetX: 0,
+  offsetY: 0,
 };
 
 const DIR_OFFSETS = {
@@ -569,7 +615,6 @@ const OPPOSITE_DIR = {
   up:    'down',  down:  'up',
 };
 
-// Compass layout: 3x3, up=top-left (between W and N), down=bottom-right (between S and E)
 const COMPASS_LAYOUT = [
   ['up',   'north', null  ],
   ['west', 'ctr',   'east'],
@@ -613,7 +658,6 @@ function buildOptions(optMap, current) {
     `<option value="${val}" ${current === val ? 'selected' : ''}>${label}</option>`
   ).join('');
 }
-
 
 // ─── Grid Rendering ───────────────────────────────────────────────────────────
 
@@ -659,7 +703,7 @@ function renderGrid() {
   grid.innerHTML = '';
 
   for (let row = 0; row < S.rows; row++) {
-    const y = S.offsetY + (S.rows - 1 - row);   // top row = highest Y (north)
+    const y = S.offsetY + (S.rows - 1 - row);
     for (let col = 0; col < S.cols; col++) {
       const x = S.offsetX + col;
       const k = key(x, y, S.z);
@@ -672,7 +716,6 @@ function renderGrid() {
       cell.dataset.key = k;
 
       if (room) {
-        // Terrain background tint
         const tColor = TERRAIN_COLORS[room.terrain];
         if (tColor) cell.style.background = tColor;
 
@@ -681,7 +724,6 @@ function renderGrid() {
         t.textContent = room.title || '(untitled)';
         cell.appendChild(t);
 
-        // Exit indicators: lock > door > up/down arrow > plain dot
         const exits = room.exits || {};
         for (const [dir, abbr] of Object.entries(DIR_ABBR)) {
           const ex = exits[dir];
@@ -706,7 +748,6 @@ function renderGrid() {
           cell.appendChild(ind);
         }
 
-        // Feature badge
         const fEmoji = FEATURE_EMOJI[room.feature];
         if (fEmoji) {
           const badge = document.createElement('div');
@@ -743,7 +784,6 @@ function onCellClick(k) {
   renderEditor();
 }
 
-// Materialise a pending room on first edit
 function commitPending() {
   if (!S.pending || S.rooms[S.pending]) { S.pending = null; return; }
   S.rooms[S.pending] = { title: '', desc: '', items: '', npcs: '', exits: {}, terrain: 'none', feature: 'none' };
@@ -776,7 +816,7 @@ function renderEditor() {
   }
 
   const {x,y,z} = pk(k);
-  const areaId = document.getElementById('area-id').value || 'myarea';
+  const areaId  = document.getElementById('area-id').value || 'myarea';
   const roomId  = `${x}_${y}_${z}`;
   idEl.textContent = isPending ? `${areaId}:${roomId} (new)` : `${areaId}:${roomId}`;
 
@@ -790,16 +830,6 @@ function renderEditor() {
     <div class="field">
       <div class="field-label">DESCRIPTION</div>
       <textarea id="f-desc" rows="4" placeholder="Describe this room...">${esc(r.desc)}</textarea>
-    </div>
-    <div class="field">
-      <div class="field-label">ITEMS</div>
-      <textarea id="f-items" rows="2" placeholder="items:torch 2&#10;items:crate">${esc(r.items)}</textarea>
-      <div class="hint">one per line: area:id [count]</div>
-    </div>
-    <div class="field">
-      <div class="field-label">NPCS</div>
-      <textarea id="f-npcs" rows="2" placeholder="npcs:guard 1&#10;npcs:merchant">${esc(r.npcs)}</textarea>
-      <div class="hint">one per line: area:id [count]</div>
     </div>
     <div class="kw-row">
       <div class="field">
@@ -815,8 +845,18 @@ function renderEditor() {
       <div class="field-label">EXITS</div>
       <div class="exits-compass" id="exits-compass"></div>
     </div>
+    <div class="field">
+      <div class="field-label">ITEMS</div>
+      <textarea id="f-items" rows="2" placeholder="items:torch 2&#10;items:crate">${esc(r.items)}</textarea>
+      <div class="hint">one per line: area:id [count]</div>
+    </div>
+    <div class="field">
+      <div class="field-label">NPCS</div>
+      <textarea id="f-npcs" rows="2" placeholder="npcs:guard 1&#10;npcs:merchant">${esc(r.npcs)}</textarea>
+      <div class="hint">one per line: area:id [count]</div>
+    </div>
     ${room ? `
-      <div id="delete-wrap" style="margin-top:4px">
+      <div id="delete-wrap" style="margin-top:2px">
         <button class="btn danger" onclick="armDelete(this)">✕ DELETE ROOM</button>
       </div>` : ''}
   `;
@@ -827,8 +867,7 @@ function renderEditor() {
   }
 
   document.getElementById('f-title').addEventListener('input', e => {
-    getRoomOrCommit().title = e.target.value;
-    renderGrid();
+    getRoomOrCommit().title = e.target.value; renderGrid();
   });
   document.getElementById('f-desc').addEventListener('input', e => {
     getRoomOrCommit().desc = e.target.value;
@@ -840,12 +879,10 @@ function renderEditor() {
     getRoomOrCommit().npcs = e.target.value;
   });
   document.getElementById('f-terrain').addEventListener('change', e => {
-    getRoomOrCommit().terrain = e.target.value;
-    renderGrid();
+    getRoomOrCommit().terrain = e.target.value; renderGrid();
   });
   document.getElementById('f-feature').addEventListener('change', e => {
-    getRoomOrCommit().feature = e.target.value;
-    renderGrid();
+    getRoomOrCommit().feature = e.target.value; renderGrid();
   });
 
   if (room || isPending) renderExits(k);
@@ -854,7 +891,7 @@ function renderEditor() {
 // ─── Exits ────────────────────────────────────────────────────────────────────
 
 function renderExits(k) {
-  const room = S.rooms[k];
+  const room    = S.rooms[k];
   const compass = document.getElementById('exits-compass');
   compass.innerHTML = '';
 
@@ -869,7 +906,6 @@ function renderExits(k) {
         compass.appendChild(btn);
         continue;
       }
-
       if (dirKey === 'ctr') {
         btn.className = 'exit-btn ctr';
         btn.textContent = '·';
@@ -892,14 +928,12 @@ function renderExits(k) {
         const doorLbl = document.createElement('label');
         doorLbl.className = 'exit-corner-chk door' + (ex.door ? ' on' : '');
         const doorCb = document.createElement('input');
-        doorCb.type = 'checkbox';
-        doorCb.checked = !!ex.door;
+        doorCb.type = 'checkbox'; doorCb.checked = !!ex.door;
         doorCb.addEventListener('change', e => {
           e.stopPropagation();
           room.exits[dirKey].door = e.target.checked;
           if (!e.target.checked) room.exits[dirKey].locked = false;
-          renderExits(k);
-          renderGrid();
+          renderExits(k); renderGrid();
         });
         doorLbl.appendChild(doorCb);
         doorLbl.append('🚪');
@@ -908,14 +942,12 @@ function renderExits(k) {
         const lockLbl = document.createElement('label');
         lockLbl.className = 'exit-corner-chk lock' + (ex.locked ? ' on' : '');
         const lockCb = document.createElement('input');
-        lockCb.type = 'checkbox';
-        lockCb.checked = !!ex.locked;
+        lockCb.type = 'checkbox'; lockCb.checked = !!ex.locked;
         lockCb.addEventListener('change', e => {
           e.stopPropagation();
           room.exits[dirKey].locked = e.target.checked;
           if (e.target.checked) room.exits[dirKey].door = true;
-          renderExits(k);
-          renderGrid();
+          renderExits(k); renderGrid();
         });
         lockLbl.appendChild(lockCb);
         lockLbl.append('🔒');
@@ -938,17 +970,14 @@ function toggleExit(k, dir) {
   if (!room) return;
 
   const [dx, dy, dz] = DIR_OFFSETS[dir];
-  const {x, y, z}   = pk(k);
-  const neighborKey  = key(x + dx, y + dy, z + dz);
-  const neighbor     = S.rooms[neighborKey];
+  const {x, y, z}    = pk(k);
+  const neighborKey   = key(x + dx, y + dy, z + dz);
+  const neighbor      = S.rooms[neighborKey];
 
   if (room.exits[dir]) {
-    // Removing — just delete from this room, leave neighbor untouched
     delete room.exits[dir];
   } else {
-    // Adding — create exit here
     room.exits[dir] = { door: false, locked: false };
-    // Auto-connect neighbor if it exists and doesn't already have the return exit
     if (neighbor && !neighbor.exits[OPPOSITE_DIR[dir]]) {
       neighbor.exits[OPPOSITE_DIR[dir]] = { door: false, locked: false };
     }
@@ -973,13 +1002,11 @@ function deleteSelected() {
   if (!S.sel || !S.rooms[S.sel]) return;
   const k = S.sel;
   delete S.rooms[k];
-  S.sel = null;
-  S.pending = null;
-  renderGrid();
-  renderEditor();
+  S.sel = null; S.pending = null;
+  renderGrid(); renderEditor();
 }
 
-// ─── Grid / Z Controls ───────────────────────────────────────────────────────
+// ─── Grid / Z Controls ────────────────────────────────────────────────────────
 
 function resizeGrid(axis, delta) {
   if (axis === 'cols') {
@@ -1033,7 +1060,17 @@ function changeZ(delta) {
   scrollGridToCenter();
 }
 
-// ─── YAML Generation ─────────────────────────────────────────────────────────
+// ─── Data Tabs ────────────────────────────────────────────────────────────────
+
+function showDataTab(tab) {
+  document.getElementById('panel-export').classList.toggle('hidden', tab !== 'export');
+  document.getElementById('panel-import').classList.toggle('hidden', tab !== 'import');
+  document.getElementById('tab-export').classList.toggle('active-tab', tab === 'export');
+  document.getElementById('tab-import').classList.toggle('active-tab', tab === 'import');
+  if (tab === 'import' && CM.in) CM.in.refresh();
+}
+
+// ─── YAML Generation ──────────────────────────────────────────────────────────
 
 function parseEntityLines(text) {
   if (!text || !text.trim()) return [];
@@ -1139,13 +1176,6 @@ function copyYAML(btn) {
 
 // ─── Import ───────────────────────────────────────────────────────────────────
 
-function toggleImport() {
-  const bar = document.getElementById('import-bar');
-  bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
-  document.getElementById('import-status').textContent = '';
-  if (bar.style.display !== 'none') CM.in.refresh();
-}
-
 function importYAML() {
   const raw    = CM.in.getValue().trim();
   const status = document.getElementById('import-status');
@@ -1155,7 +1185,6 @@ function importYAML() {
     const rooms = parseRoomsYAML(raw);
     if (!rooms.length) { status.textContent = '⚠ No rooms found.'; return; }
 
-    // Merge into state
     let added = 0, updated = 0;
     for (const room of rooms) {
       const k = key(room._x, room._y, room._z);
@@ -1163,7 +1192,6 @@ function importYAML() {
       S.rooms[k] = room;
     }
 
-    // Switch to Z level with the most rooms, then center the viewport
     const zCounts = {};
     for (const k of Object.keys(S.rooms)) { const z = pk(k).z; zCounts[z] = (zCounts[z]||0) + 1; }
     const bestZ = +Object.entries(zCounts).sort((a,b) => b[1]-a[1])[0][0];
@@ -1184,16 +1212,13 @@ function importYAML() {
   }
 }
 
-// ─── YAML Parser (via js-yaml) ────────────────────────────────────────────────
+// ─── YAML Parser ─────────────────────────────────────────────────────────────
 
 function parseRoomsYAML(text) {
   const TERRAIN_VALS = new Set(Object.values(TERRAIN_OPTIONS));
   const FEATURE_VALS = new Set(Object.values(FEATURE_OPTIONS));
-
-  // js-yaml handles anchors, merges, all scalar types, inline arrays automatically
   const rawList = jsyaml.load(text);
   if (!Array.isArray(rawList)) throw new Error('Expected a YAML list at the top level.');
-
   return rawList.map(raw => roomFromRaw(raw, TERRAIN_VALS, FEATURE_VALS)).filter(r => r && r._id);
 }
 
@@ -1206,24 +1231,21 @@ function roomFromRaw(raw, TERRAIN_VALS, FEATURE_VALS) {
     _x: 0, _y: 0, _z: 0, _id: null,
   };
 
-  room._id = String(raw.id || '');
+  room._id   = String(raw.id || '');
   room.title = String(raw.title || '');
   room.desc  = String(raw.description || raw.desc || '');
 
-  // coordinates
   if (Array.isArray(raw.coordinates) && raw.coordinates.length === 3) {
     [room._x, room._y, room._z] = raw.coordinates.map(Number);
   } else if (typeof raw.coordinates === 'string') {
     const m = raw.coordinates.match(/(-?\d+)[,\s]+(-?\d+)[,\s]+(-?\d+)/);
     if (m) { room._x = +m[1]; room._y = +m[2]; room._z = +m[3]; }
   } else {
-    // fallback: try parsing id as x_y_z
     const parts = room._id.split('_').map(Number);
     if (parts.length === 3 && parts.every(n => !isNaN(n)))
       [room._x, room._y, room._z] = parts;
   }
 
-  // keywords → terrain / feature
   if (Array.isArray(raw.keywords)) {
     for (const kw of raw.keywords) {
       if (TERRAIN_VALS.has(kw)) room.terrain = kw;
@@ -1231,14 +1253,12 @@ function roomFromRaw(raw, TERRAIN_VALS, FEATURE_VALS) {
     }
   }
 
-  // items
   if (Array.isArray(raw.items)) {
     room.items = raw.items
       .map(it => typeof it === 'string' ? it : (it && it.id ? `${it.id} ${it.maxLoadSize || 1}` : null))
       .filter(Boolean).join('\n');
   }
 
-  // npcs — can be array of strings OR array of objects
   if (Array.isArray(raw.npcs)) {
     room.npcs = raw.npcs
       .map(n => typeof n === 'string' ? n : (n && n.id ? `${n.id} ${n.maxLoad || n.maxLoadSize || 1}` : null))
@@ -1247,17 +1267,13 @@ function roomFromRaw(raw, TERRAIN_VALS, FEATURE_VALS) {
     room.npcs = raw.npcs;
   }
 
-  // exits — two formats:
-  //   map:   { north: { roomId, door: { locked, closed } }, ... }
-  //   array: [ { roomId, direction, ... }, ... ]
-  const doors = raw.doors || {};  // { 'area:roomId': { locked, closed } }
+  const doors = raw.doors || {};
 
   if (Array.isArray(raw.exits)) {
     for (const ex of raw.exits) {
       if (!ex || !ex.direction) continue;
       const dir = ex.direction;
       room.exits[dir] = { door: false, locked: false };
-      // look up door data by roomId
       const doorData = ex.roomId ? (doors[ex.roomId] || null) : null;
       if (doorData) {
         room.exits[dir].door   = !!(doorData.closed || doorData.locked);
@@ -1286,14 +1302,12 @@ function esc(s) {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
-// CodeMirror instances
 const CM = {};
 
 renderGrid();
 renderEditor();
 
 document.addEventListener('keydown', e => {
-  // Ignore when focus is inside a text input, textarea, or CodeMirror editor
   const tag = document.activeElement?.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
   if (document.activeElement?.closest('.CodeMirror')) return;
@@ -1308,7 +1322,6 @@ document.addEventListener('keydown', e => {
   };
 
   if (e.key === ' ') { e.preventDefault(); recenter(); return; }
-
   const delta = PAN_KEYS[e.key];
   if (delta) { e.preventDefault(); pan(...delta); }
 });
@@ -1317,13 +1330,12 @@ document.addEventListener('keydown', e => {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
 <script>
-// Init CodeMirror editors after CDNs load
 CM.out = CodeMirror(document.getElementById('yaml-output-container'), {
   mode: 'yaml',
   theme: 'dracula',
   readOnly: true,
   lineNumbers: false,
-  value: '# Select a room and click ▶ SELECTED ROOM to generate YAML',
+  value: '# Click ▶ SELECTED or ▶ ALL ROOMS to generate YAML',
   lineWrapping: true,
 });
 CM.in = CodeMirror(document.getElementById('yaml-input-container'), {
