@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Room Editor — Fief</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -418,19 +420,22 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   flex: 1;
 }
 
-#yaml-output {
-  width: 100%;
-  height: 100px;
-  background: #07060400;
+#yaml-output { display: none; }
+
+.cm-container {
   border: 1px solid #2a2e14;
-  color: var(--green);
-  font-family: 'Courier New', monospace;
-  font-size: 11.5px;
-  padding: 6px 8px;
-  resize: vertical;
-  background: #060500;
+  font-size: 12px;
 }
-#yaml-output:focus { outline: none; border-color: var(--green); }
+.cm-container .CodeMirror {
+  height: 110px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background: #060500;
+  color: var(--green);
+}
+.cm-container-input .CodeMirror { height: 100px; }
+.CodeMirror-scroll { padding: 2px 0; }
+.CodeMirror-gutters { display: none; }
 
 /* scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -452,7 +457,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   <div class="toolbar-group">
     <span class="toolbar-label">COLS:</span>
     <button class="btn" onclick="resizeGrid('cols',-1)">−</button>
-    <span id="cols-disp" class="num-display">10</span>
+    <span id="cols-disp" class="num-display">14</span>
     <button class="btn" onclick="resizeGrid('cols',1)">+</button>
   </div>
   <div class="toolbar-group">
@@ -469,9 +474,20 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
     <button class="btn" onclick="changeZ(1)" title="Up one level">▲</button>
   </div>
   <span class="sep">│</span>
+  <div class="toolbar-group">
+    <span class="toolbar-label">PAN:</span>
+    <button class="btn" onclick="pan(-1,0)" title="Pan west">◀</button>
+    <button class="btn" onclick="pan(0,-1)" title="Pan south">▼</button>
+    <button class="btn" onclick="pan(0,1)"  title="Pan north">▲</button>
+    <button class="btn" onclick="pan(1,0)"  title="Pan east">▶</button>
+    <button class="btn primary" onclick="recenter()" title="Center on rooms">⊙ CENTER</button>
+  </div>
+  <span class="sep">│</span>
   <div class="toolbar-group" style="color:var(--text-faint);font-size:13px;letter-spacing:1px;">
     CLICK=select/create &nbsp; RIGHT-CLICK=delete
   </div>
+  <span class="sep">│</span>
+  <button class="btn primary" onclick="toggleImport()">⤓ IMPORT YAML</button>
 </header>
 
 <div class="main">
@@ -500,6 +516,18 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 
 </div>
 
+</div>
+
+<div id="import-bar" style="display:none; flex-shrink:0; border-top:1px solid var(--border); background:var(--panel); padding:7px 12px;">
+  <div class="output-controls">
+    <span class="output-label">IMPORT YAML</span>
+    <button class="btn primary" onclick="importYAML()">⤓ LOAD INTO EDITOR</button>
+    <button class="btn" onclick="toggleImport()">✕ CLOSE</button>
+    <span id="import-status" style="font-size:13px; color:var(--text-dim); letter-spacing:1px;"></span>
+  </div>
+  <div id="yaml-input-container" class="cm-container cm-container-input"></div>
+</div>
+
 <div class="output-bar">
   <div class="output-controls">
     <span class="output-label">YAML OUTPUT</span>
@@ -507,7 +535,8 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
     <button class="btn primary" onclick="generateYAML('all')">▶ ALL ROOMS</button>
     <button class="btn" onclick="copyYAML(this)">⎘ COPY</button>
   </div>
-  <textarea id="yaml-output" readonly placeholder="# Select a room and click ▶ SELECTED ROOM to generate YAML"></textarea>
+  <div id="yaml-output-container" class="cm-container"></div>
+  <textarea id="yaml-output" readonly></textarea>
 </div>
 
 <script>
@@ -515,11 +544,13 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 
 const S = {
   rooms: {},
-  cols: 10,
+  cols: 14,
   rows: 10,
   z: 0,
   sel: null,
-  pending: null,   // key of selected-but-not-yet-created cell
+  pending: null,
+  offsetX: 0,   // world X of leftmost grid column
+  offsetY: 0,   // world Y of bottom grid row
 };
 
 const DIR_OFFSETS = {
@@ -628,9 +659,9 @@ function renderGrid() {
   grid.innerHTML = '';
 
   for (let row = 0; row < S.rows; row++) {
-    const y = S.rows - 1 - row;   // top row = highest Y (north)
+    const y = S.offsetY + (S.rows - 1 - row);   // top row = highest Y (north)
     for (let col = 0; col < S.cols; col++) {
-      const x = col;
+      const x = S.offsetX + col;
       const k = key(x, y, S.z);
       const room = S.rooms[k];
 
@@ -650,7 +681,7 @@ function renderGrid() {
         t.textContent = room.title || '(untitled)';
         cell.appendChild(t);
 
-        // Exit indicators: lock > door > plain dot, positioned on cell edges
+        // Exit indicators: lock > door > up/down arrow > plain dot
         const exits = room.exits || {};
         for (const [dir, abbr] of Object.entries(DIR_ABBR)) {
           const ex = exits[dir];
@@ -663,6 +694,12 @@ function renderGrid() {
           } else if (ex.door) {
             ind.className = `exit-ind ${dirClass}`;
             ind.textContent = '🚪';
+          } else if (dir === 'up') {
+            ind.className = `exit-ind ${dirClass}`;
+            ind.textContent = '⬆️';
+          } else if (dir === 'down') {
+            ind.className = `exit-ind ${dirClass}`;
+            ind.textContent = '⬇️';
           } else {
             ind.className = `exit-ind dot ${dirClass}`;
           }
@@ -955,13 +992,45 @@ function resizeGrid(axis, delta) {
   renderGrid();
 }
 
+function centerOnZ(z) {
+  const keys = Object.keys(S.rooms).filter(k => pk(k).z === z);
+  if (!keys.length) return;
+  const xs = keys.map(k => pk(k).x);
+  const ys = keys.map(k => pk(k).y);
+  const cx = Math.round(xs.reduce((a,b) => a+b, 0) / xs.length);
+  const cy = Math.round(ys.reduce((a,b) => a+b, 0) / ys.length);
+  S.offsetX = cx - Math.floor(S.cols / 2);
+  S.offsetY = cy - Math.floor(S.rows / 2);
+}
+
+function scrollGridToCenter() {
+  requestAnimationFrame(() => {
+    const el = document.querySelector('.grid-side');
+    el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+    el.scrollTop  = (el.scrollHeight - el.clientHeight) / 2;
+  });
+}
+
+function recenter() {
+  centerOnZ(S.z);
+  renderGrid();
+  scrollGridToCenter();
+}
+
+function pan(dx, dy) {
+  S.offsetX += dx;
+  S.offsetY += dy;
+  renderGrid();
+}
+
 function changeZ(delta) {
   S.z += delta;
   document.getElementById('z-disp').textContent = S.z;
-  // deselect if active room is on a different level
-  if (S.sel && pk(S.sel).z !== S.z) S.sel = null;
+  if (S.sel && pk(S.sel).z !== S.z) { S.sel = null; S.pending = null; }
+  centerOnZ(S.z);
   renderGrid();
   renderEditor();
+  scrollGridToCenter();
 }
 
 // ─── YAML Generation ─────────────────────────────────────────────────────────
@@ -1038,16 +1107,15 @@ function roomToYAML(k, areaId) {
 
 function generateYAML(mode) {
   const areaId = document.getElementById('area-id').value || 'myarea';
-  const out    = document.getElementById('yaml-output');
 
   if (mode === 'selected') {
-    if (!S.sel || !S.rooms[S.sel]) { out.value = '# No room selected.'; return; }
-    out.value = roomToYAML(S.sel, areaId);
+    if (!S.sel || !S.rooms[S.sel]) { CM.out.setValue('# No room selected.'); return; }
+    CM.out.setValue(roomToYAML(S.sel, areaId));
     return;
   }
 
   const keys = Object.keys(S.rooms);
-  if (!keys.length) { out.value = '# No rooms defined.'; return; }
+  if (!keys.length) { CM.out.setValue('# No rooms defined.'); return; }
 
   keys.sort((a,b) => {
     const pa=pk(a), pb=pk(b);
@@ -1056,11 +1124,11 @@ function generateYAML(mode) {
     return pa.x - pb.x;
   });
 
-  out.value = keys.map(k => roomToYAML(k, areaId)).join('\n\n');
+  CM.out.setValue(keys.map(k => roomToYAML(k, areaId)).join('\n\n'));
 }
 
 function copyYAML(btn) {
-  const val = document.getElementById('yaml-output').value;
+  const val = CM.out.getValue();
   if (!val) return;
   navigator.clipboard.writeText(val).then(() => {
     const orig = btn.textContent;
@@ -1069,7 +1137,148 @@ function copyYAML(btn) {
   });
 }
 
-// ─── Utility ─────────────────────────────────────────────────────────────────
+// ─── Import ───────────────────────────────────────────────────────────────────
+
+function toggleImport() {
+  const bar = document.getElementById('import-bar');
+  bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+  document.getElementById('import-status').textContent = '';
+  if (bar.style.display !== 'none') CM.in.refresh();
+}
+
+function importYAML() {
+  const raw    = CM.in.getValue().trim();
+  const status = document.getElementById('import-status');
+  if (!raw) { status.textContent = '⚠ Nothing to import.'; return; }
+
+  try {
+    const rooms = parseRoomsYAML(raw);
+    if (!rooms.length) { status.textContent = '⚠ No rooms found.'; return; }
+
+    // Merge into state
+    let added = 0, updated = 0;
+    for (const room of rooms) {
+      const k = key(room._x, room._y, room._z);
+      if (S.rooms[k]) updated++; else added++;
+      S.rooms[k] = room;
+    }
+
+    // Switch to Z level with the most rooms, then center the viewport
+    const zCounts = {};
+    for (const k of Object.keys(S.rooms)) { const z = pk(k).z; zCounts[z] = (zCounts[z]||0) + 1; }
+    const bestZ = +Object.entries(zCounts).sort((a,b) => b[1]-a[1])[0][0];
+    S.z = bestZ;
+    document.getElementById('z-disp').textContent = S.z;
+    centerOnZ(S.z);
+    scrollGridToCenter();
+
+    S.sel = null; S.pending = null;
+    renderGrid();
+    renderEditor();
+    status.style.color = 'var(--green)';
+    status.textContent = `✓ ${added} added, ${updated} updated`;
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  } catch(e) {
+    status.style.color = 'var(--danger-text)';
+    status.textContent = `⚠ Parse error: ${e.message}`;
+  }
+}
+
+// ─── YAML Parser (via js-yaml) ────────────────────────────────────────────────
+
+function parseRoomsYAML(text) {
+  const TERRAIN_VALS = new Set(Object.values(TERRAIN_OPTIONS));
+  const FEATURE_VALS = new Set(Object.values(FEATURE_OPTIONS));
+
+  // js-yaml handles anchors, merges, all scalar types, inline arrays automatically
+  const rawList = jsyaml.load(text);
+  if (!Array.isArray(rawList)) throw new Error('Expected a YAML list at the top level.');
+
+  return rawList.map(raw => roomFromRaw(raw, TERRAIN_VALS, FEATURE_VALS)).filter(r => r && r._id);
+}
+
+function roomFromRaw(raw, TERRAIN_VALS, FEATURE_VALS) {
+  if (!raw || typeof raw !== 'object') return null;
+
+  const room = {
+    title: '', desc: '', items: '', npcs: '',
+    exits: {}, terrain: 'none', feature: 'none',
+    _x: 0, _y: 0, _z: 0, _id: null,
+  };
+
+  room._id = String(raw.id || '');
+  room.title = String(raw.title || '');
+  room.desc  = String(raw.description || raw.desc || '');
+
+  // coordinates
+  if (Array.isArray(raw.coordinates) && raw.coordinates.length === 3) {
+    [room._x, room._y, room._z] = raw.coordinates.map(Number);
+  } else if (typeof raw.coordinates === 'string') {
+    const m = raw.coordinates.match(/(-?\d+)[,\s]+(-?\d+)[,\s]+(-?\d+)/);
+    if (m) { room._x = +m[1]; room._y = +m[2]; room._z = +m[3]; }
+  } else {
+    // fallback: try parsing id as x_y_z
+    const parts = room._id.split('_').map(Number);
+    if (parts.length === 3 && parts.every(n => !isNaN(n)))
+      [room._x, room._y, room._z] = parts;
+  }
+
+  // keywords → terrain / feature
+  if (Array.isArray(raw.keywords)) {
+    for (const kw of raw.keywords) {
+      if (TERRAIN_VALS.has(kw)) room.terrain = kw;
+      else if (FEATURE_VALS.has(kw)) room.feature = kw;
+    }
+  }
+
+  // items
+  if (Array.isArray(raw.items)) {
+    room.items = raw.items
+      .map(it => typeof it === 'string' ? it : (it && it.id ? `${it.id} ${it.maxLoadSize || 1}` : null))
+      .filter(Boolean).join('\n');
+  }
+
+  // npcs — can be array of strings OR array of objects
+  if (Array.isArray(raw.npcs)) {
+    room.npcs = raw.npcs
+      .map(n => typeof n === 'string' ? n : (n && n.id ? `${n.id} ${n.maxLoad || n.maxLoadSize || 1}` : null))
+      .filter(Boolean).join('\n');
+  } else if (typeof raw.npcs === 'string') {
+    room.npcs = raw.npcs;
+  }
+
+  // exits — two formats:
+  //   map:   { north: { roomId, door: { locked, closed } }, ... }
+  //   array: [ { roomId, direction, ... }, ... ]
+  const doors = raw.doors || {};  // { 'area:roomId': { locked, closed } }
+
+  if (Array.isArray(raw.exits)) {
+    for (const ex of raw.exits) {
+      if (!ex || !ex.direction) continue;
+      const dir = ex.direction;
+      room.exits[dir] = { door: false, locked: false };
+      // look up door data by roomId
+      const doorData = ex.roomId ? (doors[ex.roomId] || null) : null;
+      if (doorData) {
+        room.exits[dir].door   = !!(doorData.closed || doorData.locked);
+        room.exits[dir].locked = !!doorData.locked;
+      }
+    }
+  } else if (raw.exits && typeof raw.exits === 'object') {
+    for (const [dir, exData] of Object.entries(raw.exits)) {
+      if (!exData) continue;
+      room.exits[dir] = { door: false, locked: false };
+      if (exData.door) {
+        room.exits[dir].door   = !!(exData.door.closed || exData.door.locked);
+        room.exits[dir].locked = !!exData.door.locked;
+      }
+    }
+  }
+
+  return room;
+}
+
+// ─── Utility ──────────────────────────────────────────────────────────────────
 
 function esc(s) {
   return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1077,8 +1286,54 @@ function esc(s) {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
+// CodeMirror instances
+const CM = {};
+
 renderGrid();
 renderEditor();
+
+document.addEventListener('keydown', e => {
+  // Ignore when focus is inside a text input, textarea, or CodeMirror editor
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (document.activeElement?.closest('.CodeMirror')) return;
+
+  const PAN_KEYS = {
+    'ArrowLeft': [-1,0], 'ArrowRight': [1,0],
+    'ArrowUp':   [0,1],  'ArrowDown':  [0,-1],
+    'a': [-1,0], 'd': [1,0],
+    'w': [0,1],  's': [0,-1],
+    'A': [-1,0], 'D': [1,0],
+    'W': [0,1],  'S': [0,-1],
+  };
+
+  if (e.key === ' ') { e.preventDefault(); recenter(); return; }
+
+  const delta = PAN_KEYS[e.key];
+  if (delta) { e.preventDefault(); pan(...delta); }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
+<script>
+// Init CodeMirror editors after CDNs load
+CM.out = CodeMirror(document.getElementById('yaml-output-container'), {
+  mode: 'yaml',
+  theme: 'dracula',
+  readOnly: true,
+  lineNumbers: false,
+  value: '# Select a room and click ▶ SELECTED ROOM to generate YAML',
+  lineWrapping: true,
+});
+CM.in = CodeMirror(document.getElementById('yaml-input-container'), {
+  mode: 'yaml',
+  theme: 'dracula',
+  readOnly: false,
+  lineNumbers: false,
+  value: '# Paste rooms.yml content here...',
+  lineWrapping: true,
+});
 </script>
 </body>
 </html>
