@@ -15,9 +15,7 @@ const { write } = require('./lib/AreaWriter');
 const WORLD_JSON_PATH = path.resolve(__dirname, 'data/world.json');
 const DEFAULT_OUTPUT = path.resolve(__dirname, 'areas');
 
-// ---------------------------------------------------------------------------
 // CLI flags
-// ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
   const args = { dryRun: false, clusterId: null, random: false, full: false, output: DEFAULT_OUTPUT };
@@ -39,9 +37,7 @@ function parseArgs(argv) {
   return args;
 }
 
-// ---------------------------------------------------------------------------
 // Core generation
-// ---------------------------------------------------------------------------
 
 function generateArea(clusterId, tiles, clusterIndex, coordMap, legends, args) {
   const entry = clusterIndex.get(clusterId);
@@ -79,9 +75,7 @@ function generateArea(clusterId, tiles, clusterIndex, coordMap, legends, args) {
   write(args.output, folderName, manifestYaml, roomsYaml);
 }
 
-// ---------------------------------------------------------------------------
 // Main
-// ---------------------------------------------------------------------------
 
 function main() {
   const args = parseArgs(process.argv.slice(2));

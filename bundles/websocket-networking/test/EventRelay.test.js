@@ -21,8 +21,6 @@ function test(label, fn) {
 
 function eq(a, b) { assert.deepStrictEqual(a, b); }
 
-// ---------------------------------------------------------------------------
-
 const SCHEMA_A = {
   'experience':     { emitter: 'player', payload: { amount: 'number'  }, relay: true  },
   'move':           { emitter: 'player', payload: { roomExit: 'object' }, relay: false },
@@ -41,9 +39,7 @@ const SCHEMA_C = {
   'killed':    { emitter: 'player', payload: { killer: 'object' },                       relay: false },
 };
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── build — filtering ─────────────────────────────');
+console.log('\nbuild — filtering');
 
 test('includes relay:true + emitter:player entries', () => {
   const listeners = build([SCHEMA_A]);
@@ -78,9 +74,7 @@ test('excludes relay:false from SCHEMA_C', () => {
   assert.ok('deathblow' in listeners);
 });
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── build — multiple schemas ──────────────────────');
+console.log('\nbuild — multiple schemas');
 
 test('merges entries from multiple schemas', () => {
   const listeners = build([SCHEMA_A, SCHEMA_B, SCHEMA_C]);
@@ -110,9 +104,7 @@ test('schema with no qualifying entries returns empty listeners', () => {
   eq(build([schema]), {});
 });
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── build — listener factory shape ───────────────');
+console.log('\nbuild — listener factory shape');
 
 test('each value is a zero-arg factory returning a function', () => {
   const listeners = build([SCHEMA_A]);
@@ -123,9 +115,7 @@ test('each value is a zero-arg factory returning a function', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── build — listener runtime behaviour ───────────');
+console.log('\nbuild — listener runtime behaviour');
 
 test('listener calls socket.command with sendData, eventName, payload', () => {
   const listeners = build([SCHEMA_A]);
@@ -182,8 +172,6 @@ test('later schema does not overwrite earlier for same event name', () => {
   eq(commands.length, 1);
   eq(commands[0][1], 'ping');
 });
-
-// ---------------------------------------------------------------------------
 
 console.log('\n');
 console.log(`  ${passed} passed, ${failed} failed\n`);

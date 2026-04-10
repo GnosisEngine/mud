@@ -38,7 +38,6 @@ const REAL_WORLD_PATH = path.resolve(__dirname, '../../../data/world.json');
 
 console.log('\nLayer 3 — TileIndex\n');
 
-// ---------------------------------------------------------------------------
 
 console.log('coordMap');
 
@@ -81,7 +80,6 @@ test('duplicate coordinates: last write wins', () => {
   assert.strictEqual(coordMap.get('0,0'), t2);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nclusterTiles');
 
@@ -133,7 +131,6 @@ test('clusterTiles arrays contain tile references not copies', () => {
   assert.strictEqual(clusterTiles.get(1)[0], t);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nconsistency between coordMap and clusterTiles');
 
@@ -156,7 +153,6 @@ test('total tiles in clusterTiles equals coordMap size (no duplicates)', () => {
   assert.strictEqual(total, coordMap.size);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nreal world.json integration');
 
@@ -208,7 +204,6 @@ test('real world: total across clusterTiles equals 3665', () => {
   assert.strictEqual(total, 3665);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

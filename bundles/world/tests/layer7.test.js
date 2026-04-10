@@ -26,9 +26,7 @@ function test(name, fn) {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Shared fixtures
-// ---------------------------------------------------------------------------
 
 const LEGENDS = {
   terrain: {
@@ -64,7 +62,7 @@ const LEGENDS = {
 
 function tile(x, y, featureId, terrainId, clusterId = 1) {
   return { coords: [x, y], terrain: terrainId, feature: featureId,
-           cluster: clusterId, canonicalCluster: clusterId };
+    cluster: clusterId, canonicalCluster: clusterId };
 }
 
 const REAL_WORLD_PATH      = path.resolve(__dirname, '../../../data/world.json');
@@ -74,7 +72,6 @@ const ALL_TERRAIN_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
 console.log('\nLayer 7 — RoomBuilder\n');
 
-// ---------------------------------------------------------------------------
 
 console.log('return shape');
 
@@ -130,7 +127,6 @@ test('description is a non-empty string', () => {
   assert.ok(room.description.length > 0);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nexits');
 
@@ -159,7 +155,6 @@ test('multiple exits are preserved', () => {
   assert.strictEqual(room.exits.length, 2);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nterrain coverage');
 
@@ -209,7 +204,6 @@ test('metadata.terrain is "none" for unknown terrain', () => {
   assert.strictEqual(room.metadata.terrain, 'none');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nfeature effects');
 
@@ -248,7 +242,6 @@ test('road tile description differs from non-road description for same terrain',
   assert.notStrictEqual(roadRoom.description, supplyRoom.description);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nreal world.json integration');
 
@@ -301,7 +294,6 @@ test('real world: all metadata.terrain values are non-empty strings', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

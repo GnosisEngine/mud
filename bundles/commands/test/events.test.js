@@ -26,7 +26,6 @@ function makeEmitter() {
   return { emit: (...a) => calls.push(a), calls };
 }
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── EVENTS constants ──────────────────────────────');
 
@@ -36,7 +35,6 @@ test('EVENTS.PUT is put',                       () => eq(EVENTS.PUT,            
 test('EVENTS.PLAYER_DROP_ITEM is playerDropItem', () => eq(EVENTS.PLAYER_DROP_ITEM, 'playerDropItem'));
 test('EVENTS is frozen',                        () => assert.ok(Object.isFrozen(EVENTS)));
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── SCHEMA entries ────────────────────────────────');
 
@@ -52,7 +50,6 @@ test('drop payload has item key',                      () => eq(Object.keys(SCHE
 test('put payload has item and toContainer keys',      () => eq(Object.keys(SCHEMA[EVENTS.PUT].payload), ['item', 'toContainer']));
 test('playerDropItem payload has player and item keys',() => eq(Object.keys(SCHEMA[EVENTS.PLAYER_DROP_ITEM].payload), ['player', 'item']));
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.get (player perspective) ─────────────────');
 
@@ -63,7 +60,6 @@ test('emits get on player with item payload', () => {
   eq(player.calls, [['get', { item }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.getOnItem (item perspective) ─────────────');
 
@@ -80,7 +76,6 @@ test('getOnItem uses same event string as get', () => {
   eq(item.calls[0][0], EVENTS.GET);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.drop (player perspective) ────────────────');
 
@@ -91,7 +86,6 @@ test('emits drop on player with item payload', () => {
   eq(player.calls, [['drop', { item }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.dropOnItem (item perspective) ────────────');
 
@@ -108,7 +102,6 @@ test('dropOnItem uses same event string as drop', () => {
   eq(item.calls[0][0], EVENTS.DROP);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.put (player perspective) ─────────────────');
 
@@ -120,7 +113,6 @@ test('emits put on player with item and toContainer payload', () => {
   eq(player.calls, [['put', { item, toContainer: container }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.putOnItem (item perspective) ─────────────');
 
@@ -138,7 +130,6 @@ test('putOnItem uses same event string as put', () => {
   eq(item.calls[0][0], EVENTS.PUT);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.playerDropItem ────────────────────────────');
 
@@ -150,7 +141,6 @@ test('emits playerDropItem on npc with player and item payload', () => {
   eq(npc.calls, [['playerDropItem', { player, item }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── payload object identity ───────────────────────');
 
@@ -168,7 +158,6 @@ test('player reference in getOnItem payload is not cloned', () => {
   assert.ok(item.calls[0][1].player === player);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n');
 console.log(`  ${passed} passed, ${failed} failed\n`);

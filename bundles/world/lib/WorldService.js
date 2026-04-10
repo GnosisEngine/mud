@@ -3,9 +3,7 @@
 
 const DIRECTIONS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
-// ---------------------------------------------------------------------------
 // Internal builders
-// ---------------------------------------------------------------------------
 
 function _buildCentroids(clusterTiles) {
   const centroids = {};
@@ -56,9 +54,7 @@ function _buildClusterMap(clusterTiles, clusterIndex) {
   return clusterMap;
 }
 
-// ---------------------------------------------------------------------------
 // A* pathfinding
-// ---------------------------------------------------------------------------
 
 function _getPath(startCoords, endCoords, coordMap, clusterMap) {
   const [ex, ey] = endCoords;
@@ -126,9 +122,7 @@ function _getPath(startCoords, endCoords, coordMap, clusterMap) {
   return { clusters, coords };
 }
 
-// ---------------------------------------------------------------------------
 // Factory
-// ---------------------------------------------------------------------------
 
 /**
  * Builds the WorldService from the outputs of the three preceding layers.

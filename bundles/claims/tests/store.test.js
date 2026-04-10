@@ -32,9 +32,7 @@ const { Graph }                  = require('../lib/graph');
 const { Store, LOGOUT_GRACE_MS } = require('../lib/store');
 const { replay }                 = require('../lib/replay');
 
-// ---------------------------------------------------------------------------
 // Minimal test harness
-// ---------------------------------------------------------------------------
 
 let passed = 0;
 let failed = 0;
@@ -55,9 +53,7 @@ function section(name) {
   console.log(`\n${name}`);
 }
 
-// ---------------------------------------------------------------------------
 // Fixtures
-// ---------------------------------------------------------------------------
 
 function makeStore(mockDb = makeMockDb()) {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-test-'));
@@ -103,15 +99,11 @@ function pkgOpts(overrides = {}) {
   };
 }
 
-// ---------------------------------------------------------------------------
 // Main
-// ---------------------------------------------------------------------------
 
 async function main() {
 
-  // ---------------------------------------------------------------------------
   // Domain constant
-  // ---------------------------------------------------------------------------
 
   section('LOGOUT_GRACE_MS');
 
@@ -123,9 +115,7 @@ async function main() {
     assert.ok(typeof LOGOUT_GRACE_MS === 'number');
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — create
-  // ---------------------------------------------------------------------------
 
   section('claimRoom');
 
@@ -172,9 +162,7 @@ async function main() {
     assert.deepEqual(store.getClaim(claim.id), claim);
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — one room one claim (domain rule)
-  // ---------------------------------------------------------------------------
 
   section('claimRoom — one room one claim');
 
@@ -211,9 +199,7 @@ async function main() {
     assert.equal(claim2.roomId, 'r_002');
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — reads
-  // ---------------------------------------------------------------------------
 
   section('getClaim / getClaimByRoom / getClaimsByOwner');
 
@@ -248,9 +234,7 @@ async function main() {
     assert.deepEqual(store.getClaimsByOwner('p_nobody'), []);
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — kill transfer (domain rule)
-  // ---------------------------------------------------------------------------
 
   section('transferAllClaims — kill transfer');
 
@@ -307,9 +291,7 @@ async function main() {
     assert.equal(log.lineCount, 2); // C + T
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — expire
-  // ---------------------------------------------------------------------------
 
   section('expireClaim / flushExpiredClaims');
 
@@ -359,9 +341,7 @@ async function main() {
     assert.equal(await store.flushExpiredClaims(), 0);
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — logout grace timer (domain rule)
-  // ---------------------------------------------------------------------------
 
   section('armExpiryForPlayer / disarmExpiryForPlayer — logout grace');
 
@@ -403,9 +383,7 @@ async function main() {
     assert.ok(store.getClaim(claim.id));
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — extend
-  // ---------------------------------------------------------------------------
 
   section('extendClaim');
 
@@ -424,9 +402,7 @@ async function main() {
     assert.equal(log.lineCount, 2); // C + E
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — state derivation
-  // ---------------------------------------------------------------------------
 
   section('getClaimState');
 
@@ -456,9 +432,7 @@ async function main() {
     assert.equal(store.getClaimState('c_ghost'), null);
   });
 
-  // ---------------------------------------------------------------------------
   // Claims — log persistence and replay
-  // ---------------------------------------------------------------------------
 
   section('log persistence and replay');
 
@@ -513,9 +487,7 @@ async function main() {
     assert.equal(g.getClaim(claim.id).taxRate, 15);
   });
 
-  // ---------------------------------------------------------------------------
   // Packages — no rehypothecation (domain rule)
-  // ---------------------------------------------------------------------------
 
   section('listPackage — no rehypothecation');
 
@@ -541,9 +513,7 @@ async function main() {
     assert.ok(pkg.id.startsWith('l_'));
   });
 
-  // ---------------------------------------------------------------------------
   // Packages — list and read
-  // ---------------------------------------------------------------------------
 
   section('listPackage / getPackage');
 
@@ -561,9 +531,7 @@ async function main() {
     assert.equal(store.getPackage('l_ghost'), null);
   });
 
-  // ---------------------------------------------------------------------------
   // Packages — fund and tax rate lock (domain rule)
-  // ---------------------------------------------------------------------------
 
   section('fundPackage — tax rate frozen on pledge');
 
@@ -603,9 +571,7 @@ async function main() {
     assert.equal(store.getClaim(claim.id).taxRate, 35);
   });
 
-  // ---------------------------------------------------------------------------
   // Packages — lifecycle transitions (domain rule)
-  // ---------------------------------------------------------------------------
 
   section('package lifecycle — O → F → D or C');
 
@@ -637,9 +603,7 @@ async function main() {
     assert.equal(store.getPackage(pkg.id), null);
   });
 
-  // ---------------------------------------------------------------------------
   // Packages — queries
-  // ---------------------------------------------------------------------------
 
   section('package queries');
 
@@ -708,9 +672,7 @@ async function main() {
     assert.equal(store.getPackagesByStatus('O').length, 0);
   });
 
-  // ---------------------------------------------------------------------------
   // Edge cases — timer state during transfers
-  // ---------------------------------------------------------------------------
 
   section('timer state during kill transfer');
 
@@ -759,9 +721,7 @@ async function main() {
     await store.disarmExpiryForPlayer('p_nobody');
   });
 
-  // ---------------------------------------------------------------------------
   // Edge cases — flush correctness
-  // ---------------------------------------------------------------------------
 
   section('flushExpiredClaims — edge cases');
 
@@ -799,9 +759,7 @@ async function main() {
     assert.ok(store.getClaim(claim.id));
   });
 
-  // ---------------------------------------------------------------------------
   // Edge cases — extension behavior
-  // ---------------------------------------------------------------------------
 
   section('extendClaim — edge cases');
 
@@ -838,9 +796,7 @@ async function main() {
     assert.equal(store.getClaim(claim.id).ownerId, 'p_winner');
   });
 
-  // ---------------------------------------------------------------------------
   // Edge cases — replay order correctness
-  // ---------------------------------------------------------------------------
 
   section('replay — order correctness');
 
@@ -893,9 +849,7 @@ async function main() {
     assert.ok(g.getClaim(c2.id));
   });
 
-  // ---------------------------------------------------------------------------
   // Edge cases — package and claim decoupling
-  // ---------------------------------------------------------------------------
 
   section('package and claim decoupling');
 
@@ -954,9 +908,7 @@ async function main() {
     assert.equal(store.getPackage(pkg.id).lenderId, 'p_lender_two');
   });
 
-  // ---------------------------------------------------------------------------
   // Edge cases — logout while pledged
-  // ---------------------------------------------------------------------------
 
   section('logout while claim is pledged');
 
@@ -984,9 +936,7 @@ async function main() {
     assert.equal(g.getClaim(claim.id).taxRateLocked, true);
   });
 
-  // ---------------------------------------------------------------------------
   // Results
-  // ---------------------------------------------------------------------------
 
   console.log(`\n${passed + failed} tests — ${passed} passed, ${failed} failed\n`);
   if (failed > 0) process.exit(1);

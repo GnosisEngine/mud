@@ -28,10 +28,10 @@
 const { getArcStage } = require('./CombatNarrativeReaders');
 const { selectArcLanguage } = require('./CombatNarrativeSelectors');
 
-// ---------------------------------------------------------------------------
+/*
 // Arc stage color gradient
 // Green (early/hopeful) → yellow (turning) → red (desperate/closing)
-// ---------------------------------------------------------------------------
+*/
 
 const ARC_COLORS = {
   'opening':        (s) => `<green>${s}</green>`,
@@ -47,11 +47,11 @@ function colorize(stage, str) {
   return fn ? fn(str) : str;
 }
 
-// ---------------------------------------------------------------------------
+/*
 // Arc stage emoji assignment
 // Which entity leads the arc line — the one with narrative focus.
 // player-focused stages get 🧍; enemy-focused stages get the enemy's emoji.
-// ---------------------------------------------------------------------------
+*/
 
 const ARC_EMOJI_FOCUS = {
   'opening':        'player',
@@ -75,9 +75,7 @@ function arcEmoji(stage, attacker) {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Interpolation
-// ---------------------------------------------------------------------------
 
 /**
  * Replace {attacker} and {target} tokens in a template string.
@@ -93,24 +91,19 @@ function interpolate(template, attacker, target) {
     .replace(/\{target\}/g,   (target   && target.name)   || 'Someone');
 }
 
-// ---------------------------------------------------------------------------
-// combatData schema additions (for reference — not enforced here)
-// ---------------------------------------------------------------------------
-//
-//   combatData.roundCount        {number}  — incremented each call to update()
-//   combatData.arcStage          {string}  — current arc stage key
-//   combatData.lastFlavorRound   {number}  — used by shouldEmitFlavor() in readers
-//   combatData.arcTransitions    {number}  — count of arc stage changes this fight
-//
-// ---------------------------------------------------------------------------
+/*
+combatData schema additions (for reference — not enforced here)
+  combatData.roundCount        {number}  — incremented each call to update()
+  combatData.arcStage          {string}  — current arc stage key
+  combatData.lastFlavorRound   {number}  — used by shouldEmitFlavor() in readers
+  combatData.arcTransitions    {number}  — count of arc stage changes this fight
 
-// ---------------------------------------------------------------------------
-// Stage progression order
-// A fight should only move to stages of equal or greater narrative weight.
-// Prevents regression e.g. turning:winning → exchange when health values
-// oscillate around a tier boundary.
-// Same-weight lateral shifts (turning:winning ↔ turning:losing) are allowed.
-// ---------------------------------------------------------------------------
+Stage progression order
+A fight should only move to stages of equal or greater narrative weight.
+Prevents regression e.g. turning:winning → exchange when health values
+oscillate around a tier boundary.
+Same-weight lateral shifts (turning:winning ↔ turning:losing) are allowed.
+*/
 
 const STAGE_ORDER = {
   'opening':        0,

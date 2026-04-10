@@ -10,7 +10,7 @@
  * Each takes the minimum data it needs and returns a single value.
  *
  * Keyword inference
- * -----------------
+*
  * When a metadata field is absent, readers scan names and descriptions for
  * known keywords and infer the closest match. If nothing matches, they
  * return 'generic' so the selector falls through to the generic template pool.
@@ -18,10 +18,8 @@
  * File path: mud/bundles/combat/lib/CombatNarrativeReaders.js
  */
 
-// ---------------------------------------------------------------------------
 // Keyword maps used for inference
 // Ordered from most specific to most general so the first match wins.
-// ---------------------------------------------------------------------------
 
 const ATTACK_TYPE_KEYWORDS = {
   // bite and claw are checked before piercing/bladed to avoid 'fang'/'talon'
@@ -30,54 +28,52 @@ const ATTACK_TYPE_KEYWORDS = {
   claw:        ['claw','talon','rake','scratch','swipe','nail'],
   // arcane checked before piercing so 'arcane bolt' resolves correctly
   arcane:      ['arcane','spell','magic','wand','orb','rune','enchant',
-                'mystic','sorcery','hex','curse','blast'],
+    'mystic','sorcery','hex','curse','blast'],
   elemental:   ['fire','flame','frost','ice','lightning','thunder','shock',
-                'earth','stone','wind','gust','water','acid','poison','venom'],
+    'earth','stone','wind','gust','water','acid','poison','venom'],
   bladed:      ['sword','blade','axe','dagger','knife','scimitar','rapier',
-                'sabre','falchion','cutlass','cleaver','edge','slash','cut'],
+    'sabre','falchion','cutlass','cleaver','edge','slash','cut'],
   piercing:    ['spear','lance','pike','javelin','arrow','bolt','needle',
-                'spike','thorn','stinger','fang','thrust','pierce','puncture'],
+    'spike','thorn','stinger','fang','thrust','pierce','puncture'],
   bludgeoning: ['mace','hammer','club','staff','flail','maul','fist','punch',
-                'smash','bash','crush','pummel','warhammer','morningstar'],
+    'smash','bash','crush','pummel','warhammer','morningstar'],
 };
 
 const ARMOR_TYPE_KEYWORDS = {
   plate:    ['plate','full plate','armor','armour','steel','iron','metal',
-             'knight','cuirass','breastplate','pauldron','gorget','gauntlet'],
+    'knight','cuirass','breastplate','pauldron','gorget','gauntlet'],
   chain:    ['chain','chainmail','mail','ringmail','links','ring armor'],
   leather:  ['leather','hide','studded','padded','brigandine','scale leather',
-             'tanned','fur','pelt','skin armor'],
+    'tanned','fur','pelt','skin armor'],
   cloth:    ['cloth','robe','vestment','tunic','shirt','garment','fabric',
-             'silk','wool','linen','cotton','dress'],
+    'silk','wool','linen','cotton','dress'],
   scales:   ['scales','scale','reptile','lizard','drake','dragon','serpent',
-             'natural armor','carapace','shell','chitin','exoskeleton'],
+    'natural armor','carapace','shell','chitin','exoskeleton'],
   ethereal: ['ethereal','spirit','ghost','wraith','phantom','spectral',
-             'undead','lich','shade','incorporeal','mist','void'],
+    'undead','lich','shade','incorporeal','mist','void'],
   bare:     ['bare','naked','unarmored','unclothed','flesh','skin'],
 };
 
 const ENTITY_TYPE_KEYWORDS = {
   biped:      ['human','elf','dwarf','orc','goblin','gnome','halfling',
-               'person','man','woman','folk','humanoid','troll','ogre'],
+    'person','man','woman','folk','humanoid','troll','ogre'],
   quadruped:  ['wolf','bear','horse','lion','tiger','deer','boar','dog',
-               'cat','fox','hound','panther','leopard','hyena','rhino'],
+    'cat','fox','hound','panther','leopard','hyena','rhino'],
   slime:      ['slime','ooze','blob','pudding','gel','jelly','goo','mold',
-               'cube','amorphous','oozing'],
+    'cube','amorphous','oozing'],
   undead:     ['zombie','skeleton','ghoul','wight','specter','lich','vampire',
-               'revenant','corpse','undead','bones','risen','wraith','shade'],
+    'revenant','corpse','undead','bones','risen','wraith','shade'],
   insectoid:  ['spider','beetle','ant','mantis','scorpion','centipede',
-               'wasp','moth','cricket','roach','bug','insect','arachnid'],
+    'wasp','moth','cricket','roach','bug','insect','arachnid'],
   serpentine: ['snake','serpent','naga','worm','wyrm','viper','cobra',
-               'constrictor','asp','basilisk','hydra'],
+    'constrictor','asp','basilisk','hydra'],
   avian:      ['harpy','griffon','roc','eagle','hawk','vulture','phoenix',
-               'bird','winged','feathered','wyvern'],
+    'bird','winged','feathered','wyvern'],
   elemental:  ['elemental','golem','construct','animated','fire elemental',
-               'earth elemental','water elemental','air elemental','wisp'],
+    'earth elemental','water elemental','air elemental','wisp'],
 };
 
-// ---------------------------------------------------------------------------
 // Internal helpers
-// ---------------------------------------------------------------------------
 
 function pick(arr) {
   if (!Array.isArray(arr) || arr.length === 0) return null;
@@ -125,9 +121,7 @@ function getCandidates(obj) {
     .map(f => (Array.isArray(f) ? f.join(' ') : String(f)).toLowerCase());
 }
 
-// ---------------------------------------------------------------------------
 // Public reader functions
-// ---------------------------------------------------------------------------
 
 /**
  * Determine the attack type of a weapon or attacker.

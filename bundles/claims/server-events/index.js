@@ -8,7 +8,7 @@ const { replay } = require('../lib/replay');
 const { compact } = require('../lib/compaction');
 const { Store } = require('../lib/store');
 const { DATA_DIR, COMPACT_THRESHOLD, LOGOUT_GRACE_MS } = require('../constants');
-const { Logger } = require('ranvier')
+const { Logger } = require('ranvier');
 /**
  * ranvier-storage bundle
  *
@@ -30,16 +30,12 @@ const { Logger } = require('ranvier')
  *   3. Close SQLite connection
  */
 
-// ---------------------------------------------------------------------------
 // Bundle state — module-scoped, initialised in startup listener
-// ---------------------------------------------------------------------------
 
 let store = null;
 let expiryTimer = null;
 
-// ---------------------------------------------------------------------------
 // Ranvier bundle export
-// ---------------------------------------------------------------------------
 
 module.exports = {
   /**
@@ -51,8 +47,8 @@ module.exports = {
      * 'startup' fires after all bundles are loaded but before the server
      * begins accepting connections — safe to do async I/O here.
      */
-    startup: state => async () => {
-      Logger.log('[claims-storage] initializing...')
+    startup: state => async() => {
+      Logger.log('[claims-storage] initializing...');
 
       // Layer 3 — log
       const log = new Log(DATA_DIR, COMPACT_THRESHOLD);
@@ -73,7 +69,7 @@ module.exports = {
       state.StorageManager = { store };
 
       // Expiry flush timer — checks for timed-out claims on interval
-      expiryTimer = setInterval(async () => {
+      expiryTimer = setInterval(async() => {
         const count = await store.flushExpiredClaims();
 
         if (count > 0) {
@@ -84,14 +80,14 @@ module.exports = {
       // Prevent the timer from keeping the process alive on shutdown
       if (expiryTimer.unref) expiryTimer.unref();
 
-      Logger.log('[claims-storage] ready')
+      Logger.log('[claims-storage] ready');
     },
 
     /**
      * 'shutdown' fires when the server is gracefully stopping.
      * Final compaction ensures the log is clean for the next boot.
      */
-    shutdown: state => async () => {
+    shutdown: state => async() => {
       console.log('[claims-storage] shutting down...');
 
       if (expiryTimer) {

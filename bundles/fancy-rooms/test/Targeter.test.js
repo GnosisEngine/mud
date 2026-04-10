@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
@@ -15,9 +15,7 @@ function makeRoom({ exits = [], items = [], players = [], npcs = [] } = {}) {
   };
 }
 
-// ---------------------------------------------------------------------------
 // fuzzyMatch
-// ---------------------------------------------------------------------------
 
 describe('fuzzyMatch', () => {
 
@@ -121,9 +119,7 @@ describe('fuzzyMatch', () => {
 
 });
 
-// ---------------------------------------------------------------------------
 // getTarget
-// ---------------------------------------------------------------------------
 
 describe('getTarget', () => {
 

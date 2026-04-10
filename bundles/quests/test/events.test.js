@@ -26,7 +26,6 @@ function makeEmitter() {
   return { emit: (...a) => calls.push(a), calls };
 }
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── EVENTS constants ──────────────────────────────');
 
@@ -39,7 +38,6 @@ test('EVENTS.GOAL_PROGRESS is progress',               () => eq(EVENTS.GOAL_PROG
 test('EVENTS.CURRENCY is currency',                    () => eq(EVENTS.CURRENCY,            'currency'));
 test('EVENTS is frozen',                               () => assert.ok(Object.isFrozen(EVENTS)));
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── SCHEMA entries ────────────────────────────────');
 
@@ -69,7 +67,6 @@ test('CURRENCY payload keys are currency and amount', () => {
   eq(Object.keys(SCHEMA[EVENTS.CURRENCY].payload), ['currency', 'amount']);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit object — only currency helper generated ──');
 
@@ -81,7 +78,6 @@ test('no emit.questComplete generated',    () => eq(emit.questComplete,    undef
 test('no emit.questReward generated',      () => eq(emit.questReward,      undefined));
 test('no emit.goalProgress generated',     () => eq(emit.goalProgress,     undefined));
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.currency ─────────────────────────────────');
 
@@ -111,7 +107,6 @@ test('fires on target player, not other emitters', () => {
   eq(b.calls.length, 0);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n');
 console.log(`  ${passed} passed, ${failed} failed\n`);

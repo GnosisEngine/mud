@@ -22,9 +22,7 @@ function test(name, fn) {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Minimal valid legends used throughout
-// ---------------------------------------------------------------------------
 
 const LEGENDS = {
   terrain:  { '0': 'none', '1': 'bog', '2': 'forest_deciduous' },
@@ -45,7 +43,6 @@ function tile(x, y, feature, cluster, terrain = 1) {
   return { coords: [x, y], terrain, feature, cluster };
 }
 
-// ---------------------------------------------------------------------------
 
 console.log('\nLayer 2 — ClusterResolver\n');
 
@@ -75,7 +72,6 @@ test('cluster 0 tiles keep canonicalCluster 0', () => {
   assert.strictEqual(out[0].canonicalCluster, 0);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nunion-find: no merging cases');
 
@@ -134,7 +130,6 @@ test('road-feature tiles never trigger merging even with same feature neighbours
   assert.notStrictEqual(c1, c2);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nunion-find: merging cases');
 
@@ -193,7 +188,6 @@ test('merged cluster canonical ID is stable (is one of the raw IDs)', () => {
   assert.ok(canon === 1 || canon === 2);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nclusterIndex');
 
@@ -235,7 +229,6 @@ test('merged clusters share one clusterIndex entry', () => {
   assert.ok(!clusterIndex.has(nonCanon), 'merged-away ID should not appear in clusterIndex');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ndominantFeature');
 
@@ -298,7 +291,6 @@ test('wilderness beats outpost in mixed cluster', () => {
   assert.strictEqual(clusterIndex.get(1).dominantFeature, 'wilderness');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nreal world.json');
 
@@ -410,7 +402,6 @@ test('real world dominant feature distribution is 107 supply, 40 wilderness, 12 
   assert.strictEqual(dist.road,        1);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

@@ -20,7 +20,6 @@ const {
   getAttackType,
   getDamageTier,
   getArmorType,
-  getEntityType,
   getExhaustionTier,
   getClarityTier,
   getHealMagnitude,
@@ -39,9 +38,7 @@ const {
 const ArcTracker = require('./ArcTracker');
 const { getNpcEmoji } = require('../../fancy-rooms/lib/EmojiMapper');
 
-// ---------------------------------------------------------------------------
 // Entity emoji
-// ---------------------------------------------------------------------------
 
 const PLAYER_EMOJI = '🧍';
 
@@ -59,9 +56,7 @@ function getEntityEmoji(entity) {
   return getNpcEmoji(entity.keywords || []);
 }
 
-// ---------------------------------------------------------------------------
 // Interpolation
-// ---------------------------------------------------------------------------
 
 /**
  * Replace {attacker} and {target} tokens in a template string.
@@ -77,14 +72,12 @@ function interpolate(template, attacker, target) {
     .replace(/\{target\}/g,   (target   && target.name)   || 'Someone');
 }
 
-// ---------------------------------------------------------------------------
 // Damage tier badge
 // Prepended to hit messages so the player gets a tactile read on severity
 // without seeing a number.
 //
 // Ranvier color/style tags:
 //   <green>   <yellow>   <red>   <b>   </b>
-// ---------------------------------------------------------------------------
 
 const DAMAGE_BADGES = {
   graze:       '',                                    // silence = trivial
@@ -106,9 +99,7 @@ function damageBadge(tier) {
   return DAMAGE_BADGES[tier] || '';
 }
 
-// ---------------------------------------------------------------------------
 // Public builders
-// ---------------------------------------------------------------------------
 
 /**
  * Build a hit message from the attacker's perspective.
@@ -215,11 +206,9 @@ function buildHealMessage(healer, target, heal, finalAmount) {
   return getEntityEmoji(healer) + ' ' + interpolate(template, healer, target);
 }
 
-// ---------------------------------------------------------------------------
 // Exhaustion color gradient
 // Tier 1 (fresh) = no color. Tier 2–6 steps from magenta to bold red.
 // Ranvier supports standard ANSI color tags.
-// ---------------------------------------------------------------------------
 
 const EXHAUSTION_COLORS = {
   2: (s) => `<magenta>${s}</magenta>`,
@@ -234,11 +223,9 @@ function colorExhaustion(tier, str) {
   return fn ? fn(str) : str;
 }
 
-// ---------------------------------------------------------------------------
 // Death message colors
 // Kill (you won):  bold yellow  — gold, triumphant
 // Death (you lost): bold red    — stark, final
-// ---------------------------------------------------------------------------
 
 function colorKill(str)  { return `<b><yellow>${str}</yellow></b>`; }
 function colorDeath(str) { return `<b><red>${str}</red></b>`; }

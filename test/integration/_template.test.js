@@ -22,10 +22,9 @@ const { setup, teardown, ctx } = useSuite(/* 'area:roomid' */);
 before(setup);
 after(teardown);
 
-// ---------------------------------------------------------------------------
 
 describe('COMMAND_NAME command', () => {
-  it('does something', async () => {
+  it('does something', async() => {
     const s = ctx.session();
 
     const { text, lines } = await s.run('COMMAND_NAME arg1 arg2');
@@ -36,7 +35,7 @@ describe('COMMAND_NAME command', () => {
     s.cleanup();
   });
 
-  it('rejects bad input gracefully', async () => {
+  it('rejects bad input gracefully', async() => {
     const s = ctx.session();
 
     const result = await s.run('COMMAND_NAME');
@@ -45,7 +44,7 @@ describe('COMMAND_NAME command', () => {
     s.cleanup();
   });
 
-  it('works after picking up an item', async () => {
+  it('works after picking up an item', async() => {
     const s = ctx.session();
     const item = await findTakeableItem(s);
     if (!item) { s.cleanup(); return; }
@@ -56,7 +55,7 @@ describe('COMMAND_NAME command', () => {
     s.cleanup();
   });
 
-  it('two players interact', async () => {
+  it('two players interact', async() => {
     const { a, b } = ctx.twoSessions();
 
     await a.run('say hello');

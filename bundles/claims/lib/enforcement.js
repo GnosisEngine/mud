@@ -11,9 +11,7 @@
 const threats = new Map();
 const submissions = new Map();
 
-// ---------------------------------------------------------------------------
 // Threats
-// ---------------------------------------------------------------------------
 
 /**
  * Register a threat with its metadata and response-window timeout.
@@ -77,9 +75,7 @@ function findThreatAgainst(targetId) {
   return null;
 }
 
-// ---------------------------------------------------------------------------
 // Submissions
-// ---------------------------------------------------------------------------
 
 function addSubmission(targetId, sub) {
   submissions.set(targetId, sub);

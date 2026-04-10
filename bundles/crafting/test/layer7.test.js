@@ -454,7 +454,7 @@ test('perishable trade transfers expiry ticks to recipient', () => {
 console.log('\nTradeLogic timeout (async)');
 
 async function runAsyncTests() {
-  await testAsync('timeout clears pending and calls onTimeout', async () => {
+  await testAsync('timeout clears pending and calls onTimeout', async() => {
     TL.clearAll();
     const a = mockEntity(10, { alluvial_gold: 10 });
     const b = mockEntity(10);
@@ -468,7 +468,7 @@ async function runAsyncTests() {
     assert.deepStrictEqual(RC.getHeld(b), {});
   });
 
-  await testAsync('accept after timeout returns no_pending_trade', async () => {
+  await testAsync('accept after timeout returns no_pending_trade', async() => {
     TL.clearAll();
     const a = mockEntity(10, { alluvial_gold: 10 });
     const b = mockEntity(10);

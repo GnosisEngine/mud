@@ -18,12 +18,12 @@ function mockEntity(strength, resources) {
   resources = resources || {};
   const store = { resources: Object.assign({}, resources) };
   return {
-    getMeta: function(key) { return key.split('.').reduce(function(o,k){ return o!=null?o[k]:undefined; }, store); },
+    getMeta: function(key) { return key.split('.').reduce(function(o,k){ return o != null ? o[k] : undefined; }, store); },
     setMeta: function(key, val) {
       const parts = key.split('.');
       let cur = store;
-      for (let i = 0; i < parts.length - 1; i++) { if (cur[parts[i]]==null) cur[parts[i]]= {}; cur=cur[parts[i]]; }
-      cur[parts[parts.length-1]] = val;
+      for (let i = 0; i < parts.length - 1; i++) { if (cur[parts[i]] == null) cur[parts[i]] = {}; cur = cur[parts[i]]; }
+      cur[parts[parts.length - 1]] = val;
     },
     getAttribute: function(attr) { return attr === 'strength' ? strength : 0; }
   };

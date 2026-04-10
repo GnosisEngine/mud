@@ -53,7 +53,6 @@ const VALID_WORLD = {
 
 const REAL_WORLD_PATH = path.resolve(__dirname, '../../../data/world.json');
 
-// ---------------------------------------------------------------------------
 
 console.log('\nLayer 1 — WorldLoader\n');
 
@@ -93,7 +92,6 @@ test('non-object JSON throws', () => {
   throws(() => load(p), 'JSON object');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nlegends validation');
 
@@ -137,7 +135,6 @@ test('empty legend name throws', () => {
   throws(() => load(p), 'empty');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nmap validation');
 
@@ -166,7 +163,6 @@ test('map entry with wrong coords length throws', () => {
   throws(() => load(p), 'coords');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nclusters validation');
 
@@ -185,7 +181,6 @@ test('clusters missing "0" entry throws', () => {
   throws(() => load(p), '"0"');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nreturn shape');
 
@@ -276,7 +271,6 @@ test('tiles reference is the original map array contents', () => {
   assert.strictEqual(r.tiles[0].cluster, 0);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

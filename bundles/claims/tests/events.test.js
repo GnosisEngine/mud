@@ -26,7 +26,6 @@ function makeEmitter() {
   return { emit: (...a) => calls.push(a), calls };
 }
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── EVENTS constants ──────────────────────────────');
 
@@ -38,7 +37,6 @@ test('EVENTS is frozen', () => {
   assert.ok(Object.isFrozen(EVENTS));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── SCHEMA entries ────────────────────────────────');
 
@@ -60,7 +58,6 @@ test('enforce:received relay is true', () => {
   eq(SCHEMA[EVENTS.ENFORCE_RECEIVED].relay, true);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.enforceReceived ──────────────────────────');
 
@@ -99,7 +96,6 @@ test('fires on target emitter, not emitter of command caller', () => {
   eq(target.calls.length, 1);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n');
 console.log(`  ${passed} passed, ${failed} failed\n`);

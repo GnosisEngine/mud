@@ -1,12 +1,10 @@
 // bundles/world/lib/YamlSerializer.js
 'use strict';
 
-// ---------------------------------------------------------------------------
 // YAML quoting
 // Strings that start with YAML-special characters or contain ': ' need
 // double-quote wrapping. Descriptions are always quoted — they are prose
 // strings long enough to contain colons or other special sequences.
-// ---------------------------------------------------------------------------
 
 const YAML_SPECIAL_START = /^[\s{}\[\]#&*!|>'"%@`,?:-]/;
 const NEEDS_QUOTE_ANYWHERE = /:|#|[\n\r"]|^true$|^false$|^null$/;
@@ -26,9 +24,7 @@ function quoteAlways(str) {
   return `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 }
 
-// ---------------------------------------------------------------------------
 // Manifest serializer
-// ---------------------------------------------------------------------------
 
 /**
  * Serializes area metadata to a manifest.yml string.
@@ -45,9 +41,7 @@ function serializeManifest({ title, zoneType }) {
   return out;
 }
 
-// ---------------------------------------------------------------------------
 // Rooms serializer
-// ---------------------------------------------------------------------------
 
 function _serializeExit(exit) {
   return (

@@ -14,19 +14,17 @@ const { setup, teardown, ctx } = useSuite();
 before(setup);
 after(teardown);
 
-// ---------------------------------------------------------------------------
 // look
-// ---------------------------------------------------------------------------
 
 describe('look command', () => {
-  it('produces output for any room', async () => {
+  it('produces output for any room', async() => {
     const s = ctx.session();
     const { lines } = await s.run('look');
     assert.ok(lines.length > 0, 'look should produce at least one line');
     s.cleanup();
   });
 
-  it('includes the room title or description', async () => {
+  it('includes the room title or description', async() => {
     const s = ctx.session();
     const { text } = await s.run('look');
     const needle = (ctx.room.title || ctx.room.description || '').slice(0, 10).toLowerCase();
@@ -34,7 +32,7 @@ describe('look command', () => {
     s.cleanup();
   });
 
-  it('lists exits', async () => {
+  it('lists exits', async() => {
     const s = ctx.session();
     const { text } = await s.run('look');
     if (ctx.room.exits && ctx.room.exits.size > 0) {
@@ -44,19 +42,17 @@ describe('look command', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
 // inventory
-// ---------------------------------------------------------------------------
 
 describe('inventory command', () => {
-  it('runs without error on empty inventory', async () => {
+  it('runs without error on empty inventory', async() => {
     const s = ctx.session();
     const { lines } = await s.run('inventory');
     assert.ok(lines.length > 0);
     s.cleanup();
   });
 
-  it('shows carried items after getting them', async () => {
+  it('shows carried items after getting them', async() => {
     const s = ctx.session();
     const item = await findTakeableItem(s);
     if (!item) { s.cleanup(); return; }
@@ -67,19 +63,17 @@ describe('inventory command', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
 // get
-// ---------------------------------------------------------------------------
 
 describe('get command', () => {
-  it('rejects getting a nonexistent item', async () => {
+  it('rejects getting a nonexistent item', async() => {
     const s = ctx.session();
     const { text } = await s.run('get xyzzy_does_not_exist_42');
     assertOutput({ text }, /no|not|find|here/i, 'should say item was not found');
     s.cleanup();
   });
 
-  it('can pick up an item that is in the room', async () => {
+  it('can pick up an item that is in the room', async() => {
     const s = ctx.session();
     // Room may be depleted by the inventory suite above — skip rather than fail.
     const item = await findTakeableItem(s);
@@ -89,12 +83,10 @@ describe('get command', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
 // give
-// ---------------------------------------------------------------------------
 
 describe('give command', () => {
-  it('rejects giving to a nonexistent target', async () => {
+  it('rejects giving to a nonexistent target', async() => {
     const s = ctx.session();
     const item = await findTakeableItem(s);
     if (!item) { s.cleanup(); return; }
@@ -105,19 +97,17 @@ describe('give command', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
 // time
-// ---------------------------------------------------------------------------
 
 describe('time command', () => {
-  it('produces output', async () => {
+  it('produces output', async() => {
     const s = ctx.session();
     const { lines } = await s.run('time');
     assert.ok(lines.length > 0);
     s.cleanup();
   });
 
-  it('accepts a tick argument', async () => {
+  it('accepts a tick argument', async() => {
     const s = ctx.session();
     const { lines } = await s.run('time 1000');
     assert.ok(lines.length > 0);
@@ -125,12 +115,10 @@ describe('time command', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
 // claim / enforce
-// ---------------------------------------------------------------------------
 
 describe('claim command', () => {
-  it('produces output', async () => {
+  it('produces output', async() => {
     const s = ctx.session();
     const { text } = await s.run('claim');
     assert.ok(text.length > 0);
@@ -139,7 +127,7 @@ describe('claim command', () => {
 });
 
 describe('enforce command', () => {
-  it('produces output with no target', async () => {
+  it('produces output with no target', async() => {
     const s = ctx.session();
     const { text } = await s.run('enforce');
     assert.ok(text.length > 0);
@@ -147,19 +135,17 @@ describe('enforce command', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
 // fuzzy command matching
-// ---------------------------------------------------------------------------
 
 describe('fuzzy command matching', () => {
-  it('"inv" resolves to inventory', async () => {
+  it('"inv" resolves to inventory', async() => {
     const s = ctx.session();
     const { lines } = await s.run('inv');
     assert.ok(lines.length > 0);
     s.cleanup();
   });
 
-  it('"lo" resolves to look', async () => {
+  it('"lo" resolves to look', async() => {
     const s = ctx.session();
     const { lines } = await s.run('lo');
     assert.ok(lines.length > 0);

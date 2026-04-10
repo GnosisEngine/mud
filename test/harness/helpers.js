@@ -4,9 +4,7 @@
 const { boot } = require('./GameHarness');
 const { TestSession, stripAnsi } = require('./TestSession');
 
-// ---------------------------------------------------------------------------
 // Singleton state — boots once per process, shared across all test files
-// ---------------------------------------------------------------------------
 
 let _state = null;
 let _booting = null;
@@ -18,9 +16,7 @@ async function getState() {
   return _booting;
 }
 
-// ---------------------------------------------------------------------------
 // Event loop utilities
-// ---------------------------------------------------------------------------
 
 function flush(ticks = 1) {
   let p = Promise.resolve();
@@ -30,9 +26,7 @@ function flush(ticks = 1) {
   return p;
 }
 
-// ---------------------------------------------------------------------------
 // Room finders
-// ---------------------------------------------------------------------------
 
 function findRoom(state, predicate) {
   for (const [, area] of state.AreaManager.areas) {
@@ -63,9 +57,7 @@ function roomWithItems(state) {
   return findRoom(state, room => room.items && room.items.size > 0);
 }
 
-// ---------------------------------------------------------------------------
 // Session factories
-// ---------------------------------------------------------------------------
 
 function session(state, roomOrRef, opts = {}) {
   const room = typeof roomOrRef === 'string' ? getRoom(state, roomOrRef) : (roomOrRef || anyRoom(state));
@@ -80,9 +72,7 @@ function twoSessions(state, roomOrRef, opts = {}) {
   return { a, b };
 }
 
-// ---------------------------------------------------------------------------
 // Item helpers
-// ---------------------------------------------------------------------------
 
 // Probe each room item with get until one lands in inventory.
 // Returns the first word of the item name, or null if nothing is takeable.
@@ -111,9 +101,7 @@ function giveItem(state, player, entityRef) {
   return item;
 }
 
-// ---------------------------------------------------------------------------
 // NPC helpers
-// ---------------------------------------------------------------------------
 
 // Spawn an NPC into a room. entityRef e.g. 'fief:guard'
 function spawnNpc(state, room, entityRef) {
@@ -132,7 +120,6 @@ function removeNpc(state, npc) {
   state.MobManager.remove(npc);
 }
 
-// ---------------------------------------------------------------------------
 // Standard before/after boilerplate for a test file
 //
 // Usage:
@@ -140,7 +127,6 @@ function removeNpc(state, npc) {
 //   before(setup);
 //   after(teardown);
 //   // then ctx.state, ctx.room, ctx.session() are available in tests
-// ---------------------------------------------------------------------------
 
 function useSuite(roomRefOrFn) {
   const ctx = { state: null, room: null };
@@ -170,9 +156,7 @@ function useSuite(roomRefOrFn) {
   return { setup, teardown, ctx };
 }
 
-// ---------------------------------------------------------------------------
 // Output assertions
-// ---------------------------------------------------------------------------
 
 function assertOutput(result, pattern, message) {
   const text = typeof result === 'string' ? result : result.text;
@@ -192,7 +176,6 @@ function assertNoOutput(result, pattern, message) {
   }
 }
 
-// ---------------------------------------------------------------------------
 
 module.exports = {
   getState,

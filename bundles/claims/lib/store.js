@@ -4,7 +4,6 @@
 const { now } = require('./codec');
 const { generateClaimId, generateCollateralId } = require('./ids');
 const { compact } = require('./compaction');
-const { Config } = require('ranvier');
 const { LOGOUT_GRACE_MS } = require('../constants');
 
 /**
@@ -35,9 +34,7 @@ class Store {
     this._db = db;
   }
 
-  // ---------------------------------------------------------------------------
   // Internal helpers
-  // ---------------------------------------------------------------------------
 
   /**
    * Append to log, apply to graph, then check compaction threshold.
@@ -55,9 +52,7 @@ class Store {
     }
   }
 
-  // ---------------------------------------------------------------------------
   // Claims — writes
-  // ---------------------------------------------------------------------------
 
   /**
    * A player stakes a claim on a room.
@@ -153,15 +148,15 @@ class Store {
    * @param {number} expiresAt — unix ms timestamp when claims should expire
    */
   async armExpiryForPlayer(ownerId, expiresAt = Date.now() + LOGOUT_GRACE_MS) {
-    const claims = this._graph.getClaimsByOwner(ownerId)
+    const claims = this._graph.getClaimsByOwner(ownerId);
 
     for (const claim of claims) {
       const data = {
         id: claim.id,
         expiresAt: expiresAt ?? claim.expiresAt
-      }
+      };
 
-      await this._write('O', data, () => this._graph.setClaimExpiry(data))
+      await this._write('O', data, () => this._graph.setClaimExpiry(data));
     }
   }
 
@@ -191,9 +186,7 @@ class Store {
     await this._write('E', data, () => this._graph.extendClaim(data));
   }
 
-  // ---------------------------------------------------------------------------
   // Claims — reads
-  // ---------------------------------------------------------------------------
 
   /**
    * @param {string} claimId
@@ -233,9 +226,7 @@ class Store {
     return this._graph.claimState(claim);
   }
 
-  // ---------------------------------------------------------------------------
   // Packages — writes
-  // ---------------------------------------------------------------------------
 
   /**
    * List a new collateral package.
@@ -327,9 +318,7 @@ class Store {
     this._db.deletePackage(packageId);
   }
 
-  // ---------------------------------------------------------------------------
   // Packages — reads
-  // ---------------------------------------------------------------------------
 
   /**
    * @param {string} packageId

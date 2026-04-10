@@ -26,9 +26,7 @@ function makeEmitter() {
   return { emit: (...a) => calls.push(a), calls };
 }
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── EVENTS constants ──────────────────────────────');
+console.log('\nEVENTS constants');
 
 test('EVENTS.EXPERIENCE is experience', () => {
   eq(EVENTS.EXPERIENCE, 'experience');
@@ -46,9 +44,7 @@ test('EVENTS is frozen', () => {
   assert.ok(Object.isFrozen(EVENTS));
 });
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── SCHEMA entries ────────────────────────────────');
+console.log('\nSCHEMA entries');
 
 test('experience schema has amount payload key', () => {
   eq(Object.keys(SCHEMA[EVENTS.EXPERIENCE].payload), ['amount']);
@@ -80,9 +76,7 @@ test('every EVENTS value has a SCHEMA entry', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── emit.experience ───────────────────────────────');
+console.log('\nemit.experience');
 
 test('emits experience event with amount payload', () => {
   const e = makeEmitter();
@@ -96,9 +90,7 @@ test('amount is passed through as-is', () => {
   eq(e.calls, [['experience', { amount: 0 }]]);
 });
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── emit.move ─────────────────────────────────────');
+console.log('\nemit.move');
 
 test('emits move event with roomExit payload', () => {
   const e = makeEmitter();
@@ -114,9 +106,7 @@ test('roomExit object is not cloned', () => {
   assert.ok(e.calls[0][1].roomExit === roomExit);
 });
 
-// ---------------------------------------------------------------------------
-
-console.log('\n── emit.level ────────────────────────────────────');
+console.log('\nemit.level');
 
 test('emits level event with no payload', () => {
   const e = makeEmitter();
@@ -132,8 +122,6 @@ test('emits on the correct emitter object', () => {
   eq(a.calls.length, 1);
   eq(b.calls.length, 1);
 });
-
-// ---------------------------------------------------------------------------
 
 console.log('\n');
 console.log(`  ${passed} passed, ${failed} failed\n`);

@@ -32,7 +32,6 @@ function makeRoom(overrides = {}) {
 
 console.log('\nLayer 8 — YamlSerializer\n');
 
-// ---------------------------------------------------------------------------
 
 console.log('quoteIfNeeded');
 
@@ -93,7 +92,6 @@ test('embedded double quotes are escaped', () => {
   assert.ok(result.includes('\\"'));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nserializeManifest');
 
@@ -143,7 +141,6 @@ test('manifest ends with newline', () => {
   assert.ok(out.endsWith('\n'));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nserializeRooms');
 
@@ -236,7 +233,6 @@ test('rooms list starts with "- id:"', () => {
   assert.ok(out.trimStart().startsWith('- id:'));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

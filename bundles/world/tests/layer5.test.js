@@ -21,7 +21,6 @@ function test(name, fn) {
 
 console.log('\nLayer 5 — AreaSchema\n');
 
-// ---------------------------------------------------------------------------
 
 console.log('getFolderName');
 
@@ -47,7 +46,6 @@ test('folder name never starts with a digit', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetZoneType');
 
@@ -86,7 +84,6 @@ test('zoneType values are uppercase strings', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetRoomId');
 
@@ -133,7 +130,6 @@ test('negative coord roundtrip', () => {
   assert.strictEqual(Number(parts[2]), y);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetRoomRef');
 
@@ -166,7 +162,6 @@ test('right of colon is getRoomId result', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

@@ -7,27 +7,27 @@ const { Broadcast, Config, EventUtil, Logger } = require('ranvier');
  */
 module.exports = {
   event: state => (socket, args) => {
-    let account = args.account;
+    const account = args.account;
 
     const say = EventUtil.genSay(socket);
     const write = EventUtil.genWrite(socket);
     const pm = state.PlayerManager;
 
     /*
-    Player selection menu:
-    * Can select existing player
-    * Can create new (if less than 3 living chars)
+      Player selection menu:
+      * Can select existing player
+      * Can create new (if less than 3 living chars)
     */
-    say("\r\n------------------------------");
-    say("|      Choose your fate");
-    say("------------------------------");
+    say('\r\n------------------------------');
+    say('|      Choose your fate');
+    say('------------------------------');
 
     // This just gets their names.
     const characters = account.characters.filter(currChar => currChar.deleted === false);
-    const maxCharacters   = Config.get("maxCharacters");
+    const maxCharacters   = Config.get('maxCharacters');
     const canAddCharacter = characters.length < maxCharacters;
 
-    let options = [];
+    const options = [];
 
     // Configure account options menu
     options.push({
@@ -47,13 +47,13 @@ module.exports = {
     }
 
     if (characters.length) {
-      options.push({ display: "Login As:" });
+      options.push({ display: 'Login As:' });
       characters.forEach(char => {
         options.push({
           display: char.username,
-          onSelect: async () => {
+          onSelect: async() => {
             let currentPlayer = pm.getPlayer(char.username);
-            let existed = false;
+
             if (currentPlayer) {
               // kill old connection
               Broadcast.at(currentPlayer, 'Connection taken over by another client. Goodbye.');
@@ -76,7 +76,7 @@ module.exports = {
       });
     }
 
-    options.push({ display: "" });
+    options.push({ display: '' });
 
     if (characters.length) {
       options.push({
@@ -91,26 +91,26 @@ module.exports = {
       display: 'Delete This Account',
       onSelect: () => {
         say('<bold>By deleting this account, all the characters will be also deleted.</bold>');
-        write(`<bold>Are you sure you want to delete this account? </bold> <cyan>[Y/n]</cyan> `);
-          socket.once('data', confirmation => {
-            say('');
-            confirmation = confirmation.toString().trim().toLowerCase();
+        write('<bold>Are you sure you want to delete this account? </bold> <cyan>[Y/n]</cyan> ');
+        socket.once('data', confirmation => {
+          say('');
+          confirmation = confirmation.toString().trim().toLowerCase();
 
-            if (!/[yn]/.test(confirmation)) {
-              say('<b>Invalid Option</b>');
-              return socket.emit('choose-character', socket, args);
-            }
+          if (!/[yn]/.test(confirmation)) {
+            say('<b>Invalid Option</b>');
+            return socket.emit('choose-character', socket, args);
+          }
 
-            if (confirmation === 'n') {
-              say('No one was deleted...');
-              return socket.emit('choose-character', socket, args);
-            }
+          if (confirmation === 'n') {
+            say('No one was deleted...');
+            return socket.emit('choose-character', socket, args);
+          }
 
-            say(`Deleting account <b>${account.username}</b>`);
-            account.deleteAccount();
-            say('Account deleted, it was a pleasure doing business with you.');
-            socket.end();
-          });
+          say(`Deleting account <b>${account.username}</b>`);
+          account.deleteAccount();
+          say('Account deleted, it was a pleasure doing business with you.');
+          socket.end();
+        });
       },
     });
 

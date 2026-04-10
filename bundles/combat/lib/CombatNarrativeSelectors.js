@@ -18,9 +18,8 @@
 
 const T = require('./CombatTemplates');
 
-// ---------------------------------------------------------------------------
+
 // Internal helper
-// ---------------------------------------------------------------------------
 
 /**
  * Pick a random element from an array.
@@ -67,12 +66,10 @@ function firstPick(root, paths) {
   return null;
 }
 
-// ---------------------------------------------------------------------------
 // Hard fallbacks
 // Used only when the entire template tree yields nothing — should never
 // happen in practice if CombatTemplates is intact, but guards against
 // partial edits or future gaps.
-// ---------------------------------------------------------------------------
 
 const FALLBACK = {
   hit: {
@@ -96,9 +93,7 @@ const FALLBACK = {
   },
 };
 
-// ---------------------------------------------------------------------------
 // Public selectors
-// ---------------------------------------------------------------------------
 
 /**
  * Select a hit message template.

@@ -42,7 +42,6 @@ const ROOMS    = '- id: r_0_0\n  title: Bogland\n';
 
 console.log('\nLayer 9 — AreaWriter\n');
 
-// ---------------------------------------------------------------------------
 
 console.log('getOutputPath');
 
@@ -72,7 +71,6 @@ test('non-string folderName throws', () => {
   throws(() => getOutputPath('/root', null), 'folderName');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nwrite — directory creation');
 
@@ -94,7 +92,6 @@ test('does not throw if directory already exists', () => {
   write(root, 'c13', MANIFEST, ROOMS);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nwrite — file contents');
 
@@ -150,7 +147,6 @@ test('empty rooms string writes an empty rooms.yml', () => {
   assert.strictEqual(content, '');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nwrite — validation');
 
@@ -164,7 +160,6 @@ test('non-string roomsYaml throws', () => {
   throws(() => write(root, 'c1', MANIFEST, null), 'roomsYaml');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

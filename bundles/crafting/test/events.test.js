@@ -26,7 +26,6 @@ function makeEmitter() {
   return { emit: (...a) => calls.push(a), calls };
 }
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── EVENTS constants ──────────────────────────────');
 
@@ -42,7 +41,6 @@ test('EVENTS is frozen', () => {
   assert.ok(Object.isFrozen(EVENTS));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── SCHEMA entries ────────────────────────────────');
 
@@ -76,7 +74,6 @@ test('resource:orphanedDrops relay is false', () => {
   eq(SCHEMA[EVENTS.RESOURCE_ORPHANED_DROPS].relay, false);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── helper name derivation ────────────────────────');
 
@@ -88,7 +85,6 @@ test('RESOURCE_ORPHANED_DROPS derives to resourceOrphanedDrops', () => {
   assert.ok(typeof emit.resourceOrphanedDrops === 'function');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.resourceRotted ───────────────────────────');
 
@@ -113,7 +109,6 @@ test('rotted object is not cloned', () => {
   assert.ok(player.calls[0][1].rotted === rotted);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.resourceOrphanedDrops ────────────────────');
 
@@ -141,7 +136,6 @@ test('npc object is not cloned', () => {
   assert.ok(room.calls[0][1].npc === npc);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n');
 console.log(`  ${passed} passed, ${failed} failed\n`);

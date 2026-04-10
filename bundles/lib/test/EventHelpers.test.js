@@ -21,7 +21,6 @@ function test(label, fn) {
 
 function eq(a, b) { assert.deepStrictEqual(a, b); }
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── toHelperName ──────────────────────────────────');
 
@@ -41,7 +40,6 @@ test('four words camelCases', () => {
   eq(toHelperName('DAY_PHASE_CHANGE'), 'dayPhaseChange');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── buildEmitHelpers — helper names ───────────────');
 
@@ -93,7 +91,6 @@ test('generates playerDropItem from PLAYER_DROP_ITEM', () => {
   eq(typeof emit.playerDropItem, 'function');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── buildEmitHelpers — zero-payload events ────────');
 
@@ -111,7 +108,6 @@ test('zero-payload helper ignores extra args', () => {
   eq(calls, [['level']]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── buildEmitHelpers — single-key payload events ──');
 
@@ -130,7 +126,6 @@ test('single-key helper passes non-primitive values', () => {
   eq(calls, [['resource:rotted', { rotted }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── buildEmitHelpers — multi-key payload events ───');
 
@@ -159,7 +154,6 @@ test('missing args map to undefined', () => {
   eq(calls, [['playerDropItem', { player: { name: 'Aldric' }, item: undefined }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── buildEmitHelpers — schema gaps ────────────────');
 
@@ -174,7 +168,6 @@ test('only events with schema entries are present', () => {
   eq(keys, ['experience', 'level', 'playerDropItem', 'resourceRotted']);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n');
 console.log(`  ${passed} passed, ${failed} failed\n`);

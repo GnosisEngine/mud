@@ -3,11 +3,9 @@
 
 const { getRoomId } = require('./AreaSchema');
 
-// ---------------------------------------------------------------------------
 // Terrain display data
 // Keyed by terrain name string from world.json legends.terrain.
 // Unknown terrain falls back to FALLBACK_* values — never throws.
-// ---------------------------------------------------------------------------
 
 const FALLBACK_TITLE = 'Open Ground';
 const FALLBACK_DESC = 'Unremarkable ground stretches away in every direction.';
@@ -89,9 +87,7 @@ function _applyFeatureTitleModifier(baseTitle, featureName) {
   return baseTitle;
 }
 
-// ---------------------------------------------------------------------------
 // Public API
-// ---------------------------------------------------------------------------
 
 /**
  * Builds the room data object for a single world tile.

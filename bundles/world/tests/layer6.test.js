@@ -40,7 +40,6 @@ const REAL_WORLD_AVAILABLE = fs.existsSync(REAL_WORLD_PATH);
 
 console.log('\nLayer 6 — ExitResolver\n');
 
-// ---------------------------------------------------------------------------
 
 console.log('isolated tile');
 
@@ -55,7 +54,6 @@ test('returns an array', () => {
   assert.ok(Array.isArray(resolve(t, makeCoordMap([t]))));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ndirection mapping');
 
@@ -113,7 +111,6 @@ test('diagonal neighbors are ignored', () => {
   assert.strictEqual(resolve(center, map).length, 0);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nroomId format');
 
@@ -142,7 +139,6 @@ test('exit roomId contains exactly one colon', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ncross-area exits');
 
@@ -170,7 +166,6 @@ test('same-cluster neighbor uses same area folder prefix', () => {
   assert.ok(east.roomId.startsWith('c13:'));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nreal world.json integration');
 
@@ -221,7 +216,6 @@ test('real world: all exit directions are valid compass directions', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

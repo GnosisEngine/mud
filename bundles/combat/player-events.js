@@ -38,10 +38,8 @@ const ArcTracker = require('./lib/ArcTracker');
 module.exports = {
   listeners: {
 
-    // -----------------------------------------------------------------------
     // updateTick
     // Drives the combat loop, injects arc language and status flavor.
-    // -----------------------------------------------------------------------
     updateTick: state => function() {
       Combat.startRegeneration(state, this);
 
@@ -99,10 +97,8 @@ module.exports = {
       }
     },
 
-    // -----------------------------------------------------------------------
     // hit
     // You struck a target. Build attacker-pov message.
-    // -----------------------------------------------------------------------
     [EVENTS.HIT]: () => function({ damage, target, finalAmount }) {
       if (damage.metadata.hidden) {
         return;
@@ -135,10 +131,8 @@ module.exports = {
       }
     },
 
-    // -----------------------------------------------------------------------
     // heal
     // You healed a target. Build healer-pov message.
-    // -----------------------------------------------------------------------
     [EVENTS.HEAL]: () => function({ heal, target, finalAmount }) {
       if (heal.metadata.hidden) {
         return;
@@ -166,10 +160,8 @@ module.exports = {
       }
     },
 
-    // -----------------------------------------------------------------------
     // damaged
     // You were struck. Build target-pov message and check for death.
-    // -----------------------------------------------------------------------
     [EVENTS.DAMAGED]: state => function({ damage, finalAmount }) {
       if (damage.metadata.hidden || damage.attribute !== 'health') {
         return;
@@ -193,10 +185,8 @@ module.exports = {
       }
     },
 
-    // -----------------------------------------------------------------------
     // healed
     // You received a heal. Build target-pov message.
-    // -----------------------------------------------------------------------
     [EVENTS.HEALED]: () => function({ heal, finalAmount }) {
       if (heal.metadata.hidden) {
         return;
@@ -218,10 +208,8 @@ module.exports = {
       }
     },
 
-    // -----------------------------------------------------------------------
     // killed
     // You were killed. Respawn, strip experience, move to home room.
-    // -----------------------------------------------------------------------
     [EVENTS.KILLED]: state => {
       const startingRoomRef = Config.get('startingRoom');
       if (!startingRoomRef) {
@@ -272,10 +260,8 @@ module.exports = {
       };
     },
 
-    // -----------------------------------------------------------------------
     // deathblow
     // You killed a target. Award XP, proxy to party.
-    // -----------------------------------------------------------------------
     [EVENTS.DEATHBLOW]: () => function({ target, skipParty }) {
       const xp = LevelUtil.mobExp(target.level);
 
@@ -301,12 +287,10 @@ module.exports = {
   }
 };
 
-// ---------------------------------------------------------------------------
 // Combat prompt builder
 // Unchanged from original — health bars are numbers-free by design since
 // they already use visual bar lengths rather than explicit values.
 // The bar fills communicate percentage without a number label.
-// ---------------------------------------------------------------------------
 
 function promptBuilder(promptee) {
   if (!promptee.isInCombat()) {

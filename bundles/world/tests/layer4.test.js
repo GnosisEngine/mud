@@ -27,9 +27,7 @@ function test(name, fn) {
 const REAL_WORLD_PATH = path.resolve(__dirname, '../../../data/world.json');
 const REAL_WORLD_AVAILABLE = fs.existsSync(REAL_WORLD_PATH);
 
-// ---------------------------------------------------------------------------
 // Minimal synthetic world for unit tests — no disk I/O needed
-// ---------------------------------------------------------------------------
 //
 // Layout (feature/cluster):
 //
@@ -73,7 +71,6 @@ function makeRealService() {
   return build(loaded, resolved, index);
 }
 
-// ---------------------------------------------------------------------------
 
 console.log('\nLayer 4 — WorldService\n');
 
@@ -96,7 +93,6 @@ test('service exposes all required methods', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetTerrainForRoom');
 
@@ -141,7 +137,6 @@ test('ignores z coordinate — world is a 2D grid', () => {
   assert.strictEqual(svc.getTerrainForRoom(roomZ0), svc.getTerrainForRoom(roomZ5));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetEntryByCoords');
 
@@ -169,7 +164,6 @@ test('returns road tile at road coord', () => {
   assert.strictEqual(tile.feature, 1);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetClusters');
 
@@ -197,7 +191,6 @@ test('cluster names come from rawClusters', () => {
   assert.ok(named.some(id => clusters[id].name === 'North Supply'));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetRoadPairs');
 
@@ -242,7 +235,6 @@ test('synthetic world produces road pair for the road at [0,1]', () => {
   assert.ok(roadCoords.includes('0,1'), 'expected road pair at 0,1');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetDirection');
 
@@ -276,7 +268,6 @@ test('returns null for diagonal', () => {
   assert.strictEqual(svc.getDirection([0, 0], [1, 1]), null);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetPath');
 
@@ -307,7 +298,6 @@ test('path through road connects two supply clusters', () => {
   assert.ok(result.coords.length >= 3, 'expected path to span at least 3 tiles');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\ngetPathBetweenClusters');
 
@@ -324,7 +314,6 @@ test('returns a result between two valid named clusters', () => {
   assert.ok(result === null || (Array.isArray(result.coords) && Array.isArray(result.clusters)));
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\nreal world.json');
 
@@ -373,7 +362,6 @@ test('real world getDirection returns compass directions for adjacent tiles', ()
   assert.strictEqual(svc.getDirection([10, 10], [10, 11]), 'south');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);

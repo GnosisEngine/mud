@@ -26,7 +26,6 @@ function makeEmitter() {
   return { emit: (...a) => calls.push(a), calls };
 }
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── EVENTS constants ──────────────────────────────');
 
@@ -38,7 +37,6 @@ test('EVENTS.HEALED is healed',       () => eq(EVENTS.HEALED,    'healed'));
 test('EVENTS.HEAL is heal',           () => eq(EVENTS.HEAL,      'heal'));
 test('EVENTS is frozen',              () => assert.ok(Object.isFrozen(EVENTS)));
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── SCHEMA entries ────────────────────────────────');
 
@@ -76,7 +74,6 @@ test('heal relay is false', () => {
   eq(SCHEMA[EVENTS.HEAL].relay, false);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.deathblow ────────────────────────────────');
 
@@ -101,7 +98,6 @@ test('undefined skipParty is falsy — party check behaves correctly', () => {
   assert.ok(!skipParty);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.killed ───────────────────────────────────');
 
@@ -118,7 +114,6 @@ test('killer can be undefined (environmental death)', () => {
   eq(e.calls, [['killed', { killer: undefined }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.hit ──────────────────────────────────────');
 
@@ -130,7 +125,6 @@ test('emits hit with damage, target, finalAmount', () => {
   eq(e.calls, [['hit', { damage, target, finalAmount: 8 }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.damaged ──────────────────────────────────');
 
@@ -141,7 +135,6 @@ test('emits damaged with damage and finalAmount', () => {
   eq(e.calls, [['damaged', { damage, finalAmount: 4 }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.healed ───────────────────────────────────');
 
@@ -152,7 +145,6 @@ test('emits healed with heal and finalAmount', () => {
   eq(e.calls, [['healed', { heal, finalAmount: 18 }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emit.heal ─────────────────────────────────────');
 
@@ -164,7 +156,6 @@ test('emits heal with heal, target, finalAmount', () => {
   eq(e.calls, [['heal', { heal, target, finalAmount: 12 }]]);
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n── emitter identity ──────────────────────────────');
 
@@ -179,7 +170,6 @@ test('each helper fires on its own emitter, not others', () => {
   eq(b.calls[0][0], 'killed');
 });
 
-// ---------------------------------------------------------------------------
 
 console.log('\n');
 console.log(`  ${passed} passed, ${failed} failed\n`);

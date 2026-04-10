@@ -1,13 +1,11 @@
 // bundles/world/lib/ClusterResolver.js
 'use strict';
 
-// ---------------------------------------------------------------------------
 // MAINTENANCE CONTRACT
 // The union-find logic here is the single canonical implementation for the
 // entire project. claims/lib/world.js previously duplicated this logic and
 // has been removed. Any change to cluster-merging behaviour must be made
 // here and reflected in tests — never duplicated elsewhere.
-// ---------------------------------------------------------------------------
 
 const DIRECTIONS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
@@ -15,9 +13,7 @@ const DIRECTIONS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 // Higher index = higher priority. supply beats wilderness beats outpost beats road.
 const FEATURE_PRIORITY = ['road', 'outpost', 'wilderness', 'supply'];
 
-// ---------------------------------------------------------------------------
 // Union-Find
-// ---------------------------------------------------------------------------
 
 function _makeUF() {
   const parent = {};
@@ -35,11 +31,9 @@ function _makeUF() {
   return { find, union };
 }
 
-// ---------------------------------------------------------------------------
 // Dominant feature
 // The highest-priority feature present across all tiles in a cluster.
 // Expressed as a feature name string, never an integer.
-// ---------------------------------------------------------------------------
 
 function _dominantFeature(featureNames) {
   let best = -1;
@@ -56,9 +50,7 @@ function _dominantFeature(featureNames) {
   return bestName;
 }
 
-// ---------------------------------------------------------------------------
 // Public API
-// ---------------------------------------------------------------------------
 
 /**
  * Resolves raw world tiles into canonical cluster assignments.
@@ -115,11 +107,9 @@ function resolve(rawTiles, rawClusters, legends) {
       canonicalCluster: t.cluster !== 0 ? uf.find(t.cluster) : 0,
     }));
 
-  // ---------------------------------------------------------------------------
   // Build clusterIndex
   // For each canonical ID, collect all raw IDs that resolved to it, gather
   // their feature names, pick the name from the lowest raw cluster ID.
-  // ---------------------------------------------------------------------------
 
   const featureNameById = {};
   for (const [id, name] of Object.entries(legends.features)) {

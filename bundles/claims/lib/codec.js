@@ -10,9 +10,7 @@
  * Booleans          → 1 or 0
  * Tax rates         → plain integers
  *
- * ─────────────────────────────────────────────────────────────────────────────
  * LIVE EVENT OPCODES
- * ─────────────────────────────────────────────────────────────────────────────
  *
  * C  claimId roomId ownerId claimedAt taxRate taxRateLocked autoRenewEnabled
  *    CLAIM_CREATED
@@ -33,26 +31,20 @@
  * R  claimId
  *    CLAIM_RATE_LOCKED — tax rate frozen on package funding, taxRateLocked → true
  *
- * ─────────────────────────────────────────────────────────────────────────────
- * SNAPSHOT OPCODES — written during compaction, replayed identically
- * ─────────────────────────────────────────────────────────────────────────────
- *
+  * SNAPSHOT OPCODES — written during compaction, replayed identically
+  *
  * S  claimId roomId ownerId claimedAt taxRate taxRateLocked autoRenewEnabled
  *    extensionExpiry expiresAt
  *    SNAPSHOT_CLAIM — full claim state, one line per live claim
  *
- * ─────────────────────────────────────────────────────────────────────────────
  * claimState is DERIVED, never stored in the log
- * ─────────────────────────────────────────────────────────────────────────────
  *   A  active    — expiresAt is null
  *   E  expiring  — expiresAt is set
  *
  * Pledged / town-held states are package concerns — query SQLite directly.
  */
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 
 const nil = (v) => (v === null || v === undefined) ? '-' : v;
 const ts36 = (v) => (v === null || v === undefined) ? '-' : v.toString(36);
@@ -60,9 +52,7 @@ const fromTs = (s) => s === '-' ? null : parseInt(s, 36);
 const bool = (v) => v ? '1' : '0';
 const fromBool = (s) => s === '1';
 
-// ---------------------------------------------------------------------------
 // Encoders — event object → log line string
-// ---------------------------------------------------------------------------
 
 const ENCODERS = {
   C: ({ id, roomId, ownerId, claimedAt, taxRate, taxRateLocked, autoRenewEnabled }) =>
@@ -90,9 +80,7 @@ const ENCODERS = {
     `${ts36(extensionExpiry)} ${ts36(expiresAt)}`,
 };
 
-// ---------------------------------------------------------------------------
 // Decoders — positional fields → event data object
-// ---------------------------------------------------------------------------
 
 const DECODERS = {
   C: ([id, roomId, ownerId, claimedAt, taxRate, taxRateLocked, autoRenewEnabled]) => ({
@@ -115,19 +103,17 @@ const DECODERS = {
 
   S: ([id, roomId, ownerId, claimedAt, taxRate, taxRateLocked,
     autoRenewEnabled, extensionExpiry, expiresAt]) => ({
-      id, roomId, ownerId,
-      claimedAt: fromTs(claimedAt),
-      taxRate: Number(taxRate),
-      taxRateLocked: fromBool(taxRateLocked),
-      autoRenewEnabled: fromBool(autoRenewEnabled),
-      extensionExpiry: fromTs(extensionExpiry),
-      expiresAt: fromTs(expiresAt),
-    }),
+    id, roomId, ownerId,
+    claimedAt: fromTs(claimedAt),
+    taxRate: Number(taxRate),
+    taxRateLocked: fromBool(taxRateLocked),
+    autoRenewEnabled: fromBool(autoRenewEnabled),
+    extensionExpiry: fromTs(extensionExpiry),
+    expiresAt: fromTs(expiresAt),
+  }),
 };
 
-// ---------------------------------------------------------------------------
 // Public API
-// ---------------------------------------------------------------------------
 
 /**
  * Encode an event to a log line.
