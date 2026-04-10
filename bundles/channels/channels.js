@@ -10,6 +10,8 @@ const {
   WorldAudience,
 } = require('ranvier');
 
+const ClusterAudience = require('./lib/ClusterAudience');
+
 const { Channel } = require('ranvier').Channel;
 const canSpeak = require('../moderation/lib/canSpeak');
 
@@ -83,8 +85,8 @@ module.exports = [
   new Channel({
     name: 'yell',
     color: ['bold', 'red'],
-    description: 'Send a message to everyone in your area',
-    audience: new AreaAudience(),
+    description: 'Send a message to everyone on your road, or your area if off-road',
+    audience: new ClusterAudience(),
     formatter: {
       sender: function(sender, target, message, colorify) {
         const { blocked, effect } = canSpeak(sender, 'yell');

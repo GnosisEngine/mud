@@ -1,0 +1,120 @@
+// bundles/channels/lib/ClusterAudience.js
+'use strict';
+
+const { AreaAudience } = require('ranvier');
+
+const ROAD_CLUSTER = 0;
+
+// Keyed by "x,y" coordinate string. Road topology is static at runtime so
+// results are valid for the lifetime of the process.
+const bfsCache = new Map();
+
+/**
+ * Audience class representing characters on the same contiguous road segment
+ * as the sender. Road rooms are identified by canonicalCluster === 0 in the
+ * world tile index. BFS walks exits from the sender's room and collects every
+ * reachable room that is also a road tile.
+ *
+ * Falls back to AreaAudience behaviour when the sender is not on a road.
+ *
+ * @extends AreaAudience
+ */
+class ClusterAudience extends AreaAudience {
+  getBroadcastTargets() {
+    if (!this.sender.room) {
+      return [];
+    }
+
+    const worldManager = this.state.WorldManager;
+
+    if (!worldManager) {
+      return super.getBroadcastTargets();
+    }
+
+    if (!this._isRoadRoom(this.sender.room, worldManager)) {
+      return super.getBroadcastTargets();
+    }
+
+    const { x, y } = this.sender.room.coordinates;
+    const cacheKey = `${x},${y}`;
+
+    let roadRooms = bfsCache.get(cacheKey);
+    if (!roadRooms) {
+      roadRooms = this._floodFillRoadRooms(this.sender.room, worldManager);
+      // Back-fill every room in the segment so any room in it gets a cache hit.
+      for (const ref of roadRooms) {
+        const room = this.state.RoomManager.getRoom(ref);
+        if (room && room.coordinates) {
+          bfsCache.set(`${room.coordinates.x},${room.coordinates.y}`, roadRooms);
+        }
+      }
+    }
+
+    const players = this.state.PlayerManager.filter(player =>
+      player !== this.sender &&
+      player.room &&
+      roadRooms.has(player.room.entityReference)
+    );
+
+    const npcs = [];
+    for (const ref of roadRooms) {
+      const room = this.state.RoomManager.getRoom(ref);
+      if (room) {
+        for (const npc of room.npcs) {
+          npcs.push(npc);
+        }
+      }
+    }
+
+    return players.concat(npcs);
+  }
+
+  /**
+   * Returns true if the given room sits on a road tile (canonicalCluster === 0).
+   * @param {Room} room
+   * @param {object} worldManager
+   * @returns {boolean}
+   */
+  _isRoadRoom(room, worldManager) {
+    if (!room.coordinates) return false;
+    const { x, y } = room.coordinates;
+    if (x === undefined || y === undefined) return false;
+    const tile = worldManager.getEntryByCoords(x, y);
+    return tile !== null && tile.canonicalCluster === ROAD_CLUSTER;
+  }
+
+  /**
+   * BFS from startRoom through exits, collecting all reachable rooms that are
+   * also road tiles. Returns a Set of entityReference strings.
+   * @param {Room} startRoom
+   * @param {object} worldManager
+   * @returns {Set<string>}
+   */
+  _floodFillRoadRooms(startRoom, worldManager) {
+    const visited = new Set();
+    const queue = [startRoom];
+    visited.add(startRoom.entityReference);
+
+    while (queue.length) {
+      const current = queue.shift();
+
+      for (const exit of current.getExits()) {
+        const ref = exit.roomId;
+        if (!ref || visited.has(ref)) continue;
+
+        const neighbor = this.state.RoomManager.getRoom(ref);
+        if (!neighbor) continue;
+
+        visited.add(ref);
+
+        if (this._isRoadRoom(neighbor, worldManager)) {
+          queue.push(neighbor);
+        }
+      }
+    }
+
+    return visited;
+  }
+}
+
+module.exports = ClusterAudience;
