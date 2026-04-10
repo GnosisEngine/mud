@@ -108,7 +108,7 @@
   "rotPollTickMS": 1000,
   "tradeTimeoutMs": 10000,
   "maxRoomWidth": 72,
-  "msPerTick": 250,
+  "msPerTick": 10250,
   "ticksPerHour": 60,
   "ticksPerDay": 1440,
   "daysPerMonth": 28,

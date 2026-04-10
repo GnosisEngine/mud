@@ -1,3 +1,4 @@
+'use strict';
 // bundles/time-bundle/lib/time-store.js
 
 const fs = require('fs');

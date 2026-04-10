@@ -1,6 +1,7 @@
+'use strict';
 // bundles/time-bundle/lib/time-math.js
 
-const { TICKS_PER_HOUR, DAYS_PER_YEAR, DAYS_PER_WEEK, MOON_CYCLE_DAYS, HOLIDAY_DAY_OF_YEAR, DAYS_PER_MONTH, HOLIDAY_NAME, DAY_NAMES } = require("../constants");
+const { TICKS_PER_HOUR, DAYS_PER_YEAR, DAYS_PER_WEEK, MOON_CYCLE_DAYS, HOLIDAY_DAY_OF_YEAR, DAYS_PER_MONTH, HOLIDAY_NAME, DAY_NAMES } = require('../constants');
 
 const MONTH_NAMES = [
   'Frostholm', 'Ashveil', 'Thornmere', 'Gloomwatch', 'Emberdawn',
@@ -176,7 +177,7 @@ function getTimePosition(tick) {
     const hasSun = sunSlot === i;
     const hasMoon = moonSlot === i;
     if (hasSun && hasMoon) slots[i] = '☀️' + moonEmoji;
-    else if (hasSun) slots[i] = '☀️';
+    else if (hasSun) slots[i] = '☀️ ';
     else if (hasMoon) slots[i] = moonEmoji;
   }
 
