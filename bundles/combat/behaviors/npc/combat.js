@@ -13,7 +13,7 @@ module.exports = () => {
       /**
        * @param {*} config Behavior config
        */
-      updateTick: state => function (config) {
+      updateTick: state => function(/*config*/) {
         Combat.updateRound(state, this);
       },
 
@@ -22,7 +22,7 @@ module.exports = () => {
        * @param {*} config Behavior config
        * @param {Character} killer
        */
-      killed: state => function (config, killer) {
+      killed: () => function(/*config, killer*/) {
       },
 
       /**
@@ -31,10 +31,10 @@ module.exports = () => {
        * @param {Damage} damage
        * @param {Character} target
        */
-      hit: state => function (config, damage, target) {
+      hit: () => function(/*config, damage, target*/) {
       },
 
-      damaged: state => function (config, damage) {
+      damaged: state => function(_, damage) {
         if (this.getAttribute('health') <= 0) {
           Combat.handleDeath(state, this, damage.attacker);
         }
@@ -45,7 +45,7 @@ module.exports = () => {
        * @param {*} config Behavior config
        * @param {Character} target
        */
-      deathblow: state => function (config, target) {
+      deathblow: state => function(/*config, target*/) {
         if (!this.isInCombat()) {
           Combat.startRegeneration(state, this);
         }

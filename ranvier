@@ -12,9 +12,7 @@
 
 /* NPM Modules */
 const semver = require('semver');
-const net = require('net');
 const commander = require('commander');
-const argv = require('optimist').argv;
 const fs = require('fs');
 
 // for dev clone the github:ranviermud/core repo, and run npm link in that folder, then come
@@ -81,7 +79,7 @@ let saveInterval, tickInterval, playerTickInterval;
  * Do the dirty work
  */
 async function init(restartServer) {
-  Logger.log("START - Loading entities");
+  Logger.log('START - Loading entities');
   restartServer = typeof restartServer === 'undefined' ? true : restartServer;
 
   GameState = {
@@ -134,7 +132,7 @@ async function init(restartServer) {
   GameState.ServerEventManager.attach(GameState.GameServer);
 
   if (restartServer) {
-    Logger.log("START - Starting server");
+    Logger.log('START - Starting server');
     GameState.GameServer.startup(commander);
 
     // Ticks for effect processing and combat happen every 100ms

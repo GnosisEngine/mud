@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 function fuzzyMatch(texts, q) {
   if (!texts || !q) return 0;
@@ -47,37 +47,38 @@ function getTarget(room, rawQuery, targets = []) {
   const findItems = normalizedTargets.length === 0 || normalizedTargets.includes('item') || normalizedTargets.includes('items');
   const findPlayers = normalizedTargets.length === 0 || normalizedTargets.includes('player') || normalizedTargets.includes('players');
   const findNpcs = normalizedTargets.length === 0 || normalizedTargets.includes('npc') || normalizedTargets.includes('npcs');
+  const exits = findExits && room.getExits ? room.getExits() : [];
 
   const potentialTargets = [
     ...(findExits
-      ? room.exits.map(entity => ({
-          entity,
-          score: fuzzyMatch([entity.direction, ...(entity.keywords || [])], query)
-        }))
+      ? exits.map(entity => ({
+        entity,
+        score: fuzzyMatch([entity.direction, ...(entity.keywords || [])], query)
+      }))
       : []
     ),
 
     ...(findItems
       ? [...room.items].map(entity => ({
-          entity,
-          score: fuzzyMatch([entity.name, entity.description, entity.roomDesc, ...(entity.keywords || [])], query)
-        }))
+        entity,
+        score: fuzzyMatch([entity.name, entity.description, entity.roomDesc, ...(entity.keywords || [])], query)
+      }))
       : []
     ),
 
     ...(findPlayers
       ? [...room.players].map(entity => ({
-          entity,
-          score: fuzzyMatch([entity.name, ...(entity.keywords || [])], query)
-        }))
+        entity,
+        score: fuzzyMatch([entity.name, ...(entity.keywords || [])], query)
+      }))
       : []
     ),
 
     ...(findNpcs
       ? [...room.npcs].map(entity => ({
-          entity,
-          score: fuzzyMatch([entity.name, entity.description, ...(entity.keywords || [])], query)
-        }))
+        entity,
+        score: fuzzyMatch([entity.name, entity.description, ...(entity.keywords || [])], query)
+      }))
       : []
     ),
   ];

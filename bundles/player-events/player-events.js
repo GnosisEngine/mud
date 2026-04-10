@@ -7,6 +7,39 @@ const { EVENTS, emit } = require('./events');
 
 module.exports = {
   listeners: {
+    save: state => async function(callback) {
+      await state.PlayerManager.save(this);
+      if (typeof callback === 'function') {
+        callback();
+      }
+    },
+
+    commandQueued: () => function(commandIndex) {
+      const command = this.commandQueue.queue[commandIndex];
+      const ttr = sprintf('%.1f', this.commandQueue.getTimeTilRun(commandIndex));
+      B.sayAt(this, `<bold><yellow>Executing</yellow> '<white>${command.label}</white>' <yellow>in</yellow> <white>${ttr}</white> <yellow>seconds.</yellow>`);
+    },
+
+    updateTick: state => function() {
+      if (this.commandQueue.hasPending && this.commandQueue.lagRemaining <= 0) {
+        B.sayAt(this);
+        this.commandQueue.execute();
+        B.prompt(this);
+      }
+      const lastCommandTime = this._lastCommandTime || Infinity;
+      const timeSinceLastCommand = Date.now() - lastCommandTime;
+      const maxIdleTime = (Math.abs(Config.get('maxIdleTime')) * 60000) || Infinity;
+
+      if (timeSinceLastCommand > maxIdleTime && !this.isInCombat()) {
+        this.save(() => {
+          B.sayAt(this, `You were kicked for being idle for more than ${maxIdleTime / 60000} minutes!`);
+          B.sayAtExcept(this.room, `${this.name} disappears.`, this);
+          Logger.log(`Kicked ${this.name} for being idle.`);
+          state.PlayerManager.removePlayer(this, true);
+        });
+      }
+    },
+
     /**
      * Handle a player movement command. From: 'commands' input event.
      * roomExit is a result of CommandParser.parse
@@ -53,39 +86,6 @@ module.exports = {
           B.sayAt(follower, `\r\nYou follow ${this.name} to ${nextRoom.title}.`);
           emit.move(follower, roomExit);
         }
-      }
-    },
-
-    save: state => async function(callback) {
-      await state.PlayerManager.save(this);
-      if (typeof callback === 'function') {
-        callback();
-      }
-    },
-
-    commandQueued: () => function(commandIndex) {
-      const command = this.commandQueue.queue[commandIndex];
-      const ttr = sprintf('%.1f', this.commandQueue.getTimeTilRun(commandIndex));
-      B.sayAt(this, `<bold><yellow>Executing</yellow> '<white>${command.label}</white>' <yellow>in</yellow> <white>${ttr}</white> <yellow>seconds.</yellow>`);
-    },
-
-    updateTick: state => function() {
-      if (this.commandQueue.hasPending && this.commandQueue.lagRemaining <= 0) {
-        B.sayAt(this);
-        this.commandQueue.execute();
-        B.prompt(this);
-      }
-      const lastCommandTime = this._lastCommandTime || Infinity;
-      const timeSinceLastCommand = Date.now() - lastCommandTime;
-      const maxIdleTime = (Math.abs(Config.get('maxIdleTime')) * 60000) || Infinity;
-
-      if (timeSinceLastCommand > maxIdleTime && !this.isInCombat()) {
-        this.save(() => {
-          B.sayAt(this, `You were kicked for being idle for more than ${maxIdleTime / 60000} minutes!`);
-          B.sayAtExcept(this.room, `${this.name} disappears.`, this);
-          Logger.log(`Kicked ${this.name} for being idle.`);
-          state.PlayerManager.removePlayer(this, true);
-        });
       }
     },
 

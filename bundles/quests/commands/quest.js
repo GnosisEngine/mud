@@ -52,8 +52,8 @@ subcommands.add({
       return say(player, "Start which quest from whom? 'quest start <npc> <number>'");
     }
 
-    const [search, questIndex] = options;
-    questIndex = parseInt(questIndex, 10);
+    const search = options[0];
+    const questIndex = parseInt(options[1] = 1, 10);
 
     const npc = ArgParser.parseDot(search, player.room.npcs);
     if (!npc) {

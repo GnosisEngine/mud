@@ -99,7 +99,7 @@ module.exports = {
 
     // hit
     // You struck a target. Build attacker-pov message.
-    [EVENTS.HIT]: () => function({ damage, target, finalAmount }) {
+    [EVENTS.HIT]: () => function(damage, target, finalAmount) {
       if (damage.metadata.hidden) {
         return;
       }
@@ -133,7 +133,7 @@ module.exports = {
 
     // heal
     // You healed a target. Build healer-pov message.
-    [EVENTS.HEAL]: () => function({ heal, target, finalAmount }) {
+    [EVENTS.HEAL]: () => function(heal, target, finalAmount) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -162,7 +162,7 @@ module.exports = {
 
     // damaged
     // You were struck. Build target-pov message and check for death.
-    [EVENTS.DAMAGED]: state => function({ damage, finalAmount }) {
+    [EVENTS.DAMAGED]: state => function(damage, finalAmount) {
       if (damage.metadata.hidden || damage.attribute !== 'health') {
         return;
       }
@@ -187,7 +187,7 @@ module.exports = {
 
     // healed
     // You received a heal. Build target-pov message.
-    [EVENTS.HEALED]: () => function({ heal, finalAmount }) {
+    [EVENTS.HEALED]: () => function(heal, finalAmount) {
       if (heal.metadata.hidden) {
         return;
       }
