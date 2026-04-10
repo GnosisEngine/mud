@@ -213,8 +213,8 @@ function build(loaded, resolved, index) {
       const dy = to[1] - from[1];
       if (dx === 1 && dy === 0) return 'east';
       if (dx === -1 && dy === 0) return 'west';
-      if (dx === 0 && dy === 1) return 'south';
-      if (dx === 0 && dy === -1) return 'north';
+      if (dx === 0 && dy === 1) return 'north';
+      if (dx === 0 && dy === -1) return 'south';
       return null;
     },
 

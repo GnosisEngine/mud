@@ -51,7 +51,11 @@ function generateArea(clusterId, tiles, clusterIndex, coordMap, legends, args) {
 
   const manifestYaml = serializeManifest({ title, zoneType });
 
-  const rooms = tiles.map(tile => {
+  const renderTiles = clusterId === 0
+    ? tiles.filter(tile => tile.feature !== 1)
+    : tiles;
+
+  const rooms = renderTiles.map(tile => {
     const exits = resolveExits(tile, coordMap);
     return buildRoom(tile, exits, legends);
   });

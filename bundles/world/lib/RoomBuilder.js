@@ -11,7 +11,6 @@ const { getRoomId } = require('./AreaSchema');
 
 const FALLBACK_TITLE = 'Open Ground';
 const FALLBACK_DESC = 'Unremarkable ground stretches away in every direction.';
-const FEATURE_NONE = new Set(['none']);
 
 const TERRAIN_TITLES = {
   bog: 'Bogland',

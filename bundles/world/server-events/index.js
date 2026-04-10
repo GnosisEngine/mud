@@ -7,7 +7,7 @@ const { load } = require('../lib/WorldLoader');
 const { resolve } = require('../lib/ClusterResolver');
 const { build: buildIdx } = require('../lib/TileIndex');
 const { build: buildSvc } = require('../lib/WorldService');
-const { Logger } = require('ranvier')
+const { Logger } = require('ranvier');
 
 const WORLD_JSON_PATH = path.resolve(__dirname, '../data/world.json');
 

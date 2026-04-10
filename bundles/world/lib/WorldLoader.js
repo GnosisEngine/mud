@@ -81,7 +81,7 @@ function load(worldJsonPath) {
   if (!fs.existsSync(resolved)) {
     throw new Error(
       `WorldLoader: cannot find world.json at ${resolved}.\n` +
-      `Generate it from the world editor and place it at data/world.json.`
+      'Generate it from the world editor and place it at data/world.json.'
     );
   }
 

@@ -6,8 +6,8 @@ const { getRoomRef } = require('./AreaSchema');
 const NEIGHBORS = [
   { dx: 1, dy: 0, direction: 'east' },
   { dx: -1, dy: 0, direction: 'west' },
-  { dx: 0, dy: 1, direction: 'south' },
-  { dx: 0, dy: -1, direction: 'north' },
+  { dx: 0, dy: 1,  direction: 'north' },
+  { dx: 0, dy: -1, direction: 'south' },
 ];
 
 /**
