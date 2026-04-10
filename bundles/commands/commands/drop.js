@@ -3,10 +3,11 @@
 const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
+const { emit } = require('../events');
 
 module.exports = {
   usage: 'drop <item>',
-  command : (state) => (args, player) => {
+  command : () => (args, player) => {
     args = args.trim();
 
     if (!args.length) {
@@ -25,11 +26,11 @@ module.exports = {
 
     player.removeItem(item);
     player.room.addItem(item);
-    player.emit('drop', item);
-    item.emit('drop', player);
+    emit.drop(player, item);
+    emit.dropOnItem(item, player);
 
     for (const npc of player.room.npcs) {
-      npc.emit('playerDropItem', player, item);
+      emit.playerDropItem(npc, player, item);
     }
 
     Broadcast.sayAt(player, `<green>You dropped: </green>${ItemUtil.display(item)}<green>.</green>`);

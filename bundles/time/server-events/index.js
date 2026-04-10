@@ -8,6 +8,7 @@ const timeStore = require('../lib/time-store');
 const broadcaster = require('../lib/time-broadcaster');
 const timeMath = require('../lib/time-math');
 const { MS_PER_TICK } = require('../constants');
+const { EVENTS } = require('../events');
 
 let dataPath = path.join(__dirname, '../../data/time-bundle/tick.json');
 
@@ -34,13 +35,13 @@ function buildTimeService() {
 module.exports = {
   configure,
   listeners: {
-    startup: state => async () => {
+    startup: state => async() => {
       timeStore.configure(dataPath);
 
       const savedTick = timeStore.load();
       timeState.set(savedTick);
 
-      timeState.on('dayRollover', tick => {
+      timeState.on(EVENTS.DAY_ROLLOVER, tick => {
         timeStore.save(tick);
       });
 
@@ -59,7 +60,7 @@ module.exports = {
       state._timeBundleStop = () => clearInterval(interval);
     },
 
-    shutdown: state => async () => {
+    shutdown: state => async() => {
       if (state._timeBundleStop) state._timeBundleStop();
       timeStore.save(timeState.get());
     },

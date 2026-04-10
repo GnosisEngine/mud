@@ -21,6 +21,8 @@ const {
   buildKillMessage,
   buildDeathMessage,
 } = require('./lib/CombatNarrativeBuilders');
+const { emit: playerEmit } = require('../player-events/events');
+const { EVENTS, emit: combatEmit } = require('./events');
 
 const ArcTracker = require('./lib/ArcTracker');
 
@@ -101,7 +103,7 @@ module.exports = {
     // hit
     // You struck a target. Build attacker-pov message.
     // -----------------------------------------------------------------------
-    hit: () => function(damage, target, finalAmount) {
+    [EVENTS.HIT]: () => function({ damage, target, finalAmount }) {
       if (damage.metadata.hidden) {
         return;
       }
@@ -110,6 +112,7 @@ module.exports = {
       B.sayAt(this, msg);
 
       // Propagate weapon hit event (enchantments etc. may listen on this).
+      // Item enchantments expect positional args — not wrapped in a payload object.
       if (this.equipment.has('wield')) {
         this.equipment.get('wield').emit('hit', damage, target, finalAmount);
       }
@@ -136,7 +139,7 @@ module.exports = {
     // heal
     // You healed a target. Build healer-pov message.
     // -----------------------------------------------------------------------
-    heal: () => function(heal, target, finalAmount) {
+    [EVENTS.HEAL]: () => function({ heal, target, finalAmount }) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -167,7 +170,7 @@ module.exports = {
     // damaged
     // You were struck. Build target-pov message and check for death.
     // -----------------------------------------------------------------------
-    damaged: state => function(damage, finalAmount) {
+    [EVENTS.DAMAGED]: state => function({ damage, finalAmount }) {
       if (damage.metadata.hidden || damage.attribute !== 'health') {
         return;
       }
@@ -194,7 +197,7 @@ module.exports = {
     // healed
     // You received a heal. Build target-pov message.
     // -----------------------------------------------------------------------
-    healed: () => function(heal, finalAmount) {
+    [EVENTS.HEALED]: () => function({ heal, finalAmount }) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -219,13 +222,13 @@ module.exports = {
     // killed
     // You were killed. Respawn, strip experience, move to home room.
     // -----------------------------------------------------------------------
-    killed: state => {
+    [EVENTS.KILLED]: state => {
       const startingRoomRef = Config.get('startingRoom');
       if (!startingRoomRef) {
         Logger.error('No startingRoom defined in ranvier.json');
       }
 
-      return function(killer) {
+      return function({ killer }) {
         this.removePrompt('combat');
         ArcTracker.reset(this);
 
@@ -273,7 +276,7 @@ module.exports = {
     // deathblow
     // You killed a target. Award XP, proxy to party.
     // -----------------------------------------------------------------------
-    deathblow: () => function(target, skipParty) {
+    [EVENTS.DEATHBLOW]: () => function({ target, skipParty }) {
       const xp = LevelUtil.mobExp(target.level);
 
       if (this.party && !skipParty) {
@@ -281,7 +284,7 @@ module.exports = {
         // quest credit and triggers anything else listening for deathblow.
         for (const member of this.party) {
           if (member.room === this.room) {
-            member.emit('deathblow', target, true);
+            combatEmit.deathblow(member, target, true);
           }
         }
         return;
@@ -292,7 +295,7 @@ module.exports = {
         B.sayAt(this, killMsg);
       }
 
-      this.emit('experience', xp);
+      playerEmit.experience(this, xp);
     },
 
   }

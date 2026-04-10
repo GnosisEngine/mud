@@ -3,16 +3,15 @@
 const sprintf = require('sprintf-js').sprintf;
 const LevelUtil = require('../lib/lib/LevelUtil');
 const { Broadcast: B, Config, Logger } = require('ranvier');
+const { EVENTS, emit } = require('./events');
 
 module.exports = {
   listeners: {
     /**
      * Handle a player movement command. From: 'commands' input event.
-     * movementCommand is a result of CommandParser.parse
+     * roomExit is a result of CommandParser.parse
      */
-    move: state => function(movementCommand) {
-      const { roomExit } = movementCommand;
-
+    [EVENTS.MOVE]: state => function({ roomExit }) {
       if (!roomExit) {
         return B.sayAt(this, "You can't go that way!");
       }
@@ -52,7 +51,7 @@ module.exports = {
           follower.moveTo(nextRoom);
         } else {
           B.sayAt(follower, `\r\nYou follow ${this.name} to ${nextRoom.title}.`);
-          follower.emit('move', movementCommand);
+          emit.move(follower, roomExit);
         }
       }
     },
@@ -92,9 +91,10 @@ module.exports = {
 
     /**
      * Handle player gaining experience
-     * @param {number} amount Exp gained
+     * @param {object} payload
+     * @param {number} payload.amount Exp gained
      */
-    experience: () => function(amount) {
+    [EVENTS.EXPERIENCE]: () => function({ amount }) {
       B.sayAt(this, `<blue>You gained <bold>${amount}</bold> experience!</blue>`);
 
       const totalTnl = LevelUtil.expToLevel(this.level + 1);
@@ -111,7 +111,7 @@ module.exports = {
           this.experience = 0;
           nextTnl = LevelUtil.expToLevel(this.level + 1);
           B.sayAt(this, `<blue>You are now level <bold>${this.level}</bold>!</blue>`);
-          this.emit('level');
+          this.emit(EVENTS.LEVEL);
         }
       }
 

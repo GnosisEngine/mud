@@ -4,6 +4,7 @@ const { Broadcast: B, ItemType } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const dot = ArgParser.parseDot;
 const ItemUtil = require('../../lib/lib/ItemUtil');
+const { emit } = require('../events');
 
 module.exports = {
   usage: 'put <item> <container>',
@@ -18,7 +19,7 @@ module.exports = {
     const parts = args.split(' ').filter(arg => !arg.match(/in/) && !arg.match(/into/));
 
     if (parts.length === 1) {
-      return B.sayAt(player, "Where do you want to put it?");
+      return B.sayAt(player, 'Where do you want to put it?');
     }
 
     const fromList = player.inventory;
@@ -59,7 +60,7 @@ module.exports = {
 
     B.sayAt(player, `<green>You put </green>${ItemUtil.display(item)}<green> into </green>${ItemUtil.display(toContainer)}<green>.</green>`);
 
-    item.emit('put', player, toContainer);
-    player.emit('put', item, toContainer);
+    emit.putOnItem(item, player, toContainer);
+    emit.put(player, item, toContainer);
   }
 };

@@ -3,13 +3,14 @@
 const { Broadcast: B, CommandManager } = require('ranvier');
 const say = B.sayAt;
 const ArgParser = require('../../lib/lib/ArgParser');
+const { EVENTS } = require('../events');
 
 const subcommands = new CommandManager();
 subcommands.add({
   name: 'list',
   command: state => (options, player) => {
     if (!options.length) {
-      return say(player, "List quests from whom? quest list <npc>");
+      return say(player, 'List quests from whom? quest list <npc>');
     }
 
     const search = options[0];
@@ -22,14 +23,14 @@ subcommands.add({
       return say(player, `${npc.name} has no quests.`);
     }
 
-    let availableQuests = getAvailableQuests(state, player, npc);
+    const availableQuests = getAvailableQuests(state, player, npc);
 
     if (!availableQuests.length) {
       return say(player, `${npc.name} has no quests.`);
     }
 
-    for (let i in availableQuests) {
-      let qref = availableQuests[i];
+    for (const i in availableQuests) {
+      const qref = availableQuests[i];
       let quest = state.QuestFactory.get(qref);
       const displayIndex = parseInt(i, 10) + 1;
       if (state.QuestFactory.canStart(player, qref)) {
@@ -45,13 +46,13 @@ subcommands.add({
 
 subcommands.add({
   name: 'start',
-  aliases: [ 'accept' ],
+  aliases: ['accept'],
   command: state => (options, player) => {
     if (options.length < 2) {
       return say(player, "Start which quest from whom? 'quest start <npc> <number>'");
     }
 
-    let [search, questIndex] = options;
+    const [search, questIndex] = options;
     questIndex = parseInt(questIndex, 10);
 
     const npc = ArgParser.parseDot(search, player.room.npcs);
@@ -67,7 +68,7 @@ subcommands.add({
       return say(player, `Invalid quest, use 'quest list ${search}' to see their quests.`);
     }
 
-    let availableQuests = getAvailableQuests(state, player, npc);
+    const availableQuests = getAvailableQuests(state, player, npc);
 
     const targetQuest = availableQuests[questIndex - 1];
 
@@ -86,10 +87,10 @@ subcommands.add({
   command: state => (options, player) => {
     const active = [...player.questTracker.activeQuests];
     if (!active.length) {
-      return say(player, "You have no active quests.");
+      return say(player, 'You have no active quests.');
     }
 
-    for (let i in active) {
+    for (const i in active) {
       const [, quest] = active[i];
       const progress = quest.getProgress();
 
@@ -137,11 +138,11 @@ subcommands.add({
       return say(player, "Invalid quest, use 'quest log' to see your active quests.");
     }
 
-    const [, quest ] = active[targetQuest];
+    const [, quest] = active[targetQuest];
 
     if (quest.getProgress().percent < 100) {
       say(player, `${quest.config.title} isn't complete yet.`);
-      quest.emit('progress', quest.getProgress());
+      quest.emit(EVENTS.GOAL_PROGRESS, quest.getProgress());
       return;
     }
 
@@ -162,7 +163,7 @@ module.exports = {
       return say(player, "Missing command. See 'help quest'");
     }
 
-    const [ command, ...options ] = args.split(' ');
+    const [command, ...options] = args.split(' ');
 
     const subcommand = subcommands.find(command);
     if (!subcommand) {

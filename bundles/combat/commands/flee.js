@@ -3,13 +3,14 @@
 const { Random } = require('rando-js');
 const { Broadcast } = require('ranvier');
 const { CommandParser } = require('../../lib/lib/CommandParser');
+const { emit: playerEmit } = require('../../player-events/events');
 const say = Broadcast.sayAt;
 
 module.exports = {
   usage: 'flee [direction]',
   command: state => (direction, player) => {
     if (!player.isInCombat()) {
-      return say(player, "You jump at the sight of your own shadow.");
+      return say(player, 'You jump at the sight of your own shadow.');
     }
 
 
@@ -30,12 +31,12 @@ module.exports = {
 
     const door = player.room.getDoor(randomRoom) || randomRoom.getDoor(player.room);
     if (randomRoom && door && (door.locked || door.closed)) {
-      say(player, "In your panic you run into a closed door!");
+      say(player, 'In your panic you run into a closed door!');
       return;
     }
 
-    say(player, "You cowardly flee from the battle!");
+    say(player, 'You cowardly flee from the battle!');
     player.removeFromCombat();
-    player.emit('move', { roomExit });
+    playerEmit.move(player, roomExit);
   }
 };

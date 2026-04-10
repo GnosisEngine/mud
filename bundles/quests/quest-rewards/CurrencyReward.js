@@ -1,6 +1,7 @@
 'use strict';
 
 const { QuestReward } = require('ranvier');
+const { emit: questsEmit } = require('../events');
 
 /**
  * Quest reward that gives experience
@@ -12,10 +13,10 @@ const { QuestReward } = require('ranvier');
 module.exports = class CurrencyReward extends QuestReward {
   static reward(GameState, quest, config, player) {
     const amount = this._getAmount(quest, config);
-    player.emit('currency', config.currency, amount);
+    questsEmit.currency(player, config.currency, amount);
   }
 
-  static display(GameState, quest, config, player) {
+  static display(GameState, quest, config) {
     const amount = this._getAmount(quest, config);
     const friendlyName = config.currency.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
@@ -35,4 +36,3 @@ module.exports = class CurrencyReward extends QuestReward {
     return config.amount;
   }
 };
-

@@ -8,7 +8,7 @@ module.exports = {
   command: state => (args, player) => {
     const [sub, ...rest] = (args || '').trim().split(/\s+/);
 
-    const { store } = state.StorageManager
+    const { store } = state.StorageManager;
 
     // claim list
     if (sub === 'list') {
@@ -19,15 +19,15 @@ module.exports = {
 
       say(player, 'Your claims:');
 
-      let i = 1
+      let i = 1;
       for (const claim of claims) {
         const claimState = store.getClaimState(claim.id);
         const locked   = claim.taxRateLocked ? ' [rate locked]' : '';
         const expiring = claimState === 'E' ? ' [EXPIRING]' : '';
-        const room = state.RoomManager.getRoom(claim.roomId)
+        const room = state.RoomManager.getRoom(claim.roomId);
 
         say(player, `  ${i}.)  ${room.area.title} / ${room.title} @ ${claim.taxRate}%${locked}${expiring}`);
-        i += 1
+        i += 1;
       }
       return;
     }
@@ -53,7 +53,7 @@ module.exports = {
       }
 
       store.expireClaim(claim.id).then(() => {
-        const room = state.RoomManager.getRoom(claim.roomId)
+        const room = state.RoomManager.getRoom(claim.roomId);
         say(player, `Claim #${claimId} on ${room.title} released.`);
       });
       return;

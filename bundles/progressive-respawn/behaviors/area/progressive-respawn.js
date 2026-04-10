@@ -16,20 +16,20 @@ module.exports = {
   listeners: {
     updateTick: state => {
       let lastRespawnTick = Date.now();
-      return function (config) {
+      return function(config) {
         // setup respawnTick to only happen every [interval] seconds
         const respawnInterval = config.interval || 30;
         const sinceLastTick = Date.now() - lastRespawnTick;
         if (sinceLastTick >= respawnInterval * 1000) {
           lastRespawnTick = Date.now();
-          for (const [id, room] of this.rooms) {
+          for (const [, room] of this.rooms) {
             room.emit('respawnTick', state);
           }
         }
       };
     },
 
-    roomAdded: state => function (config, room) {
+    roomAdded: () => function(config, room) {
       room.on('respawnTick', _respawnRoom.bind(room));
     },
   },

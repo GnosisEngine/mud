@@ -3,6 +3,7 @@
 const { Broadcast: B, CommandType, Logger, PlayerRoles, Room } = require('ranvier');
 const { NoPartyError, NoRecipientError, NoMessageError } = require('ranvier').Channel;
 const { CommandParser, InvalidCommandError, RestrictedCommandError } = require('../../lib/lib/CommandParser');
+const { emit: playerEmit } = require('../../player-events/events');
 
 /**
  * Main command loop. All player input after login goes through here.
@@ -11,7 +12,7 @@ const { CommandParser, InvalidCommandError, RestrictedCommandError } = require('
 module.exports = {
   event: state => player => {
     player.socket.once('data', data => {
-      function loop () {
+      function loop() {
         player.socket.emit('commands', player);
       }
       data = data.toString().trim();
@@ -45,7 +46,7 @@ module.exports = {
         }
         switch (result.type) {
           case CommandType.MOVEMENT: {
-            player.emit('move', result);
+            playerEmit.move(player, result.roomExit);
             break;
           }
 
@@ -85,7 +86,7 @@ module.exports = {
                   B.sayAt(player, "You aren't in a group.");
                   break;
                 case error instanceof NoRecipientError:
-                  B.sayAt(player, "Send the message to whom?");
+                  B.sayAt(player, 'Send the message to whom?');
                   break;
                 case error instanceof NoMessageError:
                   B.sayAt(player, `\r\nChannel: ${channel.name}`);
@@ -112,19 +113,19 @@ module.exports = {
           }
         }
       } catch (error) {
-        switch(true) {
+        switch (true) {
           case error instanceof InvalidCommandError:
             if (player.room && player.room instanceof Room) {
-                // check to see if room has a matching context-specific command
-                const roomCommands = player.room.getMeta('commands');
-                const [commandName, ...args] = data.split(' ');
-                if (roomCommands && roomCommands.includes(commandName)) {
-                  player.room.emit('command', player, commandName, args.join(' '));
-                  break;
-                }
+              // check to see if room has a matching context-specific command
+              const roomCommands = player.room.getMeta('commands');
+              const [commandName, ...args] = data.split(' ');
+              if (roomCommands && roomCommands.includes(commandName)) {
+                player.room.emit('command', player, commandName, args.join(' '));
+                break;
+              }
             }
 
-            B.sayAt(player, "Huh?");
+            B.sayAt(player, 'Huh?');
             Logger.warn(`WARNING: Player tried non-existent command '${data}'`);
             break;
           case error instanceof RestrictedCommandError:

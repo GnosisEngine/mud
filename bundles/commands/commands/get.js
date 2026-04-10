@@ -3,10 +3,11 @@
 const { Broadcast, ItemType } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
+const { emit } = require('../events');
 
 module.exports = {
   usage: 'get <item> [container]',
-  aliases: [ 'take', 'pick', 'loot' ],
+  aliases: ['take', 'pick', 'loot'],
   command : (state) => (args, player, arg0) => {
     if (!args.length) {
       return Broadcast.sayAt(player, 'Get what?');
@@ -38,7 +39,7 @@ module.exports = {
       search = parts[0];
       source = player.room.items;
     } else {
-    //Newest containers should go first, so that if you type get all corpse you get from the 
+    //Newest containers should go first, so that if you type get all corpse you get from the
     // most recent corpse. See issue #247.
       container = ArgParser.parseDot(parts[1], [...player.room.items].reverse());
       if (!container) {
@@ -105,6 +106,6 @@ function pickup(item, container, player) {
 
   Broadcast.sayAt(player, `<green>You receive loot: </green>${ItemUtil.display(item)}<green>.</green>`);
 
-  item.emit('get', player);
-  player.emit('get', item);
+  emit.getOnItem(item, player);
+  emit.get(player, item);
 }

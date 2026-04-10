@@ -2,6 +2,7 @@
 
 const enforcement = require('../lib/enforcement');
 const { Broadcast } = require('ranvier');
+const { emit: claimsEmit } = require('../events');
 const say = Broadcast.sayAt;
 const sayToRoom = Broadcast.sayAtExcept;
 
@@ -13,7 +14,7 @@ module.exports = {
   command: state => (args, player) => {
     const parts = (args || '').trim().split(/\s+/);
     const [targetName, durationStr = 60] = parts;
-    const { store } = state.StorageManager
+    const { store } = state.StorageManager;
 
     if (!targetName || !durationStr) {
       return say(player,  'Usage: enforce <playerName> <durationMinutes 1–60>');
@@ -51,7 +52,7 @@ module.exports = {
 
     const meta = { enforcerId: player.name, claimId: claim.id, roomId, duration };
 
-    target.emit('enforce:received', meta);
+    claimsEmit.enforceReceived(target, meta.enforcerId, meta.claimId, meta.roomId, meta.duration);
 
     const timeoutHandle = setTimeout(() => {
       if (enforcement.isSubmittedTo(target.name, player.name) === false) {
@@ -69,19 +70,19 @@ module.exports = {
 
     enforcement.addThreat(player.name, target.name, meta, timeoutHandle);
 
-    sayToRoom(room, `${player.name} demands submission from ${target.name}.`, target)
-    say(target, `${player.name} demands you pay tax while harvesting from their territory. You can <b>submit</b> or <b>attack ${player.name}</b>.  After 60 seconds, you will automatically submit and begin paying tax.`)
+    sayToRoom(room, `${player.name} demands submission from ${target.name}.`, target);
+    say(target, `${player.name} demands you pay tax while harvesting from their territory. You can <b>submit</b> or <b>attack ${player.name}</b>.  After 60 seconds, you will automatically submit and begin paying tax.`);
   },
 };
 
 /**
- * 
- * @param {*} param0 
+ *
+ * @param {*} param0
  */
 function applySubmission({ enforcer, target, claimId, roomId, duration }) {
   enforcement.removeThreat(enforcer.name, target.name);
   enforcement.removeSubmission(target.name);
-  const durationMs = duration * 60 * 1000
+  const durationMs = duration * 60 * 1000;
 
   const expiryHandle = setTimeout(() => {
     if (enforcement.isSubmittedTo(target.name, enforcer.name) === true) {
@@ -100,8 +101,8 @@ function applySubmission({ enforcer, target, claimId, roomId, duration }) {
     timeoutHandle: expiryHandle,
   });
 
-  say(target, `For the next ${duration} minutes, you will pay a tax on all resources harvest from the territory of ${enforcer.name}`)
-  say(enforcer, `${target.name} has submitted to you for ${duration} minutes.`)
+  say(target, `For the next ${duration} minutes, you will pay a tax on all resources harvest from the territory of ${enforcer.name}`);
+  say(enforcer, `${target.name} has submitted to you for ${duration} minutes.`);
 }
 
 module.exports.applySubmission = applySubmission;

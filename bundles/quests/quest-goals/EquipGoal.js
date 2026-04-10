@@ -1,6 +1,7 @@
 'use strict';
 
 const { QuestGoal } = require('ranvier');
+const { EVENTS } = require('../events');
 
 /**
  * A quest goal requiring the player equip something to a particular slot
@@ -28,21 +29,21 @@ module.exports = class EquipGoal extends QuestGoal {
     return { percent, display };
   }
 
-  _equipItem(slot, item) {
+  _equipItem(slot) {
     if (slot !== this.config.slot) {
       return;
     }
 
     this.state.equipped = true;
-    this.emit('progress', this.getProgress());
+    this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
   }
 
-  _unequipItem(slot, item) {
+  _unequipItem(slot) {
     if (slot !== this.config.slot) {
       return;
     }
 
     this.state.equipped = false;
-    this.emit('progress', this.getProgress());
+    this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
   }
 };

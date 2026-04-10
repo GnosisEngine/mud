@@ -1,7 +1,24 @@
 'use strict';
 
+const EventRelay = require('./lib/EventRelay');
+const { SCHEMA: PlayerEventsSchema } = require('../player-events/events');
+const { SCHEMA: CombatSchema }       = require('../combat/events');
+const { SCHEMA: CraftingSchema }     = require('../crafting/events');
+const { SCHEMA: ClaimsSchema }       = require('../claims/events');
+const { SCHEMA: QuestsSchema, EVENTS: QuestEvents } = require('../quests/events');
+
+const relayListeners = EventRelay.build([
+  PlayerEventsSchema,
+  CombatSchema,
+  CraftingSchema,
+  ClaimsSchema,
+  QuestsSchema,
+]);
+
 module.exports = {
   listeners: {
+    ...relayListeners,
+
     attributeUpdate: () => function() {
       updateAttributes.call(this);
     },
@@ -50,7 +67,9 @@ module.exports = {
       }
     },
 
-    questProgress: () => function() {
+    // questProgress has custom serialization — reads from questTracker rather
+    // than forwarding the raw event payload, so it stays as an explicit handler.
+    [QuestEvents.QUEST_PROGRESS]: () => function() {
       this.socket.command('sendData', 'quests', this.questTracker.serialize().active);
     },
   }

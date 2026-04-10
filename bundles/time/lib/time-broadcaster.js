@@ -1,8 +1,10 @@
+'use strict';
 // bundles/time-bundle/lib/time-broadcaster.js
 
 const timeState = require('./time-state');
 const { DAY_PHASES, MOON_PHASES } = require('./time-math');
 const { Broadcast: B } = require('ranvier');
+const { EVENTS } = require('../events');
 const say = B.sayAt;
 
 const DAY_PHASE_TEXT = {
@@ -46,16 +48,16 @@ function formatMoonPhase(phase) {
 
 function broadcastToAll(playerManager, message) {
   playerManager.getPlayersAsArray().forEach(player => {
-    say(player, message)
+    say(player, message);
   });
 }
 
 function register(playerManager) {
-  timeState.on('dayPhaseChange', phase => {
+  timeState.on(EVENTS.DAY_PHASE_CHANGE, phase => {
     broadcastToAll(playerManager, formatDayPhase(phase));
   });
 
-  timeState.on('moonPhaseChange', phase => {
+  timeState.on(EVENTS.MOON_PHASE_CHANGE, phase => {
     broadcastToAll(playerManager, formatMoonPhase(phase));
   });
 }

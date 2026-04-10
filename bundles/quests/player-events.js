@@ -1,10 +1,11 @@
 'use strict';
 
 const { Broadcast: B } = require('ranvier');
+const { EVENTS } = require('./events');
 
 module.exports = {
   listeners: {
-    questStart: state => function(quest) {
+    [EVENTS.QUEST_START]: state => function(quest) {
       B.sayAt(this, `\r\n<bold><yellow>Quest Started: ${quest.config.title}!</yellow></bold>`);
       if (quest.config.description) {
         B.sayAt(this, B.line(80));
@@ -25,15 +26,15 @@ module.exports = {
       B.sayAt(this, B.line(80));
     },
 
-    questProgress: () => function(quest, progress) {
+    [EVENTS.QUEST_PROGRESS]: () => function(quest, progress) {
       B.sayAt(this, `\r\n<bold><yellow>${progress.display}</yellow></bold>`);
     },
 
-    questTurnInReady: () => function(quest) {
+    [EVENTS.QUEST_TURN_IN_READY]: () => function(quest) {
       B.sayAt(this, `<bold><yellow>${quest.config.title} ready to turn in!</yellow></bold>`);
     },
 
-    questComplete: () => function(quest) {
+    [EVENTS.QUEST_COMPLETE]: () => function(quest) {
       B.sayAt(this, `<bold><yellow>Quest Complete: ${quest.config.title}!</yellow></bold>`);
 
       if (quest.config.completionMessage) {
@@ -46,7 +47,7 @@ module.exports = {
      * Player received a quest reward
      * @param {object} reward Reward config _not_ an instance of QuestReward
      */
-    questReward: () => function(/*reward*/) {
+    [EVENTS.QUEST_REWARD]: () => function(/*reward*/) {
       // do stuff when the player receives a quest reward. Generally the Reward instance
       // will emit an event that will be handled elsewhere and display its own message
       // e.g., 'currency' or 'experience'. But if you want to handle that all in one

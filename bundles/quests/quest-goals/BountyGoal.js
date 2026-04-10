@@ -1,6 +1,7 @@
 'use strict';
 
 const { Logger, QuestGoal } = require('ranvier');
+const { EVENTS } = require('../events');
 
 module.exports = class BountyGoal extends QuestGoal {
   constructor(quest, config, player) {
@@ -42,7 +43,7 @@ module.exports = class BountyGoal extends QuestGoal {
         // Check if we have taken the NPC home
         this.state.delivered = true;
       }
-      this.emit('progress', this.getProgress());
+      this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
     } else {
       let located = false;
       const goalNpcId = this.config.npc;
@@ -59,7 +60,7 @@ module.exports = class BountyGoal extends QuestGoal {
       if (located) {
         this.state.found = true;
       }
-      this.emit('progress', this.getProgress());
+      this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
     }
   }
 };

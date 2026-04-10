@@ -1,9 +1,9 @@
 'use strict';
 
-const enforcement = require('../lib/enforcement')
-const { applySubmission } = require('./enforce')
-const { Broadcast } = require('ranvier')
-const say = Broadcast.sayAt
+const enforcement = require('../lib/enforcement');
+const { applySubmission } = require('./enforce');
+const { Broadcast } = require('ranvier');
+const say = Broadcast.sayAt;
 
 module.exports = {
   aliases: [],
@@ -16,9 +16,9 @@ module.exports = {
 
     const { enforcerId, meta } = pending;
 
-    const enforcer = state.PlayerManager.getPlayer(enforcerId)
+    const enforcer = state.PlayerManager.getPlayer(enforcerId);
 
-    enforcement.removeThreat(enforcerId, player.name)
+    enforcement.removeThreat(enforcerId, player.name);
 
     applySubmission({
       enforcer,

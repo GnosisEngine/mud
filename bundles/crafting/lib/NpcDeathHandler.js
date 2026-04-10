@@ -2,6 +2,7 @@
 'use strict';
 
 const ResourceContainer = require('./ResourceContainer');
+const { emit: craftingEmit } = require('../events');
 
 function _findCorpse(room) {
   for (const item of room.items) {
@@ -10,7 +11,7 @@ function _findCorpse(room) {
   return null;
 }
 
-function handleKilled(npc, state) {
+function handleKilled(npc) {
   const drops = ResourceContainer.getDrops(npc);
   if (!Object.keys(drops).length) return;
 
@@ -30,7 +31,7 @@ function handleKilled(npc, state) {
     }
     corpse.setMeta('resourceDrops', existing);
   } else {
-    room.emit('resource:orphanedDrops', { drops, npc });
+    craftingEmit.resourceOrphanedDrops(room, drops, npc);
   }
 
   ResourceContainer.clearAll(npc);

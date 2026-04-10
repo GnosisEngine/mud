@@ -4,6 +4,7 @@ const humanize = (sec) => { return require('humanize-duration')(sec, { round: tr
 const { Broadcast: B, Logger, SkillErrors } = require('ranvier');
 const Combat = require('../combat/lib/Combat');
 const CombatErrors = require('../combat/lib/CombatErrors');
+const { EVENTS: PlayerEvents } = require('../player-events/events');
 
 module.exports = {
   listeners: {
@@ -75,7 +76,7 @@ module.exports = {
     /**
      * Handle player leveling up
      */
-    level: state => function() {
+    [PlayerEvents.LEVEL]: state => function() {
       const abilities = this.playerClass.abilityTable;
       if (!(this.level in this.playerClass.abilityTable)) {
         return;

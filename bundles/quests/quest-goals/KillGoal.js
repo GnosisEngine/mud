@@ -1,6 +1,8 @@
 'use strict';
 
 const { QuestGoal } = require('ranvier');
+const { EVENTS: CombatEvents } = require('../../combat/events');
+const { EVENTS } = require('../events');
 
 /**
  * A quest goal requiring the player kill a certain target a certain number of times
@@ -19,7 +21,7 @@ module.exports = class KillGoal extends QuestGoal {
       count: 0
     };
 
-    this.on('deathblow', this._targetKilled);
+    this.on(CombatEvents.DEATHBLOW, this._targetKilled);
   }
 
   getProgress() {
@@ -28,12 +30,12 @@ module.exports = class KillGoal extends QuestGoal {
     return { percent, display };
   }
 
-  _targetKilled(target) {
+  _targetKilled({ target }) {
     if (target.entityReference !== this.config.npc || this.state.count > this.config.count) {
       return;
     }
 
     this.state.count++;
-    this.emit('progress', this.getProgress());
+    this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
   }
 };

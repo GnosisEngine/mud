@@ -4,7 +4,8 @@ const { Random } = require('rando-js');
 const { Damage, Logger } = require('ranvier');
 // const Parser = require('../../lib/lib/ArgParser');
 const CombatErrors = require('./CombatErrors');
-const { getTarget } = require('../../fancy-rooms/lib/Targeter')
+const { getTarget } = require('../../fancy-rooms/lib/Targeter');
+const { emit: combatEmit } = require('../events');
 
 /**
  * This class is an example implementation of a Diku-style real time combat system. Combatants
@@ -30,7 +31,7 @@ class Combat {
       return false;
     }
 
-    let lastRoundStarted = attacker.combatData.roundStarted;
+    const lastRoundStarted = attacker.combatData.roundStarted;
     attacker.combatData.roundStarted = Date.now();
 
     // cancel if the attacker's combat lag hasn't expired yet
@@ -132,9 +133,9 @@ class Combat {
 
     if (killer) {
       deadEntity.combatData.killedBy = killer;
-      killer.emit('deathblow', deadEntity);
+      combatEmit.deathblow(killer, deadEntity);
     }
-    deadEntity.emit('killed', killer);
+    combatEmit.killed(deadEntity, killer);
 
     if (deadEntity.isNpc) {
       state.MobManager.removeMob(deadEntity);
@@ -146,7 +147,7 @@ class Combat {
       return;
     }
 
-    let regenEffect = state.EffectFactory.create('regen', { hidden: true }, { magnitude: 15 });
+    const regenEffect = state.EffectFactory.create('regen', { hidden: true }, { magnitude: 15 });
     if (entity.addEffect(regenEffect)) {
       regenEffect.activate();
     }
@@ -175,7 +176,7 @@ class Combat {
     }
 
     if (target === attacker) {
-      throw new CombatErrors.CombatSelfError("You smack yourself in the face. Ouch!");
+      throw new CombatErrors.CombatSelfError('You smack yourself in the face. Ouch!');
     }
 
     if (!target.hasBehavior('combat')) {
@@ -200,7 +201,7 @@ class Combat {
    * @return {number}
    */
   static calculateWeaponDamage(attacker, average = false) {
-    let weaponDamage = this.getWeaponDamage(attacker);
+    const weaponDamage = this.getWeaponDamage(attacker);
     let amount = 0;
     if (average) {
       amount = (weaponDamage.min + weaponDamage.max) / 2;
@@ -252,7 +253,7 @@ class Combat {
    * @return {number}
    */
   static normalizeWeaponDamage(attacker, amount) {
-    let speed = this.getWeaponSpeed(attacker);
+    const speed = this.getWeaponSpeed(attacker);
     amount += attacker.hasAttribute('strength') ? attacker.getAttribute('strength') : attacker.level;
     return Math.round(amount / 3.5 * speed);
   }

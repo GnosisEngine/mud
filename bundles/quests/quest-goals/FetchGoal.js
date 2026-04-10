@@ -1,6 +1,8 @@
 'use strict';
 
 const { QuestGoal } = require('ranvier');
+const { EVENTS: CommandEvents } = require('../../commands/events');
+const { EVENTS } = require('../events');
 
 /**
  * A quest goal requiring the player picks up a certain number of a particular item
@@ -20,8 +22,8 @@ module.exports = class FetchGoal extends QuestGoal {
       count: 0
     };
 
-    this.on('get', this._getItem);
-    this.on('drop', this._dropItem);
+    this.on(CommandEvents.GET,  this._getItem);
+    this.on(CommandEvents.DROP, this._dropItem);
     this.on('decay', this._dropItem);
     this.on('start', this._checkInventory);
   }
@@ -55,7 +57,7 @@ module.exports = class FetchGoal extends QuestGoal {
     super.complete();
   }
 
-  _getItem(item) {
+  _getItem({ item }) {
     if (item.entityReference !== this.config.item) {
       return;
     }
@@ -66,10 +68,10 @@ module.exports = class FetchGoal extends QuestGoal {
       return;
     }
 
-    this.emit('progress', this.getProgress());
+    this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
   }
 
-  _dropItem(item) {
+  _dropItem({ item }) {
     if (!this.state.count || item.entityReference !== this.config.item) {
       return;
     }
@@ -80,7 +82,7 @@ module.exports = class FetchGoal extends QuestGoal {
       return;
     }
 
-    this.emit('progress', this.getProgress());
+    this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
   }
 
   _checkInventory() {

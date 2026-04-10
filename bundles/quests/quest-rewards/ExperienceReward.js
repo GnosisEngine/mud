@@ -2,6 +2,7 @@
 
 const { QuestReward } = require('ranvier');
 const LevelUtil = require('../../lib/lib/LevelUtil');
+const { emit: playerEmit } = require('../../player-events/events');
 
 /**
  * Quest reward that gives experience
@@ -22,7 +23,7 @@ const LevelUtil = require('../../lib/lib/LevelUtil');
 module.exports = class ExperienceReward extends QuestReward {
   static reward(GameState, quest, config, player) {
     const amount = this._getAmount(quest, config, player);
-    player.emit('experience', amount);
+    playerEmit.experience(player, amount);
   }
 
   static display(GameState, quest, config, player) {

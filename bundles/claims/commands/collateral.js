@@ -21,7 +21,7 @@ module.exports = {
   command: state => (args, player) => {
     const parts = (args || '').trim().split(/\s+/);
     const sub   = parts[0];
-    const { store } = state.StorageManager
+    const { store } = state.StorageManager;
 
     switch (sub) {
 

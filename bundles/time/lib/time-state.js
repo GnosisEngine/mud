@@ -1,7 +1,9 @@
+'use strict';
 // bundles/time-bundle/lib/time-state.js
 
 const { MS_PER_TICK, TICKS_PER_DAY } = require('../constants');
 const { getMoonPhase, getDayPhase } = require('./time-math');
+const { EVENTS } = require('../events');
 
 let currentTick = 0;
 let accumulated = 0;
@@ -9,9 +11,9 @@ let lastDayPhaseIndex = -1;
 let lastMoonPhaseIndex = -1;
 
 const listeners = {
-  dayRollover: [],
-  dayPhaseChange: [],
-  moonPhaseChange: [],
+  [EVENTS.DAY_ROLLOVER]:     [],
+  [EVENTS.DAY_PHASE_CHANGE]: [],
+  [EVENTS.MOON_PHASE_CHANGE]:[],
 };
 
 function emit(event, payload) {
@@ -47,7 +49,7 @@ function advance(deltaMs) {
     currentTick++;
 
     if (Math.floor(currentTick / TICKS_PER_DAY) !== prevDay) {
-      emit('dayRollover', currentTick);
+      emit(EVENTS.DAY_ROLLOVER, currentTick);
     }
 
     const dayPhase = getDayPhase(currentTick);
@@ -55,12 +57,12 @@ function advance(deltaMs) {
 
     if (dayPhase.index !== lastDayPhaseIndex) {
       lastDayPhaseIndex = dayPhase.index;
-      emit('dayPhaseChange', dayPhase);
+      emit(EVENTS.DAY_PHASE_CHANGE, dayPhase);
     }
 
     if (moonPhase.index !== lastMoonPhaseIndex) {
       lastMoonPhaseIndex = moonPhase.index;
-      emit('moonPhaseChange', moonPhase);
+      emit(EVENTS.MOON_PHASE_CHANGE, moonPhase);
     }
   }
 }
@@ -70,9 +72,9 @@ function reset() {
   accumulated = 0;
   lastDayPhaseIndex = -1;
   lastMoonPhaseIndex = -1;
-  listeners.dayRollover = [];
-  listeners.dayPhaseChange = [];
-  listeners.moonPhaseChange = [];
+  listeners[EVENTS.DAY_ROLLOVER]     = [];
+  listeners[EVENTS.DAY_PHASE_CHANGE] = [];
+  listeners[EVENTS.MOON_PHASE_CHANGE] = [];
 }
 
 module.exports = { set, get, advance, on, off, reset };

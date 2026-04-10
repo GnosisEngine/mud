@@ -7,12 +7,14 @@ const NpcDeathHandler = require('../lib/NpcDeathHandler');
 const ResourceContainer = require('../lib/ResourceContainer');
 const startupPoll = require('../../lib/lib/StartupPoll');
 const { SPAWN_TICK_MS, ROT_POLL_TICK_MS } = require('../constants');
+const { emit: craftingEmit } = require('../events');
+const { EVENTS: CombatEvents } = require('../../combat/events');
 
 module.exports = {
   listeners: {
     startup: state => () => startupPoll(
       () => state.WorldManager,
-      async () => {
+      async() => {
         TerrainResolver.init(room => state.WorldManager.getTerrainForRoom(room));
 
         setInterval(() => SpawnLoop.tick(state), SPAWN_TICK_MS);
@@ -24,14 +26,14 @@ module.exports = {
             if (!ResourceContainer.isDirty(player)) continue;
             const { rotted } = ResourceContainer.processRot(player, currentTick);
             if (Object.keys(rotted).length) {
-              player.emit('resource:rotted', { player, rotted });
+              craftingEmit.resourceRotted(player, rotted);
             }
           }
         }, ROT_POLL_TICK_MS);
 
         // @todo
         // state.MobManager.on('npcCreated', npc => {
-        //   npc.on('killed', () => NpcDeathHandler.handleKilled(npc, state));
+        //   npc.on(CombatEvents.KILLED, () => NpcDeathHandler.handleKilled(npc, state));
         // });
       }
     )
