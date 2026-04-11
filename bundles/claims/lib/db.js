@@ -37,7 +37,10 @@ class Db {
    * @param {string} dataDir — absolute path to the bundle's data directory
    */
   constructor(dataDir) {
-    const dbPath = path.join(dataDir, 'packages.db');
+    const dbPath = process.env.NODE_ENV === 'test'
+      ? path.join(dataDir, 'test.db')
+      : path.join(dataDir, 'packages.db');
+
     this.db = new Database(dbPath);
 
     // WAL mode — reads and writes proceed concurrently

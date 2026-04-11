@@ -6,7 +6,7 @@ const { TWO_GAME_MONTHS_MS } = require('../constants');
 
 // The entity reference for the generic mercenary NPC stub in areas/mercs/npcs.yml.
 // MercenaryService uses this to spawn a fresh NPC instance via state.MobFactory.
-const MERC_ENTITY_REF = 'vendor-npcs:mercenary';
+const MERC_ENTITY_REF = 'mercs:mercenary';
 
 /**
  * Build the plain-object contract data shape for a newly hired mercenary.

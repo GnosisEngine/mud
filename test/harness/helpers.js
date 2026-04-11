@@ -176,8 +176,49 @@ function assertNoOutput(result, pattern, message) {
   }
 }
 
+// Spawn the mercs:broker NPC into a room.
+function spawnBroker(state, room) {
+  const area = state.AreaManager.getArea('mercs');
+  const npc = state.MobFactory.create(area, 'mercs:broker');
+  npc.hydrate(state);
+  npc.moveTo(room);
+  return npc;
+}
+
+// Remove an NPC spawned for a test.
+function cleanupNpc(state, npc) {
+  if (!npc) return;
+  state.MobManager.removeMob(npc);
+}
+
+// Patch claims store to return a single claim for any player.
+// claimedRoomRef must exist in RoomManager (e.g. 'limbo:black').
+function patchClaims(state, claimedRoomRef = 'limbo:black') {
+  const store = state.StorageManager.store;
+  store._origGetClaims = store.getClaimsByOwner.bind(store);
+  store.getClaimsByOwner = _name => [{ roomId: claimedRoomRef, id: 'test-claim-1' }];
+}
+
+function restoreClaims(state) {
+  const store = state.StorageManager.store;
+  if (store._origGetClaims) {
+    store.getClaimsByOwner = store._origGetClaims;
+    delete store._origGetClaims;
+  }
+}
+
+// Give a player gold by setting their currency metadata.
+function giveGold(player, amount) {
+  if (!player.metadata.currencies) player.metadata.currencies = {};
+  player.metadata.currencies.gold = amount;
+}
 
 module.exports = {
+  spawnBroker,
+  cleanupNpc,
+  patchClaims,
+  restoreClaims,
+  giveGold,
   getState,
   flush,
   findRoom,

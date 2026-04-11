@@ -53,7 +53,7 @@ function _findContractItem(player, contractId) {
  */
 function _createContractItem(contractData, player, state) {
   const area = state.AreaManager.getArea('mercs');
-  const item = state.ItemFactory.create(area, 'vendor-npcs:merc-contract');
+  const item = state.ItemFactory.create(area, 'mercs:merc-contract');
   item.name = `${contractData.mercName}'s Contract`;
   item.keywords = ['contract', 'mercenary', 'merc'];
   item.hydrate(state);
