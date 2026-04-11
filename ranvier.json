@@ -1,6 +1,7 @@
 {
   "port": 4000,
   "bundles": [
+    "lib",
     "world",
     "time",
     "moderation",
@@ -14,7 +15,6 @@
     "debug",
     "effects",
     "input-events",
-    "lib",
     "npc-behaviors",
     "player-events",
     "quests",

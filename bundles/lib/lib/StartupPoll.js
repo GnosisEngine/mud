@@ -17,7 +17,7 @@ function startupPoll(condition, onReady, timeout = POLL_TIMEOUT_MS) {
   return new Promise((resolve, reject) => {
     const deadline = Date.now() + timeout;
 
-    const poll = setInterval(async () => {
+    const poll = setInterval(async() => {
       if (condition()) {
         clearInterval(poll);
         try {

@@ -132,7 +132,12 @@ function useSuite(roomRefOrFn) {
   const ctx = { state: null, room: null };
 
   async function setup() {
-    ctx.state = await getState();
+    try {
+      ctx.state = await getState();
+    } catch (err) {
+      console.error('\n[harness] FATAL: game state failed to boot.\n', err, '\n');
+      process.exit(1);
+    }
     ctx.room = typeof roomRefOrFn === 'function'
       ? roomRefOrFn(ctx.state)
       : roomRefOrFn

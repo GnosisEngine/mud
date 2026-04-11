@@ -81,6 +81,8 @@ async function boot() {
   // onto state (e.g. state.getTarget, state.TimeService, state.WorldManager).
   // Stub net.createServer so the input-events bundle cannot actually bind a
   // TCP port during the startup emit — the stub is restored immediately after.
+  const startupPoll = require(path.join(REPO_ROOT, 'bundles', 'lib', 'lib', 'StartupPoll'));
+
   const net = require('net');
   const _createServer = net.createServer.bind(net);
   net.createServer = () => {
@@ -94,7 +96,15 @@ async function boot() {
 
   GameState.ServerEventManager.attach(GameState.GameServer);
   GameState.GameServer.startup({});
+
+  // Yield one tick so synchronous startup listeners fire, then poll until the
+  // claims bundle's async startup (Db.create → replay → compact) completes
+  // and registers StorageManager on state.
   await new Promise(resolve => setImmediate(resolve));
+  await startupPoll(
+    () => !!GameState.StorageManager,
+    async() => {}
+  );
 
   net.createServer = _createServer;
 
