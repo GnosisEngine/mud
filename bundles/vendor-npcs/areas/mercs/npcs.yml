@@ -1,0 +1,20 @@
+- id: mercenary
+  name: 'Mercenary'
+  keywords:
+    - mercenary
+    - merc
+  description: 'A hired sword standing at attention.'
+  level: 1
+  attributes:
+    health: 100
+  behaviors:
+    combat: true
+    merc-patrol: true
+  metadata:
+    noRespawn: true
+    merc:
+      status: idle
+      contractId: null
+      ownerId: null
+      targetRoomId: null
+      homeRoomId: null

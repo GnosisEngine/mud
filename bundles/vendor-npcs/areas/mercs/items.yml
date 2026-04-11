@@ -1,0 +1,11 @@
+- id: merc-contract
+  name: 'Mercenary Contract'
+  roomDesc: 'A rolled contract scroll lies here.'
+  description: >-
+    A sealed contract scroll bearing the crest of the Mercenaries' Guild.
+    The terms are written in precise, binding language. Whoever holds this
+    contract holds the loyalty of the mercenary named within.
+  type: OBJECT
+  metadata:
+    quality: common
+    contract: {}

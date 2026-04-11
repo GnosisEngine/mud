@@ -2,7 +2,6 @@
 'use strict';
 
 const {
-  AreaAudience,
   Broadcast,
   PartyAudience,
   PrivateAudience,

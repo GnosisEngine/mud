@@ -31,7 +31,7 @@ subcommands.add({
     }
 
     // group vendor's items by category then display them
-    let itemCategories = {
+    const itemCategories = {
       [ItemType.POTION]: {
         title: 'Potions',
         items: [],
@@ -88,7 +88,7 @@ subcommands.add({
     const vendorConfig = vendor.getMeta('vendor');
     const tell = genTell(state, vendor, player);
     if (!args || !args.length) {
-      return tell("Well, what do you want to buy?");
+      return tell('Well, what do you want to buy?');
     }
 
     const items = getVendorItems(state, vendorConfig.items);
@@ -123,10 +123,10 @@ subcommands.add({
   name: 'sell',
   command: state => (vendor, args, player) => {
     const tell = genTell(state, vendor, player);
-    const [ itemArg, confirm ] = args.split(' ');
+    const [itemArg, confirm] = args.split(' ');
 
     if (!args || !args.length) {
-      tell("What did you want to sell?");
+      tell('What did you want to sell?');
     }
 
     const item = Parser.parseDot(itemArg, player.inventory);
@@ -157,15 +157,15 @@ subcommands.add({
 // check sell value of an item
 subcommands.add({
   name: 'value',
-  aliases: [ 'appraise', 'offer' ],
+  aliases: ['appraise', 'offer'],
   command: state => (vendor, args, player) => {
     const tell = genTell(state, vendor, player);
 
     if (!args || !args.length) {
-      return tell("What did you want me to appraise?");
+      return tell('What did you want me to appraise?');
     }
 
-    const [ itemArg, confirm ] = args.split(' ');
+    const [itemArg] = args.split(' ');
 
     const targetItem = Parser.parseDot(itemArg, player.inventory);
 
@@ -183,7 +183,7 @@ subcommands.add({
 });
 
 module.exports = {
-  aliases: [ 'vendor', 'list', 'buy', 'sell', 'value', 'appraise', 'offer' ],
+  aliases: ['vendor', 'list', 'buy', 'sell', 'value', 'appraise', 'offer'],
   usage: 'list [search], buy <item>, sell <item>, appraise <item>',
   command: state => (args, player, arg0) => {
     // if list/buy aliases were used then prepend that to the args
@@ -195,7 +195,7 @@ module.exports = {
       return B.sayAt(player, "You aren't in a shop.");
     }
 
-    const [ command, ...commandArgs ] = args.split(' ');
+    const [command, ...commandArgs] = args.split(' ');
     const subcommand = subcommands.find(command);
 
     if (!subcommand) {
