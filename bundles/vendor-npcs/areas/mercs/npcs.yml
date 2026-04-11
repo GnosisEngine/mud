@@ -1,3 +1,22 @@
+- id: broker
+  name: 'Guild Broker'
+  keywords:
+    - broker
+    - guild
+    - mercenary
+    - merc
+  description: 'A sharp-eyed broker who arranges mercenary contracts on behalf of the Guild.'
+  level: 99
+  metadata:
+    mercenary:
+      name: 'Guild Mercenary'
+      homeRoomId: 'mercs:guildhall'
+      tier: 1
+      cost: 50
+      currency: gold
+      upkeepCost: 20
+      upkeepCurrency: gold
+
 - id: mercenary
   name: 'Mercenary'
   keywords:

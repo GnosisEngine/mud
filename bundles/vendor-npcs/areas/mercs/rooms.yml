@@ -1,0 +1,9 @@
+- id: guildhall
+  title: "Mercenaries' Guild Hall"
+  coordinates: [0, 0, 0]
+  description: >-
+    The vaulted hall of the Mercenaries' Guild smells of tallow candles and old
+    leather. Contracts line the walls in glass cases. A broker stands behind a
+    worn oak counter, ready to negotiate terms.
+  metadata:
+    notime: true

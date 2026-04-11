@@ -1,5 +1,6 @@
 - id: merc-contract
   name: 'Mercenary Contract'
+  keywords: ['contract', 'mercenary', 'merc', 'scroll']
   roomDesc: 'A rolled contract scroll lies here.'
   description: >-
     A sealed contract scroll bearing the crest of the Mercenaries' Guild.

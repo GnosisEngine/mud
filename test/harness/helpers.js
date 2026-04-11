@@ -111,13 +111,13 @@ function spawnNpc(state, room, entityRef) {
   const npc = state.MobFactory.create(area, entityRef);
   npc.hydrate(state);
   npc.moveTo(room);
-  state.MobManager.add(npc);
+  state.MobManager.addMob(npc);
   return npc;
 }
 
 function removeNpc(state, npc) {
   if (npc.room) npc.room.removeNpc(npc);
-  state.MobManager.remove(npc);
+  state.MobManager.removeMob(npc);
 }
 
 // Standard before/after boilerplate for a test file
@@ -188,22 +188,40 @@ function spawnBroker(state, room) {
 // Remove an NPC spawned for a test.
 function cleanupNpc(state, npc) {
   if (!npc) return;
+  if (npc.room) npc.room.removeNpc(npc);
   state.MobManager.removeMob(npc);
 }
 
 // Patch claims store to return a single claim for any player.
 // claimedRoomRef must exist in RoomManager (e.g. 'limbo:black').
-function patchClaims(state, claimedRoomRef = 'limbo:black') {
+function patchNoClaims(state) {
+  if (!state.StorageManager) {
+    state.StorageManager = { store: {} };
+  }
   const store = state.StorageManager.store;
-  store._origGetClaims = store.getClaimsByOwner.bind(store);
+  store._origGetClaims = store.getClaimsByOwner ? store.getClaimsByOwner.bind(store) : null;
+  store.getClaimsByOwner = _name => [];
+}
+
+function patchClaims(state, claimedRoomRef = 'limbo:black') {
+  if (!state.StorageManager) {
+    state.StorageManager = { store: {} };
+  }
+  const store = state.StorageManager.store;
+  if (!store._origGetClaims) {
+    store._origGetClaims = store.getClaimsByOwner ? store.getClaimsByOwner.bind(store) : null;
+  }
   store.getClaimsByOwner = _name => [{ roomId: claimedRoomRef, id: 'test-claim-1' }];
 }
 
 function restoreClaims(state) {
+  if (!state.StorageManager) return;
   const store = state.StorageManager.store;
   if (store._origGetClaims) {
     store.getClaimsByOwner = store._origGetClaims;
     delete store._origGetClaims;
+  } else {
+    delete store.getClaimsByOwner;
   }
 }
 
@@ -216,6 +234,7 @@ function giveGold(player, amount) {
 module.exports = {
   spawnBroker,
   cleanupNpc,
+  patchNoClaims,
   patchClaims,
   restoreClaims,
   giveGold,
