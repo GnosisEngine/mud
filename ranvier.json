@@ -140,5 +140,8 @@
     "Thornday",
     "Stillday",
     "Veilday"
-  ]
+  ],
+  "mercMoveIntervalMs": 15000,
+  "mercFleeIntervalMs": 3000,
+  "mercMaxPenaltyStacks": 3
 }
