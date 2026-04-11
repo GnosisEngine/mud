@@ -3,7 +3,33 @@
 const { Broadcast } = require('ranvier');
 const say = Broadcast.sayAt;
 
+/**
+ *
+ */
+function claimList(state, player) {
+  const { store } = state.StorageManager;
+
+  const claims = store.getClaimsByOwner(player.name);
+  if (!claims.length) {
+    return say(player, 'You hold no claims.');
+  }
+
+  say(player, 'Your claims:');
+
+  let i = 1;
+  for (const claim of claims) {
+    const claimState = store.getClaimState(claim.id);
+    const locked   = claim.taxRateLocked ? ' [rate locked]' : '';
+    const expiring = claimState === 'E' ? ' [EXPIRING]' : '';
+    const room = state.RoomManager.getRoom(claim.roomId);
+
+    say(player, `  ${i}.)  ${room.area.title} / ${room.title} @ ${claim.taxRate}%${locked}${expiring}`);
+    i += 1;
+  }
+}
+
 module.exports = {
+  claimList,
   aliases: [],
   command: state => (args, player) => {
     const [sub, ...rest] = (args || '').trim().split(/\s+/);
@@ -12,24 +38,7 @@ module.exports = {
 
     // claim list
     if (sub === 'list') {
-      const claims = store.getClaimsByOwner(player.name);
-      if (!claims.length) {
-        return say(player, 'You hold no claims.');
-      }
-
-      say(player, 'Your claims:');
-
-      let i = 1;
-      for (const claim of claims) {
-        const claimState = store.getClaimState(claim.id);
-        const locked   = claim.taxRateLocked ? ' [rate locked]' : '';
-        const expiring = claimState === 'E' ? ' [EXPIRING]' : '';
-        const room = state.RoomManager.getRoom(claim.roomId);
-
-        say(player, `  ${i}.)  ${room.area.title} / ${room.title} @ ${claim.taxRate}%${locked}${expiring}`);
-        i += 1;
-      }
-      return;
+      return claimList(state, player);
     }
 
     // claim release <claimId>

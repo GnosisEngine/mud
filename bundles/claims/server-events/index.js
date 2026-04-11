@@ -1,7 +1,6 @@
-// bundles/ranvier-storage/index.js
+// bundles/claims/server-events/index.js
 'use strict';
 
-const path = require('path');
 const { Log } = require('../lib/log');
 const { Db } = require('../lib/db');
 const { replay } = require('../lib/replay');
@@ -54,7 +53,7 @@ module.exports = {
       const log = new Log(DATA_DIR, COMPACT_THRESHOLD);
 
       // Layer 7 — SQLite packages
-      const db = new Db(DATA_DIR);
+      const db = await Db.create(DATA_DIR);
 
       // Layer 5 — replay log into a fresh graph
       const graph = await replay(log);
@@ -87,7 +86,7 @@ module.exports = {
      * 'shutdown' fires when the server is gracefully stopping.
      * Final compaction ensures the log is clean for the next boot.
      */
-    shutdown: state => async() => {
+    shutdown: () => async() => {
       console.log('[claims-storage] shutting down...');
 
       if (expiryTimer) {
