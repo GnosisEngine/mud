@@ -8,6 +8,8 @@ const REQUIRED_META_FIELDS = ['width', 'height'];
 const REQUIRED_LEGEND_KEYS = ['terrain', 'features'];
 const REQUIRED_FEATURE_NAMES = ['none', 'road', 'wilderness', 'supply', 'outpost'];
 
+let _testData = null;
+
 function _invertLegend(legend, label) {
   const inverse = {};
   const seen = {};
@@ -75,31 +77,22 @@ function _validateClusters(clusters) {
   }
 }
 
-function load(worldJsonPath) {
-  const resolved = path.resolve(worldJsonPath);
-
-  if (!fs.existsSync(resolved)) {
-    throw new Error(
-      `WorldLoader: cannot find world.json at ${resolved}.\n` +
-      'Generate it from the world editor and place it at data/world.json.'
-    );
-  }
-
-  let raw;
-  try {
-    raw = JSON.parse(fs.readFileSync(resolved, 'utf8'));
-  } catch (e) {
-    throw new Error(`WorldLoader: failed to parse JSON at ${resolved}: ${e.message}`);
-  }
-
+/**
+ * Parse and validate a raw world data object. Can be called directly in tests
+ * to avoid requiring a world.json file on disk.
+ *
+ * @param {object} raw
+ * @returns {{ tiles, legends, clusters, meta }}
+ */
+function parse(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new Error(`WorldLoader: world.json at ${resolved} must be a JSON object`);
+    throw new Error('WorldLoader: world data must be a JSON object');
   }
 
   const { metadata = {}, legends, clusters, map } = raw;
 
   if (!legends || typeof legends !== 'object') {
-    throw new Error('WorldLoader: world.json is missing a "legends" object');
+    throw new Error('WorldLoader: world data is missing a "legends" object');
   }
 
   _validateLegends(legends);
@@ -108,7 +101,7 @@ function load(worldJsonPath) {
 
   for (const field of REQUIRED_META_FIELDS) {
     if (metadata[field] === undefined) {
-      console.warn(`WorldLoader: metadata.${field} is missing from world.json`);
+      console.warn(`WorldLoader: metadata.${field} is missing from world data`);
     }
   }
 
@@ -140,4 +133,39 @@ function load(worldJsonPath) {
   };
 }
 
-module.exports = { load };
+/**
+ * Inject world data directly, bypassing file I/O. Intended for test environments
+ * only. The next call to load() will use this data instead of reading from disk.
+ * Pass null to clear and restore normal file-based loading.
+ *
+ * @param {object|null} raw
+ */
+function setTestData(raw) {
+  _testData = raw;
+}
+
+function load(worldJsonPath) {
+  if (_testData !== null) {
+    return parse(_testData);
+  }
+
+  const resolved = path.resolve(worldJsonPath);
+
+  if (!fs.existsSync(resolved)) {
+    throw new Error(
+      `WorldLoader: cannot find world.json at ${resolved}.\n` +
+      'Generate it from the world editor and place it at data/world.json.'
+    );
+  }
+
+  let raw;
+  try {
+    raw = JSON.parse(fs.readFileSync(resolved, 'utf8'));
+  } catch (e) {
+    throw new Error(`WorldLoader: failed to parse JSON at ${resolved}: ${e.message}`);
+  }
+
+  return parse(raw);
+}
+
+module.exports = { load, parse, setTestData };

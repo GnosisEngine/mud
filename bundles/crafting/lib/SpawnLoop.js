@@ -3,9 +3,10 @@
 
 const SpawnTable = require('./SpawnTable');
 const TerrainResolver = require('./TerrainResolver');
+const { ItemType } = require('ranvier');
 
 const SPAWNABLE_ZONE_TYPES = new Set(['SUPPLY', 'WILDERNESS']);
-const RESOURCE_ITEM_TYPE = 'RESOURCE';
+const RESOURCE_ITEM_TYPE = ItemType.RESOURCE;
 const RESOURCES_AREA_NAME = 'craft';
 
 function _countResourceNodesInRoom(room, resourceKey) {
