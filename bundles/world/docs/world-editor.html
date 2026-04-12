@@ -1989,13 +1989,18 @@ function importMapJSON() {
     const areaName = featureIdxToArea[cell.feature] || featureIdxToArea[String(cell.feature)] || 'none';
     if (areaName && areaName !== 'none') gc.area = areaName;
 
-    // Cluster index + faction (from cluster name)
+    // Cluster index + faction
     const cidx = cell.cluster ?? 0;
     gc.clusterIdx = cidx;
-    if (cidx && gc.area === 'outpost') {
-      const clusterName = clusterLeg[cidx] || clusterLeg[String(cidx)] || '';
-      for (const [fname, fidx] of Object.entries(factionNameToIdx)) {
-        if (clusterName.startsWith(fname)) { gc.faction = fidx; break; }
+    if (gc.area === 'outpost') {
+      // Prefer explicit faction property; fall back to deriving from cluster name
+      if (cell.faction !== undefined && cell.faction !== null) {
+        gc.faction = cell.faction;
+      } else if (cidx) {
+        const clusterName = clusterLeg[cidx] || clusterLeg[String(cidx)] || '';
+        for (const [fname, fidx] of Object.entries(factionNameToIdx)) {
+          if (clusterName.startsWith(fname)) { gc.faction = fidx; break; }
+        }
       }
     }
   }
@@ -2036,8 +2041,11 @@ function copyMapJSON() {
       const featureIdx  = areaToIdx[cell.area]        ?? 0;
       const clusterIdx  = cell.clusterIdx             ?? 0;
       if (terrainIdx !== 0 || featureIdx !== 0 || clusterIdx !== 0) {
-        // Export Y is flipped: 0 = bottom row, increases upward
-        mapArr.push({ coords:[x, toExportY(y)], terrain:terrainIdx, feature:featureIdx, cluster:clusterIdx });
+        const entry = { coords:[x, toExportY(y)], terrain:terrainIdx, feature:featureIdx, cluster:clusterIdx };
+        if (cell.area === 'outpost' && cell.faction !== null && cell.faction !== undefined) {
+          entry.faction = cell.faction;
+        }
+        mapArr.push(entry);
       }
     }
   }
