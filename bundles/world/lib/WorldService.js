@@ -135,7 +135,7 @@ function _getPath(startCoords, endCoords, coordMap, clusterMap) {
 function build(loaded, resolved, index) {
   const { legends } = loaded;
   const { tiles, clusterIndex } = resolved;
-  const { coordMap, clusterTiles } = index;
+  const { coordMap, clusterTiles, factionTiles } = index;
 
   const centroids = _buildCentroids(clusterTiles);
   const roadPairs = _buildRoadPairs(tiles, coordMap, legends.featuresByName);
@@ -155,6 +155,39 @@ function build(loaded, resolved, index) {
       const tile = coordMap.get(`${x},${y}`);
       if (!tile) return null;
       return legends.terrain[String(tile.terrain)] ?? null;
+    },
+
+    /**
+     * Returns the faction id for a Ranvier room, or null.
+     * Reads room.coordinates.{x, y} and maps to the world tile faction field.
+     */
+    getFactionForRoom(room) {
+      if (!room || !room.coordinates) return null;
+      const { x, y } = room.coordinates;
+      if (x === undefined || y === undefined) return null;
+      const tile = coordMap.get(`${x},${y}`);
+      if (!tile) return null;
+      return tile.faction !== undefined ? tile.faction : null;
+    },
+
+    /**
+     * Returns the tiles array for the given faction id.
+     * Returns an empty array if the faction has no tiles.
+     */
+    getRoomsByFaction(factionId) {
+      return factionTiles.get(factionId) ?? [];
+    },
+
+    /**
+     * Returns an array of distinct canonical cluster ids that contain
+     * at least one tile belonging to the given faction.
+     */
+    getClustersByFaction(factionId) {
+      const ftiles = factionTiles.get(factionId);
+      if (!ftiles) return [];
+      const seen = new Set();
+      for (const tile of ftiles) seen.add(tile.canonicalCluster);
+      return [...seen];
     },
 
     /**

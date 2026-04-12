@@ -118,6 +118,10 @@ function build(tile, exits, legends) {
     description: desc,
   };
 
+  if (tile.faction !== undefined) {
+    room.faction = tile.faction;
+  }
+
   if (exits && exits.length > 0) {
     room.exits = exits;
   }

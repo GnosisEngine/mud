@@ -13,6 +13,7 @@
 function build(resolvedTiles) {
   const coordMap = new Map();
   const clusterTiles = new Map();
+  const factionTiles = new Map();
 
   for (const tile of resolvedTiles) {
     const key = `${tile.coords[0]},${tile.coords[1]}`;
@@ -21,9 +22,14 @@ function build(resolvedTiles) {
     const id = tile.canonicalCluster;
     if (!clusterTiles.has(id)) clusterTiles.set(id, []);
     clusterTiles.get(id).push(tile);
+
+    if (tile.faction !== undefined) {
+      if (!factionTiles.has(tile.faction)) factionTiles.set(tile.faction, []);
+      factionTiles.get(tile.faction).push(tile);
+    }
   }
 
-  return { coordMap, clusterTiles };
+  return { coordMap, clusterTiles, factionTiles };
 }
 
 module.exports = { build };

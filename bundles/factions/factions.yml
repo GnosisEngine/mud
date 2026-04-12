@@ -1,0 +1,67 @@
+factions:
+  1:
+    name: "The Ironmark Compact"
+    color: "#8B2020"
+    defaultStrangerPolicy: graduated_warning
+    renownThreshold: 30
+    thresholds:
+      affinity:  [-60, -25, 25, 60]
+      honor:     [-50, -20, 20, 50]
+      trust:     [-50, -20, 20, 50]
+      debt:      [-50, -20, 20, 50]
+    eventOverrides:
+      npc_killed:
+        honor: -15
+    policies:
+      resource_trespass: graduated_warning
+      claim_violation: immediate_hostile
+      npc_killed: mark_enemy
+      trade_completed: improve_relations
+      quest_completed: honor_reward
+      surrender: honor_check
+    factionRelations:
+      2: cold
+      3: war
+
+  2:
+    name: "The Verdant Accord"
+    color: "#2D6B3A"
+    defaultStrangerPolicy: warn_once
+    renownThreshold: 20
+    policies:
+      resource_trespass: warn_once
+      claim_violation: graduated_warning
+      npc_killed: mark_enemy
+      trade_completed: improve_relations
+      quest_completed: honor_reward
+      surrender: honor_check
+    factionRelations:
+      1: cold
+      3: neutral
+
+  3:
+    name: "The Ashen Court"
+    color: "#4A4A6A"
+    defaultStrangerPolicy: immediate_hostile
+    renownThreshold: 40
+    thresholds:
+      affinity: [-70, -40, 40, 70]
+      honor:    [-60, -30, 30, 60]
+      trust:    [-60, -30, 30, 60]
+      debt:     [-50, -20, 20, 50]
+    eventOverrides:
+      surrender_honored:
+        honor: 25
+      surrender_broken:
+        honor: -40
+        trust: -40
+    policies:
+      resource_trespass: immediate_hostile
+      claim_violation: immediate_hostile
+      npc_killed: mark_enemy
+      trade_completed: improve_relations
+      quest_completed: honor_reward
+      surrender: honor_check
+    factionRelations:
+      1: war
+      2: neutral

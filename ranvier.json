@@ -22,6 +22,7 @@
     "vendor-npcs",
     "mercenaries",
     "player-groups",
+    "factions",
     "progressive-respawn",
     "telnet-networking",
     "websocket-networking"
