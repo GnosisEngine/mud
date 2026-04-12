@@ -6,6 +6,7 @@ const path = require('path');
 const { Broadcast: B } = require('ranvier');
 const ContractFactory = require('./ContractFactory');
 const MercPathfinder = require('./MercPathfinder');
+const MercNameGenerator = require('./MercNameGenerator');
 const {
   DATA_DIR,
   TWO_GAME_MONTHS_MS,
@@ -458,8 +459,12 @@ function build() {
       // Deduct hire cost
       player.setMeta(hireCurrencyKey, balance - mercConfig.cost);
 
+      // Generate a name unique among this player's active mercs
+      const usedNames = new Set(service.getContractsByPlayer(player.name).map(e => e.mercName));
+      const mercName = MercNameGenerator.generate(usedNames);
+
       // Build contract data and item
-      const contractData = ContractFactory.build(mercConfig, player.name);
+      const contractData = ContractFactory.build(mercConfig, player.name, mercName);
       contractData.targetRoomId = targetRoomId;
 
       const contractItem = _createContractItem(contractData, player, state);

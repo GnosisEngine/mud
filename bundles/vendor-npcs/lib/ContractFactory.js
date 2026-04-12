@@ -17,16 +17,17 @@ const MERC_ENTITY_REF = 'mercs:mercenary';
  *
  * @param {object} vendorMercConfig — the mercenary block from the vendor NPC's metadata
  * @param {string} playerId         — name/id of the hiring player (becomes holderId)
+ * @param {string} mercName         — unique name assigned by MercNameGenerator
  * @returns {object}
  */
-function build(vendorMercConfig, playerId) {
+function build(vendorMercConfig, playerId, mercName) {
   const issuedAt = Date.now();
   const nextUpkeepAt = issuedAt + TWO_GAME_MONTHS_MS;
 
   return {
     contractId: 'mc_' + crypto.randomBytes(9).toString('hex').slice(0, 12),
     mercRef: MERC_ENTITY_REF,
-    mercName: vendorMercConfig.name,
+    mercName: mercName,
     homeRoomId: vendorMercConfig.homeRoomId,
     issuedAt,
     nextUpkeepAt,

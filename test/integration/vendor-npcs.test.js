@@ -149,7 +149,7 @@ describe('mercs command', () => {
     const result = await s.run('mercs');
 
     assertOutput(result, /en route/i, 'should list the merc as EN_ROUTE');
-    assertOutput(result, /guild mercenary/i, 'should show the merc name');
+    assertOutput(result, /[A-Z][a-z]+ [A-Z][a-z]+/, 'should show a generated First Last name');
 
     restoreClaims(ctx.state);
     cleanupNpc(ctx.state, broker);
@@ -405,8 +405,19 @@ describe('dismiss command', () => {
     giveGold(s.player, 500);
 
     await s.run('hire broker');
-    const result = await s.run('dismiss guild');
 
+    // Derive the first word of the generated merc name from the contract item
+    let mercFirstName = null;
+    for (const [, item] of s.player.inventory) {
+      const contract = item.getMeta ? item.getMeta('contract') : null;
+      if (contract && contract.mercName) {
+        mercFirstName = contract.mercName.split(' ')[0].toLowerCase();
+        break;
+      }
+    }
+    assert.ok(mercFirstName, 'contract item should carry a mercName');
+
+    const result = await s.run(`dismiss ${mercFirstName}`);
     assertOutput(result, /returning home/i, 'should confirm the merc is returning');
 
     restoreClaims(ctx.state);
