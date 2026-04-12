@@ -25,25 +25,25 @@ module.exports = {
       const service = MercenaryService.build();
       state.MercenaryService = service;
 
-      Logger.log('[vendor-npcs] MercenaryService registered. Waiting for dependencies...');
+      Logger.log('[mercenaries] MercenaryService registered. Waiting for dependencies...');
 
       // Step 2 — poll for WorldManager and StorageManager.
       await startupPoll(
         () => state.WorldManager && state.StorageManager,
         async() => {
-          Logger.log('[vendor-npcs] Dependencies ready. Running boot scan...');
+          Logger.log('[mercenaries] Dependencies ready. Running boot scan...');
 
           // Step 3 — reconstruct active contracts from player save files.
           await service.boot(state);
 
-          Logger.log('[vendor-npcs] Boot complete. Starting tick interval.');
+          Logger.log('[mercenaries] Boot complete. Starting tick interval.');
 
           // Step 4 — 1-second tick: billing checks and merc movement.
           tickInterval = setInterval(() => {
             try {
               service.tick(state);
             } catch (err) {
-              Logger.error(`[vendor-npcs] tick error: ${err.message}`);
+              Logger.error(`[mercenaries] tick error: ${err.message}`);
             }
           }, 1000);
 
@@ -60,7 +60,7 @@ module.exports = {
         clearInterval(tickInterval);
         tickInterval = null;
       }
-      Logger.log('[vendor-npcs] tick interval cleared.');
+      Logger.log('[mercenaries] tick interval cleared.');
     },
   },
 };
