@@ -243,6 +243,56 @@ function seedReputation(state, playerId, factionId, scores) {
   state._factionStore.upsertDelta(playerId, factionId, scores, Date.now());
 }
 
+// ---------------------------------------------------------------------------
+// Faction helpers
+// ---------------------------------------------------------------------------
+
+// Manually trigger the login player-event handler so the factionEvent listener
+// is attached to the player. Mirrors what Ranvier does on player login.
+// Idempotent — calling twice still results in exactly one listener.
+function loginPlayer(state, player) {
+  const { createHandler } = require('../../bundles/factions/lib/FactionEvents');
+  const { EVENTS }        = require('../../bundles/factions/events');
+
+  if (!state.FactionManager) return;
+
+  const handler = createHandler(state.FactionManager);
+
+  if (player._factionEventHandler) {
+    player.removeListener(EVENTS.FACTION_EVENT, player._factionEventHandler);
+  }
+
+  player._factionEventHandler = async(payload) => {
+    await handler({ ...payload, playerId: player.name, player });
+  };
+
+  player.on(EVENTS.FACTION_EVENT, player._factionEventHandler);
+}
+
+// Emit a factionEvent on the player and wait for it to be processed.
+async function emitFactionEvent(player, factionId, eventType) {
+  const { EVENTS } = require('../../bundles/factions/events');
+  player.emit(EVENTS.FACTION_EVENT, { factionId, eventType });
+  await flush(3);
+}
+
+// Return the full reputation profile for a player/faction pair.
+async function getFactionProfile(state, playerName, factionId) {
+  return state.FactionManager.getProfile(playerName, factionId);
+}
+
+// Return the lightweight stance snapshot for a player/faction pair.
+async function getFactionStance(state, playerName, factionId) {
+  return state.FactionManager.getStance(playerName, factionId);
+}
+
+// Return a promise that resolves with the next faction:stanceChanged payload
+// emitted on the given player.
+function awaitStanceChange(player) {
+  const { EVENTS } = require('../../bundles/factions/events');
+  return new Promise(resolve => player.once(EVENTS.FACTION_STANCE_CHANGED, resolve));
+}
+
 module.exports = {
   spawnBroker,
   cleanupNpc,
@@ -267,5 +317,10 @@ module.exports = {
   assertOutput,
   assertNoOutput,
   stripAnsi,
-  seedReputation
+  seedReputation,
+  loginPlayer,
+  emitFactionEvent,
+  getFactionProfile,
+  getFactionStance,
+  awaitStanceChange,
 };

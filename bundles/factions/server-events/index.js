@@ -10,7 +10,7 @@ const { loadPolicies }       = require('../lib/PolicyResolver');
 const { ReputationStore }    = require('../lib/ReputationStore');
 const { build }              = require('../lib/FactionService');
 
-const FACTIONS_YML_PATH = path.resolve(__dirname, '../data/factions.yml');
+const FACTIONS_YML_PATH = path.resolve(__dirname, '../factions.yml');
 const POLICIES_DIR      = path.resolve(__dirname, '../policies');
 const DATA_DIR          = path.resolve(__dirname, '../data');
 
