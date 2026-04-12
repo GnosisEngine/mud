@@ -85,7 +85,12 @@ class Db {
 
   _get(stmt, params) {
     const row = stmt.getAsObject(params);
-    return Object.keys(row).length === 0 ? null : row;
+    // sql.js returns {} for no rows in some versions, and an object with all
+    // columns set to undefined/null in others. Treat both as "not found".
+    if (!row || Object.keys(row).length === 0 || row.id === undefined || row.id === null) {
+      return null;
+    }
+    return row;
   }
 
   _all(stmt, params) {
@@ -99,19 +104,33 @@ class Db {
   _persist() {
     const data = this.db.export();
     fs.writeFileSync(this._dbPath, Buffer.from(data));
+    // sql.js export() closes and reopens the underlying SQLite connection to
+    // produce a consistent snapshot. All prepared statements are finalised as
+    // a side-effect, so we must recreate them immediately after every export.
+    this._prepare();
   }
 
   _serialize(pkg) {
     return {
-      ...pkg,
-      attachedRoomIds: pkg.attachedRoomIds.join(','),
-      lenderId: pkg.lenderId ?? null,
+      '@id':              pkg.id,
+      '@name':            pkg.name,
+      '@claimantId':      pkg.claimantId,
+      '@attachedRoomIds': pkg.attachedRoomIds.join(','),
+      '@requestedAmount': pkg.requestedAmount,
+      '@durationDays':    pkg.durationDays,
+      '@yieldFloor':      pkg.yieldFloor,
+      '@status':          pkg.status,
+      '@lenderId':        pkg.lenderId ?? null,
     };
   }
 
   _deserialize(row) {
     if (!row) return null;
-    return { ...row, attachedRoomIds: row.attachedRoomIds.split(',') };
+    const ids = row.attachedRoomIds;
+    return {
+      ...row,
+      attachedRoomIds: ids ? ids.split(',').filter(Boolean) : [],
+    };
   }
 
   listPackage(pkg) {

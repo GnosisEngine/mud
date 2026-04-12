@@ -77,6 +77,13 @@ async function boot() {
 
   await BundleManager.loadBundles();
 
+  // Wipe the sql.js test database before startup so every run begins clean.
+  // The claims bundle creates a fresh test.db during its async startup.
+  if (process.env.NODE_ENV === 'test') {
+    const testDbPath = path.join(REPO_ROOT, 'bundles', 'claims', 'data', 'test.db');
+    if (fs.existsSync(testDbPath)) fs.unlinkSync(testDbPath);
+  }
+
   // Fire all server-events 'startup' listeners so bundles can register things
   // onto state (e.g. state.getTarget, state.TimeService, state.WorldManager).
   // Stub net.createServer so the input-events bundle cannot actually bind a
