@@ -15,9 +15,6 @@
  *   - All claim state survives a log replay cycle
  *
  * Claims — tested against real Log and Graph instances using a temp directory.
- * Packages — tested against a mock Db. better-sqlite3 requires native
- * compilation; the mock keeps tests portable and focuses assertions on
- * store behaviour rather than SQL correctness (db.js has its own concern).
  *
  * Run with:  node test/store.test.js
  */

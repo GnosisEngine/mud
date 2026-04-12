@@ -136,3 +136,17 @@
       towards:
         players: false
         npcs: ["limbo:aggro-npc-test"]
+- id: faction-guard
+  keywords: [guard, faction]
+  name: A Faction Guard
+  level: 3
+  description: "A guard wearing the colours of a recognised faction watches you carefully."
+  behaviors:
+    combat: true
+    faction-npc: true
+  attributes:
+    health: 150
+  metadata:
+    faction: 1
+    factionPolicy: resource_trespass
+    factionAttackDelay: 0.05

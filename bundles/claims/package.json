@@ -4,7 +4,6 @@
   "description": "Claim and collateral persistence for Ranvier — event log for claims, SQLite for packages.",
   "main": "index.js",
   "dependencies": {
-    "better-sqlite3": "^9.0.0",
     "nanoid": "3.x"
   }
 }

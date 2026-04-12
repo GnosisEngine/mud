@@ -23,8 +23,6 @@ cd mud
 npm run setup
 ```
 
-`npm run setup` runs `npm install` at the root and then walks every bundle directory that has a `package.json` and installs its dependencies. Some bundles have native addons (the claims bundle uses `better-sqlite3`) so a working C++ build toolchain is required — on Ubuntu/Debian: `sudo apt install build-essential python3`.
-
 ---
 
 ## Running

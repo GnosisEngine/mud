@@ -236,6 +236,13 @@ function giveGold(player, amount) {
   player.metadata.currencies.gold = amount;
 }
 
+// Seed raw reputation scores directly, bypassing the event system.
+// Used to set up a player at a precise axis position before a behavior test.
+function seedReputation(state, playerId, factionId, scores) {
+  if (!state._factionStore) return;
+  state._factionStore.upsertDelta(playerId, factionId, scores, Date.now());
+}
+
 module.exports = {
   spawnBroker,
   cleanupNpc,
@@ -260,4 +267,5 @@ module.exports = {
   assertOutput,
   assertNoOutput,
   stripAnsi,
+  seedReputation
 };
