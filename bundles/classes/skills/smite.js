@@ -17,7 +17,7 @@ module.exports = {
   },
   cooldown,
 
-  run: state => function (args, player, target) {
+  run: () => function(args, player, target) {
     if (!player.equipment.has('wield')) {
       return Broadcast.sayAt(player, "You don't have a weapon equipped.");
     }
@@ -35,7 +35,7 @@ module.exports = {
     damage.commit(target);
   },
 
-  info: (player) => {
+  info: (/*player*/) => {
     return `Empower your weapon with holy energy and strike, dealing <b>${damagePercent}%</b> weapon damage. Requires a weapon.`;
   }
 };

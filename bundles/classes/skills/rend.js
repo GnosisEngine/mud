@@ -29,7 +29,7 @@ module.exports = {
   },
   cooldown,
 
-  run: state => function (args, player, target) {
+  run: state => function(args, player, target) {
     const effect = state.EffectFactory.create(
       'skill.rend',
       {
@@ -54,7 +54,7 @@ module.exports = {
     target.addEffect(effect);
   },
 
-  info: (player) => {
+  info: (/*player*/) => {
     return `Tear a deep wound in your target's flesh dealing <bold>${damagePercent}%</bold> weapon damage over <bold>${duration / 1000}</bold> seconds.`;
   }
 };

@@ -23,7 +23,7 @@ module.exports = {
   },
   cooldown: 10,
 
-  run: state => function (args, player, target) {
+  run: () => function(args, player, target) {
     const damage = new Damage('health', getDamage(player), player, this, {
       type: 'physical',
     });
@@ -36,7 +36,7 @@ module.exports = {
     damage.commit(target);
   },
 
-  info: (player) => {
+  info: (/*player*/) => {
     return `Hurl a magical fireball at your target dealing ${damagePercent}% of your Intellect as Fire damage.`;
   }
 };

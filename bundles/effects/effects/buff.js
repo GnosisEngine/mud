@@ -5,7 +5,7 @@ const { Broadcast, EffectFlag } = require('ranvier');
 module.exports = {
   config: {
     name: 'Buff Strength',
-    description: "You feel stronger!",
+    description: 'You feel stronger!',
     duration: 30 * 1000,
     type: 'buff.strength',
   },
@@ -15,18 +15,18 @@ module.exports = {
   },
   modifiers: {
     attributes: {
-      strength: function (current) {
+      strength: function(current) {
         return current + this.state.magnitude;
       }
     }
   },
   listeners: {
-    effectActivated: function () {
-      Broadcast.sayAt(this.target, "Strength courses through your veins!");
+    effectActivated: function() {
+      Broadcast.sayAt(this.target, 'Strength courses through your veins!');
     },
 
-    effectDeactivated: function () {
-      Broadcast.sayAt(this.target, "You feel weaker.");
+    effectDeactivated: function() {
+      Broadcast.sayAt(this.target, 'You feel weaker.');
     }
   }
 };

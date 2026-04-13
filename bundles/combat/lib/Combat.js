@@ -163,13 +163,11 @@ class Combat {
       return null;
     }
 
-    let possibleTargets = [...attacker.room.npcs];
-    if (attacker.getMeta('pvp')) {
-      possibleTargets = [...possibleTargets, ...attacker.room.players];
-    }
+    const possibleTargets = attacker.getMeta('pvp')
+      ? ['npc', 'player']
+      : ['npc'];
 
-    // const target = Parser.parseDot(search, possibleTargets);
-    const target = getTarget(attacker.room, search, ['npc', 'player']);
+    const target = getTarget(attacker.room, search, possibleTargets);
 
     if (!target) {
       return null;

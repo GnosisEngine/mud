@@ -76,7 +76,7 @@ class PlayerClass {
   }
 
   get abilityList() {
-    return Object.entries(this.abilityTable).reduce((acc, [ , abilities ]) => {
+    return Object.entries(this.abilityTable).reduce((acc, [, abilities]) => {
       return acc.concat(abilities.skills || []).concat(abilities.spells || []);
     }, []);
   }

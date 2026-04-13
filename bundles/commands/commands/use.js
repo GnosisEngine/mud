@@ -10,12 +10,12 @@ const ItemUtil = require('../../lib/lib/ItemUtil');
  * example behavior implementation
  */
 module.exports = {
-  aliases: [ 'quaff', 'recite' ],
+  aliases: ['quaff', 'recite'],
   command: state => (args, player) => {
     const say = message => Broadcast.sayAt(player, message);
 
     if (!args.length) {
-      return say("Use what?");
+      return say('Use what?');
     }
 
     const item = ArgParser.parseDot(args, player.inventory);
@@ -54,15 +54,15 @@ module.exports = {
         }
 
         if (e instanceof SkillErrors.PassiveError) {
-          return say(`That skill is passive.`);
+          return say('That skill is passive.');
         }
 
         if (e instanceof SkillErrors.NotEnoughResourcesError) {
-          return say(`You do not have enough resources.`);
+          return say('You do not have enough resources.');
         }
 
         Logger.error(e.message);
-        B.sayAt(this, 'Huh?');
+        Broadcast.sayAt(this, 'Huh?');
       }
     }
 
@@ -72,14 +72,14 @@ module.exports = {
       }, usable.config || {});
       const effectState = usable.state || {};
 
-      let useEffect = state.EffectFactory.create(usable.effect, effectConfig, effectState);
+      const useEffect = state.EffectFactory.create(usable.effect, effectConfig, effectState);
       if (!useEffect) {
         Logger.error(`Item: ${item.entityReference} has invalid usable configuration.`);
         return say("You can't use that.");
       }
 
       if (!player.addEffect(useEffect)) {
-        return say("Nothing happens.");
+        return say('Nothing happens.');
       }
     }
 

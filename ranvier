@@ -73,7 +73,7 @@ Logger.setLevel(logLevel);
 
 // Global state object, server instance and configurable intervals.
 let GameState = {};
-let saveInterval, tickInterval, playerTickInterval;
+let /*saveInterval,*/ tickInterval, playerTickInterval;
 
 /**
  * Do the dirty work

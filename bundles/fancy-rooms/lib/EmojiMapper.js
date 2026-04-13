@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 // emoji → trigger keywords (first match wins)
 const EMOJI_MAP = [
@@ -112,25 +112,25 @@ const EMOJI_MAP = [
   ['❄️',  ['ice', 'frost', 'frozen', 'cold', 'blizzard', 'glacial', 'winter']],
   ['⚡',  ['lightning', 'thunder', 'electric', 'storm', 'bolt', 'spark']],
   ['☠️',  ['death', 'shadow', 'void', 'darkness', 'doom', 'plague', 'curse']],
-]
+];
 
 function getEmoji(keywords) {
-  if (!keywords || !keywords.length) return null
-  const lower = keywords.map(k => k.toLowerCase())
+  if (!keywords || !keywords.length) return null;
+  const lower = keywords.map(k => k.toLowerCase());
   for (const [emoji, triggers] of EMOJI_MAP) {
     for (const trigger of triggers) {
-      if (lower.includes(trigger)) return emoji
+      if (lower.includes(trigger)) return emoji;
     }
   }
-  return null
+  return null;
 }
 
 function getItemEmoji(keywords) {
-  return getEmoji(keywords) || '🔹'
+  return getEmoji(keywords) || '🔹';
 }
 
 function getNpcEmoji(keywords) {
-  return getEmoji(keywords) || '🧑'
+  return getEmoji(keywords) || '🧑';
 }
 
-module.exports = { getEmoji, getItemEmoji, getNpcEmoji }
+module.exports = { getEmoji, getItemEmoji, getNpcEmoji };

@@ -10,7 +10,7 @@ const WebsocketStream = require('../lib/WebsocketStream');
 
 module.exports = {
   listeners: {
-    startup: state => function (commander) {
+    startup: state => function(/*commander*/) {
       // create a new websocket server using the port command line argument
       const wss = new WebSocket.Server({ port: 4001 });
 
@@ -25,8 +25,8 @@ module.exports = {
         // Register all of the input events (login, etc.)
         state.InputEventManager.attach(stream);
 
-        stream.write("Connecting...\n");
-        Logger.log("User connected via websocket...");
+        stream.write('Connecting...\n');
+        Logger.log('User connected via websocket...');
 
         // @see: bundles/ranvier-events/events/login.js
         stream.emit('intro', stream);
@@ -34,7 +34,7 @@ module.exports = {
       Logger.log(`Websocket server started on port: ${wss.options.port}...`);
     },
 
-    shutdown: state => function () {
+    shutdown: () => function() {
       // no need to do anything special in shutdown
     },
   }

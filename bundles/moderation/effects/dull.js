@@ -12,10 +12,10 @@ module.exports = {
     blockedMessage: 'Your mind is too clouded to reach them.',
   },
   listeners: {
-    effectActivated: function () {
+    effectActivated: function() {
       Broadcast.sayAt(this.target, '<yellow>A fog settles over your mind. You can no longer send private tells.</yellow>');
     },
-    effectRemoved: function () {
+    effectRemoved: function() {
       Broadcast.sayAt(this.target, '<green>The fog lifts. Your mind is clear once more.</green>');
     },
   },

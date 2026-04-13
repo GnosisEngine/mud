@@ -64,7 +64,7 @@ function areaTag(name) {
 
 module.exports = {
   usage: 'map [size]',
-  command: state => (args, player) => {
+  command: () => (args, player) => {
     const room = player.room;
     if (!room || !room.coordinates) {
       return B.sayAt(player, `${rgb(200,80,80)}You can't see a map from here.${R}`);

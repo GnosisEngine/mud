@@ -15,7 +15,7 @@ module.exports = {
       currentTick: state.TimeService ? state.TimeService.getTick() : null,
       // @todo: inject split resolver from claims bundle at startup
       splitResolver: null,
-      roomDropper: (r, resourceKey, amount) => {
+      roomDropper: (r, resourceKey/*, amount*/) => {
         const def = ResourceDefinitions.getDefinition(resourceKey);
         const title = def ? def.title : resourceKey;
         B.sayAt(player, `<yellow>Some ${title} spills to the ground.</yellow>`);

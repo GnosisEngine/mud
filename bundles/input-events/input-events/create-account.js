@@ -6,7 +6,7 @@ const { Account, EventUtil } = require('ranvier');
  * Account creation event
  */
 module.exports = {
-  event: (state) => (socket, name) => {
+  event: () => (socket, name) => {
     const write = EventUtil.genWrite(socket);
     const say = EventUtil.genSay(socket);
 

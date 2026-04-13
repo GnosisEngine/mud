@@ -10,7 +10,7 @@ module.exports = {
     }
 
     player.save(() => {
-      Broadcast.sayAt(player, "Goodbye!");
+      Broadcast.sayAt(player, 'Goodbye!');
       Broadcast.sayAtExcept(player.room, `${player.name} disappears.`, player);
       state.PlayerManager.removePlayer(player, true);
     });

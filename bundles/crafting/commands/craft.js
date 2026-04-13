@@ -43,7 +43,7 @@ subcommands.add({
       return;
     }
 
-    let [catArg, itemArg] = args.split(' ');
+    const [catArg, itemArg] = args.split(' ');
     const catIndex = parseInt(catArg, 10) - 1;
     const category = categories[catIndex];
     if (!category) return say(player, 'Invalid category.');
@@ -78,7 +78,7 @@ subcommands.add({
     }
 
     const categories = getCraftingCategories(state);
-    let [catArg, itemArg] = args.split(' ');
+    const [catArg, itemArg] = args.split(' ');
     const catIndex = parseInt(catArg, 10) - 1;
     const category = categories[catIndex];
     if (!category) return say(player, 'Invalid category.');

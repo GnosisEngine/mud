@@ -24,7 +24,7 @@ module.exports = {
   },
   cooldown: 6,
 
-  run: state => function (args, player, target) {
+  run: () => function(args, player, target) {
     const damage = new Damage('health', getDamage(player), player, this, {
       type: 'physical',
     });
@@ -37,7 +37,7 @@ module.exports = {
     damage.commit(target);
   },
 
-  info: (player) => {
+  info: (/*player*/) => {
     return `Make a strong attack against your target dealing <bold>${damagePercent}%</bold> weapon damage.`;
   }
 };

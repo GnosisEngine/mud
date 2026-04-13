@@ -4,7 +4,7 @@ const Ranvier = require('ranvier');
 const { Broadcast } = Ranvier;
 
 module.exports = {
-  command : (state) => (args, player) => {
+  command : () => (args, player) => {
     const previousPvpSetting = player.getMeta('pvp') || false;
     const newPvpSetting = !previousPvpSetting;
     player.setMeta('pvp', newPvpSetting);

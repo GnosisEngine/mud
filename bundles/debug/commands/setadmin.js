@@ -5,7 +5,7 @@ const Parser = require('../../lib/lib/ArgParser');
 
 module.exports = {
   requiredRole: PlayerRoles.ADMIN,
-  command: (state) => (args, player) => {
+  command: () => (args, player) => {
     args = args.trim();
 
     if (!args.length) {

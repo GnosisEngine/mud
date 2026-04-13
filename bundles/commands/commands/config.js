@@ -13,7 +13,7 @@ module.exports = {
 
     const possibleCommands = ['set', 'list'];
 
-    const [command, configToSet, valueToSet ] = args.split(' ');
+    const [command, configToSet, valueToSet] = args.split(' ');
 
     if (!possibleCommands.includes(command)) {
       B.sayAt(player, `<red>Invalid config command: ${command}</red>`);
@@ -52,7 +52,7 @@ module.exports = {
     };
 
     if (possibleValues[valueToSet] === undefined) {
-      return B.sayAt(player, `<red>Value must be either: on / off</red>`);
+      return B.sayAt(player, '<red>Value must be either: on / off</red>');
     }
 
     if (!player.getMeta('config')) {

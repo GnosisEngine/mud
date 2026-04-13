@@ -11,7 +11,7 @@ const REPLACE_TARGETS_REGEXP = /~(?:\d+\.)?[^\s.,!?"']+/;
 module.exports = {
   usage: 'emote <message>',
   aliases: [':'],
-  command: (state) => (args, player) => {
+  command: () => (args, player) => {
     args = args.trim();
 
     if (!args.length) {
@@ -24,9 +24,9 @@ module.exports = {
     }
 
     let execResult;
-    let matchedTargets = [];
+    const matchedTargets = [];
     while ((execResult = FIND_TARGETS_REGEXP.exec(args)) !== null) {
-      let targetNameFromInput = execResult[1];
+      const targetNameFromInput = execResult[1];
       const target = findTarget(player, targetNameFromInput);
       if (!target) {
         return Broadcast.sayAt(player, `I can not seem to find ${targetNameFromInput}`);

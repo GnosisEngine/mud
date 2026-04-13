@@ -54,10 +54,10 @@ class CommandParser {
 
     // see if they matched a direction for a movement command
     const roomDirection = this.checkMovement(player, command);
-    
+
     if (roomDirection) {
       const roomExit = this.canGo(player, roomDirection);
-    
+
       return {
         type: CommandType.MOVEMENT,
         args,

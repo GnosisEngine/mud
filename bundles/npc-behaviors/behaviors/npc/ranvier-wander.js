@@ -13,7 +13,7 @@ const { Broadcast, Logger } = require('ranvier');
  */
 module.exports = {
   listeners: {
-    updateTick: state => function (config) {
+    updateTick: state => function(config) {
       if (this.isInCombat() || !this.room) {
         return;
       }

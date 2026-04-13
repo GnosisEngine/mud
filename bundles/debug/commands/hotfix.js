@@ -23,6 +23,6 @@ module.exports = {
 
     const newCommand = state.BundleManager.createCommand(command.file, command.name, command.bundle);
     state.CommandManager.add(newCommand);
-    B.sayAt(player, `<b><red>HOTFIX</red></b>: Done!`);
+    B.sayAt(player, '<b><red>HOTFIX</red></b>: Done!');
   }
 };

@@ -17,7 +17,7 @@ module.exports = {
   initiatesCombat: true,
   cooldown,
 
-  run: state => function (args, player, target) {
+  run: state => function(args, player, target) {
     const effect = state.EffectFactory.create('skill.judge', {}, { reductionPercent });
     effect.skill = this;
     effect.attacker = player;
@@ -38,7 +38,7 @@ module.exports = {
     favorRestore.commit(player);
   },
 
-  info: (player) => {
+  info: (/*player*/) => {
     return `Slam your target with holy power, dealing <b>${damagePercent}%</b> weapon damage and reducing damage of the target's next attack by <b>${reductionPercent}%</b>. Generates <b><yellow>${favorAmount}</yellow></b> Favor.`;
   }
 };

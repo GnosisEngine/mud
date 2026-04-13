@@ -7,7 +7,7 @@ const PlayerClass = require('../../classes/lib/PlayerClass');
  * Player class selection event
  */
 module.exports = {
-  event: state => (socket, args) => {
+  event: () => (socket, args) => {
     const say = EventUtil.genSay(socket);
     const write  = EventUtil.genWrite(socket);
 
@@ -22,7 +22,7 @@ module.exports = {
     classes = Object.entries(classes).map(([id, instance]) => {
       return [id, instance.config];
     });
-    for (const [ id, config ] of classes) {
+    for (const [id, config] of classes) {
       say(`[<bold>${id}</bold>] - <bold>${config.name}</bold>`);
       say(Broadcast.wrap(`      ${config.description}\r\n`, 80));
     }

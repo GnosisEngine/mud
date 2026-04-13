@@ -16,7 +16,7 @@ module.exports = {
     cooldownId: null
   },
   listeners: {
-    effectDeactivated: function () {
+    effectDeactivated: function() {
       Broadcast.sayAt(this.target, `You may now use <bold>${this.skill.name}</bold> again.`);
     }
   }

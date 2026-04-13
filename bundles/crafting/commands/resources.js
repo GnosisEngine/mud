@@ -9,7 +9,7 @@ const { CARRY_MULTIPLIER } = ResourceContainer;
 
 module.exports = {
   aliases: ['materials'],
-  command: state => (args, player) => {
+  command: () => (args, player) => {
     const held = ResourceContainer.getHeld(player);
     const keys = Object.keys(held);
 

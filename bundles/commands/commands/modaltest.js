@@ -8,7 +8,7 @@ const { Broadcast: B } = require('ranvier');
  * with all input as `args` and the current state as the 4th argument after arg0. */
 module.exports = {
   usage: 'modaltest',
-  command: state => (args, player, arg0, commandState) => {
+  command: () => (args, player, arg0, commandState) => {
     args = args.trim();
 
     if (!commandState) {

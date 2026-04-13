@@ -23,13 +23,13 @@ const CLAIM_CHECK_INTERVAL_MS = 60000;
 // Private helpers (module scope — not exported)
 // ---------------------------------------------------------------------------
 
-function _makeTell(state, player) {
-  return msg => {
-    if (player && player.socket && player.socket.writable) {
-      B.sayAt(player, msg);
-    }
-  };
-}
+// function _makeTell(state, player) {
+//   return msg => {
+//     if (player && player.socket && player.socket.writable) {
+//       B.sayAt(player, msg);
+//     }
+//   };
+// }
 
 /**
  * Scan a player's inventory for the contract item matching contractId.
@@ -316,7 +316,7 @@ function build() {
   const registry = new Map();
 
   // Timestamps for periodic checks that run inside tick()
-  const lastClaimCheckAt = 0;
+  // const lastClaimCheckAt = 0;
 
   const service = {
 

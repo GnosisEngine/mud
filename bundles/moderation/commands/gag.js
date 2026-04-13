@@ -12,7 +12,7 @@ module.exports = {
     args = args.trim();
 
     if (!args.length) {
-      Broadcast.sayAt(player, `Usage: gag <player> <effect>`);
+      Broadcast.sayAt(player, 'Usage: gag <player> <effect>');
       Broadcast.sayAt(player, `Valid effects: ${[...VALID_EFFECTS].join(', ')}`);
       return;
     }
@@ -20,7 +20,7 @@ module.exports = {
     const [targetName, effectName] = args.split(/\s+/);
 
     if (!effectName) {
-      Broadcast.sayAt(player, `Usage: gag <player> <effect>`);
+      Broadcast.sayAt(player, 'Usage: gag <player> <effect>');
       Broadcast.sayAt(player, `Valid effects: ${[...VALID_EFFECTS].join(', ')}`);
       return;
     }
@@ -38,7 +38,7 @@ module.exports = {
     }
 
     if (target === player) {
-      Broadcast.sayAt(player, `You cannot gag yourself.`);
+      Broadcast.sayAt(player, 'You cannot gag yourself.');
       return;
     }
 

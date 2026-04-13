@@ -50,7 +50,7 @@ module.exports = {
     // spawn — validate metadata, warn loudly if faction is missing so
     // world authors know the NPC is misconfigured.
     // -----------------------------------------------------------------------
-    spawn: state => function() {
+    spawn: () => function() {
       const factionId = _getFactionId(this);
       if (factionId === null) {
         Logger.warn(
@@ -140,7 +140,7 @@ module.exports = {
     // -----------------------------------------------------------------------
     // playerLeave — cancel any pending attack timer for the departing player.
     // -----------------------------------------------------------------------
-    playerLeave: state => function(player) {
+    playerLeave: () => function(player) {
       if (this._factionAttackTarget === player) {
         _cancelAttackTimer(this);
       }

@@ -1,7 +1,6 @@
 'use strict';
 
-const { Config, Player } = require('ranvier');
-const PlayerClass = require('../../classes/lib/PlayerClass');
+const { Config, Player , Logger } = require('ranvier');
 
 /**
  * Finish player creation. Add the character to the account then add the player
@@ -14,7 +13,7 @@ module.exports = {
       Logger.error('No startingRoom defined in ranvier.json');
     }
 
-    return async (socket, args) => {
+    return async(socket, args) => {
       let player = new Player({
         name: args.name,
         account: args.account,

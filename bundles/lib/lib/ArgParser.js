@@ -28,7 +28,7 @@ class ArgParser {
     }
 
     let encountered = 0;
-    for (let entity of list) {
+    for (const entity of list) {
       let key, entry;
       if (Array.isArray(entity)) {
         [key, entry] = entity;

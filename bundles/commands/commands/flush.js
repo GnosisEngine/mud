@@ -7,7 +7,7 @@ const { Broadcast } = require('ranvier');
  */
 module.exports = {
   usage: 'flush',
-  command : (state) => (args, player) => {
+  command : () => (args, player) => {
     player.commandQueue.flush();
     Broadcast.sayAt(player, '<bold><yellow>Queue flushed.</yellow></bold>');
   }

@@ -33,8 +33,8 @@ class Db {
   static async create(dataDir) {
     const SQL = await _getSQL();
     const dbPath = process.env.NODE_ENV === 'test'
-      ? path.join(dataDir, 'test.db')
-      : path.join(dataDir, 'packages.db');
+      ? path.join(dataDir, 'claims-test.db')
+      : path.join(dataDir, 'claims.db');
     const buf = fs.existsSync(dbPath) ? fs.readFileSync(dbPath) : null;
     return new Db(dbPath, SQL, buf);
   }

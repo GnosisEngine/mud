@@ -85,7 +85,7 @@ module.exports = {
       return say(player, 'This room is already claimed by another player.');
     }
 
-    store.claimRoom(player.name, roomId, { taxRate }).then((claim) => {
+    store.claimRoom(player.name, roomId, { taxRate }).then((/*claim*/) => {
       say(player, `You've claimed ${room.title} at a tax rate of ${taxRate}%.`);
     }).catch((err) => {
       say(player, `Failed to claim room: ${err.message}`);

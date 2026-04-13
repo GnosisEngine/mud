@@ -4,35 +4,35 @@ const { Logger } = require('ranvier');
 
 module.exports = {
   listeners: {
-    spawn: state => function () {
+    spawn: () => function() {
       Logger.log(`${this.name} spawned into room ${this.room.title}`);
     },
 
-    playerEnter: state => function (player) {
+    playerEnter: () => function(player) {
       Logger.log(`${this.name} noticed ${player.name} enter room`);
     },
 
-    playerLeave: state => function (target, destination) {
+    playerLeave: () => function(target, destination) {
       Logger.log(`${target.name} left ${this.room.title} towards ${destination.title}`);
     },
 
-    playerDropItem: state => function(player, item) {
+    playerDropItem: () => function(player, item) {
       Logger.log(`${this.name} noticed ${player.name} dropped ${item.name}`);
     },
 
-    hit: state => function(target, amount) {
+    hit: () => function(target, amount) {
       Logger.log(`${this.name} hit ${target.name} for ${amount}`);
     },
 
-    damaged: state => function (amount) {
+    damaged: () => function(amount) {
       Logger.log(`${this.name} damaged ${amount}`);
     },
 
-    npcLeave: state => function (target, destination) {
+    npcLeave: () => function(target, destination) {
       Logger.log(`${target.name} left ${this.room.title} towards ${destination.title}`);
     },
 
-    npcEnter: state => function (target) {
+    npcEnter: () => function(target) {
       Logger.log(`${target.name} entered same room as ${this.name}`);
     },
   }

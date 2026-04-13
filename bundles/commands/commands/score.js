@@ -5,14 +5,14 @@ const { Broadcast: B } = require('ranvier');
 const Combat = require('../../combat/lib/Combat');
 
 module.exports = {
-  aliases: [ 'stats' ],
-  command : (state) => (args, p) => {
+  aliases: ['stats'],
+  command : () => (args, p) => {
     const say = message => B.sayAt(p, message);
 
     say('<b>' + B.center(60, `${p.name}, level ${p.level} ${p.playerClass.config.name}`, 'green'));
     say('<b>' + B.line(60, '-', 'green'));
 
-    let stats = {
+    const stats = {
       strength: 0,
       agility: 0,
       intellect: 0,

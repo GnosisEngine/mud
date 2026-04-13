@@ -1,7 +1,7 @@
 // resources/commands/trade.js
 'use strict';
 
-const { Broadcast: B, PlayerManager } = require('ranvier');
+const { Broadcast: B } = require('ranvier');
 const TradeLogic = require('../lib/TradeLogic');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
 
@@ -33,7 +33,7 @@ module.exports = {
   usage: 'trade <player> <amount> <resource> [, <amount> <resource> ...] | trade accept | trade reject',
   command: state => (args, player) => {
     if (!args || !args.trim().length) {
-      return B.sayAt(player, "Usage: trade <player> <offer> or trade accept/reject");
+      return B.sayAt(player, 'Usage: trade <player> <offer> or trade accept/reject');
     }
 
     const [subcommand, ...rest] = args.trim().split(/\s+/);

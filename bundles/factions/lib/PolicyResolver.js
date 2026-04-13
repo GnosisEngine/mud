@@ -6,7 +6,6 @@ const path = require('path');
 
 const {
   BRACKET_LABELS,
-  FACTION_EVENTS,
   FACTION_EVENT_NAMES,
 } = require('../constants');
 

@@ -46,7 +46,6 @@
 
 // Helpers
 
-const nil = (v) => (v === null || v === undefined) ? '-' : v;
 const ts36 = (v) => (v === null || v === undefined) ? '-' : v.toString(36);
 const fromTs = (s) => s === '-' ? null : parseInt(s, 36);
 const bool = (v) => v ? '1' : '0';

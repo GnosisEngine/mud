@@ -1,5 +1,5 @@
 'use strict';
-const { renderStatusBar } = require('../lib/statusBar')
+const { renderStatusBar } = require('../lib/statusBar');
 
 /**
  * This example definition of a class file is a guideline. The class system is
@@ -16,11 +16,11 @@ module.exports = {
     3: { skills: ['rend'] },
     5: { skills: ['lunge'] },
     7: { skills: ['shieldblock'] },
-   10: { skills: ['secondwind'] },
+    10: { skills: ['secondwind'] },
   },
 
   setupPlayer: (state, player) => {
-    const actionName = 'energy'
+    const actionName = 'energy';
     const energy = state.AttributeFactory.create(actionName, 100);
     player.addAttribute(energy);
 

@@ -607,26 +607,26 @@ const Colors = {
    */
   named: {
     // Neutrals
-    black:        [0,   0,   0  ],
-    darkGray:     [50,  50,  50 ],
+    black:        [0,   0,   0],
+    darkGray:     [50,  50,  50],
     gray:         [128, 128, 128],
     silver:       [192, 192, 192],
     white:        [255, 255, 255],
     // Reds
-    darkRed:      [128, 0,   0  ],
-    red:          [200, 0,   0  ],
-    brightRed:    [255, 60,  60 ],
-    crimson:      [220, 20,  60 ],
+    darkRed:      [128, 0,   0],
+    red:          [200, 0,   0],
+    brightRed:    [255, 60,  60],
+    crimson:      [220, 20,  60],
     // Oranges / Yellows
-    orange:       [255, 140, 0  ],
-    gold:         [255, 215, 0  ],
-    yellow:       [200, 200, 0  ],
-    brightYellow: [255, 255, 60 ],
+    orange:       [255, 140, 0],
+    gold:         [255, 215, 0],
+    yellow:       [200, 200, 0],
+    brightYellow: [255, 255, 60],
     // Greens
-    darkGreen:    [0,   100, 0  ],
-    green:        [0,   200, 60 ],
+    darkGreen:    [0,   100, 0],
+    green:        [0,   200, 60],
     brightGreen:  [60,  255, 100],
-    lime:         [120, 255, 0  ],
+    lime:         [120, 255, 0],
     // Cyans
     teal:         [0,   128, 128],
     cyan:         [0,   200, 200],
@@ -643,9 +643,9 @@ const Colors = {
     pink:         [255, 100, 180],
     hotPink:      [255, 20,  147],
     // MUD staples
-    bloodRed:     [180, 0,   0  ],
+    bloodRed:     [180, 0,   0],
     manaBlue:     [30,  80,  255],
-    staminaGreen: [0,   180, 80 ],
+    staminaGreen: [0,   180, 80],
     xpPurple:     [160, 0,   255],
   },
 

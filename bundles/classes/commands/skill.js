@@ -3,7 +3,7 @@
 const { Broadcast: B, SkillFlag } = require('ranvier');
 
 module.exports = {
-  aliases: [ "spell" ],
+  aliases: ['spell'],
   command : state => (args, player) => {
     const say = (message, wrapWidth) => B.sayAt(player, message, wrapWidth);
 
@@ -17,7 +17,7 @@ module.exports = {
     }
 
     if (!skill) {
-      return say("No such skill.");
+      return say('No such skill.');
     }
 
     say('<b>' + B.center(80, skill.name, 'white', '-') + '</b>');

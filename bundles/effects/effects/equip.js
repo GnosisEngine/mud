@@ -18,7 +18,7 @@ module.exports = {
     stats: {}
   },
   modifiers: {
-    attributes: function (attribute, current) {
+    attributes: function(attribute, current) {
       if (!(attribute in this.state.stats)) {
         return current;
       }
@@ -27,7 +27,7 @@ module.exports = {
     }
   },
   listeners: {
-    unequip: function (slot, item) {
+    unequip: function(slot, item) {
       if (slot === this.state.slot) {
         this.remove();
       }

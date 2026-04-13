@@ -4,12 +4,12 @@ const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 
 module.exports = {
-  command: state => (arg, player) => {
+  command: () => (arg, player) => {
     if (!arg || !arg.length) {
       return Broadcast.sayAt(player, 'Ditch whom?');
     }
 
-    let target = ArgParser.parseDot(arg, player.followers);
+    const target = ArgParser.parseDot(arg, player.followers);
 
     if (!target) {
       return Broadcast.sayAt(player, "They aren't following you.");

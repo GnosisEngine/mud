@@ -13,7 +13,7 @@ module.exports = {
   name: 'Second Wind',
   type: SkillType.SKILL,
   flags: [SkillFlag.PASSIVE],
-  effect: "skill.secondwind",
+  effect: 'skill.secondwind',
   cooldown: interval,
 
   configureEffect: effect => {
@@ -25,7 +25,7 @@ module.exports = {
     return effect;
   },
 
-  info: function (player) {
+  info: function(/*player*/) {
     return `Once every ${interval / 60} minutes, when dropping below ${threshold} energy, restore ${restorePercent}% of your max energy.`;
   }
 };

@@ -7,9 +7,9 @@ const { Broadcast } = require('ranvier');
  * View command queue
  */
 module.exports = {
-  aliases: [ 'pending' ],
+  aliases: ['pending'],
   usage: 'queue',
-  command : (state) => (args, player) => {
+  command : () => (args, player) => {
     Broadcast.sayAt(player, '<bold><yellow>Command Queue:</yellow></bold>');
     if (!player.commandQueue.hasPending) {
       return Broadcast.sayAt(player, ' -) None.');

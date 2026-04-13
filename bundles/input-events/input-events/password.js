@@ -2,7 +2,7 @@
 
 const { EventUtil } = require('ranvier');
 
-let passwordAttempts = {};
+const passwordAttempts = {};
 const maxFailedAttempts = 2;
 
 
@@ -10,10 +10,10 @@ const maxFailedAttempts = 2;
  * Account password event
  */
 module.exports = {
-  event: state => (socket, args) => {
+  event: () => (socket, args) => {
     const write = EventUtil.genWrite(socket);
 
-    let name = args.account.name;
+    const name = args.account.name;
 
     if (!passwordAttempts[name]) {
       passwordAttempts[name] = 0;
@@ -21,14 +21,14 @@ module.exports = {
 
     // Boot and log any failed password attempts
     if (passwordAttempts[name] > maxFailedAttempts) {
-      write("Password attempts exceeded.\r\n");
+      write('Password attempts exceeded.\r\n');
       passwordAttempts[name] = 0;
       socket.end();
       return false;
     }
 
     if (!args.dontwelcome) {
-      write("Enter your password: ");
+      write('Enter your password: ');
       socket.command('toggleEcho');
     }
 
@@ -36,7 +36,7 @@ module.exports = {
       socket.command('toggleEcho');
 
       if (!args.account.checkPassword(pass.toString().trim())) {
-        write("<red>Incorrect password.</red>\r\n");
+        write('<red>Incorrect password.</red>\r\n');
         passwordAttempts[name]++;
 
         return socket.emit('password', socket, args);

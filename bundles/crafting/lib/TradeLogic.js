@@ -16,7 +16,7 @@ function _hasPending(playerA, playerB) {
 
 function initiate(initiator, target, resourceMap, options = {}) {
   const timeoutMs = options.timeoutMs !== undefined ? options.timeoutMs : TRADE_TIMEOUT_MS;
-  const onTimeout = options.onTimeout || function () { };
+  const onTimeout = options.onTimeout || function() { };
 
   if (!Object.keys(resourceMap).length) {
     return { ok: false, reason: 'empty_offer' };

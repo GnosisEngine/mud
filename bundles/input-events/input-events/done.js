@@ -1,6 +1,6 @@
 'use strict';
 
-const { Broadcast, Logger } = require('ranvier');
+const { Broadcast } = require('ranvier');
 const PlayerClass = require('../../classes/lib/PlayerClass');
 
 
@@ -9,7 +9,7 @@ const PlayerClass = require('../../classes/lib/PlayerClass');
  */
 module.exports = {
   event: state => (socket, args) => {
-    let player = args.player;
+    const player = args.player;
     player.hydrate(state);
 
     player.playerClass = PlayerClass.get(player.getMeta('class'));

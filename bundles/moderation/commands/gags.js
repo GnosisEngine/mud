@@ -21,7 +21,7 @@ module.exports = {
     }
 
     if (!rows.length) {
-      Broadcast.sayAt(player, `No players have active communication effects.`);
+      Broadcast.sayAt(player, 'No players have active communication effects.');
       return;
     }
 

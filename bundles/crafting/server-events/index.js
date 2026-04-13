@@ -3,12 +3,12 @@
 
 const TerrainResolver = require('../lib/TerrainResolver');
 const SpawnLoop = require('../lib/SpawnLoop');
-const NpcDeathHandler = require('../lib/NpcDeathHandler');
+//const NpcDeathHandler = require('../lib/NpcDeathHandler');
 const ResourceContainer = require('../lib/ResourceContainer');
 const startupPoll = require('../../lib/lib/StartupPoll');
 const { SPAWN_TICK_MS, ROT_POLL_TICK_MS } = require('../constants');
 const { emit: craftingEmit } = require('../events');
-const { EVENTS: CombatEvents } = require('../../combat/events');
+//const { EVENTS: CombatEvents } = require('../../combat/events');
 
 module.exports = {
   listeners: {

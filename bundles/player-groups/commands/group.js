@@ -1,8 +1,6 @@
 'use strict';
 
-const Ranvier = require('ranvier');
 const { Broadcast: B, CommandManager } = require('ranvier');
-const Parser = require('../../lib/lib/ArgParser');
 const say = B.sayAt;
 
 const subcommands = new CommandManager();
@@ -30,14 +28,14 @@ subcommands.add({
     }
 
     if (!args.length) {
-      return say(player, "Invite whom?");
+      return say(player, 'Invite whom?');
     }
 
     // const target = Parser.parseDot(args, player.room.players);
     const target = state.getTarget(player.room, args, ['player']);
 
     if (target === player) {
-      return say(player, "You ask yourself if you want to join your own group. You humbly accept.");
+      return say(player, 'You ask yourself if you want to join your own group. You humbly accept.');
     }
 
     if (!target) {
@@ -45,7 +43,7 @@ subcommands.add({
     }
 
     if (target.party) {
-      return say(player, "They are already in a group.");
+      return say(player, 'They are already in a group.');
     }
 
     say(target, `<b><green>${player.name} invited you to join their group. Join/decline with '<white>group join/decline ${player.name}</white>'</green></b>`);
@@ -68,7 +66,7 @@ subcommands.add({
     }
 
     if (!args || args !== 'sure') {
-      return say(player, `<b><green>You have to confirm disbanding your group with '<white>group disband sure</white>'</green></b>`);
+      return say(player, '<b><green>You have to confirm disbanding your group with \'<white>group disband sure</white>\'</green></b>');
     }
 
     say(player.party, '<b><green>Your group was disbanded!</green></b>');
@@ -80,10 +78,9 @@ subcommands.add({
   name: 'join',
   command: state => (args, player) => {
     if (!args.length) {
-      return say(player, "Join whose group?");
+      return say(player, 'Join whose group?');
     }
 
-    //const target = Parser.parseDot(args, player.room.players);
     const target = state.getTarget(player.room, args, ['player']);
 
     if (!target) {
@@ -109,10 +106,9 @@ subcommands.add({
   name: 'decline',
   command: state => (args, player) => {
     if (!args.length) {
-      return say(player, "Decline whose invite?");
+      return say(player, 'Decline whose invite?');
     }
 
-    // const target = Parser.parseDot(args, player.room.players);
     const target = state.getTarget(player.room, args, ['player']);
 
     if (!target) {
@@ -127,7 +123,7 @@ subcommands.add({
 
 subcommands.add({
   name: 'list',
-  command: state => (args, player) => {
+  command: () => (args, player) => {
     if (!player.party) {
       return say(player, "You're not in a group.");
     }
@@ -145,13 +141,13 @@ subcommands.add({
 
 subcommands.add({
   name: 'leave',
-  command: state => (args, player) => {
+  command: () => (args, player) => {
     if (!player.party) {
       return say(player, "You're not in a group.");
     }
 
     if (player === player.party.leader) {
-      return say(player, "You have to disband if you want to leave the group.");
+      return say(player, 'You have to disband if you want to leave the group.');
     }
 
     const party = player.party;
@@ -162,18 +158,18 @@ subcommands.add({
 });
 
 module.exports = {
-  aliases: [ 'party' ],
+  aliases: ['party'],
   command: state => (args, player) => {
 
     if (!args || !args.length) {
       args = 'list';
     }
 
-    const [ command, ...commandArgs ] = args.split(' ');
+    const [command, ...commandArgs] = args.split(' ');
     const subcommand = subcommands.find(command);
 
     if (!subcommand) {
-      return say(player, "Not a valid party command.");
+      return say(player, 'Not a valid party command.');
     }
 
     subcommand.command(state)(commandArgs.join(' '), player);

@@ -9,7 +9,7 @@ const CombatErrors = require('../lib/CombatErrors');
 
 module.exports = {
   aliases: ['attack', 'slay'],
-  command : (state) => (args, player) => {
+  command : () => (args, player) => {
     args = args.trim();
 
     if (!args.length) {

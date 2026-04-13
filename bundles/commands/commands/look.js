@@ -14,7 +14,7 @@ const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 
 module.exports = {
-  usage: "look [thing]",
+  usage: 'look [thing]',
   command: state => (args, player) => {
     if (!player.room || !(player.room instanceof Room)) {
       Logger.error(player.name + ' is in limbo.');
@@ -62,6 +62,7 @@ function getCompass(player) {
     return '-';
   });
 
+  // eslint-disable-next-line prefer-const
   let [E, W, S, N, U, D, SW, SE, NW, NE] = exits;
   U = U === 'U' ? '<yellow><b>U</yellow></b>' : U;
   D = D === 'D' ? '<yellow><b>D</yellow></b>' : D;
@@ -80,7 +81,7 @@ function lookRoom(state, player) {
     B.sayAt(player, '<yellow><b>' + sprintf('%-65s', room.title) + '</b></yellow>');
     B.sayAt(player, B.line(60));
   } else {
-    const [ line1, line2, line3 ] = getCompass(player);
+    const [line1, line2, line3] = getCompass(player);
 
     // map is 15 characters wide, room is formatted to 80 character width
     B.sayAt(player, '<yellow><b>' + sprintf('%-65s', room.title) + line1 + '</b></yellow>');
@@ -127,11 +128,11 @@ function lookRoom(state, player) {
     if (npc.quests) {
       hasNewQuest = npc.quests.find(questRef => state.QuestFactory.canStart(player, questRef));
       hasReadyQuest = npc.quests.find(questRef => {
-          return player.questTracker.isActive(questRef) &&
+        return player.questTracker.isActive(questRef) &&
             player.questTracker.get(questRef).getProgress().percent >= 100;
       });
       hasActiveQuest = npc.quests.find(questRef => {
-          return player.questTracker.isActive(questRef) &&
+        return player.questTracker.isActive(questRef) &&
             player.questTracker.get(questRef).getProgress().percent < 100;
       });
 
@@ -264,7 +265,7 @@ function lookEntity(state, player, args) {
         }
 
         if (entity.closed) {
-          return B.sayAt(player, `It is closed.`);
+          return B.sayAt(player, 'It is closed.');
         }
 
         B.at(player, 'Contents');
@@ -273,7 +274,7 @@ function lookEntity(state, player, args) {
         }
         B.sayAt(player, ':');
 
-        for (const [, item ] of entity.inventory) {
+        for (const [, item] of entity.inventory) {
           B.sayAt(player, '  ' + ItemUtil.display(item));
         }
         break;
@@ -285,5 +286,5 @@ function lookEntity(state, player, args) {
 
 function getCombatantsDisplay(entity) {
   const combatantsList = [...entity.combatants.values()].map(combatant => combatant.name);
-  return `, <red>fighting </red>${combatantsList.join("<red>,</red> ")}`;
+  return `, <red>fighting </red>${combatantsList.join('<red>,</red> ')}`;
 }

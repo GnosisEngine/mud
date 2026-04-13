@@ -16,7 +16,7 @@ module.exports = {
     outputFn: null
   },
   listeners: {
-    effectActivated: function () {
+    effectActivated: function() {
       if (typeof this.state.outputFn !== 'function') {
         throw new Error('Speak effect has no outputFn configured');
       }
@@ -25,7 +25,7 @@ module.exports = {
       this.state.remainingMessages = this.state.messageList.concat([]);
     },
 
-    updateTick: function () {
+    updateTick: function() {
       if (!this.state.remainingMessages.length) {
         return this.remove();
       }

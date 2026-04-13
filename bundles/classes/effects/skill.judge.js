@@ -17,7 +17,7 @@ module.exports = {
   },
   modifiers: {
     incomingDamage: (damage, current) => current,
-    outgoingDamage: function (damage, currentAmount) {
+    outgoingDamage: function(damage, currentAmount) {
       if (damage instanceof Heal || damage.attribute !== 'health') {
         return currentAmount;
       }
@@ -27,15 +27,15 @@ module.exports = {
     },
   },
   listeners: {
-    effectActivated: function () {
+    effectActivated: function() {
       Broadcast.sayAt(this.target, '<yellow>The holy judgement weakens you.</yellow>');
     },
 
-    effectDeactivated: function () {
+    effectDeactivated: function() {
       Broadcast.sayAt(this.target, '<yellow>You feel your strength return.</yellow>');
     },
 
-    hit: function () {
+    hit: function() {
       this.remove();
     }
   }

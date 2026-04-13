@@ -6,18 +6,18 @@ const { EventUtil, Logger } = require('ranvier');
  * Delete character event
  */
 module.exports = {
-  event: state => (socket, args) => {
-    let account = args.account;
+  event: () => (socket, args) => {
+    const account = args.account;
     const say = EventUtil.genSay(socket);
     const write = EventUtil.genWrite(socket);
 
-    say("\r\n------------------------------");
-    say("|      Delete a Character");
-    say("------------------------------");
+    say('\r\n------------------------------');
+    say('|      Delete a Character');
+    say('------------------------------');
 
     const characters = account.characters.filter(currChar => currChar.deleted === false);
 
-    let options = [];
+    const options = [];
     characters.forEach(char => {
       options.push({
         display: `Delete <b>${char.username}</b>`,
@@ -46,7 +46,7 @@ module.exports = {
       });
     });
 
-    options.push({ display: "" });
+    options.push({ display: '' });
 
     options.push({
       display: 'Go back to main menu',

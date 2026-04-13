@@ -39,7 +39,7 @@ const { Broadcast: B, Logger } = require('ranvier');
  */
 module.exports = {
   listeners: {
-    updateTick: state => function (config) {
+    updateTick: () => function(config) {
       if (!this.room) {
         return;
       }

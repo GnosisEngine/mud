@@ -4,16 +4,16 @@ const humanize = (sec) => { return require('humanize-duration')(sec, { round: tr
 const { Broadcast: B, EffectFlag } = require('ranvier');
 
 module.exports = {
-  aliases: [ "affects" ],
-  command : (state) => (args, player) => {
-    B.sayAt(player, "Current Effects:");
+  aliases: ['affects'],
+  command : () => (args, player) => {
+    B.sayAt(player, 'Current Effects:');
 
     const effects = player.effects.entries().filter(effect => {
       return !effect.config.hidden;
     });
 
     if (!effects.length) {
-      return B.sayAt(player, "  None.");
+      return B.sayAt(player, '  None.');
     }
 
     for (const effect of effects) {
@@ -31,11 +31,11 @@ module.exports = {
       B.at(player, ':');
 
       if (effect.duration === Infinity) {
-        B.sayAt(player, "Permanent");
+        B.sayAt(player, 'Permanent');
       } else {
         B.sayAt(player, ` ${humanize(effect.remaining)} remaining`);
       }
-      B.sayAt(player, "\t" + effect.description);
+      B.sayAt(player, '\t' + effect.description);
     }
   }
 };

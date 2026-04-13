@@ -10,7 +10,7 @@ module.exports = {
     const say = EventUtil.genSay(socket);
     const write = EventUtil.genWrite(socket);
 
-    say("Your password must be at least 8 characters.");
+    say('Your password must be at least 8 characters.');
     write('<cyan>Enter your account password:</cyan> ');
 
     socket.command('toggleEcho');

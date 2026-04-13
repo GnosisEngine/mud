@@ -7,10 +7,10 @@ module.exports = {
   aliases: ['abilities', 'spells'],
   command: state => (args, player) => {
     const say = message => B.sayAt(player, message);
-    say("<b>" + B.center(80, 'Abilities', 'green'));
-    say("<b>" + B.line(80, '=', 'green'));
+    say('<b>' + B.center(80, 'Abilities', 'green'));
+    say('<b>' + B.line(80, '=', 'green'));
 
-    for (const [ level, abilities ] of Object.entries(player.playerClass.abilityTable)) {
+    for (const [level, abilities] of Object.entries(player.playerClass.abilityTable)) {
       abilities.skills = abilities.skills || [];
       abilities.spells = abilities.spells || [];
 
@@ -26,15 +26,15 @@ module.exports = {
         say('\r\n<bold>Skills</bold>');
       }
 
-      for (let skillId of abilities.skills) {
-        let skill = state.SkillManager.get(skillId);
+      for (const skillId of abilities.skills) {
+        const skill = state.SkillManager.get(skillId);
 
         if (!skill) {
           Logger.error(`Invalid skill in ability table: ${player.playerClass.name}:${level}:${skillId}`);
           continue;
         }
 
-        let name = sprintf("%-20s", skill.name);
+        let name = sprintf('%-20s', skill.name);
         if (player.level >= level) {
           name = `<green>${name}</green>`;
         }
@@ -49,15 +49,15 @@ module.exports = {
         say('\r\n<bold>Spells</bold>');
       }
 
-      for (let spellId of abilities.spells) {
-        let spell = state.SpellManager.get(spellId);
+      for (const spellId of abilities.spells) {
+        const spell = state.SpellManager.get(spellId);
 
         if (!spell) {
           Logger.error(`Invalid spell in ability table: ${player.playerClass.name}:${level}:${spellId}`);
           continue;
         }
 
-        let name = sprintf("%-20s", spell.name);
+        let name = sprintf('%-20s', spell.name);
         if (player.level >= level) {
           name = `<green>${name}</green>`;
         }

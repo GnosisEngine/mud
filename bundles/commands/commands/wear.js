@@ -8,7 +8,7 @@ const ItemUtil = require('../../lib/lib/ItemUtil');
 const ArgParser = require('../../lib/lib/ArgParser');
 
 module.exports = {
-  aliases: [ 'wield' ],
+  aliases: ['wield'],
   usage: 'wear <item>',
   command : (state) => (arg, player) => {
     arg = arg.trim();

@@ -12,7 +12,7 @@ const WP_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 module.exports = {
   usage: 'waypoint [list | remove <label|#> | <label>]',
-  command: state => (args, player) => {
+  command: () => (args, player) => {
     if (!player.metadata.waypoints) player.metadata.waypoints = [];
     const waypoints = player.metadata.waypoints;
 

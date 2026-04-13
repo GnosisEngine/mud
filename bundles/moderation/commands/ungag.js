@@ -10,7 +10,7 @@ module.exports = {
     args = args.trim();
 
     if (!args.length) {
-      Broadcast.sayAt(player, `Usage: ungag <player> [effect]`);
+      Broadcast.sayAt(player, 'Usage: ungag <player> [effect]');
       return;
     }
 

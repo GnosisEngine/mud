@@ -6,7 +6,7 @@ const { Broadcast: B, Logger } = require('ranvier');
 
 module.exports = {
   usage: 'consider <target>',
-  command: state => (args, player) => {
+  command: () => (args, player) => {
     if (!args || !args.length) {
       return B.sayAt(player, 'Who do you want to size up for a fight?');
     }

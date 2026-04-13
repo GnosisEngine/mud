@@ -35,7 +35,7 @@ exports.qualityColorize = qualityColorize;
 /**
  * Friendly display colorized by quality
  */
-exports.display = function (item) {
+exports.display = function(item) {
   return qualityColorize(item, `[${item.name}]`);
 };
 
@@ -45,7 +45,7 @@ exports.display = function (item) {
  * @param {Item}      item
  * @param {Player}    player
  */
-exports.renderItem = function (state, item, player) {
+exports.renderItem = function(state, item, player) {
   let buf = qualityColorize(item, '.' + B.line(38) + '.') + '\r\n';
   buf += '| ' + qualityColorize(item, sprintf('%-36s', item.name)) + ' |\r\n';
 

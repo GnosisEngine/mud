@@ -8,10 +8,10 @@ module.exports = {
   usage: 'equipment',
   command: (state) => (args, player) => {
     if (!player.equipment.size) {
-      return Broadcast.sayAt(player, "You are completely naked!");
+      return Broadcast.sayAt(player, 'You are completely naked!');
     }
 
-    Broadcast.sayAt(player, "Currently Equipped:");
+    Broadcast.sayAt(player, 'Currently Equipped:');
     for (const [slot, item] of player.equipment) {
       Broadcast.sayAt(player, `  <${slot}> ${ItemUtil.display(item)}`);
     }

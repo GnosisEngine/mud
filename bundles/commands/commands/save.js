@@ -4,9 +4,9 @@ const { Broadcast } = require('ranvier');
 
 module.exports = {
   usage: 'save',
-  command: state => (args, player) => {
+  command: () => (args, player) => {
     player.save(() => {
-      Broadcast.sayAt(player, "Saved.");
+      Broadcast.sayAt(player, 'Saved.');
     });
   }
 };

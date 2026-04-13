@@ -1,13 +1,13 @@
 'use strict';
 
-const { Broadcast, ItemType } = require('ranvier');
+const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 
 module.exports = {
-  aliases: [ 'unwield', 'unequip' ],
+  aliases: ['unwield', 'unequip'],
   usage: 'remove <item>',
-  command : state => (arg, player) => {
+  command : () => (arg, player) => {
     if (!arg.length) {
       return Broadcast.sayAt(player, 'Remove what?');
     }

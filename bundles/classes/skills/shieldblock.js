@@ -21,7 +21,7 @@ module.exports = {
   },
   cooldown,
 
-  run: state => function (args, player, target) {
+  run: state => function(args, player/*, target*/) {
     if (!player.equipment.has('shield')) {
       Broadcast.sayAt(player, "You aren't wearing a shield!");
       return false;
@@ -39,12 +39,12 @@ module.exports = {
     );
     effect.skill = this;
 
-    Broadcast.sayAt(player, `<b>You raise your shield, bracing for incoming attacks!</b>`);
+    Broadcast.sayAt(player, '<b>You raise your shield, bracing for incoming attacks!</b>');
     Broadcast.sayAtExcept(player.room, `<b>${player.name} raises their shield, bracing for incoming damage.</b>`, [player]);
     player.addEffect(effect);
   },
 
-  info: (player) => {
+  info: (/*player*/) => {
     return `Raise your shield block damage up to <bold>${healthPercent}%</bold> of your maximum health for <bold>${duration / 1000}</bold> seconds. Requires a shield.`;
   }
 };

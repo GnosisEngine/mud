@@ -9,7 +9,7 @@ const ID_LENGTH = 8;
 /**
  * Each generator produces a prefixed nanoid.
  * Prefix is a single char + underscore, keeping IDs short but debuggable.
- * 
+ *
  * c_4xZ9kPmQ  → claim
  * l_3kPqYcWm  → collateral listing
  */

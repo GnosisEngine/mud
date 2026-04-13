@@ -12,7 +12,7 @@ module.exports = {
       return B.sayAt(player, 'Give what to whom?');
     }
 
-    let [ targetItem, to, targetRecip ] = args.split(' ');
+    let [targetItem, to, targetRecip] = args.split(' ');
     // give foo to bar
     if (to !== 'to' || !targetRecip) {
       targetRecip = to;
@@ -38,9 +38,9 @@ module.exports = {
     //     if (!accepts || !accepts.includes(targetItem.entityReference)) {
     //       return B.sayAt(player, 'They don\'t want that.');
     //     }
-    //   } 
+    //   }
     // }
-    let target = state.getTarget(player.room, targetRecip, ['player', 'npc']);
+    const target = state.getTarget(player.room, targetRecip, ['player', 'npc']);
 
     if (target?.isNpc) {
       const accepts = target.getBehavior('accepts');

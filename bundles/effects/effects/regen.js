@@ -5,7 +5,7 @@ const { Damage, EffectFlag, Heal } = require('ranvier');
 module.exports = {
   config: {
     name: 'Regenerate',
-    description: "You are regenerating over time.",
+    description: 'You are regenerating over time.',
     type: 'regen',
     tickInterval: 3
   },
@@ -14,7 +14,7 @@ module.exports = {
     magnitude: 10,
   },
   listeners: {
-    updateTick: function () {
+    updateTick: function() {
       // pools that regenerate over time
       const regens = [
         { pool: 'health', modifier: this.target.isInCombat() ? 0 : 1 },

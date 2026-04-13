@@ -6,7 +6,7 @@ const { EventUtil } = require('ranvier');
  * Confirm new player name
  */
 module.exports = {
-  event: state => (socket, args) => {
+  event: () => (socket, args) => {
     const say = EventUtil.genSay(socket);
     const write  = EventUtil.genWrite(socket);
 
@@ -20,7 +20,7 @@ module.exports = {
       }
 
       if (confirmation === 'n') {
-        say(`Let's try again...`);
+        say('Let\'s try again...');
         return socket.emit('create-player', socket, args);
       }
 
