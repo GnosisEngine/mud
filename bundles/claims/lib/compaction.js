@@ -37,6 +37,7 @@ async function compact(log, graph) {
   }
 
   await writer.close();
+
   log.swap();
 
   console.log(`compaction: wrote ${claims.length} snapshot entries`);

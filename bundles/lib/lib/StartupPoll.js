@@ -32,7 +32,7 @@ function startupPoll(condition, onReady, timeout = POLL_TIMEOUT_MS) {
       if (Date.now() > deadline) {
         clearInterval(poll);
         reject(new Error(
-          `startupPoll timed out after ${timeout}ms — condition never became true`
+          `startupPoll timed out after ${timeout}ms — condition never became true (${condition.toString()})`
         ));
       }
     }, POLL_INTERVAL_MS);
