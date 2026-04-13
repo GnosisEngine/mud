@@ -1,5 +1,6 @@
 'use strict';
 
+const { Logger } = require('ranvier');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -40,9 +41,9 @@ class Log {
     this._startFlushLoop();
 
     // ensure final flush on exit
-    process.on('exit', () => this._flushSync());
-    process.on('SIGINT', () => this._flushSync());
-    process.on('SIGTERM', () => this._flushSync());
+    process.on('exit', () => this._shutdown());
+    process.on('SIGINT', () => this._shutdown());
+    process.on('SIGTERM', () => this._shutdown());
   }
 
   // =========================================================
@@ -86,17 +87,34 @@ class Log {
     });
   }
 
-  _flushSync() {
-    if (this.buffer.length === 0) return;
+  _shutdown() {
+    Logger.log('[claims] exiting');
+
+    try {
+      this._flushBestEffort();
+    } finally {
+      // force exit no matter what
+      setImmediate(() => process.exit(0));
+    }
+  }
+
+  _flushBestEffort() {
+    Logger.log('[claims] best-effort flush triggered');
+
+    clearInterval(this._flushTimer);
 
     const chunk = this.buffer.join('');
     this.buffer = [];
 
-    try {
-      fs.appendFileSync(this.currentSegment, chunk);
-    } catch {
-      // last resort: ignore shutdown errors
-    }
+    if (!chunk) return;
+
+    // DO NOT block shutdown on disk
+    fs.appendFile(this.currentSegment, chunk, (err) => {
+      if (err) {
+      // optional: log to stderr, but DO NOT retry
+        console.error('[claims] flush failed during shutdown:', err.message);
+      }
+    });
   }
 
   // =========================================================

@@ -80,7 +80,6 @@ async function boot() {
   // Wipe the sql.js test database before startup so every run begins clean.
   // The claims bundle creates a fresh test.db during its async startup.
   if (process.env.NODE_ENV === 'test') {
-
     const files = [
       path.join(REPO_ROOT, 'bundles', 'claims', 'data', 'claims-test.db'),
       path.join(REPO_ROOT, 'bundles', 'claims', 'data', 'claims-test.log.state.json'),
