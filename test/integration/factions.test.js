@@ -1,7 +1,8 @@
 // test/integration/factions.test.js
 'use strict';
 
-const { describe, it, before, after } = require('node:test');
+const { reset, printTree } = require('../causality/tracker');
+const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
@@ -20,6 +21,7 @@ const { setup, teardown, ctx } = useSuite('limbo:black');
 
 before(setup);
 after(teardown);
+beforeEach(() => reset());
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -135,8 +137,27 @@ describe('factions reputation mutation', () => {
   });
 
   /*
-  ✖ emitting npc_killed applies default deltas to reputation (123.594745ms)
-    'Statement closed'
+actions] factionEvent for unknown factionId 9999 — ignored
+  ✖ emitting npc_killed applies default deltas to reputation (36.68565ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+    -15 !== -5
+
+        at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:152:12)
+        at async Test.run (node:internal/test_runner/test:797:9)
+        at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
+      generatedMessage: true,
+      code: 'ERR_ASSERTION',
+      actual: -15,
+      expected: -5,
+      operator: 'strictEqual'
+    }
+
+  ﹣ emitting trade_completed improves all positive axes (3.568183ms) # SKIP
+  ﹣ reputation accumulates across multiple events (0.22814ms) # SKIP
+  ﹣ reputation is independent per player (0.203274ms) # SKIP
+  ﹣ reputation is independent per faction (0.190468ms) # SKIP
+  ﹣ invalid eventType payload is silently rejected — no throw (0.194213ms) # SKIP
    */
   it.skip('emitting npc_killed applies default deltas to reputation', async() => {
     const s = factionSession();
@@ -151,11 +172,7 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
-  /*
-  ✖ emitting trade_completed improves all positive axes (133.907867ms)
-    'Statement closed'
-   */
-  it.skip('emitting trade_completed improves all positive axes', async() => {
+  it('emitting trade_completed improves all positive axes', async() => {
     const s = factionSession();
 
     await emitFactionEvent(s.player, 1, 'trade_completed');
@@ -168,11 +185,7 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
-  /*
-✖ reputation accumulates across multiple events (45.671472ms)
-  'Statement closed'
-   */
-  it.skip('reputation accumulates across multiple events', async() => {
+  it('reputation accumulates across multiple events', async() => {
     const s = factionSession();
 
     await emitFactionEvent(s.player, 1, 'trade_completed');
@@ -188,11 +201,7 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
-  /*
-✖ reputation is independent per player (141.194375ms)
-  'Statement closed'
-   */
-  it.skip('reputation is independent per player', async() => {
+  it('reputation is independent per player', async() => {
     const sA = factionSession({ name: 'AlphaPlayer' });
     const sB = factionSession({ name: 'BetaPlayer' });
 
@@ -208,11 +217,7 @@ describe('factions reputation mutation', () => {
     sB.cleanup();
   });
 
-  /*
-✖ reputation is independent per faction (59.224425ms)
-  'Statement closed'
-   */
-  it.skip('reputation is independent per faction', async() => {
+  it('reputation is independent per faction', async() => {
     const s = factionSession();
 
     await emitFactionEvent(s.player, 1, 'npc_killed');
@@ -227,24 +232,7 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
-  /*
-✖ invalid eventType payload is silently rejected — no throw (35.041818ms)
-  TypeError [Error]: Converting circular structure to JSON
-      --> starting at object with constructor 'Player'
-      |     property 'effects' -> object with constructor 'EffectList'
-      --- property 'target' closes the circle
-      at JSON.stringify (<anonymous>)
-      at handleFactionEvent (/home/programmer/Desktop/mud/bundles/factions/lib/FactionEvents.js:61:86)
-      at player._factionEventHandler (/home/programmer/Desktop/mud/test/harness/helpers.js:266:11)
-      at Player.emit (node:events:519:28)
-      at Player.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Character.js:57:11)
-      at Player.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Player.js:67:11)
-      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:237:14)
-      at Test.runInAsyncScope (node:async_hooks:206:9)
-      at Test.run (node:internal/test_runner/test:796:25)
-      at Suite.processPendingSubtests (node:internal/test_runner/test:527:18)
-   */
-  it.skip('invalid eventType payload is silently rejected — no throw', async() => {
+  it('invalid eventType payload is silently rejected — no throw', async() => {
     const s = factionSession();
     const { EVENTS } = require('../../bundles/factions/events');
 
@@ -305,11 +293,7 @@ describe('factions stance and bracket resolution', () => {
     s.cleanup();
   });
 
-  /*
-✖ player becomes known once renown crosses faction threshold (48.881154ms)
-  'Statement closed'
-   */
-  it.skip('player becomes known once renown crosses faction threshold', async() => {
+  it('player becomes known once renown crosses faction threshold', async() => {
     const s = factionSession();
     const threshold = manager().getFaction(1).renownThreshold;
 
@@ -327,8 +311,21 @@ describe('factions stance and bracket resolution', () => {
   });
 
   /*
-✖ affinity bracket resolves to hostile after enough npc_killed events (23.625693ms)
-  'Statement closed'
+✖ affinity bracket resolves to hostile after enough npc_killed events (20.308554ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'neutral'
+  - 'hostile'
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:325:12)
+      at async Test.run (node:internal/test_runner/test:797:9)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'neutral',
+    expected: 'hostile',
+    operator: 'strictEqual'
+  }
    */
   it.skip('affinity bracket resolves to hostile after enough npc_killed events', async() => {
     const s = factionSession();
@@ -350,7 +347,7 @@ describe('factions stance and bracket resolution', () => {
 
 describe('factions stance-changed event', () => {
   /*
-EVENTS.FACTION_STANCE_CHANGED never emits
+    just hangs
    */
   it.skip('emits faction:stanceChanged when a bracket crosses a boundary', async() => {
     const s = factionSession();
@@ -423,20 +420,7 @@ describe('factions faction-npc behavior', () => {
     removeNpc(ctx.state, guard);
   });
 
-  /*
-✖ stranger entering room receives a policy message (15.626869ms)
-  AssertionError [ERR_ASSERTION]: guard should send a message to the player
-      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:440:12)
-      at async Test.run (node:internal/test_runner/test:797:9)
-      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: false,
-    expected: true,
-    operator: '=='
-  }
-   */
-  it.skip('stranger entering room receives a policy message', async() => {
+  it('stranger entering room receives a policy message', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
 
@@ -454,9 +438,9 @@ describe('factions faction-npc behavior', () => {
   });
 
   /*
-✖ neutral stranger receives warn action (not attack) from graduated_warning (36.380922ms)
+✖ neutral stranger receives warn action (not attack) from graduated_warning (9.25782ms)
   AssertionError [ERR_ASSERTION]: neutral stranger should not trigger an attack timer
-      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:470:12)
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:464:12)
       at async Test.run (node:internal/test_runner/test:797:9)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
     generatedMessage: false,
@@ -519,20 +503,7 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
-  /*
-✖ hostile player receives an escalated message compared to neutral (8.915928ms)
-  AssertionError [ERR_ASSERTION]: neutral player should receive a message
-      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:549:12)
-      at async Test.run (node:internal/test_runner/test:797:9)
-      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: false,
-    expected: true,
-    operator: '=='
-  }
-   */
-  it.skip('hostile player receives an escalated message compared to neutral', async() => {
+  it('hostile player receives an escalated message compared to neutral', async() => {
     const sNeutral = ctx.session({ name: 'NeutralPlayer' });
     loginPlayer(ctx.state, sNeutral.player);
 
@@ -569,20 +540,7 @@ describe('factions faction-npc behavior', () => {
     sHostile.cleanup();
   });
 
-  /*
-✖ playerLeave cancels pending attack timer (10.849638ms)
-  AssertionError [ERR_ASSERTION]: timer should be cancelled after leave
-      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:593:12)
-      at async Test.run (node:internal/test_runner/test:797:9)
-      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: undefined,
-    expected: null,
-    operator: 'strictEqual'
-  }
-   */
-  it.skip('playerLeave cancels pending attack timer', async() => {
+  it('playerLeave cancels pending attack timer', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
 
@@ -606,18 +564,7 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
-  /*
-✖ guard killed by player emits factionEvent and updates reputation (2.160551ms)
-  TypeError [Error]: killer.emit is not a function
-      at Npc.<anonymous> (/home/programmer/Desktop/mud/bundles/factions/behaviors/npc/faction-npc.js:160:14)
-      at Npc.emit (node:events:531:35)
-      at Npc.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Character.js:57:11)
-      at Npc.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Scriptable.js:27:11)
-      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:622:11)
-      at async Test.run (node:internal/test_runner/test:797:9)
-      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7)
-   */
-  it.skip('guard killed by player emits factionEvent and updates reputation', async() => {
+  it('guard killed by player emits factionEvent and updates reputation', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
 
@@ -644,21 +591,7 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
-  /*
-✖ guard killed by another NPC does not emit factionEvent (4.337347ms)
-  TypeError [Error]: killer.emit is not a function
-      at Npc.<anonymous> (/home/programmer/Desktop/mud/bundles/factions/behaviors/npc/faction-npc.js:160:14)
-      at Npc.emit (node:events:531:35)
-      at Npc.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Character.js:57:11)
-      at Npc.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Scriptable.js:27:11)
-      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:657:11)
-      at Test.runInAsyncScope (node:async_hooks:206:9)
-      at Test.run (node:internal/test_runner/test:796:25)
-      at Suite.processPendingSubtests (node:internal/test_runner/test:527:18)
-      at Test.postRun (node:internal/test_runner/test:889:19)
-      at Test.run (node:internal/test_runner/test:835:12)
-   */
-  it.skip('guard killed by another NPC does not emit factionEvent', async() => {
+  it('guard killed by another NPC does not emit factionEvent', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
 

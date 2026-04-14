@@ -36,9 +36,11 @@ if (testFiles.length === 0) {
 
 console.log(`Running ${testFiles.length} test file(s):\n${testFiles.map(f => '  ' + path.relative(process.cwd(), f)).join('\n')}\n`);
 
+const patchPath = path.resolve(__dirname, '../causality/patch.js');
+
 const result = spawnSync(
   process.execPath,
-  ['--test', ...testFiles],
+  ['--require', patchPath, '--test', ...testFiles],
   {
     stdio: 'inherit',
     env: { ...process.env },
