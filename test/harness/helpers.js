@@ -3,6 +3,7 @@
 
 const { boot } = require('./GameHarness');
 const { TestSession, stripAnsi } = require('./TestSession');
+const { EVENTS } = require('../../bundles/factions/events');
 
 // Singleton state — boots once per process, shared across all test files
 
@@ -271,7 +272,6 @@ function loginPlayer(state, player) {
 
 // Emit a factionEvent on the player and wait for it to be processed.
 async function emitFactionEvent(player, factionId, eventType) {
-  const { EVENTS } = require('../../bundles/factions/events');
   player.emit(EVENTS.FACTION_EVENT, { factionId, eventType });
   await flush(3);
 }
@@ -289,7 +289,6 @@ async function getFactionStance(state, playerName, factionId) {
 // Return a promise that resolves with the next faction:stanceChanged payload
 // emitted on the given player.
 function awaitStanceChange(player) {
-  const { EVENTS } = require('../../bundles/factions/events');
   return new Promise(resolve => player.once(EVENTS.FACTION_STANCE_CHANGED, resolve));
 }
 

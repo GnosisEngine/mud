@@ -346,15 +346,15 @@ describe('factions stance and bracket resolution', () => {
 
 describe('factions stance-changed event', () => {
   /*
-    just hangs
+    awaitStanceChange never resolves because EVENTS.FACTION_STANCE_CHANGED never fires
    */
   it.skip('emits faction:stanceChanged when a bracket crosses a boundary', async() => {
     const s = factionSession();
 
     // npc_killed from zero: affinity 0 → -20, crosses into hostile
     const changePromise = awaitStanceChange(s.player);
-    await emitFactionEvent(s.player, 1, 'npc_killed');
 
+    await emitFactionEvent(s.player, 1, 'npc_killed');
     const change = await changePromise;
     assert.equal(change.factionId, 1);
     assert.equal(change.before.affinity, 'neutral');
