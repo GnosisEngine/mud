@@ -5,13 +5,10 @@ factions:
     defaultStrangerPolicy: graduated_warning
     renownThreshold: 30
     thresholds:
-      affinity:  [-60, -25, 25, 60]
+      affinity:  [-50, -20, 20, 50]
       honor:     [-50, -20, 20, 50]
       trust:     [-50, -20, 20, 50]
       debt:      [-50, -20, 20, 50]
-    eventOverrides:
-      npc_killed:
-        honor: -15
     policies:
       resource_trespass: graduated_warning
       claim_violation: immediate_hostile

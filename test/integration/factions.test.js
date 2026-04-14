@@ -158,7 +158,7 @@ actions] factionEvent for unknown factionId 9999 — ignored
   ﹣ reputation is independent per faction (0.190468ms) # SKIP
   ﹣ invalid eventType payload is silently rejected — no throw (0.194213ms) # SKIP
    */
-  it.skip('emitting npc_killed applies default deltas to reputation', async() => {
+  it('emitting npc_killed applies default deltas to reputation', async() => {
     const s = factionSession();
 
     await emitFactionEvent(s.player, 1, 'npc_killed');
@@ -326,7 +326,7 @@ describe('factions stance and bracket resolution', () => {
     operator: 'strictEqual'
   }
    */
-  it.skip('affinity bracket resolves to hostile after enough npc_killed events', async() => {
+  it('affinity bracket resolves to hostile after enough npc_killed events', async() => {
     const s = factionSession();
 
     // npc_killed: affinity -20. Default threshold: hostile ≤ -20.
@@ -348,7 +348,7 @@ describe('factions stance-changed event', () => {
   /*
     awaitStanceChange never resolves because EVENTS.FACTION_STANCE_CHANGED never fires
    */
-  it.skip('emits faction:stanceChanged when a bracket crosses a boundary', async() => {
+  it('emits faction:stanceChanged when a bracket crosses a boundary', async() => {
     const s = factionSession();
 
     // npc_killed from zero: affinity 0 → -20, crosses into hostile
@@ -449,7 +449,7 @@ describe('factions faction-npc behavior', () => {
     operator: 'strictEqual'
   }
    */
-  it.skip('neutral stranger receives warn action (not attack) from graduated_warning', async() => {
+  it('neutral stranger receives warn action (not attack) from graduated_warning', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
 
@@ -509,7 +509,7 @@ describe('factions faction-npc behavior', () => {
     const sHostile = ctx.session({ name: 'HostilePlayer' });
     loginPlayer(ctx.state, sHostile.player);
 
-    // Seed hostile player: affinity -30 → hostile bracket (Faction 1: -60/-25/25/60)
+    // Seed hostile player: affinity -30 → hostile bracket (Faction 1: -50/-20/20/50)
     // Renown = 30 = threshold → not a stranger
     seedReputation(ctx.state, sHostile.player.name, 1, { affinity: -30 });
 

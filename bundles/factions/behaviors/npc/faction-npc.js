@@ -78,6 +78,13 @@ module.exports = {
       if (!state.FactionManager) return;
       if (this.isInCombat()) return;
 
+      // Initialise timer state in case the spawn event was not fired by
+      // the engine (e.g. when NPCs are created directly in tests).
+      if (this._factionAttackTimer === undefined) {
+        this._factionAttackTimer  = null;
+        this._factionAttackTarget = null;
+      }
+
       const factionId = _getFactionId(this);
       if (factionId === null) return;
 
