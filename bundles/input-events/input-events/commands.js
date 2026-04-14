@@ -4,6 +4,23 @@ const { Broadcast: B, CommandType, Logger, PlayerRoles, Room } = require('ranvie
 const { NoPartyError, NoRecipientError, NoMessageError } = require('ranvier').Channel;
 const { CommandParser, InvalidCommandError, RestrictedCommandError } = require('../../lib/lib/CommandParser');
 const { emit: playerEmit } = require('../../player-events/events');
+const sty = require('sty');
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+// Keeps the LineEditor's stored prompt string in sync with the player's
+// current prompt after each B.prompt() call. The LineEditor uses this string
+// when redrawing the input line during history navigation.
+//
+// Intentionally a no-op when no LineEditor is attached (e.g. websocket
+// connections or sessions created before the line editor was introduced).
+function _syncPrompt(player) {
+  if (!player.socket._lineEditor) return;
+  const promptStr = sty.parse(player.interpolatePrompt(player.prompt) + ' ');
+  player.socket._lineEditor.setPrompt(promptStr);
+}
 
 /**
  * Main command loop. All player input after login goes through here.
@@ -34,6 +51,7 @@ module.exports = {
           } else {
             player._commandState = null;
             B.prompt(player);
+            _syncPrompt(player);
           }
 
           loop();
@@ -137,6 +155,7 @@ module.exports = {
       }
 
       B.prompt(player);
+      _syncPrompt(player);
       loop();
     });
   }

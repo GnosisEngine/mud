@@ -10,6 +10,8 @@
   },
   "license": "MIT",
   "scripts": {
+    "login": "telnet localhost 4000",
+    "login-raw": "nc localhost 4000",
     "setup": "npm install && node util/setup.js",
     "start": "node ./ranvier -v",
     "test": "NODE_ENV=test node --trace-warnings test/integration/run.js",

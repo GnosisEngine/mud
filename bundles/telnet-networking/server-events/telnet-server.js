@@ -3,6 +3,7 @@
 const Telnet = require('ranvier-telnet');
 const { Logger } = require('ranvier');
 const TelnetStream = require('../lib/TelnetStream');
+const LineEditor   = require('../lib/LineEditor');
 
 module.exports = {
   listeners: {
@@ -17,6 +18,9 @@ module.exports = {
 
         const stream = new TelnetStream();
         stream.attach(telnetSocket);
+
+        const lineEditor = new LineEditor(stream);
+        stream.attachLineEditor(lineEditor);
 
         stream.on('interrupt', () => {
           stream.write('\n*interrupt*\n');
