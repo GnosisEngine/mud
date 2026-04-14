@@ -1,8 +1,7 @@
 // test/integration/factions.test.js
 'use strict';
 
-const { reset, printTree } = require('../causality/tracker');
-const { describe, it, before, after, beforeEach } = require('node:test');
+const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
@@ -20,9 +19,9 @@ const { FACTION_EVENTS } = require('../../bundles/factions/constants');
 const { setup, teardown, ctx } = useSuite('limbo:black');
 
 before(setup);
-after(teardown);
-beforeEach(() => reset());
-
+after(() => {
+  teardown();
+});
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------

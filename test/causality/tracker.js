@@ -38,7 +38,7 @@ function printTree() {
     }
   }
 
-  return JSON.stringify(roots.map(r => buildNode(r, childrenOf)), null, 2);
+  return roots.map(r => buildNode(r, childrenOf));
 }
 
 module.exports = { record, reset, getLog, printTree };
