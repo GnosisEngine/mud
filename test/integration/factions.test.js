@@ -134,6 +134,10 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
+  /*
+  ✖ emitting npc_killed applies default deltas to reputation (123.594745ms)
+    'Statement closed'
+   */
   it.skip('emitting npc_killed applies default deltas to reputation', async() => {
     const s = factionSession();
 
@@ -147,6 +151,10 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
+  /*
+  ✖ emitting trade_completed improves all positive axes (133.907867ms)
+    'Statement closed'
+   */
   it.skip('emitting trade_completed improves all positive axes', async() => {
     const s = factionSession();
 
@@ -160,6 +168,10 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
+  /*
+✖ reputation accumulates across multiple events (45.671472ms)
+  'Statement closed'
+   */
   it.skip('reputation accumulates across multiple events', async() => {
     const s = factionSession();
 
@@ -176,6 +188,10 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
+  /*
+✖ reputation is independent per player (141.194375ms)
+  'Statement closed'
+   */
   it.skip('reputation is independent per player', async() => {
     const sA = factionSession({ name: 'AlphaPlayer' });
     const sB = factionSession({ name: 'BetaPlayer' });
@@ -192,6 +208,10 @@ describe('factions reputation mutation', () => {
     sB.cleanup();
   });
 
+  /*
+✖ reputation is independent per faction (59.224425ms)
+  'Statement closed'
+   */
   it.skip('reputation is independent per faction', async() => {
     const s = factionSession();
 
@@ -207,6 +227,23 @@ describe('factions reputation mutation', () => {
     s.cleanup();
   });
 
+  /*
+✖ invalid eventType payload is silently rejected — no throw (35.041818ms)
+  TypeError [Error]: Converting circular structure to JSON
+      --> starting at object with constructor 'Player'
+      |     property 'effects' -> object with constructor 'EffectList'
+      --- property 'target' closes the circle
+      at JSON.stringify (<anonymous>)
+      at handleFactionEvent (/home/programmer/Desktop/mud/bundles/factions/lib/FactionEvents.js:61:86)
+      at player._factionEventHandler (/home/programmer/Desktop/mud/test/harness/helpers.js:266:11)
+      at Player.emit (node:events:519:28)
+      at Player.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Character.js:57:11)
+      at Player.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Player.js:67:11)
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:237:14)
+      at Test.runInAsyncScope (node:async_hooks:206:9)
+      at Test.run (node:internal/test_runner/test:796:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:527:18)
+   */
   it.skip('invalid eventType payload is silently rejected — no throw', async() => {
     const s = factionSession();
     const { EVENTS } = require('../../bundles/factions/events');
@@ -268,6 +305,10 @@ describe('factions stance and bracket resolution', () => {
     s.cleanup();
   });
 
+  /*
+✖ player becomes known once renown crosses faction threshold (48.881154ms)
+  'Statement closed'
+   */
   it.skip('player becomes known once renown crosses faction threshold', async() => {
     const s = factionSession();
     const threshold = manager().getFaction(1).renownThreshold;
@@ -285,6 +326,10 @@ describe('factions stance and bracket resolution', () => {
     s.cleanup();
   });
 
+  /*
+✖ affinity bracket resolves to hostile after enough npc_killed events (23.625693ms)
+  'Statement closed'
+   */
   it.skip('affinity bracket resolves to hostile after enough npc_killed events', async() => {
     const s = factionSession();
 
@@ -304,6 +349,9 @@ describe('factions stance and bracket resolution', () => {
 // ---------------------------------------------------------------------------
 
 describe('factions stance-changed event', () => {
+  /*
+EVENTS.FACTION_STANCE_CHANGED never emits
+   */
   it.skip('emits faction:stanceChanged when a bracket crosses a boundary', async() => {
     const s = factionSession();
 
@@ -319,7 +367,10 @@ describe('factions stance-changed event', () => {
     s.cleanup();
   });
 
-  it.skip('does not emit faction:stanceChanged when brackets stay the same', async() => {
+  /*
+
+   */
+  it('does not emit faction:stanceChanged when brackets stay the same', async() => {
     const s = factionSession();
 
     // Seed player to -25 affinity (hostile bracket, safely inside it)
@@ -375,6 +426,9 @@ describe('factions faction-npc behavior', () => {
     removeNpc(ctx.state, guard);
   });
 
+  /*
+
+   */
   it.skip('stranger entering room receives a policy message', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
@@ -392,6 +446,9 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
+  /*
+
+   */
   it.skip('neutral stranger receives warn action (not attack) from graduated_warning', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
@@ -413,6 +470,9 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
+  /*
+
+   */
   it.skip('known enemy player triggers attack timer via graduated_warning', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
@@ -445,6 +505,9 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
+  /*
+
+   */
   it.skip('hostile player receives an escalated message compared to neutral', async() => {
     const sNeutral = ctx.session({ name: 'NeutralPlayer' });
     loginPlayer(ctx.state, sNeutral.player);
@@ -482,6 +545,9 @@ describe('factions faction-npc behavior', () => {
     sHostile.cleanup();
   });
 
+  /*
+
+   */
   it.skip('playerLeave cancels pending attack timer', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
@@ -506,6 +572,9 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
+  /*
+
+   */
   it.skip('guard killed by player emits factionEvent and updates reputation', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
@@ -533,6 +602,9 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
+  /*
+
+   */
   it.skip('guard killed by another NPC does not emit factionEvent', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
