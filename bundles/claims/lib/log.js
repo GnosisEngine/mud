@@ -7,15 +7,19 @@ const readline = require('readline');
 const { encode, decode } = require('./codec');
 const { Config } = require('ranvier');
 
+const SEGMENT_NAME = process.env.NODE_ENV === 'test'
+  ? 'segments-test'
+  : 'segments';
+
+const CLAIMS_NAME = process.env.NODE_ENV === 'test'
+  ? 'claims-test.log'
+  : 'claims.log';
+
 class Log {
   constructor(dataDir, compactThreshold = Config.get('compactThreshold')) {
     this.baseDir = dataDir;
-    this.segmentDir = process.env.NODE_ENV === 'test'
-      ? path.join(dataDir, 'segments-test')
-      : path.join(dataDir, 'segments');
-    this.statePath = process.env.NODE_ENV === 'test'
-      ? path.join(dataDir, 'claims-test.log.state.json')
-      : path.join(dataDir, 'claims.log.state.json');
+    this.segmentDir = path.join(dataDir, SEGMENT_NAME);
+    this.statePath = path.join(dataDir, `${CLAIMS_NAME}.state.json`);
 
     fs.mkdirSync(this.segmentDir, { recursive: true });
 
@@ -184,7 +188,7 @@ class Log {
   _segmentPath(i) {
     return path.join(
       this.segmentDir,
-      `claims.log.${String(i).padStart(6, '0')}`
+      `${CLAIMS_NAME}.${String(i).padStart(6, '0')}`
     );
   }
 
@@ -196,7 +200,7 @@ class Log {
 
   _segmentFiles() {
     return fs.readdirSync(this.segmentDir)
-      .filter(f => f.startsWith('claims.log.'))
+      .filter(f => f.startsWith(CLAIMS_NAME))
       .sort()
       .map(f => path.join(this.segmentDir, f));
   }
