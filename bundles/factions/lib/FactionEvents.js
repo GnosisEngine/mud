@@ -58,7 +58,8 @@ function createHandler(factionManager, logger) {
   return async function handleFactionEvent(payload) {
     const validationError = _validate(payload);
     if (validationError) {
-      log.warn(`[factions] invalid factionEvent payload — ${validationError}: ${JSON.stringify(payload)}`);
+      const safe = { playerId: payload.playerId, factionId: payload.factionId, eventType: payload.eventType };
+      log.warn(`[factions] invalid factionEvent payload — ${validationError}: ${JSON.stringify(safe)}`);
       return null;
     }
 

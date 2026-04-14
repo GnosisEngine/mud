@@ -20,6 +20,9 @@ const NULL_WORLD_MANAGER = {
   getPathBetweenClusters: () => null,
   getDirection:           () => null,
   getClusterIndex:        () => new Map(),
+  getFactionForRoom:      () => null,
+  getRoomsByFaction:      () => [],
+  getClustersByFaction:   () => [],
 };
 
 module.exports = {

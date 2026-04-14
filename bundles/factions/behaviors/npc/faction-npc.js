@@ -58,6 +58,8 @@ module.exports = {
           'but no "faction" key in metadata — behavior will be inert'
         );
       }
+      this._factionAttackTimer  = null;
+      this._factionAttackTarget = null;
     },
 
     // -----------------------------------------------------------------------
@@ -72,14 +74,14 @@ module.exports = {
     //   'reject'       → message only (used by honor_check)
     //   anything else  → message only
     // -----------------------------------------------------------------------
-    playerEnter: state => async function(player) {
+    playerEnter: state => async function(config, player) {
       if (!state.FactionManager) return;
       if (this.isInCombat()) return;
 
       const factionId = _getFactionId(this);
       if (factionId === null) return;
 
-      const config = _getConfig(this);
+      const npcConfig = _getConfig(this);
 
       let stance;
       try {
@@ -98,7 +100,7 @@ module.exports = {
 
       const policyName = stance.isStranger
         ? factionDef.defaultStrangerPolicy
-        : (factionDef.policies[config.policyTrigger] ?? factionDef.defaultStrangerPolicy);
+        : (factionDef.policies[npcConfig.policyTrigger] ?? factionDef.defaultStrangerPolicy);
 
       const ctx = {
         profile: {
@@ -121,7 +123,7 @@ module.exports = {
       }
 
       if (result.action === 'attack') {
-        const delayMs = config.attackDelay * 1000;
+        const delayMs = npcConfig.attackDelay * 1000;
         this._factionAttackTarget = player;
         this._factionAttackTimer  = setTimeout(() => {
           if (
@@ -140,7 +142,7 @@ module.exports = {
     // -----------------------------------------------------------------------
     // playerLeave — cancel any pending attack timer for the departing player.
     // -----------------------------------------------------------------------
-    playerLeave: () => function(player) {
+    playerLeave: () => function(config, player) {
       if (this._factionAttackTarget === player) {
         _cancelAttackTimer(this);
       }
@@ -150,7 +152,7 @@ module.exports = {
     // killed — emit a factionEvent on the killer so their reputation is updated.
     // Ignored when killed by another NPC (isNpc guard).
     // -----------------------------------------------------------------------
-    killed: state => function(killer) {
+    killed: state => function(config, killer) {
       if (!killer || killer.isNpc) return;
       if (!state.FactionManager) return;
 

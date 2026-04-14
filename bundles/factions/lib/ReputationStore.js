@@ -122,6 +122,7 @@ class ReputationStore {
   }
 
   _persist() {
+    for (const stmt of Object.values(this._stmts)) stmt.free();
     const data = this.db.export();
     fs.writeFileSync(this._dbPath, Buffer.from(data));
     this._prepare();
