@@ -367,9 +367,6 @@ EVENTS.FACTION_STANCE_CHANGED never emits
     s.cleanup();
   });
 
-  /*
-
-   */
   it('does not emit faction:stanceChanged when brackets stay the same', async() => {
     const s = factionSession();
 
@@ -427,7 +424,17 @@ describe('factions faction-npc behavior', () => {
   });
 
   /*
-
+✖ stranger entering room receives a policy message (15.626869ms)
+  AssertionError [ERR_ASSERTION]: guard should send a message to the player
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:440:12)
+      at async Test.run (node:internal/test_runner/test:797:9)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
    */
   it.skip('stranger entering room receives a policy message', async() => {
     const s = ctx.session();
@@ -447,7 +454,17 @@ describe('factions faction-npc behavior', () => {
   });
 
   /*
-
+✖ neutral stranger receives warn action (not attack) from graduated_warning (36.380922ms)
+  AssertionError [ERR_ASSERTION]: neutral stranger should not trigger an attack timer
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:470:12)
+      at async Test.run (node:internal/test_runner/test:797:9)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: null,
+    operator: 'strictEqual'
+  }
    */
   it.skip('neutral stranger receives warn action (not attack) from graduated_warning', async() => {
     const s = ctx.session();
@@ -470,10 +487,7 @@ describe('factions faction-npc behavior', () => {
     s.cleanup();
   });
 
-  /*
-
-   */
-  it.skip('known enemy player triggers attack timer via graduated_warning', async() => {
+  it('known enemy player triggers attack timer via graduated_warning', async() => {
     const s = ctx.session();
     loginPlayer(ctx.state, s.player);
 
@@ -506,7 +520,17 @@ describe('factions faction-npc behavior', () => {
   });
 
   /*
-
+✖ hostile player receives an escalated message compared to neutral (8.915928ms)
+  AssertionError [ERR_ASSERTION]: neutral player should receive a message
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:549:12)
+      at async Test.run (node:internal/test_runner/test:797:9)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
    */
   it.skip('hostile player receives an escalated message compared to neutral', async() => {
     const sNeutral = ctx.session({ name: 'NeutralPlayer' });
@@ -546,7 +570,17 @@ describe('factions faction-npc behavior', () => {
   });
 
   /*
-
+✖ playerLeave cancels pending attack timer (10.849638ms)
+  AssertionError [ERR_ASSERTION]: timer should be cancelled after leave
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:593:12)
+      at async Test.run (node:internal/test_runner/test:797:9)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: null,
+    operator: 'strictEqual'
+  }
    */
   it.skip('playerLeave cancels pending attack timer', async() => {
     const s = ctx.session();
@@ -573,7 +607,15 @@ describe('factions faction-npc behavior', () => {
   });
 
   /*
-
+✖ guard killed by player emits factionEvent and updates reputation (2.160551ms)
+  TypeError [Error]: killer.emit is not a function
+      at Npc.<anonymous> (/home/programmer/Desktop/mud/bundles/factions/behaviors/npc/faction-npc.js:160:14)
+      at Npc.emit (node:events:531:35)
+      at Npc.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Character.js:57:11)
+      at Npc.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Scriptable.js:27:11)
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:622:11)
+      at async Test.run (node:internal/test_runner/test:797:9)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:527:7)
    */
   it.skip('guard killed by player emits factionEvent and updates reputation', async() => {
     const s = ctx.session();
@@ -603,7 +645,18 @@ describe('factions faction-npc behavior', () => {
   });
 
   /*
-
+✖ guard killed by another NPC does not emit factionEvent (4.337347ms)
+  TypeError [Error]: killer.emit is not a function
+      at Npc.<anonymous> (/home/programmer/Desktop/mud/bundles/factions/behaviors/npc/faction-npc.js:160:14)
+      at Npc.emit (node:events:531:35)
+      at Npc.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Character.js:57:11)
+      at Npc.emit (/home/programmer/Desktop/mud/node_modules/ranvier/src/Scriptable.js:27:11)
+      at TestContext.<anonymous> (/home/programmer/Desktop/mud/test/integration/factions.test.js:657:11)
+      at Test.runInAsyncScope (node:async_hooks:206:9)
+      at Test.run (node:internal/test_runner/test:796:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:527:18)
+      at Test.postRun (node:internal/test_runner/test:889:19)
+      at Test.run (node:internal/test_runner/test:835:12)
    */
   it.skip('guard killed by another NPC does not emit factionEvent', async() => {
     const s = ctx.session();
