@@ -7,6 +7,7 @@ const { load } = require('../lib/WorldLoader');
 const { resolve } = require('../lib/ClusterResolver');
 const { build: buildIdx } = require('../lib/TileIndex');
 const { build: buildSvc } = require('../lib/WorldService');
+const { ContextService } = require('../lib/ContextService');
 const { Logger } = require('ranvier');
 
 const WORLD_JSON_PATH = path.resolve(__dirname, '../data/world.json');
@@ -45,6 +46,7 @@ module.exports = {
 
       state.WorldManager = service;
       state.WorldReady   = true;
+      state.ContextService = ContextService;
 
       Logger.log(`[world] ready — ${resolved.tiles.length} tiles, ${resolved.clusterIndex.size} clusters`);
     },

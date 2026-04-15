@@ -1,9 +1,9 @@
 {
-  "name": "ranviermud",
-  "version": "2.0.0",
+  "name": "mud",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/shawncplus/ranviermud.git"
+    "url": "git://github.com/GnosisEngine/mud.git"
   },
   "engines": {
     "node": ">= 10.12.0"
@@ -11,9 +11,10 @@
   "license": "MIT",
   "scripts": {
     "login": "telnet localhost 4000",
-    "login-raw": "nc localhost 4000",
+    "login-raw": "stty raw -echo; nc localhost 4000; stty sane",
     "setup": "npm install && node util/setup.js",
-    "start": "node ./ranvier -v",
+    "dev": "node ./ranvier -v",
+    "start": "node ./ranvier",
     "test": "NODE_ENV=test node --trace-warnings test/integration/run.js",
     "lint": "eslint bundles/**/*.js",
     "lint:fix": "eslint --fix bundles/**/*.js"

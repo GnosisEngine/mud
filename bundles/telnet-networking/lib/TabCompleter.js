@@ -96,8 +96,15 @@ function _completeSubcommand(state, cmdInput, partial) {
  * @returns {string[]}     — sorted completion candidates
  */
 function complete(state, player, input) {
+  const hints = state.ContextService.run({ state, player, input });
+
+  if (hints.length > 0) {
+    return hints;
+  }
+
   if (!input) return [];
 
+  // @TODO probably have to get rid of all of this
   const spaceCount = (input.match(/ /g) || []).length;
 
   if (spaceCount === 0) {

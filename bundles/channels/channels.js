@@ -1,6 +1,7 @@
 // bundles/channels/channels.js
 'use strict';
 
+require('./hints');
 const {
   Broadcast,
   PartyAudience,

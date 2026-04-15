@@ -43,7 +43,7 @@ class LineEditor extends EventEmitter {
     // Whether the server should echo typed characters and send backspace erase
     // sequences. Default OFF — in the normal SSH+PTY path the terminal owns
     // character echo. Only set to true for raw telnet clients with no PTY.
-    this._echoChars = false;
+    this._echoChars = true;
 
     // Whether the server should send ANSI redraws (history navigation, Ctrl+U,
     // etc.). Default ON. Disabled during password entry so the line is not
@@ -206,7 +206,7 @@ class LineEditor extends EventEmitter {
     this._redraw();
   }
 
-  _handleTab() {
+  async _handleTab() {
     if (!this._completer || !this._redrawEnabled) return;
 
     const input = this._buffer.get();
