@@ -72,7 +72,7 @@ class ContextManager {
         console.warn(e);
       }
     }
-    console.log({ results });
+
     return results.flat();
   }
 }

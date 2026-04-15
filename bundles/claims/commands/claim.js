@@ -6,8 +6,7 @@ const {
   claimIdExists,
   ownsClaim,
   isCollateralized,
-  isClaimExpiring,
-  canClaimRoom
+  isClaimExpiring
 } = require('../logic');
 const say = Broadcast.sayAt;
 
@@ -85,8 +84,8 @@ module.exports = {
       return say(player, 'Usage: claim <taxRate 0–100> | claim list | claim release <claimId>');
     }
 
-    const room     = player.room;
-    const roomId   = room.entityReference;
+    const room = player.room;
+    const roomId = room.entityReference;
     const existing = store.getClaimByRoom(roomId);
 
     if (existing) {

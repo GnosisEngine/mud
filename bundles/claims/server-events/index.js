@@ -73,7 +73,7 @@ module.exports = {
         const count = await store.flushExpiredClaims();
 
         if (count > 0) {
-          console.log(`[claims-storage] flushed ${count} expired claim(s)`);
+          Logger.log(`[claims-storage] flushed ${count} expired claim(s)`);
         }
       }, LOGOUT_GRACE_MS);
 
@@ -88,7 +88,7 @@ module.exports = {
      * Final compaction ensures the log is clean for the next boot.
      */
     shutdown: () => async() => {
-      console.log('[claims-storage] shutting down...');
+      Logger.log('[claims-storage] shutting down...');
 
       if (expiryTimer) {
         clearInterval(expiryTimer);
@@ -108,7 +108,7 @@ module.exports = {
         store = null;
       }
 
-      console.log('[claims-storage] shutdown complete');
+      Logger.log('[claims-storage] shutdown complete');
     }
   },
 };

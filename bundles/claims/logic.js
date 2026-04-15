@@ -2,7 +2,27 @@
 const enforcement = require('./lib/enforcement');
 const NOOP = {};
 
+function hasSubmitted(_, enforcer, { target } = NOOP) {
+  return enforcement.isSubmittedTo(target.name, enforcer.name);
+}
+
 module.exports = {
+  hasEnforcablesNear: (state, player) => {
+    const count = 0;
+
+    for (const occupant of player.room.players) {
+      if (occupant === player) {
+        continue;
+      }
+
+      if (!enforcement.getSubmission(occupant.name)) {
+        count += 1;
+      }
+    }
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', count);
+    return count > 0;
+  },
+
   canClaimRoom: (state, player, { roomId, claim } = NOOP) => {
     if (claim === undefined) {
       roomId = roomId === undefined
@@ -23,13 +43,13 @@ module.exports = {
   },
 
   hasNoClaims: (state, player, { claims } = NOOP) => {
-    const ownedClaims = claims ?? state.StorageManager.getClaimsByOwner(player.name);
+    const ownedClaims = claims ?? state.StorageManager.store.getClaimsByOwner(player.name);
     return ownedClaims.length === 0;
   },
 
   claimIdExists: (state, player, { claimId, claims, claim } = NOOP) => {
     if (claim === undefined) {
-      const ownedClaims = claims ?? state.StorageManager.getClaimsByOwner(player.name);
+      const ownedClaims = claims ?? state.StorageManager.store.getClaimsByOwner(player.name);
       claim = ownedClaims[parseInt(claimId) - 1];
     }
 
@@ -57,11 +77,9 @@ module.exports = {
     return enforcement.hasThreat(enforcer.name, target.name);
   },
 
-  hasSubmitted: (state, enforcer, { target } = NOOP) => {
-    return enforcement.isSubmittedTo(target.name, enforcer.name);
-  },
-
   isThreatened: (_, player) => {
     return enforcement.findThreatAgainst(player.name);
-  }
+  },
+
+  hasSubmitted,
 };
