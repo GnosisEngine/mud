@@ -7,7 +7,8 @@ const { withinRange } = require('../../lib/lib/TypeUtil');
 const {
   isTargetSelf,
   hasBeenThreatened,
-  hasSubmitted
+  hasSubmitted,
+  ownsClaim
 } = require('../logic');
 const say = Broadcast.sayAt;
 const sayToRoom = Broadcast.sayAtExcept;
@@ -30,7 +31,8 @@ module.exports = {
     const roomId = room.entityReference;
     const claim  = store.getClaimByRoom(roomId);
 
-    if (!claim || claim.ownerId !== player.name) {
+    if (ownsClaim(state, player, { claim }) === false) {
+    //if (!claim || claim.ownerId !== player.name) {
       return say(player,  'You do not hold a claim on this room.');
     }
 

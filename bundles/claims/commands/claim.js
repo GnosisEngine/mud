@@ -6,7 +6,8 @@ const {
   claimIdExists,
   ownsClaim,
   isCollateralized,
-  isClaimExpiring
+  isClaimExpiring,
+  canClaimRoom
 } = require('../logic');
 const say = Broadcast.sayAt;
 

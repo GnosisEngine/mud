@@ -66,19 +66,21 @@ class ContextManager {
     for ( const fn of this.subscribers) {
       try {
         const res = fn(context);
-        console.log({ res });
-        return Array.isArray(res) ? res : [];
+        results.push(Array.isArray(res) ? res : []);
       } catch (e) {
         // Ignore errors and timeouts
         console.warn(e);
-        return [];
       }
     }
-
+    console.log({ results });
     return results.flat();
   }
 }
 
+function check(command, input) {
+  return command.startsWith(input) || input === '';
+}
+
 const ContextService = new ContextManager();
 
-module.exports = { ContextService };
+module.exports = { ContextService, check };

@@ -210,7 +210,6 @@ class LineEditor extends EventEmitter {
     if (!this._completer || !this._redrawEnabled) return;
 
     const input = this._buffer.get();
-    if (!input) return;
 
     const matches = this._completer(input);
 

@@ -1,6 +1,7 @@
 // bundles/claims/server-events/index.js
 'use strict';
 
+require('../hints');
 const { Log } = require('../lib/log');
 const { Db } = require('../lib/db');
 const { replay } = require('../lib/replay');

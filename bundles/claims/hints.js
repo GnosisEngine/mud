@@ -1,23 +1,28 @@
 'use strict';
-const { ContextService } = require('../world/lib/ContextService');
+const { ContextService, check } = require('../world/lib/ContextService');
+const {
+  canClaimRoom,
+} = require('./logic');
 
-ContextService.register(({ /*state, player,*/ input }) => {
+console.log('claims logic');
+ContextService.register(({ state, player, input }) => {
+  console.log('hello');
   const result = [];
   const trimmed = input.trim().toLowerCase();
 
-  const canClaim = 'claim'.startsWith(trimmed) || trimmed === '';
+  const canClaim = check('claim', trimmed) && canClaimRoom(state, player);
   canClaim && result.push('claim');
 
-  const canClaims = 'claims'.startsWith(trimmed) || trimmed === '';
+  const canClaims = check('claims', trimmed);
   canClaims && result.push('claims');
 
-  const canCollateral = 'collateral'.startsWith(trimmed) || trimmed === '';
+  const canCollateral = check('collateral', trimmed);
   canCollateral && result.push('collateral');
 
-  const canEnforce = 'enforce'.startsWith(trimmed) || trimmed === '';
+  const canEnforce = check('enforce', trimmed);
   canEnforce && result.push('enforcce');
 
-  const canSubmit = 'submit'.startsWith(trimmed) || trimmed === '';
+  const canSubmit = check('submit', trimmed);
   canSubmit && result.push('submit');
 
   return result;

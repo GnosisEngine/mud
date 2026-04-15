@@ -1,13 +1,33 @@
 'use strict';
 const enforcement = require('./lib/enforcement');
+const NOOP = {};
 
 module.exports = {
-  hasNoClaims: (state, player, { claims } ) => {
+  canClaimRoom: (state, player, { roomId, claim } = NOOP) => {
+    if (claim === undefined) {
+      roomId = roomId === undefined
+        ? player.room.entityReference
+        : roomId;
+
+      claim = state.StorageManager.store.getClaimByRoom(roomId);
+    }
+
+    if (claim) {
+      if (!!(claim && claim.ownerId === player.name)) {
+        return false;
+      }
+      return false;
+    }
+
+    return true;
+  },
+
+  hasNoClaims: (state, player, { claims } = NOOP) => {
     const ownedClaims = claims ?? state.StorageManager.getClaimsByOwner(player.name);
     return ownedClaims.length === 0;
   },
 
-  claimIdExists: (state, player, { claimId, claims, claim }) => {
+  claimIdExists: (state, player, { claimId, claims, claim } = NOOP) => {
     if (claim === undefined) {
       const ownedClaims = claims ?? state.StorageManager.getClaimsByOwner(player.name);
       claim = ownedClaims[parseInt(claimId) - 1];
@@ -16,28 +36,32 @@ module.exports = {
     return claim !== undefined;
   },
 
-  ownsClaim: (_, player, { claim }) => {
-    return claim && claim.ownerId === player.name;
+  ownsClaim: (_, player, { claim } = NOOP) => {
+    return !!(claim && claim.ownerId === player.name);
   },
 
-  isCollateralized: (_, __, { claim }) => {
+  isCollateralized: (_, __, { claim } = NOOP) => {
     return claim.taxRateLocked;
   },
 
-  isClaimExpiring: (state, _, { claimId }) => {
+  isClaimExpiring: (state, _, { claimId } = NOOP) => {
     const claimState = state.StorageManager.store.getClaimState(claimId);
     return claimState === 'E';
   },
 
-  isTargetSelf: (_, player, { target }) => {
+  isTargetSelf: (_, player, { target } = NOOP) => {
     return target === player;
   },
 
-  hasBeenThreatened: (_, enforcer, { target }) => {
+  hasBeenThreatened: (_, enforcer, { target } = NOOP) => {
     return enforcement.hasThreat(enforcer.name, target.name);
   },
 
-  hasSubmitted: (state, enforcer, { target }) => {
+  hasSubmitted: (state, enforcer, { target } = NOOP) => {
     return enforcement.isSubmittedTo(target.name, enforcer.name);
+  },
+
+  isThreatened: (_, player) => {
+    return enforcement.findThreatAgainst(player.name);
   }
 };

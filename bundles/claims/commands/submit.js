@@ -3,12 +3,13 @@
 const enforcement = require('../lib/enforcement');
 const { applySubmission } = require('./enforce');
 const { Broadcast } = require('ranvier');
+const { isThreatened } = require('../logic');
 const say = Broadcast.sayAt;
 
 module.exports = {
   aliases: [],
   command: state => (args, player) => {
-    const pending = enforcement.findThreatAgainst(player.name);
+    const pending = isThreatened(state, player);
 
     if (!pending) {
       return say(player,  'Nobody has issued an enforcement demand against you right now.');
