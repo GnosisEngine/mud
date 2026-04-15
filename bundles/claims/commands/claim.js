@@ -1,6 +1,12 @@
 'use strict';
 
 const { Broadcast } = require('ranvier');
+const {
+  hasNoClaims,
+  claimIdExists,
+  ownsClaim,
+  isCollateralized
+} = require('../logic');
 const say = Broadcast.sayAt;
 
 /**
@@ -10,7 +16,7 @@ function claimList(state, player) {
   const { store } = state.StorageManager;
 
   const claims = store.getClaimsByOwner(player.name);
-  if (!claims.length) {
+  if (hasNoClaims(state, player, { claims })) {
     return say(player, 'You hold no claims.');
   }
 
@@ -51,13 +57,13 @@ module.exports = {
       const claims = store.getClaimsByOwner(player.name);
 
       const claim = claims[parseInt(claimId) - 1];
-      if (!claim) {
+      if (!claimIdExists(state, player, { claim, claims, claimId })) {
         return say(player, `No claim found at #${claimId}.`);
       }
-      if (claim.ownerId !== player.name) {
+      if (ownsClaim(state, player, { claim }) === false) {
         return say(player, 'That is not your claim.');
       }
-      if (claim.taxRateLocked) {
+      if (isCollateralized(state, player, { claim })) {
         return say(player, 'That claim has a locked tax rate — it is attached to a funded collateral package and cannot be released.');
       }
 
@@ -79,7 +85,7 @@ module.exports = {
     const existing = store.getClaimByRoom(roomId);
 
     if (existing) {
-      if (existing.ownerId === player.name) {
+      if (ownsClaim(state, player, { claim: existing })) {
         return say(player, 'You already hold this room.');
       }
       return say(player, 'This room is already claimed by another player.');
