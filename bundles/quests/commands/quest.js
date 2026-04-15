@@ -158,6 +158,7 @@ subcommands.add({
 
 module.exports = {
   usage: 'quest <log/list/complete/start> [npc] [number]',
+  subcommands: ['complete', 'list', 'log', 'start'],
   command : (state) => (args, player) => {
     if (!args.length) {
       return say(player, "Missing command. See 'help quest'");

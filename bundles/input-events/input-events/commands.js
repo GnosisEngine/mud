@@ -4,6 +4,7 @@ const { Broadcast: B, CommandType, Logger, PlayerRoles, Room } = require('ranvie
 const { NoPartyError, NoRecipientError, NoMessageError } = require('ranvier').Channel;
 const { CommandParser, InvalidCommandError, RestrictedCommandError } = require('../../lib/lib/CommandParser');
 const { emit: playerEmit } = require('../../player-events/events');
+const { complete } = require('../../telnet-networking/lib/TabCompleter');
 const sty = require('sty');
 
 // ---------------------------------------------------------------------------
@@ -22,12 +23,25 @@ function _syncPrompt(player) {
   player.socket._lineEditor.setPrompt(promptStr);
 }
 
+// Registers the tab-completion function on the player's LineEditor.
+// Called once per session on first entry to the command loop — the guard on
+// _completerRegistered prevents re-registration on every subsequent command.
+//
+// No-op when no LineEditor is attached (websocket, test harness, etc.).
+function _registerCompleter(state, player) {
+  if (!player.socket._lineEditor || player._completerRegistered) return;
+  player._completerRegistered = true;
+  player.socket._lineEditor.setCompleter(input => complete(state, player, input));
+}
+
 /**
  * Main command loop. All player input after login goes through here.
  * If you want to swap out the command parser this is the place to do it
  */
 module.exports = {
   event: state => player => {
+    _registerCompleter(state, player);
+
     player.socket.once('data', data => {
       function loop() {
         player.socket.emit('commands', player);

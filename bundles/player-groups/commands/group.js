@@ -159,6 +159,7 @@ subcommands.add({
 
 module.exports = {
   aliases: ['party'],
+  subcommands: ['create', 'decline', 'disband', 'invite', 'join', 'leave', 'list'],
   command: state => (args, player) => {
 
     if (!args || !args.length) {

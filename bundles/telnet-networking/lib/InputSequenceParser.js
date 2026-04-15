@@ -10,6 +10,7 @@ const TOKEN = Object.freeze({
   ARROW_DOWN: 'ARROW_DOWN',
   CTRL_C:     'CTRL_C',
   CTRL_U:     'CTRL_U',
+  TAB:        'TAB',
   IGNORE:     'IGNORE',
 });
 
@@ -17,7 +18,7 @@ const TOKEN = Object.freeze({
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-// Returns true for printable ASCII (0x20–0x7e).
+// Returns true for printable ASCII (0x20-0x7e).
 function _isPrintable(byte) {
   return byte >= 0x20 && byte <= 0x7e;
 }
@@ -34,12 +35,12 @@ function _isPrintable(byte) {
  *   - CR (\r) and LF (\n) and CRLF as ENTER
  *   - Backspace: DEL (0x7f) and BS (0x08)
  *   - ANSI arrow sequences: ESC [ A (up), ESC [ B (down)
- *   - Ctrl+C (0x03) and Ctrl+U (0x15)
+ *   - Ctrl+C (0x03), Ctrl+U (0x15), Tab (0x09)
  *   - All other bytes produce IGNORE tokens
  *
  * Partial escape sequences that arrive at the end of a buffer without a
  * terminating byte are emitted as IGNORE tokens rather than being held for
- * the next call — the parser is stateless.
+ * the next call -- the parser is stateless.
  *
  * @param {Buffer|string} input
  * @returns {Array<{ type: string, char?: string }>}
@@ -55,7 +56,7 @@ function parse(input) {
     // ESC sequences (0x1b)
     if (byte === 0x1b) {
       if (i + 1 < buf.length && buf[i + 1] === 0x5b) {
-        // ESC [ present — this is a CSI sequence, need one more byte for the command
+        // ESC [ present -- this is a CSI sequence, need one more byte for the command
         if (i + 2 < buf.length) {
           const terminator = buf[i + 2];
           if (terminator === 0x41) {
@@ -68,18 +69,18 @@ function parse(input) {
             i += 3;
             continue;
           }
-          // Other CSI sequences (e.g. arrow left/right, F-keys) — consume and ignore
+          // Other CSI sequences (e.g. arrow left/right, F-keys) -- consume and ignore
           tokens.push({ type: TOKEN.IGNORE });
           i += 3;
           continue;
         }
-        // ESC [ with no terminator — incomplete CSI, consume both bytes as IGNORE
+        // ESC [ with no terminator -- incomplete CSI, consume both bytes as IGNORE
         tokens.push({ type: TOKEN.IGNORE });
         tokens.push({ type: TOKEN.IGNORE });
         i += 2;
         continue;
       }
-      // Bare ESC or ESC followed by non-[ — ignore this byte only
+      // Bare ESC or ESC followed by non-[ -- ignore this byte only
       tokens.push({ type: TOKEN.IGNORE });
       i += 1;
       continue;
@@ -119,6 +120,13 @@ function parse(input) {
     // Ctrl+U (NAK)
     if (byte === 0x15) {
       tokens.push({ type: TOKEN.CTRL_U });
+      i += 1;
+      continue;
+    }
+
+    // Tab (HT)
+    if (byte === 0x09) {
+      tokens.push({ type: TOKEN.TAB });
       i += 1;
       continue;
     }

@@ -51,6 +51,7 @@ class LineEditor extends EventEmitter {
     this._redrawEnabled = true;
 
     this._browsing = false;
+    this._completer = null;
   }
 
   // ---------------------------------------------------------------------------
@@ -73,6 +74,7 @@ class LineEditor extends EventEmitter {
         case TOKEN.ARROW_DOWN: this._handleArrowDown(); break;
         case TOKEN.CTRL_C:     this._handleCtrlC(); break;
         case TOKEN.CTRL_U:     this._handleCtrlU(); break;
+        case TOKEN.TAB:        this._handleTab(); break;
         // TOKEN.IGNORE: intentional no-op
       }
     }
@@ -109,7 +111,21 @@ class LineEditor extends EventEmitter {
   }
 
   /**
-   * Pushes a command directly into history without going through the
+   * Registers the tab-completion function.
+   *
+   * The function receives the current buffer contents and returns a sorted
+   * array of completion candidates. An empty array signals no match.
+   * The function is called synchronously on every Tab keystroke.
+   *
+   * Passing null removes the completer and makes Tab a no-op.
+   *
+   * @param {Function|null} fn  — (input: string) => string[]
+   */
+  setCompleter(fn) {
+    this._completer = fn;
+  }
+
+  /**
    * normal feed/enter path. Used by commands.js to record commands that
    * were submitted before the line editor was attached (e.g. auto-exec).
    *
@@ -187,6 +203,32 @@ class LineEditor extends EventEmitter {
   _handleCtrlU() {
     this._buffer.clear();
     this._browsing = false;
+    this._redraw();
+  }
+
+  _handleTab() {
+    if (!this._completer || !this._redrawEnabled) return;
+
+    const input = this._buffer.get();
+    if (!input) return;
+
+    const matches = this._completer(input);
+
+    this._browsing = false;
+
+    if (matches.length === 0) {
+      this._write('\x07'); // bell — no match
+      return;
+    }
+
+    if (matches.length === 1) {
+      this._buffer.set(matches[0]);
+      this._redraw();
+      return;
+    }
+
+    // Multiple matches — print them on a new line then redraw current input
+    this._write('\r\n' + matches.join('  ') + '\r\n');
     this._redraw();
   }
 

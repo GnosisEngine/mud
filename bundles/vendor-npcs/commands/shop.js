@@ -53,6 +53,7 @@ subcommands.add({
 module.exports = {
   aliases: ['vendor', 'list', 'buy', 'sell', 'value', 'appraise', 'offer'],
   usage: 'shop list [item], shop buy <item>, shop sell <item>, shop appraise <item>',
+  subcommands: ['buy', 'list', 'sell', 'value'],
   command: state => (args, player, arg0) => {
     // When a list/buy/sell alias was used, prepend it to args so the router sees it
     args = (!['vendor', 'shop'].includes(arg0) ? arg0 + ' ' : '') + (args || '');

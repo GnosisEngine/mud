@@ -119,6 +119,7 @@ subcommands.add({
 
 module.exports = {
   usage: 'craft <list/create> [category #] [item #]',
+  subcommands: ['create', 'list'],
   command: state => (args, player) => {
     if (!args || !args.length) {
       return say(player, "Missing craft command. See 'help craft'");
