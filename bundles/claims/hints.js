@@ -7,27 +7,25 @@ const {
   hasNoClaims
 } = require('./logic');
 
-
 ContextService.register(({ state, player, input }) => {
-  console.log('hello');
-  const result = [];
+  const performableActions = [];
   const trimmed = input.trim().toLowerCase();
 
-  const canClaim = check('claim', trimmed) && canClaimRoom(state, player);
-  canClaim && result.push('claim');
+  check('claim', trimmed) && canClaimRoom(state, player)
+    && performableActions.push('claim');
 
-  const canClaims = check('claims', trimmed) && hasNoClaims(state, player) === false;
-  canClaims && result.push('claims');
+  check('claims', trimmed) && hasNoClaims(state, player) === false
+    && performableActions.push('claims');
+
+  check('enforce', trimmed) && hasEnforcablesNear(state, player)
+    && performableActions.push('enforcce');
+
+  check('submit', trimmed) && isThreatened(state, player)
+    && performableActions.push('submit');
 
   // @TODO deal with this later
-  // const canCollateral = check('collateral', trimmed);
-  // canCollateral && result.push('collateral');
+  // check('collateral', trimmed)
+  //  && result.push('collateral');
 
-  const canEnforce = check('enforce', trimmed) && hasEnforcablesNear(state, player);
-  canEnforce && result.push('enforcce');
-
-  const canSubmit = check('submit', trimmed) && isThreatened(state, player);
-  canSubmit && result.push('submit');
-
-  return result;
+  return performableActions;
 });
