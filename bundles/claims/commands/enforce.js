@@ -3,6 +3,12 @@
 const enforcement = require('../lib/enforcement');
 const { Broadcast } = require('ranvier');
 const { emit: claimsEmit } = require('../events');
+const { withinRange } = require('../../lib/lib/TypeUtil');
+const {
+  isTargetSelf,
+  hasBeenThreatened,
+  hasSubmitted
+} = require('../logic');
 const say = Broadcast.sayAt;
 const sayToRoom = Broadcast.sayAtExcept;
 
@@ -29,24 +35,19 @@ module.exports = {
     }
 
     const duration = parseInt(durationStr, 10);
-    if (isNaN(duration) || duration < 1 || duration > MAX_DURATION_MINUTES) {
+    if (withinRange(duration, 1, MAX_DURATION_MINUTES)) {
       return say(player,  `Submission duration must be between 1 and ${MAX_DURATION_MINUTES} minutes.`);
     }
 
-    // Find target by name in current room
-    // const target = [...room.players].find(
-    //   p => p.name.toLowerCase() === targetName.toLowerCase() && p !== player
-    // );
-
     const target = state.getTarget(room, targetName, ['player']);
-    if (target === player) return say(player, "You can't enforce against yourself.");
+    if (isTargetSelf(state, player, { target })) return say(player, "You can't enforce against yourself.");
 
     if (!target) return say(player,  `${targetName} is not in this room.`);
 
-    if (enforcement.hasThreat(player.name, target.name)) {
+    if (hasBeenThreatened(state, player, { target })) {
       return say(player,  `You already have an active enforcement demand against ${target.name}.`);
     }
-    if (enforcement.isSubmittedTo(target.name, player.name)) {
+    if (hasSubmitted(state, player, { target })) {
       return say(player,  `${target.name} has already submitted to you.`);
     }
 
@@ -55,7 +56,7 @@ module.exports = {
     claimsEmit.enforceReceived(target, meta.enforcerId, meta.claimId, meta.roomId, meta.duration);
 
     const timeoutHandle = setTimeout(() => {
-      if (enforcement.isSubmittedTo(target.name, player.name) === false) {
+      if (hasSubmitted(state, player, { target }) === false) {
         enforcement.removeThreat(player.name, target.name);
         applySubmission({
           enforcer: player,
@@ -85,7 +86,7 @@ function applySubmission({ enforcer, target, claimId, roomId, duration }) {
   const durationMs = duration * 60 * 1000;
 
   const expiryHandle = setTimeout(() => {
-    if (enforcement.isSubmittedTo(target.name, enforcer.name) === true) {
+    if (hasSubmitted(null, enforcer, { target })) {
       enforcement.removeSubmission(target.name);
       say(target, `Your submission to ${enforcer.name} has ended.`);
       say(enforcer, `${target.name}'s submission to you has ended.`);

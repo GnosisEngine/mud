@@ -5,7 +5,8 @@ const {
   hasNoClaims,
   claimIdExists,
   ownsClaim,
-  isCollateralized
+  isCollateralized,
+  isClaimExpiring
 } = require('../logic');
 const say = Broadcast.sayAt;
 
@@ -24,9 +25,12 @@ function claimList(state, player) {
 
   let i = 1;
   for (const claim of claims) {
-    const claimState = store.getClaimState(claim.id);
-    const locked   = claim.taxRateLocked ? ' [rate locked]' : '';
-    const expiring = claimState === 'E' ? ' [EXPIRING]' : '';
+    const expiring = isClaimExpiring(state, player, { claimId: claim.id })
+      ? ' [EXPIRING]'
+      : '';
+    const locked   = isCollateralized(state, player, { claim })
+      ? ' [rate locked]'
+      : '';
     const room = state.RoomManager.getRoom(claim.roomId);
 
     say(player, `  ${i}.)  ${room.area.title} / ${room.title} @ ${claim.taxRate}%${locked}${expiring}`);
