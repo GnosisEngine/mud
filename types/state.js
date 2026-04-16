@@ -36,6 +36,7 @@
  * @typedef {object} PlayerManager
  * @property {function(string): RanvierPlayer|undefined}      getPlayer
  * @property {function(): Set<RanvierPlayer>}                 getPlayersAsSet
+ * @property {function(function(RanvierPlayer): boolean): RanvierPlayer[]} filter
  */
 
 /**

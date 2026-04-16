@@ -1,6 +1,28 @@
 // bundles/channels/channels.js
 'use strict';
 
+/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
+/**
+ * @typedef {object} RanvierEffect
+ * @property {{ blockedMessage: string, blockedChannels: string[] }} config
+ */
+
+/**
+ * @typedef {object} CanSpeakResult
+ * @property {boolean}             blocked
+ * @property {RanvierEffect|null}  effect
+ */
+
+/**
+ * @callback ChannelFormatter
+ * @param {RanvierPlayer}             sender
+ * @param {RanvierPlayer}             target
+ * @param {string}                    message
+ * @param {function(string): string}  colorify
+ * @returns {string}
+ */
+
 require('./hints');
 const {
   Broadcast,
@@ -10,12 +32,11 @@ const {
   WorldAudience,
 } = require('ranvier');
 
-const ClusterAudience = require('./lib/ClusterAudience');
-
 const { Channel } = require('ranvier').Channel;
+const ClusterAudience = require('./lib/ClusterAudience');
 const canSpeak = require('../moderation/lib/canSpeak');
 
-class BlockedByCommunicationEffect extends Error { }
+class BlockedByCommunicationEffect extends Error {}
 
 module.exports = [
   new Channel({
@@ -25,19 +46,20 @@ module.exports = [
     description: 'Chat with everyone on the game',
     audience: new WorldAudience(),
     formatter: {
-      sender: function(sender, target, message, colorify) {
-        const { blocked, effect } = canSpeak(sender, 'chat');
+      /** @type {ChannelFormatter} */
+      sender(sender, target, message, colorify) {
+        const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'chat');
         if (blocked) {
           Broadcast.sayAt(sender, effect.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`🌐 You chat, '${message}'`);
       },
-
-      target: function(sender, target, message, colorify) {
+      /** @type {ChannelFormatter} */
+      target(sender, target, message, colorify) {
         return colorify(`🌐 ${sender.name} chats, '${message}'`);
-      }
-    }
+      },
+    },
   }),
 
   new Channel({
@@ -46,19 +68,20 @@ module.exports = [
     description: 'Send a message to all players in your room',
     audience: new RoomAudience(),
     formatter: {
-      sender: function(sender, target, message, colorify) {
-        const { blocked, effect } = canSpeak(sender, 'say');
+      /** @type {ChannelFormatter} */
+      sender(sender, target, message, colorify) {
+        const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'say');
         if (blocked) {
           Broadcast.sayAt(sender, effect.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`💬 You say, '${message}'`);
       },
-
-      target: function(sender, target, message, colorify) {
+      /** @type {ChannelFormatter} */
+      target(sender, target, message, colorify) {
         return colorify(`💬 ${sender.name} says, '${message}'`);
-      }
-    }
+      },
+    },
   }),
 
   new Channel({
@@ -67,19 +90,20 @@ module.exports = [
     description: 'Send a private message to another player',
     audience: new PrivateAudience(),
     formatter: {
-      sender: function(sender, target, message, colorify) {
-        const { blocked, effect } = canSpeak(sender, 'tell');
+      /** @type {ChannelFormatter} */
+      sender(sender, target, message, colorify) {
+        const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'tell');
         if (blocked) {
           Broadcast.sayAt(sender, effect.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`👂 You tell ${target.name}, '${message}'`);
       },
-
-      target: function(sender, target, message, colorify) {
+      /** @type {ChannelFormatter} */
+      target(sender, target, message, colorify) {
         return colorify(`👂 ${sender.name} tells you, '${message}'`);
-      }
-    }
+      },
+    },
   }),
 
   new Channel({
@@ -88,19 +112,20 @@ module.exports = [
     description: 'Send a message to everyone on your road, or your area if off-road',
     audience: new ClusterAudience(),
     formatter: {
-      sender: function(sender, target, message, colorify) {
-        const { blocked, effect } = canSpeak(sender, 'yell');
+      /** @type {ChannelFormatter} */
+      sender(sender, target, message, colorify) {
+        const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'yell');
         if (blocked) {
           Broadcast.sayAt(sender, effect.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`🗯️  You yell, '${message}'`);
       },
-
-      target: function(sender, target, message, colorify) {
+      /** @type {ChannelFormatter} */
+      target(sender, target, message, colorify) {
         return colorify(`🗯️  Someone yells from nearby, '${message}'`);
-      }
-    }
+      },
+    },
   }),
 
   new Channel({
@@ -109,18 +134,19 @@ module.exports = [
     description: 'Send a message to everyone in your group, anywhere in the game',
     audience: new PartyAudience(),
     formatter: {
-      sender: function(sender, target, message, colorify) {
-        const { blocked, effect } = canSpeak(sender, 'gtell');
+      /** @type {ChannelFormatter} */
+      sender(sender, target, message, colorify) {
+        const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'gtell');
         if (blocked) {
           Broadcast.sayAt(sender, effect.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`👥 You tell the group, '${message}'`);
       },
-
-      target: function(sender, target, message, colorify) {
+      /** @type {ChannelFormatter} */
+      target(sender, target, message, colorify) {
         return colorify(`👥 ${sender.name} tells the group, '${message}'`);
-      }
-    }
+      },
+    },
   }),
 ];

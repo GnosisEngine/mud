@@ -35,6 +35,7 @@ export interface RanvierCharacter {
   inventory: Map<string, RanvierItem>;
   emit(event: string, ...args: any[]): void;
   say(message: string): void;
+  effects: { entries(): Iterable<RanvierEffect> };
 }
 
 export interface RanvierPlayer extends RanvierCharacter {
@@ -48,6 +49,7 @@ export interface RanvierNpc extends RanvierCharacter {
   behaviors: Map<string, any>;
   description: string;
   keywords: string[];
+  effects: { entries(): Iterable<RanvierEffect> };
 }
 
 export interface RanvierItem {
@@ -87,4 +89,39 @@ export interface RanvierBroadcast {
 declare module 'ranvier' {
   export const Logger: RanvierLogger;
   export const Broadcast: RanvierBroadcast;
+  export class AreaAudience {
+    sender: RanvierPlayer | RanvierNpc;
+    state: import('../types/state').GameState;
+    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+  }
+
+  export class PartyAudience {
+    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+  }
+
+  export class PrivateAudience {
+    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+  }
+
+  export class RoomAudience {
+    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+  }
+
+  export class WorldAudience {
+    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+  }
+
+  export class Channel {
+    constructor(options: {
+      name: string;
+      aliases?: string[];
+      color?: string[];
+      description: string;
+      audience: object;
+      formatter: {
+        sender: (sender: RanvierPlayer, target: object, message: string, colorify: (s: string) => string) => string;
+        target: (sender: RanvierPlayer, target: object, message: string, colorify: (s: string) => string) => string;
+      };
+    });
+  }
 }

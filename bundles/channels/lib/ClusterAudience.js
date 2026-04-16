@@ -1,12 +1,18 @@
 // bundles/channels/lib/ClusterAudience.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
+/** @typedef {import('../../../types/ranvier').RanvierRoom} RanvierRoom */
+/** @typedef {import('../../../bundles/world/types').WorldManager} WorldManager */
+/** @typedef {RanvierPlayer | RanvierNpc} RanvierCharacter */
+
 const { AreaAudience } = require('ranvier');
 
 const ROAD_CLUSTER = 0;
 
-// Keyed by "x,y" coordinate string. Road topology is static at runtime so
-// results are valid for the lifetime of the process.
+/** @type {Map<string, Set<string>>} */
 const bfsCache = new Map();
 
 /**
@@ -20,11 +26,15 @@ const bfsCache = new Map();
  * @extends AreaAudience
  */
 class ClusterAudience extends AreaAudience {
+  /**
+   * @returns {RanvierCharacter[]}
+   */
   getBroadcastTargets() {
     if (!this.sender.room) {
       return [];
     }
 
+    /** @type {WorldManager|undefined} */
     const worldManager = this.state.WorldManager;
 
     if (!worldManager) {
@@ -41,7 +51,6 @@ class ClusterAudience extends AreaAudience {
     let roadRooms = bfsCache.get(cacheKey);
     if (!roadRooms) {
       roadRooms = this._floodFillRoadRooms(this.sender.room, worldManager);
-      // Back-fill every room in the segment so any room in it gets a cache hit.
       for (const ref of roadRooms) {
         const room = this.state.RoomManager.getRoom(ref);
         if (room && room.coordinates) {
@@ -50,12 +59,14 @@ class ClusterAudience extends AreaAudience {
       }
     }
 
+    /** @type {RanvierCharacter[]} */
     const players = this.state.PlayerManager.filter(player =>
       player !== this.sender &&
       player.room &&
       roadRooms.has(player.room.entityReference)
     );
 
+    /** @type {RanvierNpc[]} */
     const npcs = [];
     for (const ref of roadRooms) {
       const room = this.state.RoomManager.getRoom(ref);
@@ -66,13 +77,14 @@ class ClusterAudience extends AreaAudience {
       }
     }
 
-    return players.concat(npcs);
+    return /** @type {RanvierCharacter[]} */ ([...players, ...npcs]);
   }
 
   /**
    * Returns true if the given room sits on a road tile (canonicalCluster === 0).
-   * @param {Room} room
-   * @param {object} worldManager
+   *
+   * @param {RanvierRoom}  room
+   * @param {WorldManager} worldManager
    * @returns {boolean}
    */
   _isRoadRoom(room, worldManager) {
@@ -86,12 +98,15 @@ class ClusterAudience extends AreaAudience {
   /**
    * BFS from startRoom through exits, collecting all reachable rooms that are
    * also road tiles. Returns a Set of entityReference strings.
-   * @param {Room} startRoom
-   * @param {object} worldManager
+   *
+   * @param {RanvierRoom}  startRoom
+   * @param {WorldManager} worldManager
    * @returns {Set<string>}
    */
   _floodFillRoadRooms(startRoom, worldManager) {
+    /** @type {Set<string>} */
     const visited = new Set();
+    /** @type {RanvierRoom[]} */
     const queue = [startRoom];
     visited.add(startRoom.entityReference);
 
