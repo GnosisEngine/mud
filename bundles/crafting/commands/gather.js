@@ -1,11 +1,19 @@
 // resources/commands/gather.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 const GatherLogic = require('../lib/GatherLogic');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
 
 module.exports = {
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     const room = player.room;
     const roomItems = [...room.items];

@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "checkJs": true,
+    "resolveJsonModule": true,
     "strict": false,
     "moduleResolution": "node",
     "target": "ES2020"

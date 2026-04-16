@@ -11,10 +11,23 @@ const { SPAWN_TICK_MS, ROT_POLL_TICK_MS } = require('../constants');
 const { emit: craftingEmit } = require('../events');
 //const { EVENTS: CombatEvents } = require('../../combat/events');
 
+'use strict';
+
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
+/**
+ * @type {{
+ *   listeners: {
+ *     startup: function(GameState): function(): void
+ *   }
+ * }}
+ */
 module.exports = {
   listeners: {
+    /** @param {GameState} state */
     startup: state => () => startupPoll(
-      () => state.WorldManager,
+      () => !!state.WorldManager,
       async() => {
         TerrainResolver.init(room => state.WorldManager.getTerrainForRoom(room));
 

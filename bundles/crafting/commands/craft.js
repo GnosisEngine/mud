@@ -1,6 +1,9 @@
 // resources/commands/craft.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B, CommandManager, ItemType } = require('ranvier');
 const ResourceContainer = require('../lib/ResourceContainer');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
@@ -39,6 +42,11 @@ function getCraftingCategories(state) {
 
 subcommands.add({
   name: 'list',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     const categories = getCraftingCategories(state);
 

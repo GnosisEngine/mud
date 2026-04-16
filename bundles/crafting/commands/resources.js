@@ -1,6 +1,9 @@
 // resources/commands/resources.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 const ResourceContainer = require('../lib/ResourceContainer');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
@@ -10,6 +13,11 @@ const { hasResources } = require('../logic');
 
 module.exports = {
   aliases: ['materials'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!hasResources(state, player)) {
       return B.sayAt(player, "You aren't carrying any resources.");

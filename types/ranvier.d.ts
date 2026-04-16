@@ -32,6 +32,7 @@ export interface RanvierRoom {
   emit(event: string, ...args: any[]): void;
   getExits(): RanvierExit[];
   getDoor(room: RavnierRoom): RanvierDoor
+  removeItem(item: RanvierItem): void
 }
 
 export interface RanvierCharacter {
@@ -117,6 +118,7 @@ export interface RanvierPlayer extends RanvierCharacter {
   hasPrompt(id: string): boolean;
   getMeta(key: string): string | boolean | number | null
   setMeta(key: string, value: string | boolean | number | null): void
+  save(): void
   room: RanvierRoom
   playerClass: {
     id: string;
@@ -177,10 +179,16 @@ export interface RanvierBroadcast {
   progress(width: number, percent: number, color: string): string;
   wrap(message: string, width?: number): string;
   line(width: number, char?: string, color?: string): string;
-  center(width: number, text: string, color: string, char?: string): string
+  center(width: number, text: string, color?: string, char?: string): string
 }
 
 export type CombatTarget = RanvierPlayer | RanvierNpc
+
+export interface RanvierCommand {
+  name: string;
+  command: (state: GameState) => (args: string, player: RanvierPlayer) => void;
+}
+
 declare module 'ranvier' {
   export const Logger: RanvierLogger;
   export const Broadcast: RanvierBroadcast;
@@ -221,9 +229,9 @@ declare module 'ranvier' {
   }
 
   export const EffectFlag: {
-  readonly BUFF: symbol;
-  readonly DEBUFF: symbol;
-};
+    readonly BUFF: symbol;
+    readonly DEBUFF: symbol;
+  };
 
   export class Heal {
     constructor(stat: string, amount: number, source: object, attacker: object, options?: object);
@@ -266,4 +274,20 @@ declare module 'ranvier' {
     get(key: string, fallback?: any): any;
     load(data: object): void;
   };
+
+  export const ItemType: {
+    readonly OBJECT: 1;
+    readonly CONTAINER: 2;
+    readonly ARMOR: 3;
+    readonly WEAPON: 4;
+    readonly POTION: 5;
+    readonly RESOURCE: 6;
+  };
+
+  export class CommandManager {
+    get(name: string): RanvierCommand | undefined;
+    add(command: RanvierCommand): void;
+    remove(name: string): void;
+    find(name: string): RanvierCommand | undefined;
+  }
 }

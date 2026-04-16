@@ -1,6 +1,9 @@
 // resources/commands/trade.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 const TradeLogic = require('../lib/TradeLogic');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
@@ -46,6 +49,11 @@ function _findPendingForTarget(target, state) {
 
 module.exports = {
   usage: 'trade <player> <amount> <resource> [, <amount> <resource> ...] | trade accept | trade reject',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args) {
       return B.sayAt(player, 'Usage: trade <player> <offer> or trade accept/reject');
