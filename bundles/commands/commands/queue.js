@@ -2,21 +2,20 @@
 
 const sprintf = require('sprintf-js').sprintf;
 const { Broadcast } = require('ranvier');
+const { hasPendingCommands } = require('../logic');
 
-/**
- * View command queue
- */
 module.exports = {
   aliases: ['pending'],
   usage: 'queue',
-  command : () => (args, player) => {
+  command: () => (args, player) => {
     Broadcast.sayAt(player, '<bold><yellow>Command Queue:</yellow></bold>');
-    if (!player.commandQueue.hasPending) {
+
+    if (!hasPendingCommands(null, player)) {
       return Broadcast.sayAt(player, ' -) None.');
     }
 
     const commands = player.commandQueue.queue;
-    const indexToken =  '%' + ((commands.length + 1) + '').length + 's';
+    const indexToken = '%' + ((commands.length + 1) + '').length + 's';
     for (let i = 0; i < commands.length; i++) {
       const command = commands[i];
       const index = sprintf(indexToken, i + 1);

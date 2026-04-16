@@ -4,32 +4,37 @@ const { Broadcast, ItemType } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { emit } = require('../events');
+const {
+  hasNoArgs,
+  hasRoom,
+  hasInventorySpace,
+  isContainer,
+  isContainerClosed,
+  isPickupAllowed,
+} = require('../logic');
 
 module.exports = {
   usage: 'get <item> [container]',
   aliases: ['take', 'pick', 'loot'],
-  command : (state) => (args, player, arg0) => {
-    if (!args.length) {
+  command: state => (args, player, arg0) => {
+    if (hasNoArgs(state, player, { args })) {
       return Broadcast.sayAt(player, 'Get what?');
     }
 
-    if (!player.room) {
+    if (!hasRoom(state, player)) {
       return Broadcast.sayAt(player, 'You are floating in the nether, there is nothing to get.');
     }
 
-    if (player.isInventoryFull()) {
+    if (!hasInventorySpace(state, player)) {
       return Broadcast.sayAt(player, "You can't hold any more items.");
     }
 
-    // 'loot' is an alias for 'get all'
     if (arg0 === 'loot') {
       args = ('all ' + args).trim();
     }
 
-    // get 3.foo from bar -> get 3.foo bar
     let parts = args.split(' ').filter(arg => !arg.match(/from/));
 
-    // pick up <item>
     if (parts.length > 1 && parts[0] === 'up') {
       parts = parts.slice(1);
     }
@@ -39,18 +44,16 @@ module.exports = {
       search = parts[0];
       source = player.room.items;
     } else {
-    //Newest containers should go first, so that if you type get all corpse you get from the
-    // most recent corpse. See issue #247.
       container = ArgParser.parseDot(parts[1], [...player.room.items].reverse());
       if (!container) {
         return Broadcast.sayAt(player, "You don't see anything like that here.");
       }
 
-      if (container.type !== ItemType.CONTAINER) {
+      if (!isContainer(state, player, { item: container })) {
         return Broadcast.sayAt(player, `${ItemUtil.display(container)} isn't a container.`);
       }
 
-      if (container.closed) {
+      if (isContainerClosed(state, player, { container })) {
         return Broadcast.sayAt(player, `${ItemUtil.display(container)} is closed.`);
       }
 
@@ -64,12 +67,11 @@ module.exports = {
       }
 
       for (let item of source) {
-        // account for Set vs Map source
         if (Array.isArray(item)) {
           item = item[1];
         }
 
-        if (player.isInventoryFull()) {
+        if (!hasInventorySpace(state, player)) {
           return Broadcast.sayAt(player, "You can't carry any more.");
         }
 
@@ -79,10 +81,10 @@ module.exports = {
       return;
     }
 
-    //const item = ArgParser.parseDot(search, source);
     const item = source === player.room.items
       ? state.getTarget(player.room, search, ['item'])
       : ArgParser.parseDot(search, source);
+
     if (!item) {
       return Broadcast.sayAt(player, "You don't see anything like that here.");
     }
@@ -91,9 +93,8 @@ module.exports = {
   }
 };
 
-
 function pickup(item, container, player) {
-  if (item.metadata.noPickup) {
+  if (!isPickupAllowed(null, null, { item })) {
     return Broadcast.sayAt(player, `${ItemUtil.display(item)} can't be picked up.`);
   }
 

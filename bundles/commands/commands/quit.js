@@ -1,11 +1,12 @@
 'use strict';
 
 const { Broadcast } = require('ranvier');
+const { isInCombat } = require('../logic');
 
 module.exports = {
   usage: 'quit',
-  command: (state) => (args, player) => {
-    if (player.isInCombat()) {
+  command: state => (args, player) => {
+    if (isInCombat(state, player)) {
       return Broadcast.sayAt(player, "You're too busy fighting for your life!");
     }
 

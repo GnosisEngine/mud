@@ -5,35 +5,27 @@ const ArgParser = require('../../lib/lib/ArgParser');
 const dot = ArgParser.parseDot;
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { emit } = require('../events');
+const { hasNoArgs, isContainer, isContainerClosed } = require('../logic');
 
 module.exports = {
   usage: 'put <item> <container>',
-  command : (state) => (args, player) => {
+  command: state => (args, player) => {
     args = args.trim();
 
-    if (!args.length) {
+    if (hasNoArgs(state, player, { args })) {
       return B.sayAt(player, 'Put what where?');
     }
 
-    // put 3.foo in bar -> put 3.foo bar -> put 3.foo into bar
     const parts = args.split(' ').filter(arg => !arg.match(/in/) && !arg.match(/into/));
 
     if (parts.length === 1) {
       return B.sayAt(player, 'Where do you want to put it?');
     }
 
-    const fromList = player.inventory;
-    const fromArg = parts[0];
-    const toArg = parts[1];
-    // const item = dot(fromArg, fromList);
-    // const toContainer = dot(toArg, player.room.items) ||
-    //                     dot(toArg, player.inventory) ||
-    //                     dot(toArg, player.equipment);
-
-    const item = dot(fromArg, fromList);
-    const toContainer = state.getTarget(player.room, toArg, ['item'])
-      ?? dot(toArg, player.inventory)
-      ?? dot(toArg, player.equipment);
+    const item = dot(parts[0], player.inventory);
+    const toContainer = state.getTarget(player.room, parts[1], ['item'])
+      ?? dot(parts[1], player.inventory)
+      ?? dot(parts[1], player.equipment);
 
     if (!item) {
       return B.sayAt(player, "You don't have that item.");
@@ -43,7 +35,7 @@ module.exports = {
       return B.sayAt(player, "You don't see anything like that here.");
     }
 
-    if (toContainer.type !== ItemType.CONTAINER) {
+    if (!isContainer(state, player, { item: toContainer })) {
       return B.sayAt(player, `${ItemUtil.display(toContainer)} isn't a container.`);
     }
 
@@ -51,7 +43,7 @@ module.exports = {
       return B.sayAt(player, `${ItemUtil.display(toContainer)} can't hold any more.`);
     }
 
-    if (toContainer.closed) {
+    if (isContainerClosed(state, player, { container: toContainer })) {
       return B.sayAt(player, `${ItemUtil.display(toContainer)} is closed.`);
     }
 

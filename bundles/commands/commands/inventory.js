@@ -2,11 +2,12 @@
 
 const { Broadcast } = require('ranvier');
 const ItemUtil = require('../../lib/lib/ItemUtil');
+const { hasInventory } = require('../logic');
 
 module.exports = {
   usage: 'inventory',
-  command : () => (args, player) => {
-    if (!player.inventory || !player.inventory.size) {
+  command: () => (args, player) => {
+    if (!hasInventory(null, player)) {
       return Broadcast.sayAt(player, "You aren't carrying anything.");
     }
 
@@ -16,7 +17,6 @@ module.exports = {
     }
     Broadcast.sayAt(player, ':');
 
-    // TODO: Implement grouping
     for (const [, item] of player.inventory) {
       Broadcast.sayAt(player, ItemUtil.display(item));
     }
