@@ -1,22 +1,32 @@
 // bundles/communication/commands/gags.js
 'use strict';
 
-const { Broadcast, PlayerRoles } = require('ranvier');
+const { Broadcast } = require('ranvier');
+const {
+  isAdmin,
+  hasCommEffects,
+} = require('../logic');
 
 module.exports = {
-  requiredRole: PlayerRoles.ADMIN,
+  requiredRole: require('ranvier').PlayerRoles.ADMIN,
   usage: 'gags',
-  command: state => (args, player) => {
+  command: state => (_args, player) => {
+    if (!isAdmin(state, player)) {
+      return Broadcast.sayAt(player, 'You do not have permission to use this command.');
+    }
+
     const rows = [];
 
     for (const target of state.PlayerManager.getPlayersAsArray()) {
-      const commEffects = target.effects.entries().filter(e => Array.isArray(e.config.blockedChannels));
-
-      if (!commEffects.length) {
+      if (!hasCommEffects(state, player, { target })) {
         continue;
       }
 
-      const effectNames = commEffects.map(e => e.config.type).join(', ');
+      const effectNames = target.effects.entries()
+        .filter(e => Array.isArray(e.config.blockedChannels))
+        .map(e => e.config.type)
+        .join(', ');
+
       rows.push(`  ${target.name.padEnd(20)} ${effectNames}`);
     }
 

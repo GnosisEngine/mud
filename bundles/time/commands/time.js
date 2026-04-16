@@ -3,35 +3,32 @@
 // bundles/time-bundle/commands/time.js
 const { Broadcast: B } = require('ranvier');
 const say = B.sayAt;
-
-// bundles/time-bundle/commands/time.js
-
-'use strict';
-
+const { tickToComponents } = require('../lib/time-math');
 const {
-  tickToComponents,
-  isMoonObservable,
-} = require('../lib/time-math');
+  hasTickArg,
+  isSunUp,
+  isMoonVisible,
+  isHoliday,
+} = require('../logic');
 
 module.exports = {
   usage: 'time',
 
   command: state => (args, player) => {
     const ts = state.TimeService;
-    // @TODO remove this args usage later
-    const tick = (args && args.trim() !== '') ? parseInt(args.trim(), 10) : ts.getTick();
-    const { year, dayOfMonth, isHoliday } = tickToComponents(tick);
+    const tick = hasTickArg(state, player, { args }) ? parseInt(args.trim(), 10) : ts.getTick();
+    const { year, dayOfMonth, isHoliday: holidayFlag } = tickToComponents(tick);
 
-    const position = ts.getTimePosition(tick);
-    const dayPhase = ts.getDayPhase(tick);
-    const moonPhase = ts.getMoonPhase(tick);
-    const moonSky = ts.getMoonSkyPosition(tick);
-    const month = ts.getMonth(tick);
-    const dayOfWeek = ts.getDayOfWeek(tick);
-    const hour = ts.getHour(tick);
+    const position   = ts.getTimePosition(tick);
+    const dayPhase   = ts.getDayPhase(tick);
+    const moonPhase  = ts.getMoonPhase(tick);
+    const moonSky    = ts.getMoonSkyPosition(tick);
+    const month      = ts.getMonth(tick);
+    const dayOfWeek  = ts.getDayOfWeek(tick);
+    const hour       = ts.getHour(tick);
 
-    const sunIsUp = hour >= 6 && hour < 21;
-    const moonVisible = isMoonObservable(tick);
+    const sunIsUp      = isSunUp(state, player, { hour });
+    const moonVisible  = isMoonVisible(state, player, { tick });
 
     let skyLine;
     if (sunIsUp && moonVisible) {
@@ -44,7 +41,7 @@ module.exports = {
       skyLine = `${dayPhase.emoji} ${dayPhase.name}`;
     }
 
-    const dateLine = isHoliday
+    const dateLine = isHoliday(state, player, { isHoliday: holidayFlag })
       ? `${dayOfWeek.name}, ${month.name}, Year ${year}`
       : `${dayOfWeek.name}, the ${ordinal(dayOfMonth)} of ${month.name}, Year ${year}`;
 

@@ -3,13 +3,12 @@
 
 const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B } = require('ranvier');
-
-const STATUS_LABEL = {
-  EN_ROUTE:  'En route',
-  STATIONED: 'Stationed',
-  RETURNING: 'Returning home',
-  FLEEING:   'Fleeing',
-};
+const {
+  hasNoContracts,
+  getStatusLabel,
+  formatUpkeep,
+  getTargetLabel,
+} = require('../logic');
 
 module.exports = {
   usage: 'mercs',
@@ -17,26 +16,16 @@ module.exports = {
   command: state => (_args, player) => {
     const entries = state.MercenaryService.getContractsByPlayer(player.name);
 
-    if (!entries.length) {
+    if (hasNoContracts(state, player, { entries })) {
       return B.sayAt(player, 'You have no active mercenary contracts.');
     }
 
     B.sayAt(player, '.' + B.center(78, 'Active Mercenaries', 'yellow', '-') + '.');
 
     for (const entry of entries) {
-      const statusLabel = STATUS_LABEL[entry.status] || entry.status;
-      const now = Date.now();
-      const msLeft = Math.max(0, entry.nextUpkeepAt - now);
-      const hoursLeft = Math.floor(msLeft / 3600000);
-      const minutesLeft = Math.floor((msLeft % 3600000) / 60000);
-      const upkeepStr = `${hoursLeft}h ${minutesLeft}m`;
-
-      const targetLabel = entry.targetRoomId
-        ? (() => {
-          const room = state.RoomManager.getRoom(entry.targetRoomId);
-          return room ? room.title || entry.targetRoomId : entry.targetRoomId;
-        })()
-        : '—';
+      const statusLabel = getStatusLabel(state, player, { entry });
+      const upkeepStr   = formatUpkeep(state, player, { entry });
+      const targetLabel = getTargetLabel(state, player, { entry });
 
       B.sayAt(player,
         '<yellow>|</yellow> ' +

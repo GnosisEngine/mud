@@ -1,17 +1,29 @@
 // bundles/communication/commands/gag.js
 'use strict';
 
-const { Broadcast, PlayerRoles } = require('ranvier');
+const { Broadcast } = require('ranvier');
+const {
+  isAdmin,
+  hasNoArgs,
+  isSelf,
+  isOnline,
+  isValidEffect,
+  hasEffect,
+} = require('../logic');
 
 const VALID_EFFECTS = new Set(['censored', 'muted', 'raspy', 'outcasted', 'dull']);
 
 module.exports = {
-  requiredRole: PlayerRoles.ADMIN,
+  requiredRole: require('ranvier').PlayerRoles.ADMIN,
   usage: 'gag <player> <effect>',
   command: state => (args, player) => {
+    if (!isAdmin(state, player)) {
+      return Broadcast.sayAt(player, 'You do not have permission to use this command.');
+    }
+
     args = args.trim();
 
-    if (!args.length) {
+    if (hasNoArgs(state, player, { args })) {
       Broadcast.sayAt(player, 'Usage: gag <player> <effect>');
       Broadcast.sayAt(player, `Valid effects: ${[...VALID_EFFECTS].join(', ')}`);
       return;
@@ -25,24 +37,24 @@ module.exports = {
       return;
     }
 
-    if (!VALID_EFFECTS.has(effectName)) {
+    if (!isValidEffect(state, player, { effectName, validEffecst: VALID_EFFECTS })) {
       Broadcast.sayAt(player, `Unknown effect '${effectName}'. Valid effects: ${[...VALID_EFFECTS].join(', ')}`);
+      return;
+    }
+
+    if (!isOnline(state, player, { targetName })) {
+      Broadcast.sayAt(player, `No online player found with name '${targetName}'.`);
       return;
     }
 
     const target = state.PlayerManager.getPlayer(targetName);
 
-    if (!target) {
-      Broadcast.sayAt(player, `No online player found with name '${targetName}'.`);
-      return;
-    }
-
-    if (target === player) {
+    if (isSelf(state, player, { target })) {
       Broadcast.sayAt(player, 'You cannot gag yourself.');
       return;
     }
 
-    if (target.effects.hasEffectType(effectName)) {
+    if (hasEffect(state, player, { target, effectName })) {
       Broadcast.sayAt(player, `${target.name} already has the ${effectName} effect.`);
       return;
     }

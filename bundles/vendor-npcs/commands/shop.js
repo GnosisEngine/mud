@@ -5,6 +5,10 @@ const { Broadcast: B, CommandManager } = require('ranvier');
 const VendorCatalog = require('../lib/VendorCatalog');
 const VendorFormat = require('../lib/VendorFormat');
 const VendorTransaction = require('../lib/VendorTransaction');
+const {
+  hasArgs,
+  hasVendorInRoom,
+} = require('../logic');
 
 const subcommands = new CommandManager();
 
@@ -15,7 +19,7 @@ subcommands.add({
     const items = VendorCatalog.getItems(state, vendorConfig.items);
     const tell = VendorFormat.makeTell(state, vendor, player);
 
-    if (args && args.length) {
+    if (hasArgs(state, player, { args })) {
       const item = VendorCatalog.findItem(items, args);
       if (!item) {
         return tell("I don't carry that item and no, I won't check in back.");
@@ -55,14 +59,13 @@ module.exports = {
   usage: 'shop list [item], shop buy <item>, shop sell <item>, shop appraise <item>',
   subcommands: ['buy', 'list', 'sell', 'value'],
   command: state => (args, player, arg0) => {
-    // When a list/buy/sell alias was used, prepend it to args so the router sees it
     args = (!['vendor', 'shop'].includes(arg0) ? arg0 + ' ' : '') + (args || '');
 
-    const vendor = Array.from(player.room.npcs).find(npc => npc.getMeta('vendor'));
-    if (!vendor) {
+    if (!hasVendorInRoom(state, player)) {
       return B.sayAt(player, "You aren't in a shop.");
     }
 
+    const vendor = Array.from(player.room.npcs).find(npc => npc.getMeta('vendor'));
     const [subName, ...rest] = args.trim().split(' ');
     const sub = subcommands.find(subName);
     if (!sub) {

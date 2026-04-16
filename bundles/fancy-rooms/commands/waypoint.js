@@ -1,6 +1,13 @@
 'use strict';
 
 const { Broadcast: B } = require('ranvier');
+const {
+  hasCoordinates,
+  isListCommand,
+  isRemoveCommand,
+  hasWaypointWithLabel,
+  isWaypointSameRoom,
+} = require('../logic');
 
 const R    = '\x1b[0m';
 const GOLD = '\x1b[38;2;255;215;0m';
@@ -16,8 +23,7 @@ module.exports = {
     if (!player.metadata.waypoints) player.metadata.waypoints = [];
     const waypoints = player.metadata.waypoints;
 
-    // list
-    if (!args || args.trim() === 'list') {
+    if (isListCommand(null, null, { args })) {
       if (!waypoints.length) return B.sayAt(player, `${MUTE}No waypoints saved.${R}`);
       B.sayAt(player, `${GOLD}Waypoints:${R}`);
       waypoints.forEach((w, i) => {
@@ -26,11 +32,9 @@ module.exports = {
       return;
     }
 
-    // remove by label or index number
-    if (args.trim().toLowerCase().startsWith('remove ')) {
+    if (isRemoveCommand(null, null, { args })) {
       const target = args.trim().slice(7).trim();
 
-      // try numeric index first
       const num = parseInt(target, 10);
       let idx = -1;
       if (!isNaN(num)) {
@@ -45,33 +49,27 @@ module.exports = {
       return B.sayAt(player, `${GOLD}Waypoint "${removed.label}" removed.${R}`);
     }
 
-    // save or update
-    const room = player.room;
-    if (!room || !room.coordinates) {
+    if (!hasCoordinates(null, player)) {
       return B.sayAt(player, `${ROSE}This room cannot be waypointed.${R}`);
     }
 
     const label = args.trim();
     const entry = {
       label,
-      roomId:      room.entityReference,
-      areaId:      room.area.name,
-      coordinates: { ...room.coordinates }
+      roomId:      player.room.entityReference,
+      areaId:      player.room.area.name,
+      coordinates: { ...player.room.coordinates }
     };
 
-    const existing = waypoints.findIndex(w => w.label.toLowerCase() === label.toLowerCase());
-    if (existing >= 0) {
-      const old = waypoints[existing];
-      const sameRoom = old.areaId === entry.areaId &&
-        old.coordinates.x === entry.coordinates.x &&
-        old.coordinates.y === entry.coordinates.y &&
-        old.coordinates.z === entry.coordinates.z;
+    if (hasWaypointWithLabel(null, null, { waypoints, label })) {
+      const idx = waypoints.findIndex(w => w.label.toLowerCase() === label.toLowerCase());
+      const old = waypoints[idx];
 
-      if (sameRoom) {
+      if (isWaypointSameRoom(null, null, { old, entry })) {
         return B.sayAt(player, `${MUTE}Waypoint "${label}" already points here.${R}`);
       }
 
-      waypoints[existing] = entry;
+      waypoints[idx] = entry;
       player.save();
       return B.sayAt(player, `${GOLD}Waypoint "${label}" moved to current room.${R}`);
     }

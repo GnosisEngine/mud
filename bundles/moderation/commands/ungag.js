@@ -1,27 +1,37 @@
 // bundles/communication/commands/ungag.js
 'use strict';
 
-const { Broadcast, PlayerRoles } = require('ranvier');
+const { Broadcast } = require('ranvier');
+const {
+  isAdmin,
+  hasNoArgs,
+  isOnline,
+  hasCommEffects,
+} = require('../logic');
 
 module.exports = {
-  requiredRole: PlayerRoles.ADMIN,
+  requiredRole: require('ranvier').PlayerRoles.ADMIN,
   usage: 'ungag <player> [effect]',
   command: state => (args, player) => {
+    if (!isAdmin(state, player)) {
+      return Broadcast.sayAt(player, 'You do not have permission to use this command.');
+    }
+
     args = args.trim();
 
-    if (!args.length) {
+    if (hasNoArgs(state, player, { args })) {
       Broadcast.sayAt(player, 'Usage: ungag <player> [effect]');
       return;
     }
 
     const [targetName, effectName] = args.split(/\s+/);
 
-    const target = state.PlayerManager.getPlayer(targetName);
-
-    if (!target) {
+    if (!isOnline(state, player, { targetName })) {
       Broadcast.sayAt(player, `No online player found with name '${targetName}'.`);
       return;
     }
+
+    const target = state.PlayerManager.getPlayer(targetName);
 
     if (effectName) {
       const effect = target.effects.getByType(effectName);
@@ -36,14 +46,12 @@ module.exports = {
       return;
     }
 
-    const commEffects = target.effects.entries().filter(e => Array.isArray(e.config.blockedChannels));
-
-    if (!commEffects.length) {
+    if (!hasCommEffects(state, player, { target })) {
       Broadcast.sayAt(player, `${target.name} has no active communication effects.`);
       return;
     }
 
-    for (const effect of commEffects) {
+    for (const effect of target.effects.entries().filter(e => Array.isArray(e.config.blockedChannels))) {
       effect.remove();
     }
 

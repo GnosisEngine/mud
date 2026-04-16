@@ -1,24 +1,19 @@
 'use strict';
 
 const { Broadcast } = require('ranvier');
-const ArgParser = require('../../lib/lib/ArgParser');
+const {
+  hasNoArgs,
+  isSelf,
+  isFollowing,
+} = require('../logic');
 
 module.exports = {
   command: state => (arg, player) => {
-    if (!arg || !arg.length) {
+    if (hasNoArgs(state, player, { args: arg })) {
       return Broadcast.sayAt(player, 'Follow whom?');
     }
 
-    let target = ArgParser.parseDot(arg, player.room.players);
-
-    // if (!target) {
-    //   if (arg === 'self') {
-    //     target = player;
-    //   } else {
-    //     return Broadcast.sayAt(player, "You can't find anyone named that.");
-    //   }
-    // }
-
+    let target;
     if (arg === 'self') {
       target = player;
     } else {
@@ -28,16 +23,22 @@ module.exports = {
       }
     }
 
-    // follow self unfollows the person they're currently following
-    if (target === player) {
-      if (player.following) {
+    // if (!target) {
+    //   if (arg === 'self') {
+    //     target = player;
+    //   } else {
+    //     return Broadcast.sayAt(player, "You can't find anyone named that.");
+    //   }
+    // }
+
+    if (isSelf(state, player, { target })) {
+      if (isFollowing(state, player)) {
         Broadcast.sayAt(player.following, `${player.name} stops following you.`);
         Broadcast.sayAt(player, `You stop following ${player.following.name}.`);
         player.unfollow();
       } else {
         Broadcast.sayAt(player, "You can't follow yourself...");
       }
-
       return;
     }
 

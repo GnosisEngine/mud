@@ -4,12 +4,23 @@ const { Broadcast: B, CommandManager } = require('ranvier');
 const say = B.sayAt;
 const ArgParser = require('../../lib/lib/ArgParser');
 const { EVENTS } = require('../events');
+const {
+  hasNoOptions,
+  npcHasQuests,
+  isQuestActive,
+  canStartQuest,
+  isValidQuestIndex,
+  isValidActiveQuest,
+  isQuestComplete,
+  isQuestorPresent,
+} = require('../logic');
 
 const subcommands = new CommandManager();
+
 subcommands.add({
   name: 'list',
   command: state => (options, player) => {
-    if (!options.length) {
+    if (hasNoOptions(state, player, { options })) {
       return say(player, 'List quests from whom? quest list <npc>');
     }
 
@@ -19,7 +30,7 @@ subcommands.add({
       return say(player, `No quest giver [${search}] found.`);
     }
 
-    if (!npc.quests) {
+    if (!npcHasQuests(state, player, { npc })) {
       return say(player, `${npc.name} has no quests.`);
     }
 
@@ -33,9 +44,9 @@ subcommands.add({
       const qref = availableQuests[i];
       let quest = state.QuestFactory.get(qref);
       const displayIndex = parseInt(i, 10) + 1;
-      if (state.QuestFactory.canStart(player, qref)) {
+      if (canStartQuest(state, player, { qref })) {
         say(player, `[<b><yellow>!</yellow></b>] - ${displayIndex}. ${quest.config.title}`);
-      } else if (player.questTracker.isActive(qref)) {
+      } else if (isQuestActive(state, player, { qref })) {
         quest = player.questTracker.get(qref);
         const symbol = quest.getProgress().percent >= 100 ? '?' : '%';
         say(player, `[<b><yellow>${symbol}</yellow></b>] - ${displayIndex}. ${quest.config.title}`);
@@ -60,19 +71,18 @@ subcommands.add({
       return say(player, `No quest giver [${search}] found.`);
     }
 
-    if (!npc.quests || !npc.quests.length) {
+    if (!npcHasQuests(state, player, { npc })) {
       return say(player, `${npc.name} has no quests.`);
     }
 
-    if (isNaN(questIndex) || questIndex < 0 || questIndex > npc.quests.length) {
+    if (!isValidQuestIndex(state, player, { index: questIndex, count: npc.quests.length })) {
       return say(player, `Invalid quest, use 'quest list ${search}' to see their quests.`);
     }
 
     const availableQuests = getAvailableQuests(state, player, npc);
-
     const targetQuest = availableQuests[questIndex - 1];
 
-    if (player.questTracker.isActive(targetQuest)) {
+    if (isQuestActive(state, player, { qref: targetQuest })) {
       return say(player, "You've already started that quest. Use 'quest log' to see your active quests.");
     }
 
@@ -130,23 +140,24 @@ subcommands.add({
 
 subcommands.add({
   name: 'complete',
-  command: (state) => (options, player) => {
+  command: state => (options, player) => {
     const active = [...player.questTracker.activeQuests];
-    let targetQuest = parseInt(options[0], 10);
-    targetQuest = isNaN(targetQuest) ? -1 : targetQuest - 1;
-    if (!active[targetQuest]) {
+    let targetIndex = parseInt(options[0], 10);
+    targetIndex = isNaN(targetIndex) ? -1 : targetIndex - 1;
+
+    if (!isValidActiveQuest(state, player, { active, index: targetIndex })) {
       return say(player, "Invalid quest, use 'quest log' to see your active quests.");
     }
 
-    const [, quest] = active[targetQuest];
+    const [, quest] = active[targetIndex];
 
-    if (quest.getProgress().percent < 100) {
+    if (!isQuestComplete(state, player, { quest })) {
       say(player, `${quest.config.title} isn't complete yet.`);
       quest.emit(EVENTS.GOAL_PROGRESS, quest.getProgress());
       return;
     }
 
-    if (quest.config.npc && ![...player.room.npcs].find((npc) => npc.entityReference === quest.config.npc)) {
+    if (!isQuestorPresent(state, player, { quest })) {
       const npc = state.MobFactory.getDefinition(quest.config.npc);
       return say(player, `The questor [${npc.name}] is not in this room.`);
     }
@@ -159,14 +170,14 @@ subcommands.add({
 module.exports = {
   usage: 'quest <log/list/complete/start> [npc] [number]',
   subcommands: ['complete', 'list', 'log', 'start'],
-  command : (state) => (args, player) => {
+  command: state => (args, player) => {
     if (!args.length) {
       return say(player, "Missing command. See 'help quest'");
     }
 
     const [command, ...options] = args.split(' ');
-
     const subcommand = subcommands.find(command);
+
     if (!subcommand) {
       return say(player, "Invalid command. See 'help quest'");
     }
@@ -176,7 +187,7 @@ module.exports = {
 };
 
 function getAvailableQuests(state, player, npc) {
-  return npc.quests .filter(qref => {
+  return npc.quests.filter(qref => {
     return state.QuestFactory.canStart(player, qref) || player.questTracker.isActive(qref);
   });
 }

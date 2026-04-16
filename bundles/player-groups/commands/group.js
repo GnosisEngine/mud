@@ -2,39 +2,49 @@
 
 const { Broadcast: B, CommandManager } = require('ranvier');
 const say = B.sayAt;
+const {
+  hasNoArgs,
+  isSelf,
+  isInParty,
+  isPartyLeader,
+  isTargetInParty,
+  isTargetPartyLeader,
+  isInvited,
+  isConfirmed,
+} = require('../logic');
 
 const subcommands = new CommandManager();
+
 subcommands.add({
   name: 'create',
   command: state => (args, player) => {
-    if (player.party) {
+    if (isInParty(state, player)) {
       return say(player, "You're already in a group.");
     }
 
     state.PartyManager.create(player);
-    say(player, "<b><green>You created a group, invite players with '<white>group invite <name></white>'</green></b>");
+    say(player, "<b><green>You created a group, invite players with '<white>group invite <n></white>'</green></b>");
   }
 });
 
 subcommands.add({
   name: 'invite',
   command: state => (args, player) => {
-    if (!player.party) {
+    if (!isInParty(state, player)) {
       return say(player, "You don't have a group, create one with '<b>group create</b>'.");
     }
 
-    if (player.party && player !== player.party.leader) {
+    if (!isPartyLeader(state, player)) {
       return say(player, "You aren't the leader of the group.");
     }
 
-    if (!args.length) {
+    if (hasNoArgs(state, player, { args })) {
       return say(player, 'Invite whom?');
     }
 
-    // const target = Parser.parseDot(args, player.room.players);
     const target = state.getTarget(player.room, args, ['player']);
 
-    if (target === player) {
+    if (isSelf(state, player, { target })) {
       return say(player, 'You ask yourself if you want to join your own group. You humbly accept.');
     }
 
@@ -42,7 +52,7 @@ subcommands.add({
       return say(player, "They aren't here.");
     }
 
-    if (target.party) {
+    if (isTargetInParty(state, player, { target })) {
       return say(player, 'They are already in a group.');
     }
 
@@ -51,21 +61,20 @@ subcommands.add({
     player.party.invite(target);
     B.prompt(target);
   }
-}
-);
+});
 
 subcommands.add({
   name: 'disband',
   command: state => (args, player) => {
-    if (!player.party) {
+    if (!isInParty(state, player)) {
       return say(player, "You aren't in a group.");
     }
 
-    if (player !== player.party.leader) {
+    if (!isPartyLeader(state, player)) {
       return say(player, "You aren't the leader of the group.");
     }
 
-    if (!args || args !== 'sure') {
+    if (!isConfirmed(state, player, { args, word: 'sure' })) {
       return say(player, '<b><green>You have to confirm disbanding your group with \'<white>group disband sure</white>\'</green></b>');
     }
 
@@ -77,7 +86,7 @@ subcommands.add({
 subcommands.add({
   name: 'join',
   command: state => (args, player) => {
-    if (!args.length) {
+    if (hasNoArgs(state, player, { args })) {
       return say(player, 'Join whose group?');
     }
 
@@ -87,11 +96,11 @@ subcommands.add({
       return say(player, "They aren't here.");
     }
 
-    if (!target.party || target !== target.party.leader) {
+    if (!isTargetPartyLeader(state, player, { target })) {
       return say(player, "They aren't leading a group.");
     }
 
-    if (!target.party.isInvited(player)) {
+    if (!isInvited(state, player, { target })) {
       return say(player, "They haven't invited you to join their group.");
     }
 
@@ -105,7 +114,7 @@ subcommands.add({
 subcommands.add({
   name: 'decline',
   command: state => (args, player) => {
-    if (!args.length) {
+    if (hasNoArgs(state, player, { args })) {
       return say(player, 'Decline whose invite?');
     }
 
@@ -124,16 +133,13 @@ subcommands.add({
 subcommands.add({
   name: 'list',
   command: () => (args, player) => {
-    if (!player.party) {
+    if (!isInParty(null, player)) {
       return say(player, "You're not in a group.");
     }
 
     say(player, '<b>' + B.center(80, 'Group', 'green', '-') + '</b>');
     for (const member of player.party) {
-      let tag = '   ';
-      if (member === player.party.leader) {
-        tag = '[L]';
-      }
+      const tag = member === player.party.leader ? '[L]' : '   ';
       say(player, `<b><green>${tag} ${member.name}</green></b>`);
     }
   }
@@ -142,11 +148,11 @@ subcommands.add({
 subcommands.add({
   name: 'leave',
   command: () => (args, player) => {
-    if (!player.party) {
+    if (!isInParty(null, player)) {
       return say(player, "You're not in a group.");
     }
 
-    if (player === player.party.leader) {
+    if (isPartyLeader(null, player)) {
       return say(player, 'You have to disband if you want to leave the group.');
     }
 
@@ -161,7 +167,6 @@ module.exports = {
   aliases: ['party'],
   subcommands: ['create', 'decline', 'disband', 'invite', 'join', 'leave', 'list'],
   command: state => (args, player) => {
-
     if (!args || !args.length) {
       args = 'list';
     }

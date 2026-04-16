@@ -2,10 +2,11 @@
 
 const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
+const { hasNoArgs } = require('../logic');
 
 module.exports = {
   command: () => (arg, player) => {
-    if (!arg || !arg.length) {
+    if (hasNoArgs(null, null, { args: arg })) {
       return Broadcast.sayAt(player, 'Ditch whom?');
     }
 

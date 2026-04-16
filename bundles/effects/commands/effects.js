@@ -1,40 +1,41 @@
 'use strict';
 
 const humanize = (sec) => { return require('humanize-duration')(sec, { round: true }); };
-const { Broadcast: B, EffectFlag } = require('ranvier');
+const { Broadcast: B } = require('ranvier');
+const {
+  hasNoVisibleEffects,
+  getVisibleEffects,
+  isStackable,
+  isPermanent,
+  getEffectColor,
+} = require('../logic');
 
 module.exports = {
   aliases: ['affects'],
-  command : () => (args, player) => {
+  command: (state) => (args, player) => {
     B.sayAt(player, 'Current Effects:');
 
-    const effects = player.effects.entries().filter(effect => {
-      return !effect.config.hidden;
-    });
-
-    if (!effects.length) {
+    if (hasNoVisibleEffects(state, player)) {
       return B.sayAt(player, '  None.');
     }
 
-    for (const effect of effects) {
-      let color = 'white';
-      if (effect.flags.includes(EffectFlag.BUFF)) {
-        color = 'green';
-      } else if (effect.flags.includes(EffectFlag.DEBUFF)) {
-        color = 'red';
-      }
+    for (const effect of getVisibleEffects(state, player)) {
+      const color = getEffectColor(state, player, { effect });
+
       B.at(player, `<bold><${color}>  ${effect.name}</${color}></bold>`);
-      if (effect.config.maxStacks) {
+
+      if (isStackable(state, player, { effect })) {
         B.at(player, ` (${effect.state.stacks || 1})`);
       }
 
       B.at(player, ':');
 
-      if (effect.duration === Infinity) {
+      if (isPermanent(state, player, { effect })) {
         B.sayAt(player, 'Permanent');
       } else {
         B.sayAt(player, ` ${humanize(effect.remaining)} remaining`);
       }
+
       B.sayAt(player, '\t' + effect.description);
     }
   }

@@ -1,32 +1,39 @@
 'use strict';
 
-const { Broadcast: B, Item, ItemType, Player } = require('ranvier');
+const { Broadcast: B, Item, ItemType } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { decorate } = require('../lib/RoomDecorator');
 const { getItemEmoji, getNpcEmoji } = require('../lib/EmojiMapper');
 const Colors = require('../../colors/lib/Colors');
+const {
+  hasArgs,
+  isDoorBlocked,
+  isPlayerEntity,
+  isContainerEmpty,
+  isContainerClosed,
+  isRotting,
+  hasMinimap,
+} = require('../logic');
 
 // ─── rot quantiles ────────────────────────────────────────────────────────────
-// timeUntilDecay is in milliseconds
 
 function rotDescription(entity) {
   if (!entity.timeUntilDecay) return null;
   const sec = entity.timeUntilDecay / 1000;
   if (sec > 3600) return `${entity.name} looks perfectly fresh — no sign of decay yet.`;
   if (sec > 1800) return `${entity.name} carries a faint, stale smell. It won't last forever.`;
-  if (sec > 600) return `${entity.name} is visibly decaying. Dark patches spread across its surface.`;
-  if (sec > 120) return `${entity.name} is heavily rotted, reeking and barely holding together.`;
+  if (sec > 600)  return `${entity.name} is visibly decaying. Dark patches spread across its surface.`;
+  if (sec > 120)  return `${entity.name} is heavily rotted, reeking and barely holding together.`;
   return `${entity.name} is on the verge of collapse — crumbling and putrid.`;
 }
 
 // ─── radiance quantiles ───────────────────────────────────────────────────────
-// based on charges remaining, no max available
 
 function radianceDescription(charges) {
   if (charges >= 10) return 'It blazes with radiant energy, almost too bright to look at directly.';
-  if (charges >= 6) return 'It glows with a steady, warm light — plenty of power within.';
-  if (charges >= 3) return 'Its glow flickers occasionally, like a candle in a draft.';
+  if (charges >= 6)  return 'It glows with a steady, warm light — plenty of power within.';
+  if (charges >= 3)  return 'Its glow flickers occasionally, like a candle in a draft.';
   if (charges === 2) return 'A dim, unsteady glimmer clings to it. Nearly spent.';
   if (charges === 1) return 'A single faint pulse of light remains. One use left at most.';
   return 'It is cold and dark. Whatever radiance it once held is gone.';
@@ -45,7 +52,6 @@ function lookEntity(state, player, args) {
     search = args[0];
   }
 
-  // check if the search term matches an exit direction
   const exits = room.getExits ? room.getExits() : (room.exits || []);
   const matchedExit = exits.find(e => e.direction.toLowerCase() === search.toLowerCase());
   if (matchedExit) {
@@ -53,7 +59,7 @@ function lookEntity(state, player, args) {
     if (!exitRoom) return B.sayAt(player, "You can't make out anything in that direction.");
 
     const door = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room));
-    if (door && (door.locked || door.closed)) {
+    if (isDoorBlocked(state, player, { door })) {
       return B.sayAt(player, 'The door is closed.');
     }
 
@@ -70,15 +76,16 @@ function lookEntity(state, player, args) {
     return B.sayAt(player, "You don't see anything like that here.");
   }
 
-  if (entity instanceof Player) {
+  if (isPlayerEntity(state, player, { entity })) {
     B.sayAt(player, `You see fellow player ${entity.name}.`);
     return;
   }
 
   B.sayAt(player, entity.description, 80);
 
-  const rot = rotDescription(entity);
-  if (rot) B.sayAt(player, rot);
+  if (isRotting(state, player, { entity })) {
+    B.sayAt(player, rotDescription(entity));
+  }
 
   const usable = entity.getBehavior('usable');
   if (usable) {
@@ -105,10 +112,10 @@ function lookEntity(state, player, args) {
       case ItemType.ARMOR:
         return B.sayAt(player, ItemUtil.renderItem(state, entity, player));
       case ItemType.CONTAINER: {
-        if (!entity.inventory || !entity.inventory.size) {
+        if (isContainerEmpty(state, player, { entity })) {
           return B.sayAt(player, `${entity.name} is empty.`);
         }
-        if (entity.closed) {
+        if (isContainerClosed(state, player, { entity })) {
           return B.sayAt(player, 'It is closed.');
         }
         B.at(player, 'Contents');
@@ -155,9 +162,9 @@ function describeNpc(npc, player, state) {
       player.questTracker.isActive(ref) &&
       player.questTracker.get(ref).getProgress().percent < 100
     );
-    if (hasNew) badges += ' ❗';
+    if (hasNew)    badges += ' ❗';
     if (hasActive) badges += ' 📋';
-    if (hasReady) badges += ' ❓';
+    if (hasReady)  badges += ' ❓';
   }
 
   if (npc.isInCombat()) badges += ' ⚔️';
@@ -178,13 +185,12 @@ module.exports = {
 
   command(state) {
     return (args, player) => {
-      if (args) {
+      if (hasArgs(state, player, { args })) {
         lookEntity(state, player, args);
         return;
       }
 
       const room = player.room;
-
       if (!room) return player.socket.write('You are nowhere.\r\n');
 
       const waypoints = (player.metadata && player.metadata.waypoints) || [];
@@ -202,7 +208,7 @@ module.exports = {
         state,
       }) + '\r\n');
 
-      if (player.getMeta('config.minimap')) {
+      if (hasMinimap(state, player)) {
         B.sayAt(player, '');
         state.CommandManager.get('map').execute(4, player);
       }
