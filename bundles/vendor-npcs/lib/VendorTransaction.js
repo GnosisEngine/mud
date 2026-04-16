@@ -7,7 +7,6 @@ const ItemUtil = require('../../lib/lib/ItemUtil');
 const VendorCatalog = require('./VendorCatalog');
 const VendorFormat = require('./VendorFormat');
 const {
-  hasArgs,
   canAfford,
   hasInventorySpace,
   isSellable,
@@ -22,7 +21,7 @@ function buy(state, vendor, player, args) {
   const vendorConfig = vendor.getMeta('vendor');
   const tell = VendorFormat.makeTell(state, vendor, player);
 
-  if (!hasArgs(state, player, { args })) {
+  if (!!args === false) {
     return tell('Well, what do you want to buy?');
   }
 
@@ -56,7 +55,7 @@ function buy(state, vendor, player, args) {
 function sell(state, vendor, player, args) {
   const tell = VendorFormat.makeTell(state, vendor, player);
 
-  if (!hasArgs(state, player, { args })) {
+  if (!!args === false) {
     return tell('What did you want to sell?');
   }
 
@@ -91,7 +90,7 @@ function sell(state, vendor, player, args) {
 function appraise(state, vendor, player, args) {
   const tell = VendorFormat.makeTell(state, vendor, player);
 
-  if (!hasArgs(state, player, { args })) {
+  if (!!args === false) {
     return tell('What did you want me to appraise?');
   }
 

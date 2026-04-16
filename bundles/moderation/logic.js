@@ -1,23 +1,14 @@
 'use strict';
-const { PlayerRoles } = require('ranvier');
+const { isAdmin, isPlayerOnline, isSelf } = require('../lib/logic');
+
 const NOOP = {};
 
 module.exports = {
-  isAdmin: (_, player) => {
-    return player.role >= PlayerRoles.ADMIN;
-  },
+  isAdmin,
 
-  hasNoArgs: (_, __, { args } = NOOP) => {
-    return !args || !args.trim().length;
-  },
+  isSelf,
 
-  isSelf: (_, player, { target } = NOOP) => {
-    return target === player;
-  },
-
-  isOnline: (state, __, { targetName } = NOOP) => {
-    return !!state.PlayerManager.getPlayer(targetName);
-  },
+  isOnline: isPlayerOnline,
 
   isValidEffect: (_, __, { effectName, validEffects } = NOOP) => {
     return validEffects.has(effectName);

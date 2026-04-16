@@ -1,18 +1,18 @@
 'use strict';
 
-const { Broadcast: B, ItemType } = require('ranvier');
+const { Broadcast: B } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const dot = ArgParser.parseDot;
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { emit } = require('../events');
-const { hasNoArgs, isContainer, isContainerClosed } = require('../logic');
+const { isContainer, isContainerClosed } = require('../logic');
 
 module.exports = {
   usage: 'put <item> <container>',
   command: state => (args, player) => {
     args = args.trim();
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return B.sayAt(player, 'Put what where?');
     }
 

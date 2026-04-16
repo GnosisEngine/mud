@@ -7,7 +7,6 @@ const { decorate } = require('../lib/RoomDecorator');
 const { getItemEmoji, getNpcEmoji } = require('../lib/EmojiMapper');
 const Colors = require('../../colors/lib/Colors');
 const {
-  hasArgs,
   isDoorBlocked,
   isPlayerEntity,
   isContainerEmpty,
@@ -185,7 +184,7 @@ module.exports = {
 
   command(state) {
     return (args, player) => {
-      if (hasArgs(state, player, { args })) {
+      if (!!args) {
         lookEntity(state, player, args);
         return;
       }

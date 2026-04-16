@@ -5,10 +5,15 @@ const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B } = require('ranvier');
 const {
   hasNoContracts,
-  getStatusLabel,
-  formatUpkeep,
   getTargetLabel,
 } = require('../logic');
+
+const STATUS_LABEL = {
+  EN_ROUTE:  'En route',
+  STATIONED: 'Stationed',
+  RETURNING: 'Returning home',
+  FLEEING:   'Fleeing',
+};
 
 module.exports = {
   usage: 'mercs',
@@ -23,9 +28,33 @@ module.exports = {
     B.sayAt(player, '.' + B.center(78, 'Active Mercenaries', 'yellow', '-') + '.');
 
     for (const entry of entries) {
-      const statusLabel = getStatusLabel(state, player, { entry });
-      const upkeepStr   = formatUpkeep(state, player, { entry });
-      const targetLabel = getTargetLabel(state, player, { entry });
+      let upkeepStr;
+      let statusLabel;
+      let targetLabel;
+
+      if (entry) {
+        // Merc exists
+        const msLeft = Math.max(0, entry.nextUpkeepAt - Date.now());
+        const hoursLeft = Math.floor(msLeft / 3600000);
+        const minutesLeft = Math.floor((msLeft % 3600000) / 60000);
+        upkeepStr = `${hoursLeft}h ${minutesLeft}m`;
+        statusLabel = (STATUS_LABEL[entry.status] || entry.status);
+
+        if (!entry.targetRoomId) {
+          // Merc home unknown
+          targetLabel = '—';
+        } else {
+          // Merc home known
+          const room = state.RoomManager.getRoom(entry.targetRoomId);
+          targetLabel = room
+            ? (room.title || entry.targetRoomId)
+            : entry.targetRoomId;
+        }
+      } else {
+        // No merc
+        upkeepStr = '—';
+        targetLabel = '—';
+      }
 
       B.sayAt(player,
         '<yellow>|</yellow> ' +

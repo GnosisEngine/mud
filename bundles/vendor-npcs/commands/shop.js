@@ -6,7 +6,6 @@ const VendorCatalog = require('../lib/VendorCatalog');
 const VendorFormat = require('../lib/VendorFormat');
 const VendorTransaction = require('../lib/VendorTransaction');
 const {
-  hasArgs,
   hasVendorInRoom,
 } = require('../logic');
 
@@ -19,7 +18,7 @@ subcommands.add({
     const items = VendorCatalog.getItems(state, vendorConfig.items);
     const tell = VendorFormat.makeTell(state, vendor, player);
 
-    if (hasArgs(state, player, { args })) {
+    if (!!args) {
       const item = VendorCatalog.findItem(items, args);
       if (!item) {
         return tell("I don't carry that item and no, I won't check in back.");

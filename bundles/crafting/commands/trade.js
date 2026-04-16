@@ -5,7 +5,6 @@ const { Broadcast: B } = require('ranvier');
 const TradeLogic = require('../lib/TradeLogic');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
 const {
-  hasNoArgs,
   isSelf,
   isOnline,
   isTradeResponse,
@@ -48,7 +47,7 @@ function _findPendingForTarget(target, state) {
 module.exports = {
   usage: 'trade <player> <amount> <resource> [, <amount> <resource> ...] | trade accept | trade reject',
   command: state => (args, player) => {
-    if (hasNoArgs(state, player, { args: args && args.trim() })) {
+    if (!args) {
       return B.sayAt(player, 'Usage: trade <player> <offer> or trade accept/reject');
     }
 

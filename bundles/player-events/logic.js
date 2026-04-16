@@ -1,10 +1,10 @@
 'use strict';
+const { hasPendingCommands, isNpc, isInCombat, isDoorLocked, isDoorClosed } = require('../lib/logic');
+
 const NOOP = {};
 
 module.exports = {
-  hasPendingCommands: (_, player) => {
-    return !!(player.commandQueue.hasPending && player.commandQueue.lagRemaining <= 0);
-  },
+  hasPendingCommands,
 
   isIdleKickable: (_, player, { timeSinceLastCommand, maxIdleTime } = NOOP) => {
     return timeSinceLastCommand > maxIdleTime && !player.isInCombat();
@@ -14,25 +14,17 @@ module.exports = {
     return !!roomExit;
   },
 
-  isInCombat: (_, player) => {
-    return player.isInCombat();
-  },
+  isInCombat,
 
-  isDoorLocked: (_, __, { door } = NOOP) => {
-    return !!(door && door.locked);
-  },
+  isDoorLocked,
 
-  isDoorClosed: (_, __, { door } = NOOP) => {
-    return !!(door && door.closed);
-  },
+  isDoorClosed,
 
   isFollowerInRoom: (_, __, { follower, room } = NOOP) => {
     return !!(follower && follower.room === room);
   },
 
-  isNpcFollower: (_, __, { follower } = NOOP) => {
-    return !!(follower && follower.isNpc);
-  },
+  isNpc,
 
   isLevelUp: (_, player, { amount, totalTnl } = NOOP) => {
     return player.experience + amount > totalTnl;

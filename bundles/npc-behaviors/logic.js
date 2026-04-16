@@ -1,10 +1,9 @@
 'use strict';
+const { isInCombat, hasExits, isDoorPassable } = require('../lib/logic');
 const NOOP = {};
 
 module.exports = {
-  isInCombat: (_, npc) => {
-    return npc.isInCombat();
-  },
+  isInCombat,
 
   hasAggroTarget: (_, npc) => {
     return !!npc._aggroTarget;
@@ -39,13 +38,9 @@ module.exports = {
     return Date.now() - npc._lastWanderTime >= interval * 1000;
   },
 
-  hasExits: (_, __, { exits } = NOOP) => {
-    return !!(exits && exits.length);
-  },
+  hasExits,
 
-  isDoorPassable: (_, __, { door } = NOOP) => {
-    return !door || (!door.locked && !door.closed);
-  },
+  isDoorPassable,
 
   isRoomAllowed: (_, npc, { config, randomRoom } = NOOP) => {
     if (!randomRoom) return false;

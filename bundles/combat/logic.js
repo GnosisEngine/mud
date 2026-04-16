@@ -1,15 +1,10 @@
 'use strict';
 const CombatErrors = require('./lib/CombatErrors');
+const { hasWeapon, hasExits, isNpc, isDoorImpassable, isInCombat } = require('../lib/logic');
 const NOOP = {};
 
 module.exports = {
-  canDoThing: (_, __, {} = NOOP) => {
-    return false;
-  },
-
-  isNpc: (_, player) => {
-    return player && player.isNpc;
-  },
+  isNpc,
 
   roomExists: (state, _, { room, roomId } = NOOP) => {
     if (roomId !== undefined) {
@@ -19,13 +14,9 @@ module.exports = {
     return room !== undefined;
   },
 
-  isDoorImpassable: (_, __, { door } = NOOP) => {
-    return door && (door.locked || door.closed);
-  },
+  isDoorImpassable,
 
-  isInCombat: (_, player) => {
-    return player.isInCombat && player.isInCombat();
-  },
+  isInCombat,
 
   isPvpFlagged: (_, player) => {
     return player.getMeta('pvp');
@@ -85,9 +76,7 @@ module.exports = {
     }).length > 0;
   },
 
-  hasWeapon: (_, player) => {
-    return player.equipment.get('wield');
-  },
+  hasWeapon,
 
   isRegenerating: (_, player) => {
     return player.hasEffectType('regen');
@@ -117,18 +106,7 @@ module.exports = {
       && conditions;
   },
 
-  hasExits: (state, player) => {
-    const exits = player.room.getExits();
-    let count = exits.length;
-
-    for (const exit of exits) {
-      if (!state.RoomManager.getRoom(exit.roomId)) {
-        count -= 1;
-      }
-    }
-
-    return count > 0;
-  },
+  hasExits,
 
   cannotFight: (_, __, { e, error }) => {
     const thrown = e ?? error;

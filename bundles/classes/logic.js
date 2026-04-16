@@ -1,12 +1,9 @@
 'use strict';
 const { SkillFlag } = require('ranvier');
+const { hasWeapon } = require('../lib/logic');
 const NOOP = {};
 
 module.exports = {
-  hasNoArgs: (_, __, { args } = NOOP) => {
-    return !args || !args.length;
-  },
-
   isSpellKnown: (state, __, { spellName } = NOOP) => {
     return !!state.SpellManager.find(spellName);
   },
@@ -35,9 +32,7 @@ module.exports = {
     return player.equipment.has('shield');
   },
 
-  hasWeapon: (_, player) => {
-    return player.equipment.has('wield');
-  },
+  hasWeapon,
 
   isBelowEnergyThreshold: (_, player, { threshold } = NOOP) => {
     return (player.getAttribute('energy') / player.getMaxAttribute('energy')) * 100 <= threshold;

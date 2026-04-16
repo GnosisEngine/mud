@@ -1,7 +1,7 @@
 'use strict';
 
 const { Broadcast, PlayerRoles } = require('ranvier');
-const { isAdmin, isImmediateShutdown, isConfirmed } = require('../logic');
+const { isAdmin, isImmediateShutdown } = require('../logic');
 
 module.exports = {
   requiredRole: PlayerRoles.ADMIN,
@@ -17,7 +17,7 @@ module.exports = {
       return;
     }
 
-    if (!isConfirmed(state, player, { args: time, word: 'sure' })) {
+    if (time !== 'sure') {
       return Broadcast.sayAt(player, 'You must confirm the shutdown with "shutdown sure" or force immediate shutdown with "shutdown now"');
     }
 

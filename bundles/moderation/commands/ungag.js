@@ -4,7 +4,6 @@
 const { Broadcast } = require('ranvier');
 const {
   isAdmin,
-  hasNoArgs,
   isOnline,
   hasCommEffects,
 } = require('../logic');
@@ -19,7 +18,7 @@ module.exports = {
 
     args = args.trim();
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       Broadcast.sayAt(player, 'Usage: ungag <player> [effect]');
       return;
     }

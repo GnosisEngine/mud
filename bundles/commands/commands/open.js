@@ -2,7 +2,7 @@
 
 const { Broadcast: B } = require('ranvier');
 const ItemUtil = require('../../lib/lib/ItemUtil');
-const { hasNoArgs, hasRoom, hasKey } = require('../logic');
+const { isPlayerInAnyRoom, hasKey } = require('../logic');
 
 module.exports = {
   aliases: ['close', 'lock', 'unlock'],
@@ -10,11 +10,11 @@ module.exports = {
   command: state => (args, player, arg0) => {
     const action = arg0.toString().toLowerCase();
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return B.sayAt(player, `What do you want to ${action}?`);
     }
 
-    if (!hasRoom(state, player)) {
+    if (!isPlayerInAnyRoom(state, player)) {
       return B.sayAt(player, 'You are floating in the nether.');
     }
 

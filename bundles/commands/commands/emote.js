@@ -4,7 +4,6 @@
 const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const canSpeak = require('../../moderation/lib/canSpeak');
-const { hasNoArgs } = require('../logic');
 
 const FIND_TARGETS_REGEXP = /~((?:\d+\.)?[^\s.,!?"']+)/gi;
 const REPLACE_TARGETS_REGEXP = /~(?:\d+\.)?[^\s.,!?"']+/;
@@ -15,7 +14,7 @@ module.exports = {
   command: () => (args, player) => {
     args = args.trim();
 
-    if (hasNoArgs(null, null, { args })) {
+    if (!args) {
       return Broadcast.sayAt(player, 'Yes, but what do you want to emote?');
     }
 

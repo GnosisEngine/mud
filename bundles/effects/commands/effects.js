@@ -2,13 +2,12 @@
 
 require('../hints');
 const humanize = (sec) => { return require('humanize-duration')(sec, { round: true }); };
+const { EffectFlag } = require('ranvier');
 const { Broadcast: B } = require('ranvier');
 const {
   hasNoVisibleEffects,
-  getVisibleEffects,
   isStackable,
   isPermanent,
-  getEffectColor,
 } = require('../logic');
 
 module.exports = {
@@ -20,8 +19,13 @@ module.exports = {
       return B.sayAt(player, '  None.');
     }
 
-    for (const effect of getVisibleEffects(state, player)) {
-      const color = getEffectColor(state, player, { effect });
+    const visibleEffects = player.effects.entries().filter(e => !e.config.hidden);
+
+    for (const effect of visibleEffects) {
+      let color = 'white';
+
+      if (effect.flags.includes(EffectFlag.BUFF)) color = 'green';
+      if (effect.flags.includes(EffectFlag.DEBUFF)) color = 'red';
 
       B.at(player, `<bold><${color}>  ${effect.name}</${color}></bold>`);
 

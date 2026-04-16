@@ -3,14 +3,12 @@
 const { Broadcast: B, CommandManager } = require('ranvier');
 const say = B.sayAt;
 const {
-  hasNoArgs,
   isSelf,
   isInParty,
   isPartyLeader,
   isTargetInParty,
   isTargetPartyLeader,
   isInvited,
-  isConfirmed,
 } = require('../logic');
 
 const subcommands = new CommandManager();
@@ -38,7 +36,7 @@ subcommands.add({
       return say(player, "You aren't the leader of the group.");
     }
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return say(player, 'Invite whom?');
     }
 
@@ -74,7 +72,7 @@ subcommands.add({
       return say(player, "You aren't the leader of the group.");
     }
 
-    if (!isConfirmed(state, player, { args, word: 'sure' })) {
+    if (args !== 'sure') {
       return say(player, '<b><green>You have to confirm disbanding your group with \'<white>group disband sure</white>\'</green></b>');
     }
 
@@ -86,7 +84,7 @@ subcommands.add({
 subcommands.add({
   name: 'join',
   command: state => (args, player) => {
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return say(player, 'Join whose group?');
     }
 
@@ -114,7 +112,7 @@ subcommands.add({
 subcommands.add({
   name: 'decline',
   command: state => (args, player) => {
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return say(player, 'Decline whose invite?');
     }
 

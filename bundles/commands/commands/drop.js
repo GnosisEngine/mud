@@ -4,18 +4,18 @@ const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { emit } = require('../events');
-const { hasNoArgs, hasRoom } = require('../logic');
+const { isPlayerInAnyRoom } = require('../logic');
 
 module.exports = {
   usage: 'drop <item>',
   command: () => (args, player) => {
     args = args.trim();
 
-    if (hasNoArgs(null, null, { args })) {
+    if (!args) {
       return Broadcast.sayAt(player, 'Drop what?');
     }
 
-    if (!hasRoom(null, player)) {
+    if (!isPlayerInAnyRoom(null, player)) {
       return Broadcast.sayAt(player, 'You are floating in the nether, it would disappear forever.');
     }
 

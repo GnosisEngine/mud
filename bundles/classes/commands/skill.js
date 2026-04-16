@@ -2,7 +2,6 @@
 
 const { Broadcast: B } = require('ranvier');
 const {
-  hasNoArgs,
   isPassiveSkill,
   hasResourceCost,
   hasCooldown,
@@ -13,7 +12,7 @@ module.exports = {
   command: state => (args, player) => {
     const say = (message, wrapWidth) => B.sayAt(player, message, wrapWidth);
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return say("What skill or spell do you want to look up? Use 'skills' to view all skills/spells.");
     }
 

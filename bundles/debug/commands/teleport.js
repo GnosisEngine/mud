@@ -3,7 +3,6 @@
 const { Broadcast, PlayerRoles } = require('ranvier');
 const {
   isAdmin,
-  hasNoArgs,
   isRoomReference,
   isAlreadyHere,
   isInCombat,
@@ -18,7 +17,7 @@ module.exports = {
       return Broadcast.sayAt(player, 'You do not have permission to use this command.');
     }
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return Broadcast.sayAt(player, 'Must specify a destination using an online player or room entity reference.');
     }
 

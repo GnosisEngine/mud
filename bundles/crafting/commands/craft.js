@@ -5,7 +5,6 @@ const { Broadcast: B, CommandManager, ItemType } = require('ranvier');
 const ResourceContainer = require('../lib/ResourceContainer');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
 const {
-  hasNoArgs,
   isValidCategory,
   isValidRecipeEntry,
   hasSufficientResource,
@@ -43,7 +42,7 @@ subcommands.add({
   command: state => (args, player) => {
     const categories = getCraftingCategories(state);
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       say(player, '<b>Crafting Categories</b>');
       say(player, B.line(40));
       categories.forEach((cat, i) => say(player, `${i + 1}) ${cat.title}`));
@@ -80,7 +79,7 @@ subcommands.add({
 subcommands.add({
   name: 'create',
   command: state => (args, player) => {
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return say(player, "Create what? 'craft create 1 1' for example.");
     }
 
@@ -128,7 +127,7 @@ module.exports = {
   usage: 'craft <list/create> [category #] [item #]',
   subcommands: ['create', 'list'],
   command: state => (args, player) => {
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return say(player, "Missing craft command. See 'help craft'");
     }
 

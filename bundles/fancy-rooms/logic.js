@@ -1,19 +1,15 @@
 'use strict';
 const { Player } = require('ranvier');
+const { hasMinimap, isDoorBlocked, isContainerClosed } = require('../lib/logic');
+
 const NOOP = {};
 
 module.exports = {
-  hasArgs: (_, __, { args } = NOOP) => {
-    return !!args;
-  },
-
   hasCoordinates: (_, player) => {
     return !!(player.room && player.room.coordinates);
   },
 
-  isDoorBlocked: (_, __, { door } = NOOP) => {
-    return !!(door && (door.locked || door.closed));
-  },
+  isDoorBlocked,
 
   isPlayerEntity: (_, __, { entity } = NOOP) => {
     return entity instanceof Player;
@@ -23,17 +19,13 @@ module.exports = {
     return !entity.inventory || !entity.inventory.size;
   },
 
-  isContainerClosed: (_, __, { entity } = NOOP) => {
-    return !!entity.closed;
-  },
+  isContainerClosed,
 
   isRotting: (_, __, { entity } = NOOP) => {
     return !!entity.timeUntilDecay;
   },
 
-  hasMinimap: (_, player) => {
-    return !!player.getMeta('config.minimap');
-  },
+  hasMinimap,
 
   isListCommand: (_, __, { args } = NOOP) => {
     return !args || args.trim() === 'list';

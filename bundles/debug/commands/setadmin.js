@@ -2,7 +2,7 @@
 
 const { Broadcast, PlayerRoles } = require('ranvier');
 const Parser = require('../../lib/lib/ArgParser');
-const { isAdmin, hasNoArgs, isAlreadyAdmin } = require('../logic');
+const { isAdmin } = require('../logic');
 
 module.exports = {
   requiredRole: PlayerRoles.ADMIN,
@@ -13,7 +13,7 @@ module.exports = {
 
     args = args.trim();
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return Broadcast.sayAt(player, 'setadmin <player>');
     }
 
@@ -23,7 +23,7 @@ module.exports = {
       return Broadcast.sayAt(player, 'They are not here.');
     }
 
-    if (isAlreadyAdmin(state, player, { target })) {
+    if (isAdmin(state, target)) {
       return Broadcast.sayAt(player, 'They are already an administrator.');
     }
 

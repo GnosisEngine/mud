@@ -5,7 +5,6 @@ require('../hints');
 const { Broadcast } = require('ranvier');
 const {
   isAdmin,
-  hasNoArgs,
   isSelf,
   isOnline,
   isValidEffect,
@@ -24,7 +23,7 @@ module.exports = {
 
     args = args.trim();
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       Broadcast.sayAt(player, 'Usage: gag <player> <effect>');
       Broadcast.sayAt(player, `Valid effects: ${[...VALID_EFFECTS].join(', ')}`);
       return;

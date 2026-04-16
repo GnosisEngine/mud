@@ -12,7 +12,7 @@ const {
   isDoorLocked,
   isDoorClosed,
   isFollowerInRoom,
-  isNpcFollower,
+  isNpc,
   isLevelUp,
 } = require('./logic');
 
@@ -87,7 +87,7 @@ module.exports = {
           continue;
         }
 
-        if (isNpcFollower(state, this, { follower })) {
+        if (isNpc(state, follower)) {
           follower.moveTo(nextRoom);
         } else {
           B.sayAt(follower, `\r\nYou follow ${this.name} to ${nextRoom.title}.`);

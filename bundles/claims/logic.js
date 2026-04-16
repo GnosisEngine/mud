@@ -1,5 +1,6 @@
 'use strict';
 const enforcement = require('./lib/enforcement');
+const { isSelf } = require('../lib/logic');
 const NOOP = {};
 
 function hasSubmitted(_, enforcer, { target } = NOOP) {
@@ -69,9 +70,7 @@ module.exports = {
     return claimState === 'E';
   },
 
-  isTargetSelf: (_, player, { target } = NOOP) => {
-    return target === player;
-  },
+  isTargetSelf: isSelf,
 
   hasBeenThreatened: (_, enforcer, { target } = NOOP) => {
     return enforcement.hasThreat(enforcer.name, target.name);

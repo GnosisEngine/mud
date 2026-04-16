@@ -1,14 +1,10 @@
 'use strict';
+const { isSelf } = require('../lib/logic');
+
 const NOOP = {};
 
 module.exports = {
-  hasNoArgs: (_, __, { args } = NOOP) => {
-    return !args || !args.length;
-  },
-
-  isSelf: (_, player, { target } = NOOP) => {
-    return target === player;
-  },
+  isSelf,
 
   isFollowing: (_, player) => {
     return !!player.following;
@@ -32,9 +28,5 @@ module.exports = {
 
   isInvited: (_, player, { target } = NOOP) => {
     return !!(target && target.party && target.party.isInvited(player));
-  },
-
-  isConfirmed: (_, __, { args, word } = NOOP) => {
-    return args === word;
   },
 };

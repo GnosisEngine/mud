@@ -2,7 +2,7 @@
 
 require('../hints');
 const { Broadcast: B, PlayerRoles } = require('ranvier');
-const { isAdmin, hasNoArgs, isCommandKnown } = require('../logic');
+const { isAdmin, isCommandKnown } = require('../logic');
 
 module.exports = {
   requiredRole: PlayerRoles.ADMIN,
@@ -12,7 +12,7 @@ module.exports = {
       return B.sayAt(player, 'You do not have permission to use this command.');
     }
 
-    if (hasNoArgs(state, player, { args: commandName })) {
+    if (!commandName) {
       return B.sayAt(player, 'Hotfix which command?');
     }
 

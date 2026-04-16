@@ -1,28 +1,28 @@
 'use strict';
 const { ItemType } = require('ranvier');
 const canSpeak = require('../moderation/lib/canSpeak');
+const {
+  isInCombat,
+  hasMinimap,
+  isContainerClosed,
+  hasPendingCommands,
+  isDoorBlocked,
+  isSelf,
+  hasInventorySpace
+} = require('../lib/logic');
+
 const NOOP = {};
 
 module.exports = {
-  hasNoArgs: (_, __, { args } = NOOP) => {
-    return !args || !args.length;
-  },
-
-  hasRoom: (_, player) => {
+  isPlayerInAnyRoom: (_, player) => {
     return !!player.room;
   },
 
-  isInCombat: (_, player) => {
-    return player.isInCombat();
-  },
+  isInCombat,
 
-  hasInventorySpace: (_, player) => {
-    return !player.isInventoryFull();
-  },
+  hasInventorySpace,
 
-  isSelf: (_, player, { target } = NOOP) => {
-    return target === player;
-  },
+  isSelf,
 
   isSpeechBlocked: (_, player, { channel } = NOOP) => {
     return canSpeak(player, channel).blocked;
@@ -36,9 +36,7 @@ module.exports = {
     return !!(item && item.type === ItemType.CONTAINER);
   },
 
-  isContainerClosed: (_, __, { container } = NOOP) => {
-    return !!(container && container.closed);
-  },
+  isContainerClosed,
 
   isPickupAllowed: (_, __, { item } = NOOP) => {
     return !!(item && !item.metadata.noPickup);
@@ -52,21 +50,15 @@ module.exports = {
     return !!player.getMeta('config.brief');
   },
 
-  hasMinimap: (_, player) => {
-    return !!player.getMeta('config.minimap');
-  },
+  hasMinimap,
 
-  isDoorBlocked: (_, __, { door } = NOOP) => {
-    return !!(door && (door.locked || door.closed));
-  },
+  isDoorBlocked,
 
   hasKey: (_, player, { keyRef } = NOOP) => {
     return !!player.hasItem(keyRef);
   },
 
-  hasPendingCommands: (_, player) => {
-    return !!player.commandQueue.hasPending;
-  },
+  hasPendingCommands,
 
   isUsable: (_, __, { item } = NOOP) => {
     return !!(item && item.getBehavior('usable'));

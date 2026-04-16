@@ -6,19 +6,17 @@ const { EquipSlotTakenError } = Ranvier.EquipErrors;
 const say = Broadcast.sayAt;
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const ArgParser = require('../../lib/lib/ArgParser');
-const { hasNoArgs, hasWearSlot, meetsLevelRequirement } = require('../logic');
+const { hasWearSlot, meetsLevelRequirement } = require('../logic');
 
 module.exports = {
   aliases: ['wield'],
   usage: 'wear <item>',
-  command: state => (arg, player) => {
-    arg = arg.trim();
-
-    if (hasNoArgs(state, player, { args: arg })) {
+  command: state => (args, player) => {
+    if (!args) {
       return say(player, 'Wear what?');
     }
 
-    const item = ArgParser.parseDot(arg, player.inventory);
+    const item = ArgParser.parseDot(args, player.inventory);
     if (!item) {
       return say(player, "You aren't carrying anything like that.");
     }

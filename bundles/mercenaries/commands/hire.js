@@ -3,19 +3,19 @@
 
 const { Broadcast: B } = require('ranvier');
 const {
-  hasNoArgs,
-  getMercVendorInRoom,
   isVendorTarget,
 } = require('../logic');
 
 module.exports = {
   usage: 'hire <mercenary>',
   command: state => (args, player) => {
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return B.sayAt(player, 'Hire whom? Try: <b>hire <n></b>');
     }
 
-    const vendorNpc = getMercVendorInRoom(state, player);
+    const vendorNpc = Array.from(player.room.npcs)
+      .find(npc => npc.getMeta('mercenary')) || null;
+
     if (!vendorNpc) {
       return B.sayAt(player, 'There is no mercenary broker here.');
     }

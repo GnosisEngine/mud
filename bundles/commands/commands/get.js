@@ -1,12 +1,11 @@
 'use strict';
 
-const { Broadcast, ItemType } = require('ranvier');
+const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { emit } = require('../events');
 const {
-  hasNoArgs,
-  hasRoom,
+  isPlayerInAnyRoom,
   hasInventorySpace,
   isContainer,
   isContainerClosed,
@@ -17,11 +16,11 @@ module.exports = {
   usage: 'get <item> [container]',
   aliases: ['take', 'pick', 'loot'],
   command: state => (args, player, arg0) => {
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return Broadcast.sayAt(player, 'Get what?');
     }
 
-    if (!hasRoom(state, player)) {
+    if (!isPlayerInAnyRoom(state, player)) {
       return Broadcast.sayAt(player, 'You are floating in the nether, there is nothing to get.');
     }
 

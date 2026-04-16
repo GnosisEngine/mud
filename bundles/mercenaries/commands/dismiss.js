@@ -3,7 +3,6 @@
 
 const { Broadcast: B } = require('ranvier');
 const {
-  hasNoArgs,
   hasEmptyInventory,
   findContractInInventory,
   hasActiveContract,
@@ -13,7 +12,7 @@ const {
 module.exports = {
   usage: 'dismiss <mercenary name>',
   command: state => (args, player) => {
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return B.sayAt(player, 'Dismiss which mercenary? Try: <b>dismiss <n></b>');
     }
 

@@ -4,14 +4,14 @@ const humanize = (sec) => { return require('humanize-duration')(sec, { round: tr
 const { Broadcast, Logger, SkillErrors } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
-const { hasNoArgs, isUsable, isDepletedCharges } = require('../logic');
+const { isUsable, isDepletedCharges } = require('../logic');
 
 module.exports = {
   aliases: ['quaff', 'recite'],
   command: state => (args, player) => {
     const say = message => Broadcast.sayAt(player, message);
 
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return say('Use what?');
     }
 

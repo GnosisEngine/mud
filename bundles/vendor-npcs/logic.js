@@ -1,11 +1,8 @@
 'use strict';
+const { hasInventorySpace } = require('../lib/logic');
 const NOOP = {};
 
 module.exports = {
-  hasArgs: (_, __, { args } = NOOP) => {
-    return !!(args && args.length);
-  },
-
   hasVendorInRoom: (_, player) => {
     return !!Array.from(player.room.npcs).find(npc => npc.getMeta('vendor'));
   },
@@ -14,9 +11,7 @@ module.exports = {
     return (player.getMeta(currencyKey) || 0) >= cost;
   },
 
-  hasInventorySpace: (_, player) => {
-    return !player.isInventoryFull();
-  },
+  hasInventorySpace,
 
   isSellable: (_, __, { item } = NOOP) => {
     return !!(item && item.getMeta('sellable'));

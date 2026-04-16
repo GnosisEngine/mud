@@ -3,15 +3,14 @@
 require('../hints');
 const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
-const { hasNoArgs } = require('../logic');
 
 module.exports = {
-  command: () => (arg, player) => {
-    if (hasNoArgs(null, null, { args: arg })) {
+  command: () => (args, player) => {
+    if (!args) {
       return Broadcast.sayAt(player, 'Ditch whom?');
     }
 
-    const target = ArgParser.parseDot(arg, player.followers);
+    const target = ArgParser.parseDot(args, player.followers);
 
     if (!target) {
       return Broadcast.sayAt(player, "They aren't following you.");

@@ -2,22 +2,21 @@
 
 const { Broadcast } = require('ranvier');
 const {
-  hasNoArgs,
   isSelf,
   isFollowing,
 } = require('../logic');
 
 module.exports = {
-  command: state => (arg, player) => {
-    if (hasNoArgs(state, player, { args: arg })) {
+  command: state => (args, player) => {
+    if (!args) {
       return Broadcast.sayAt(player, 'Follow whom?');
     }
 
     let target;
-    if (arg === 'self') {
+    if (args === 'self') {
       target = player;
     } else {
-      target = state.getTarget(player.room, arg, ['player']);
+      target = state.getTarget(player.room, args, ['player']);
       if (!target) {
         return Broadcast.sayAt(player, "You can't find anyone named that.");
       }

@@ -4,15 +4,16 @@ const { Broadcast: B } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const dot = ArgParser.parseDot;
 const ItemUtil = require('../../lib/lib/ItemUtil');
-const { hasNoArgs, isSelf, hasInventorySpace } = require('../logic');
+const { isSelf, hasInventorySpace } = require('../logic');
 
 module.exports = {
   usage: 'give <item> <target>',
   command: state => (args, player) => {
-    if (hasNoArgs(state, player, { args })) {
+    if (!args) {
       return B.sayAt(player, 'Give what to whom?');
     }
 
+    // eslint-disable-next-line prefer-const
     let [targetItem, to, targetRecip] = args.split(' ');
     if (to !== 'to' || !targetRecip) {
       targetRecip = to;
