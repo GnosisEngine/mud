@@ -48,7 +48,7 @@ body {
   overflow: hidden;
 }
 
-/* ── HEADER ─────────────────────────────────────────────── */
+/*  HEADER */
 header {
   display: flex;
   align-items: center;
@@ -92,7 +92,7 @@ input[type="text"] {
 }
 input[type="text"]:focus { outline: none; border-color: var(--accent); }
 
-/* ── MAIN LAYOUT ────────────────────────────────────────── */
+/*  MAIN LAYOUT  */
 .main {
   display: flex;
   flex: 1;
@@ -100,7 +100,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   min-height: 0;
 }
 
-/* ── GRID SIDE ──────────────────────────────────────────── */
+/*  GRID SIDE  */
 .grid-side {
   flex: 1;
   overflow: auto;
@@ -211,7 +211,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 .exit-ind.u { top: 1px;    right: 13px; }
 .exit-ind.d { bottom: 14px; left: 2px; }
 
-/* ── RIGHT SIDEBAR ──────────────────────────────────────── */
+/*  RIGHT SIDEBAR  */
 .sidebar {
   width: 330px;
   flex-shrink: 0;
@@ -223,7 +223,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   gap: 0;
 }
 
-/* ── SECTION CARDS ──────────────────────────────────────── */
+/*  SECTION CARDS  */
 .section {
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -261,7 +261,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   gap: 8px;
 }
 
-/* ── BUTTONS ────────────────────────────────────────────── */
+/*  BUTTONS  */
 .btn {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -287,7 +287,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   text-align: center;
 }
 
-/* ── CANVAS SECTION ─────────────────────────────────────── */
+/*  CANVAS SECTION */
 .canvas-row {
   display: flex;
   align-items: center;
@@ -308,7 +308,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   white-space: nowrap;
 }
 
-/* ── ROOM SECTION ───────────────────────────────────────── */
+/*  ROOM SECTION */
 .field { display: flex; flex-direction: column; gap: 2px; }
 
 .field-label {
@@ -362,7 +362,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   line-height: 1.8;
 }
 
-/* ── EXITS ──────────────────────────────────────────────── */
+/*  EXITS  */
 .exits-compass {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -415,7 +415,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
   margin: 0;
 }
 
-/* ── DATA SECTION ───────────────────────────────────────── */
+/*  DATA SECTION */
 .data-tabs {
   display: flex;
   gap: 5px;
@@ -454,7 +454,7 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 .CodeMirror-scroll   { padding: 2px 0; }
 .CodeMirror-gutters  { display: none; }
 
-/* ── SCROLLBAR ──────────────────────────────────────────── */
+/*  SCROLLBAR  */
 ::-webkit-scrollbar       { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); }
@@ -476,23 +476,23 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 <!-- ═══ MAIN ════════════════════════════════════════════════════════ -->
 <div class="main">
 
-  <!-- ── GRID ─────────────────────────────────────────────────────── -->
+  <!--  GRID -->
   <div class="grid-side">
     <div class="grid-wrapper">
-      <div class="axis-label">── NORTH ──</div>
+      <div class="axis-label"> NORTH </div>
       <div class="grid-row-wrap">
         <div class="ew-label">W</div>
         <div class="grid" id="room-grid"></div>
         <div class="ew-label">E</div>
       </div>
-      <div class="axis-label">── SOUTH ──</div>
+      <div class="axis-label"> SOUTH </div>
     </div>
   </div>
 
-  <!-- ── RIGHT SIDEBAR ─────────────────────────────────────────────── -->
+  <!--  RIGHT SIDEBAR -->
   <div class="sidebar">
 
-    <!-- ┌─ CANVAS ──────────────────────────────────────────────────┐ -->
+    <!-- ┌─ CANVAS ┐ -->
     <div class="section">
       <div class="section-header">
         <span class="section-title">CANVAS</span>
@@ -533,9 +533,9 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 
       </div>
     </div>
-    <!-- └───────────────────────────────────────────────────────────┘ -->
+    <!-- └─┘ -->
 
-    <!-- ┌─ ROOM ────────────────────────────────────────────────────┐ -->
+    <!-- ┌─ ROOM ┐ -->
     <div class="section">
       <div class="section-header">
         <span class="section-title">ROOM</span>
@@ -545,9 +545,9 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
         <div class="empty-hint">[ SELECT A CELL<br>TO BEGIN EDITING ]</div>
       </div>
     </div>
-    <!-- └───────────────────────────────────────────────────────────┘ -->
+    <!-- └─┘ -->
 
-    <!-- ┌─ DATA ────────────────────────────────────────────────────┐ -->
+    <!-- ┌─ DATA ┐ -->
     <div class="section">
       <div class="section-header">
         <span class="section-title">DATA</span>
@@ -580,13 +580,13 @@ input[type="text"]:focus { outline: none; border-color: var(--accent); }
 
       </div>
     </div>
-    <!-- └───────────────────────────────────────────────────────────┘ -->
+    <!-- └─┘ -->
 
   </div><!-- .sidebar -->
 </div><!-- .main -->
 
 <script>
-// ─── State ────────────────────────────────────────────────────────────────────
+// State 
 
 const S = {
   rooms: {},
@@ -659,7 +659,7 @@ function buildOptions(optMap, current) {
   ).join('');
 }
 
-// ─── Grid Rendering ───────────────────────────────────────────────────────────
+// Grid Rendering
 
 const TERRAIN_COLORS = {
   none:               null,
@@ -770,7 +770,7 @@ function renderGrid() {
   }
 }
 
-// ─── Cell Interactions ────────────────────────────────────────────────────────
+// Cell Interactions 
 
 function onCellClick(k) {
   if (S.rooms[k]) {
@@ -799,7 +799,7 @@ function onCellRightClick(k) {
   renderEditor();
 }
 
-// ─── Editor Rendering ─────────────────────────────────────────────────────────
+// Editor Rendering
 
 function renderEditor() {
   const body = document.getElementById('editor-body');
@@ -888,7 +888,7 @@ function renderEditor() {
   if (room || isPending) renderExits(k);
 }
 
-// ─── Exits ────────────────────────────────────────────────────────────────────
+// Exits 
 
 function renderExits(k) {
   const room    = S.rooms[k];
@@ -1006,7 +1006,7 @@ function deleteSelected() {
   renderGrid(); renderEditor();
 }
 
-// ─── Grid / Z Controls ────────────────────────────────────────────────────────
+// Grid / Z Controls 
 
 function resizeGrid(axis, delta) {
   if (axis === 'cols') {
@@ -1060,7 +1060,7 @@ function changeZ(delta) {
   scrollGridToCenter();
 }
 
-// ─── Data Tabs ────────────────────────────────────────────────────────────────
+// Data Tabs 
 
 function showDataTab(tab) {
   document.getElementById('panel-export').classList.toggle('hidden', tab !== 'export');
@@ -1070,7 +1070,7 @@ function showDataTab(tab) {
   if (tab === 'import' && CM.in) CM.in.refresh();
 }
 
-// ─── YAML Generation ──────────────────────────────────────────────────────────
+// YAML Generation 
 
 function parseEntityLines(text) {
   if (!text || !text.trim()) return [];
@@ -1174,7 +1174,7 @@ function copyYAML(btn) {
   });
 }
 
-// ─── Import ───────────────────────────────────────────────────────────────────
+// Import
 
 function importYAML() {
   const raw    = CM.in.getValue().trim();
@@ -1212,7 +1212,7 @@ function importYAML() {
   }
 }
 
-// ─── YAML Parser ─────────────────────────────────────────────────────────────
+// YAML Parser
 
 function parseRoomsYAML(text) {
   const TERRAIN_VALS = new Set(Object.values(TERRAIN_OPTIONS));
@@ -1294,13 +1294,13 @@ function roomFromRaw(raw, TERRAIN_VALS, FEATURE_VALS) {
   return room;
 }
 
-// ─── Utility ──────────────────────────────────────────────────────────────────
+// Utility 
 
 function esc(s) {
   return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
+// Init
 
 const CM = {};
 

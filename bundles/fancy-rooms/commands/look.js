@@ -17,7 +17,7 @@ const {
   isExit
 } = require('../logic');
 
-// ─── rot quantiles ────────────────────────────────────────────────────────────
+//  rot quantiles
 
 function rotDescription(entity) {
   if (!entity.timeUntilDecay) return null;
@@ -29,7 +29,7 @@ function rotDescription(entity) {
   return `${entity.name} is on the verge of collapse — crumbling and putrid.`;
 }
 
-// ─── radiance quantiles ───────────────────────────────────────────────────────
+//  radiance quantiles
 
 function radianceDescription(charges) {
   if (charges >= 10) return 'It blazes with radiant energy, almost too bright to look at directly.';
@@ -40,7 +40,7 @@ function radianceDescription(charges) {
   return 'It is cold and dark. Whatever radiance it once held is gone.';
 }
 
-// ─── entity look ─────────────────────────────────────────────────────────────
+//  entity look
 
 function lookEntity(state, player, args) {
   const room = player.room;
@@ -128,7 +128,7 @@ function lookEntity(state, player, args) {
   }
 }
 
-// ─── room renderers ───────────────────────────────────────────────────────────
+// room renderers
 
 function describeItem(item) {
   const isResource = (item.hasBehavior && item.hasBehavior('resource')) || (item.getMeta && !!item.getMeta('resource'));
@@ -173,7 +173,7 @@ function describePlayer(other) {
   return `${Colors.rgb(180, 220, 255)} 🧍 ${other.name}${combat}${Colors.RESET}`;
 }
 
-// ─── command ──────────────────────────────────────────────────────────────────
+//  command
 
 module.exports = {
   aliases: ['l'],

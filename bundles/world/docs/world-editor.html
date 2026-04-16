@@ -31,7 +31,7 @@
     font-size: 13px;
   }
 
-  /* ── Header ── */
+  /*  Header  */
   header {
     display: flex;
     align-items: center;
@@ -64,14 +64,14 @@
     align-items: center;
   }
 
-  /* ── Main layout ── */
+  /*  Main layout  */
   .main {
     display: flex;
     flex: 1;
     overflow: hidden;
   }
 
-  /* ── Canvas area ── */
+  /*  Canvas area  */
   #grid-wrap {
     flex: 1;
     overflow: auto;
@@ -88,7 +88,7 @@
     image-rendering: pixelated;
   }
 
-  /* ── Side panel ── */
+  /*  Side panel  */
   .panel {
     width: 248px;
     flex-shrink: 0;
@@ -99,7 +99,7 @@
     overflow: hidden;
   }
 
-  /* ── Parameter inputs ── */
+  /*  Parameter inputs  */
   .field { margin-bottom: 8px; }
   .field label {
     display: block; font-size: 10px; color: var(--dim);
@@ -148,7 +148,7 @@
     border-bottom: 1px solid var(--border);
   }
 
-  /* ── Buttons ── */
+  /*  Buttons  */
   .btn {
     width: 100%;
     padding: 6px 10px;
@@ -187,7 +187,7 @@
   }
   .btn-primary:hover { background: rgba(200,160,96,0.25); }
 
-  /* ── Terrain buttons ── */
+  /*  Terrain buttons  */
   .terrain-btn {
     width: 100%;
     display: flex;
@@ -217,7 +217,7 @@
     border: 1px solid rgba(255,255,255,0.1);
   }
 
-  /* ── Cell info ── */
+  /*  Cell info  */
   .cell-info {
     font-size: 11px;
     color: var(--dim);
@@ -226,7 +226,7 @@
   }
   .cell-info .val { color: var(--text); }
 
-  /* ── Import modal ── */
+  /*  Import modal  */
   #importModal {
     position: fixed; inset: 0; background: rgba(0,0,0,0.78);
     z-index: 9998; display: none; align-items: center; justify-content: center;
@@ -257,7 +257,7 @@
   }
   #importModalActions { display: flex; gap: 8px; justify-content: flex-end; }
 
-  /* ── Cluster tooltip ── */
+  /*  Cluster tooltip  */
   #clusterTooltip {
     position: fixed;
     pointer-events: none;
@@ -272,13 +272,13 @@
     z-index: 999;
     display: none;
   }
-    display: flex;
+    /* display: flex;
     align-items: center;
     gap: 6px;
     margin-bottom: 3px;
     font-size: 11px;
     color: var(--dim);
-  }
+  } */
 </style>
 </head>
 <body>
@@ -494,11 +494,11 @@ const WorldGen = {
   CFG: {
     seed: 42,
 
-    // ── Factions (LOCKED TO 3) ────────────────────────────────────
+    //  Factions (LOCKED TO 3) 
     // 3 factions, each anchored to one of 3 corners: TL, TR, BL
     // (4th corner BR is left as neutral wilderness territory)
 
-    // ── Corner zone ───────────────────────────────────────────────
+    //  Corner zone
     // Fraction of grid W/H used as each corner's exclusive zone
     cornerZoneFrac: 0.32,
 
@@ -513,7 +513,7 @@ const WorldGen = {
     // Min spacing between any two outpost seeds (primaries or secondaries)
     outpostMinDist: 8,
 
-    // ── Terrain noise ────────────────────────────────────────────
+    //  Terrain noise 
     roughness: 'medium',
     terrainOctavesPresets: {
       smooth: [{ freq:3,amp:1.0},{freq:6,amp:0.30},{freq:12,amp:0.10}],
@@ -522,7 +522,7 @@ const WorldGen = {
     },
     moistureOctaves: [{ freq:5,amp:1.0},{freq:11,amp:0.40}],
 
-    // ── Rivers ───────────────────────────────────────────────────
+    //  Rivers
     numRivers: 3,
     riverStartZone: 0.35,
     numSupply: 6,
@@ -531,7 +531,7 @@ const WorldGen = {
     supplyTerrains: new Set(['grassland','meadow','pasture','hills','forest_edge','forest_deciduous']),
     supplyNearOutpostRadius: 20,
 
-    // ── Wilderness clusters ───────────────────────────────────────
+    //  Wilderness clusters
     numWilderness: 8,
     wildernessMinDist: 10,
     wildernessSize: { min:18, max:40 },
@@ -539,7 +539,7 @@ const WorldGen = {
                                   'mountain_valley','cave','mountain_outcrop','mountain']),
     wildernessMinDistFromOutpost: 10,
 
-    // ── Roads (A*) ────────────────────────────────────────────────
+    //  Roads (A*) 
     // roadPref preset: 'direct' | 'terrain' | 'cautious'
     roadPref: 'terrain',
     roadTerrainCostPresets: {
@@ -590,7 +590,7 @@ const WorldGen = {
     this._stageBiomes(grid, heightMap, moistureMap);
     this._stageRivers(grid, heightMap, rng);
 
-    // ── 3 factions, corners 0=TL, 1=TR, 2=BL; corner 3=BR is neutral ──
+    //  3 factions, corners 0=TL, 1=TR, 2=BL; corner 3=BR is neutral 
     const allOutpostClusters = [];
     const allSupplyClusters  = [];
     const allPrevSeeds       = [];  // seeds across all factions for spacing
@@ -623,7 +623,7 @@ const WorldGen = {
     const primaryOutposts = allOutpostClusters.filter(c => c.primary);
     this._stageCrossFactionConnect(grid, primaryOutposts, allClusters);
 
-    // ── Stamp cluster index on every cell and build name registry ──
+    //  Stamp cluster index on every cell and build name registry 
     this._buildClusterRegistry(grid, allClusters);
   },
 
@@ -746,7 +746,7 @@ const WorldGen = {
     const usedSeeds = [...allPrevSeeds];  // grows as we place
     const minDist = this.CFG.outpostMinDist;
 
-    // ── Corner zone bounds (corners: 0=TL, 1=TR, 2=BL) ────────────
+    //  Corner zone bounds (corners: 0=TL, 1=TR, 2=BL) 
     const zw = Math.floor(GRID_W * this.CFG.cornerZoneFrac);
     const zh = Math.floor(GRID_H * this.CFG.cornerZoneFrac);
     const ZONES = [
@@ -756,7 +756,7 @@ const WorldGen = {
     ];
     const zone = ZONES[cornerIdx] || ZONES[0];
 
-    // ── Helper: stamp a W×H rect anchored at (ax, ay) ──────────────
+    //  Helper: stamp a W×H rect anchored at (ax, ay) 
     const stampRect = (ax, ay, w, h) => {
       if (ax+w > GRID_W || ay+h > GRID_H || ax < 0 || ay < 0) return null;
       const cells = new Set();
@@ -792,7 +792,7 @@ const WorldGen = {
       usedSeeds.push([ax,ay]);
     };
 
-    // ── PRIMARY: enumerate all valid anchor positions in zone ───────
+    //  PRIMARY: enumerate all valid anchor positions in zone
     const pw = 4 + Math.floor(rng() * 3);  // 4, 5, or 6
     const ph = 4 + Math.floor(rng() * 3);
 
@@ -824,7 +824,7 @@ const WorldGen = {
       if (cells) commitCluster(ax, ay, cells, true);
     }
 
-    // ── SECONDARIES: exactly 3, guaranteed placement ────────────────
+    //  SECONDARIES: exactly 3, guaranteed placement 
     const SEC_SIZES = [
       { w:2, h:2 },
       { w: (rng()<0.5 ? 2 : 1), h: (rng()<0.5 ? 1 : 2) },  // 2×1 or 1×2
@@ -888,7 +888,7 @@ const WorldGen = {
     const clusterCells = new Set();
     for (const c of allClusters) for (const k of c.cells) clusterCells.add(k);
 
-    // ── Build road adjacency graph via BFS flood-fill ──────────────
+    //  Build road adjacency graph via BFS flood-fill 
     // Returns the component ID map: roadKey → componentId
     const componentOf = new Map();
     let nextComp = 0;
@@ -917,7 +917,7 @@ const WorldGen = {
       }
     }
 
-    // ── Helper: nearest road cell key to a cluster's edge ──────────
+    //  Helper: nearest road cell key to a cluster's edge 
     const nearestRoadToCluster = (cluster) => {
       let bestDist = Infinity, bestKey = -1, bestEdge = null;
       for (const [ex,ey] of cluster.edgeCells) {
@@ -930,7 +930,7 @@ const WorldGen = {
       return { roadKey: bestKey, edgeCell: bestEdge };
     };
 
-    // ── For each pair of primaries, check connectivity ──────────────
+    //  For each pair of primaries, check connectivity 
     for (let i = 0; i < primaryOutposts.length; i++) {
       for (let j = i+1; j < primaryOutposts.length; j++) {
         const pA = primaryOutposts[i];
@@ -1572,7 +1572,7 @@ canvas.addEventListener('mousemove', e => {
 canvas.addEventListener('mouseup',    () => isPainting = false);
 canvas.addEventListener('mouseleave', () => { isPainting = false; setHighlight(null); hideTooltip(); });
 
-// ── Cluster tooltip ──────────────────────────────────────────────
+//  Cluster tooltip 
 const tooltip = document.getElementById('clusterTooltip');
 
 function showTooltip(x, y, e) {
@@ -1589,7 +1589,7 @@ function hideTooltip() {
   tooltip.style.display = 'none';
 }
 
-// ── Coordinate system ────────────────────────────────────────────
+//  Coordinate system 
 // Internal grid: row 0 = top of canvas (y increases downward).
 // Exported / displayed coords: y=0 is bottom-left, y increases upward.
 // Only the display and I/O layers translate — WorldGen and rendering are untouched.
@@ -1711,7 +1711,7 @@ document.querySelectorAll('[data-mode]').forEach(btn => {
   });
 });
 
-// ── Clipboard helpers ────────────────────────────────────────────
+//  Clipboard helpers 
 // Works on file://, http, and https.
 function copyTextToClipboard(text, btn) {
   const flash = orig => {
@@ -1767,7 +1767,7 @@ function showCopyDialog(text) {
   ta.focus(); ta.select();
 }
 
-// ── Copy Map Image ───────────────────────────────────────────────
+//  Copy Map Image
 function copyMapImage() {
   const dataURL = canvas.toDataURL('image/png');
 
@@ -1802,7 +1802,7 @@ function copyMapImage() {
 
 document.getElementById('copyImgBtn').addEventListener('click', copyMapImage);
 
-// ── Copy Gemini Prompt ───────────────────────────────────────────
+//  Copy Gemini Prompt
 function copyGeminiPrompt() {
   const btn = document.getElementById('copyPromptBtn');
 
@@ -1888,7 +1888,7 @@ Produce this as a single cohesive illustration as if it were the opening map of 
 
 document.getElementById('copyPromptBtn').addEventListener('click', copyGeminiPrompt);
 
-// ── Import Map JSON ──────────────────────────────────────────────
+//  Import Map JSON 
 const importModal   = document.getElementById('importModal');
 const importTextarea= document.getElementById('importJsonText');
 const importError   = document.getElementById('importError');
@@ -1914,7 +1914,7 @@ function importMapJSON() {
     return;
   }
 
-  // ── Validate required fields ──────────────────────────────────
+  //  Validate required fields 
   if (!data.metadata || !data.map || !Array.isArray(data.map)) {
     importError.textContent = '✕ Missing required fields: metadata and map array.';
     return;
@@ -1925,13 +1925,13 @@ function importMapJSON() {
     return;
   }
 
-  // ── Build reverse legend maps ─────────────────────────────────
+  //  Build reverse legend maps
   // terrain: index → terrain key
   const terrainLeg  = data.legends?.terrain  || {};
   const featureLeg  = data.legends?.features || {};
   const clusterLeg  = data.clusters          || {};
 
-  // ── Resize grid ───────────────────────────────────────────────
+  //  Resize grid
   GRID_W = Math.max(4, Math.min(160, width));
   GRID_H = Math.max(4, Math.min(120, height));
   canvas.width  = GRID_W * CELL_PX;
@@ -1939,7 +1939,7 @@ function importMapJSON() {
   document.getElementById('gridDimLabel').textContent =
     `${GRID_W}×${GRID_H} — ${(GRID_W*0.25).toFixed(1)}×${(GRID_H*0.25).toFixed(1)} mi`;
 
-  // ── Update CFG metadata ───────────────────────────────────────
+  //  Update CFG metadata
   if (seed !== undefined) {
     WorldGen.CFG.seed = seed;
     document.getElementById('seedLabel').textContent = `seed: ${seed}`;
@@ -1950,13 +1950,13 @@ function importMapJSON() {
   if (data.metadata.supplyClusters    !== undefined) WorldGen.CFG.numSupply     = data.metadata.supplyClusters;
   if (data.metadata.wildernessClusters!== undefined) WorldGen.CFG.numWilderness = data.metadata.wildernessClusters;
 
-  // ── Rebuild cluster registry from JSON ────────────────────────
+  //  Rebuild cluster registry from JSON 
   WORLD_CLUSTERS = {};
   for (const [idx, name] of Object.entries(clusterLeg)) {
     WORLD_CLUSTERS[parseInt(idx)] = name;
   }
 
-  // ── Feature index → area + faction ───────────────────────────
+  //  Feature index → area + faction
   // Determine faction by cluster name matching faction colors
   const factionNameToIdx = {};
   FACTION_COLORS.forEach((fc, i) => { factionNameToIdx[fc.name] = i; });
@@ -1966,7 +1966,7 @@ function importMapJSON() {
     featureIdxToArea[parseInt(idx)] = name;  // 'road','wilderness','supply','outpost','none'
   }
 
-  // ── Populate grid ─────────────────────────────────────────────
+  //  Populate grid
   initGrid();
 
   let errors = 0;
@@ -2017,7 +2017,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', importMapJ
 // Close on backdrop click
 importModal.addEventListener('click', e => { if (e.target === importModal) closeImportModal(); });
 
-// ── Copy Map JSON ────────────────────────────────────────────────
+//  Copy Map JSON 
 function copyMapJSON() {
   // Build terrain legend (index → key)
   const terrainKeys = Object.keys(TERRAIN_TYPES);

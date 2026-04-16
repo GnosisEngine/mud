@@ -8,7 +8,7 @@
  *
  *   const Colors = require('../../bundle-lib/lib/Colors');
  *
- * ─── Quick Reference ──────────────────────────────────────────────────────────
+ * Quick Reference
  *
  *  Raw codes:
  *    Colors.rgb(r, g, b)          → 24-bit fg escape (0–255 each)
@@ -59,7 +59,7 @@
  *    Colors.named.gold →  [255, 215, 0]   …etc.
  */
 
-// ─── Internal Helpers ──────────────────────────────────────────────────────────
+// Internal Helpers
 
 function clamp(val, min, max) {
   return Math.min(max, Math.max(min, val));
@@ -84,7 +84,7 @@ function lerpColor(c1, c2, t) {
 
 const ESC = '\x1b[';
 
-// ─── Raw Style Codes ───────────────────────────────────────────────────────────
+// Raw Style Codes
 
 const Codes = {
   RESET:         `${ESC}0m`,
@@ -107,15 +107,15 @@ const Codes = {
   BG_DEFAULT:    `${ESC}49m`,
 };
 
-// ─── Main Export ───────────────────────────────────────────────────────────────
+// Main Export
 
 const Colors = {
 
-  // ── Spread raw codes so Colors.RESET, Colors.BOLD etc. work directly ──────
+  //  Spread raw codes so Colors.RESET, Colors.BOLD etc. work directly
 
   ...Codes,
 
-  // ─── Color Escape Generators ───────────────────────────────────────────────
+  // Color Escape Generators
 
   /**
    * 24-bit RGB foreground. Values 0–255.
@@ -157,7 +157,7 @@ const Colors = {
     return `${ESC}48;5;${clamp(n | 0, 0, 255)}m`;
   },
 
-  // ─── Convenience Wrappers ──────────────────────────────────────────────────
+  // Convenience Wrappers
 
   /**
    * Wrap text in a 24-bit color + reset.
@@ -173,7 +173,7 @@ const Colors = {
     return `${this.hex(hexStr)}${text}${Codes.RESET}`;
   },
 
-  // ─── Markup Parser ─────────────────────────────────────────────────────────
+  // Markup Parser
 
   /**
    * Parse color/style markup in a string and replace with ANSI escape codes.
@@ -202,7 +202,7 @@ const Colors = {
     return text.replace(/<([^>]+)>/g, (match, raw) => {
       const tag = raw.trim();
 
-      // ── Closing tag ────────────────────────────────────────────────────
+      //  Closing tag
       if (tag.startsWith('/')) {
         const closeKey = tag.slice(1).toLowerCase().trim();
 
@@ -218,13 +218,13 @@ const Colors = {
 
       const lower = tag.toLowerCase();
 
-      // ── Hard reset ────────────────────────────────────────────────────
+      //  Hard reset
       if (lower === 'reset') {
         stack.length = 0;
         return Codes.RESET;
       }
 
-      // ── Simple style tags ─────────────────────────────────────────────
+      //  Simple style tags
       const styleMap = {
         'b': Codes.BOLD,    'bold': Codes.BOLD,
         'i': Codes.ITALIC,  'italic': Codes.ITALIC,
@@ -239,7 +239,7 @@ const Colors = {
         return styleMap[lower];
       }
 
-      // ── <rgb R,G,B> ───────────────────────────────────────────────────
+      //  <rgb R,G,B>
       const rgbM = lower.match(/^rgb\s+([\d\s,]+)$/);
       if (rgbM) {
         const parts = rgbM[1].split(',').map(n => clamp(parseInt(n.trim(), 10), 0, 255));
@@ -250,7 +250,7 @@ const Colors = {
         }
       }
 
-      // ── <bg:rgb R,G,B> ────────────────────────────────────────────────
+      //  <bg:rgb R,G,B>
       const bgRgbM = lower.match(/^bg:rgb\s+([\d\s,]+)$/);
       if (bgRgbM) {
         const parts = bgRgbM[1].split(',').map(n => clamp(parseInt(n.trim(), 10), 0, 255));
@@ -261,7 +261,7 @@ const Colors = {
         }
       }
 
-      // ── <#RRGGBB> ─────────────────────────────────────────────────────
+      //  <#RRGGBB>
       const hexM = tag.match(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
       if (hexM) {
         const code = self.hex(hexM[1]);
@@ -269,7 +269,7 @@ const Colors = {
         return code;
       }
 
-      // ── <bg:#RRGGBB> ──────────────────────────────────────────────────
+      //  <bg:#RRGGBB>
       const bgHexM = tag.match(/^bg:#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/i);
       if (bgHexM) {
         const code = self.bgHex(bgHexM[1]);
@@ -277,7 +277,7 @@ const Colors = {
         return code;
       }
 
-      // ── <256:N> ───────────────────────────────────────────────────────
+      //  <256:N>
       const c256M = lower.match(/^256:(\d+)$/);
       if (c256M) {
         const code = self.c256(parseInt(c256M[1], 10));
@@ -285,7 +285,7 @@ const Colors = {
         return code;
       }
 
-      // ── <bg:256:N> ────────────────────────────────────────────────────
+      //  <bg:256:N>
       const bgC256M = lower.match(/^bg:256:(\d+)$/);
       if (bgC256M) {
         const code = self.bgC256(parseInt(bgC256M[1], 10));
@@ -293,7 +293,7 @@ const Colors = {
         return code;
       }
 
-      // ── <red>, <gold>, <manaBlue> … named fg colors ───────────────────
+      //  <red>, <gold>, <manaBlue> … named fg colors
       // Matches any camelCase or lowercase key found in Colors.named.
       // The tag must match exactly (case-insensitive against the key lowercased).
       const namedKey = Object.keys(self.named).find(k => k.toLowerCase() === lower);
@@ -303,7 +303,7 @@ const Colors = {
         return code;
       }
 
-      // ── <bg:red>, <bg:gold> … named bg colors ─────────────────────────
+      //  <bg:red>, <bg:gold> … named bg colors
       if (lower.startsWith('bg:')) {
         const bgNameKey = lower.slice(3);
         const namedBgKey = Object.keys(self.named).find(k => k.toLowerCase() === bgNameKey);
@@ -319,7 +319,7 @@ const Colors = {
     });
   },
 
-  // ─── Gradient Text ─────────────────────────────────────────────────────────
+  // Gradient Text
 
   /**
    * Apply a color gradient to each character of a string.
@@ -340,7 +340,7 @@ const Colors = {
     }).join('') + Codes.RESET;
   },
 
-  // ─── Bars ──────────────────────────────────────────────────────────────────
+  // Bars
 
   /**
    * Render a solid-color horizontal bar using block characters.
@@ -476,7 +476,7 @@ const Colors = {
     return result + Codes.RESET;
   },
 
-  // ─── Utilities ─────────────────────────────────────────────────────────────
+  // Utilities
 
   /**
    * Strip all ANSI escape codes from a string.
@@ -595,7 +595,7 @@ const Colors = {
     }).join('') + Codes.RESET;
   },
 
-  // ─── Named Colors ──────────────────────────────────────────────────────────
+  // Named Colors
 
   /**
    * Preset [r, g, b] arrays for common colors.

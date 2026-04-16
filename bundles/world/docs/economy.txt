@@ -29,7 +29,7 @@ Woad			Grassland, Meadow	—
 Clay			River, Lakeshore	Fireclay in hills
 
 Iron Ores (Bog Iron / Hematite / Magnetite / Siderite)
-Bog Iron ──────────────────────────────────────────────────────────
+Bog Iron 
   └─ [gathered by hand, wetland] 
       └─ Bloomery Furnace + Charcoal
           └─ BLOOM IRON
@@ -55,39 +55,39 @@ Bog Iron ───────────────────────�
                               ├─ SPRINGS (crossbow, cart)
                               └─ FILES + PRECISION TOOLS
 
-Hematite ──────────────────────────────────────────────────────────
+Hematite 
   └─ [pick + mining, hillside outcrop]
       └─ [same chain as Bog Iron but higher yield per unit]
 
-Magnetite ─────────────────────────────────────────────────────────
+Magnetite ─
   └─ [pick + heavy labor, mountains]
       └─ [same chain, highest yield, hardest extraction]
 
-Siderite ──────────────────────────────────────────────────────────
+Siderite 
   └─ [pick + mining, sedimentary hills]
       └─ Roasting Pit [drives off CO₂]
           └─ Roasted Siderite
               └─ [same chain from Bloomery onwards]
 
 Copper Ores (Malachite / Azurite / Chalcopyrite)
-Malachite / Azurite ───────────────────────────────────────────────
+Malachite / Azurite ─
   └─ [pick, near-surface, visually obvious]
       └─ Smelting Furnace + Charcoal + Limestone flux
           └─ COPPER
-              ├─ [cast directly] ──► COPPER SHEET / ROD / WIRE
+              ├─ [cast directly] ► COPPER SHEET / ROD / WIRE
               │                       ├─ COPPER WIRE (binding,
               │                       │  electrical precursor)
               │                       ├─ COPPER VESSELS (pots,
               │                       │  alembics, measures)
               │                       └─ COINAGE (blanks for mint)
-              ├─ [+ Cassiterite] ──► BRONZE
+              ├─ [+ Cassiterite] ► BRONZE
               │   └─ Casting
               │       ├─ BELLS (military signals)
               │       ├─ BEARINGS + BUSHINGS (wagon wheels,
               │       │                      mill machinery)
               │       ├─ SCULPTURE + DECORATIVE FITTINGS
               │       └─ BRONZE COINS
-              └─ [+ Calamine] ──► BRASS
+              └─ [+ Calamine] ► BRASS
                   └─ Casting / Smithing
                       ├─ BUCKLES + FITTINGS (armor, harness)
                       ├─ INSTRUMENTS (trumpets, horns)
@@ -95,7 +95,7 @@ Malachite / Azurite ────────────────────
                       │                         compass housing)
                       └─ BRASS COINS
 
-Chalcopyrite ──────────────────────────────────────────────────────
+Chalcopyrite 
   └─ [pick, deep, sulfurous smell]
       └─ Roasting Pit [burns off sulfur — produces sulfur 
           |           dioxide as byproduct — area marker]
@@ -105,18 +105,18 @@ Chalcopyrite ──────────────────────�
                       from roasting fumes → CRUDE SULFUR]
 
 Lead / Silver (Galena / Argentite)
-Galena ─────────────────────────────────────────────────────────────
+Galena ─
   └─ [pick, shallow veins, heavy grey ore]
       └─ Smelting Furnace + Charcoal
           └─ CRUDE LEAD (silver-bearing)
-              ├─ [cast directly] ──► LEAD SHEET
+              ├─ [cast directly] ► LEAD SHEET
               │                       ├─ ROOFING + GUTTERING
               │                       ├─ WATER PIPES + FITTINGS
               │                       └─ WINDOW CAMES (lead strips
               │                                     for glass panes)
-              ├─ [cast into molds] ──► WEIGHTS + MEASURES
+              ├─ [cast into molds] ► WEIGHTS + MEASURES
               │                        (official trade weights)
-              ├─ [+ pottery kiln] ──► LEAD GLAZE
+              ├─ [+ pottery kiln] ► LEAD GLAZE
               │                       └─ Glazed Ceramics
               │                           (waterproof, non-porous)
               └─ Cupellation Furnace + Bone Ash Cupels
@@ -129,7 +129,7 @@ Galena ────────────────────────�
                       │                 decorative fittings)
                       └─ SILVER SOLDER (joining metal)
 
-Argentite ──────────────────────────────────────────────────────────
+Argentite 
   └─ [rare, hydrothermal vein, dark ore]
       └─ Smelting Furnace
           └─ IMPURE SILVER
@@ -137,12 +137,12 @@ Argentite ───────────────────────�
                   └─ [same chain from Refined Silver]
 
 Tin (Cassiterite)
-Stream Cassiterite ─────────────────────────────────────────────────
+Stream Cassiterite ─
   └─ [pan/sluice, riverbeds]
       └─ Smelting Furnace + Charcoal
           └─ TIN
-              ├─ [+ Copper] ──► BRONZE [see copper chain]
-              ├─ [+ Lead] ──► PEWTER
+              ├─ [+ Copper] ► BRONZE [see copper chain]
+              ├─ [+ Lead] ► PEWTER
               │   └─ Casting
               │       ├─ PEWTER PLATES + CUPS (common tableware)
               │       ├─ BUTTONS + BADGES
@@ -151,12 +151,12 @@ Stream Cassiterite ────────────────────�
                   └─ [applied to iron vessels]
                       └─ TINNED IRON (rust-resistant storage)
 
-Lode Cassiterite ───────────────────────────────────────────────────
+Lode Cassiterite ─
   └─ [pick + hard rock mining, mountains]
       └─ [same chain, larger volume]
 
 Gold (Alluvial / Electrum)
-Alluvial Gold ──────────────────────────────────────────────────────
+Alluvial Gold 
   └─ [pan, riverbeds]
       └─ Crucible + Charcoal [melt and consolidate dust]
           └─ GOLD
@@ -164,7 +164,7 @@ Alluvial Gold ──────────────────────
               ├─ GOLD WIRE + LEAF (gilding, embroidery)
               └─ GOLDWORK (officer insignia, decorative)
 
-Electrum ───────────────────────────────────────────────────────────
+Electrum ─
   └─ [pan, specific rivers]
       └─ [same as gold chain — distinct color/value item]
           └─ ELECTRUM COINS (natural alloy, hard to adulterate
@@ -172,13 +172,13 @@ Electrum ───────────────────────�
                             currency reliability)
 
 Timber
-Any Timber ─────────────────────────────────────────────────────────
+Any Timber ─
   └─ Felling (axe) → Limbing → 
-      ├─ [split into billets] ──► Charcoal Kiln
+      ├─ [split into billets] ► Charcoal Kiln
       │                           └─ CHARCOAL [see charcoal chain]
-      │                           └─ WOOD ASH ──► Potash works
+      │                           └─ WOOD ASH ► Potash works
       │                                           └─ POTASH
-      ├─ [pit saw / whipsaw] ──► PLANKS + BOARDS
+      ├─ [pit saw / whipsaw] ► PLANKS + BOARDS
       │   └─ Carpentry
       │       ├─ BUILDINGS (barracks, storehouses, palisades)
       │       ├─ FURNITURE (beds, tables, chests)
@@ -187,29 +187,29 @@ Any Timber ───────────────────────
       │       ├─ LADDERS + SCAFFOLDING
       │       └─ SIEGE EQUIPMENT (mangonels, trebuchet frames,
       │                           battering rams, scaling ladders)
-      └─ [whole logs / heavy timber] ──► STRUCTURAL BEAMS
+      └─ [whole logs / heavy timber] ► STRUCTURAL BEAMS
                                           └─ FORTIFICATION WORK
                                               (palisades, revetments,
                                                gate frames, towers)
 
-Oak specifically ────────────────────────────────────────────────────
+Oak specifically 
   ├─ BARK STRIPPING (before felling or alongside)
   |   └─ OAK BARK [tannin-rich]
   |       └─ Tanning Pit + Hide + Salt + Water + Time
   |           └─ LEATHER [see leather chain]
-  ├─ PLANKS ──► BARRELS (oak specifically for food/drink storage
+  ├─ PLANKS ► BARRELS (oak specifically for food/drink storage
   │              — imparts no taint unlike some other woods)
-  └─ HEAVY BEAMS ──► MILL CONSTRUCTION (water wheels, 
+  └─ HEAVY BEAMS ► MILL CONSTRUCTION (water wheels, 
                        windmill frames, mine shaft supports)
 
-Ash specifically ────────────────────────────────────────────────────
+Ash specifically 
   └─ POLES + RODS (coppice ash — regular harvest)
       ├─ TOOL HANDLES (axe, hammer, adze, hoe)
       ├─ SPEAR SHAFTS (ash has ideal flex/strength ratio)
       ├─ ARROW SHAFTS (straight-grained)
       └─ BOW STAVES (secondary to yew, but usable)
 
-Yew specifically ────────────────────────────────────────────────────
+Yew specifically 
   └─ BOW STAVE (one or two per mature tree)
       └─ [seasoning: 1-2 years minimum, significant time cost]
           └─ LONGBOW BLANK
@@ -218,22 +218,22 @@ Yew specifically ─────────────────────
                       └─ [+ Sinew backing + Beeswax + String]
                           └─ FINISHED WARBOW
 
-Alder specifically ──────────────────────────────────────────────────
+Alder specifically 
   └─ [wetland harvest]
-      ├─ WATER-RESISTANT PLANKS ──► Sluices, water channels,
+      ├─ WATER-RESISTANT PLANKS ► Sluices, water channels,
       │                              bog/wetland structures
-      └─ [submerged rounds] ──► PILINGS (foundations in wet ground,
+      └─ [submerged rounds] ► PILINGS (foundations in wet ground,
                                           bridge supports)
 
-Pine / Spruce ───────────────────────────────────────────────────────
-  ├─ PLANKS ──► CONSTRUCTION (lighter duty than oak)
-  ├─ RESIN TAPPING ──► PINE RESIN
-  │   ├─ [boil down] ──► PITCH
+Pine / Spruce ─
+  ├─ PLANKS ► CONSTRUCTION (lighter duty than oak)
+  ├─ RESIN TAPPING ► PINE RESIN
+  │   ├─ [boil down] ► PITCH
   │   │   ├─ TORCH MAKING (pitch-soaked hemp/wood)
   │   │   ├─ WATERPROOFING (barrels, leather, rope, hull seams)
   │   │   ├─ CAULKING (gap-filling in construction)
   │   │   └─ ADHESIVE (fletching arrows, handle repair)
-  │   └─ [distill] ──► TURPENTINE (solvent, varnish base)
+  │   └─ [distill] ► TURPENTINE (solvent, varnish base)
   └─ CHARCOAL KILN (pine wood specifically)
       ├─ CHARCOAL [highest metalworking grade]
       └─ WOOD TAR [condensed from kiln runoff]
@@ -242,7 +242,7 @@ Pine / Spruce ──────────────────────
           ├─ LIVESTOCK WOUND TREATMENT (antiseptic)
           └─ TORCH FUEL
 
-Coppice (any managed woodland) ─────────────────────────────────────
+Coppice (any managed woodland) ─
   └─ POLES + RODS (7-15 year rotation harvest)
       ├─ CHARCOAL WOOD (optimal size for kiln)
       ├─ HURDLES (woven portable fencing)
@@ -250,35 +250,35 @@ Coppice (any managed woodland) ────────────────�
       └─ THATCHING RODS + SPARS
 
 Fiber Crops (Flax / Hemp)
-Flax ────────────────────────────────────────────────────────────────
+Flax 
   └─ [harvested, pulled whole]
       └─ RETTING (submerged in river/pond 2-4 weeks)
-          └─ [dried] ──► RETTED FLAX STRAW
+          └─ [dried] ► RETTED FLAX STRAW
               └─ BREAKING (wooden break tool)
                   └─ SCUTCHING (wooden sword-blade tool)
                       └─ HACKLED FLAX FIBER
                           └─ Spinning
                               └─ LINEN THREAD
-                                  ├─ Weaving ──► LINEN CLOTH
+                                  ├─ Weaving ► LINEN CLOTH
                                   │   ├─ GARMENTS (shirts, 
                                   │   │  undergarments — 
                                   │   │  critical under armor)
                                   │   ├─ BANDAGES + WOUND DRESSING
                                   │   ├─ CANVAS BAGS + SACKING
                                   │   ├─ SAILCLOTH / AWNING
-                                  │   └─ [+ Beeswax] ──► WAXED LINEN
+                                  │   └─ [+ Beeswax] ► WAXED LINEN
                                   │                       (waterproof)
-                                  └─ STRONG THREAD ──► BOOKBINDING,
+                                  └─ STRONG THREAD ► BOOKBINDING,
                                                        SAIL STITCHING,
                                                        HEAVY STITCHING
 
-Hemp ────────────────────────────────────────────────────────────────
+Hemp 
   └─ [harvested]
       └─ RETTING (shorter than flax, coarser result)
           └─ BREAKING + SCUTCHING
               └─ HEMP FIBER
-                  ├─ Spinning ──► HEMP YARN
-                  │   └─ Weaving ──► CANVAS / SACKING
+                  ├─ Spinning ► HEMP YARN
+                  │   └─ Weaving ► CANVAS / SACKING
                   │                  (tents, wagon covers, bags)
                   └─ ROPE MAKING (twisted by rope walk)
                       ├─ CORDAGE (all sizes)
@@ -287,7 +287,7 @@ Hemp ─────────────────────────
                       └─ LASHING + BINDING
 
 Wool
-Raw Fleece ──────────────────────────────────────────────────────────
+Raw Fleece 
   └─ [sheared or gathered]
       └─ WASHING (potash lye solution — scouring)
           └─ SCOURED FLEECE
@@ -295,12 +295,12 @@ Raw Fleece ───────────────────────
                   └─ ROVING (prepared fiber)
                       └─ Spinning
                           └─ WOOLEN YARN
-                              └─ Weaving Loom ──► RAW WOOL CLOTH
+                              └─ Weaving Loom ► RAW WOOL CLOTH
                                   └─ Fulling (water + fuller's earth
                                   │          or urine, mechanical 
                                   │          pounding)
                                   └─ FULLED WOOL CLOTH
-                                      ├─ [as-is] ──► UNDYED CLOTH
+                                      ├─ [as-is] ► UNDYED CLOTH
                                       │   ├─ BLANKETS + BEDDING
                                       │   ├─ CLOAKS + OUTER GARMENTS
                                       │   └─ FILTER CLOTH (straining)
@@ -313,7 +313,7 @@ Raw Fleece ───────────────────────
                                                      (high value export)
 
 Dye Plants (Woad / Weld / Madder)
-Woad ────────────────────────────────────────────────────────────────
+Woad 
   └─ [harvested, leaves only — first year plant]
       └─ GRINDING (millstone)
           └─ WOAD PASTE
@@ -322,15 +322,15 @@ Woad ─────────────────────────
                       └─ Dyeing Vat + Alum mordant + heat
                           └─ BLUE-DYED FIBER or CLOTH
 
-Weld ────────────────────────────────────────────────────────────────
+Weld 
   └─ [whole plant harvested at flowering]
       └─ [direct to dyeing vat + Alum mordant]
           └─ YELLOW-DYED FIBER or CLOTH
-              └─ [+ Woad overdye] ──► GREEN-DYED CLOTH
+              └─ [+ Woad overdye] ► GREEN-DYED CLOTH
                                       (blue + yellow)
 
 Hide & Bone (hunting outputs)
-Raw Hide ────────────────────────────────────────────────────────────
+Raw Hide 
   └─ [skinned from carcass]
       ├─ LIME PIT (quicklime + water, days)
       │   └─ DE-HAIRED HIDE
@@ -358,7 +358,7 @@ Raw Hide ───────────────────────�
               ├─ DRUM SKINS
               └─ BOOK PAGES (codex)
 
-Raw Bone ────────────────────────────────────────────────────────────
+Raw Bone 
   └─ [cleaned, boiled]
       ├─ BONE WORKING (saw + carve)
       │   ├─ NEEDLES (fine bone needles — textile work)
@@ -366,36 +366,36 @@ Raw Bone ───────────────────────�
       │   ├─ DICE + GAMING PIECES (officer morale item)
       │   ├─ COMBS
       │   └─ SMALL PINS + TOGGLES
-      └─ [crushed, calcined in kiln] ──► BONE ASH
+      └─ [crushed, calcined in kiln] ► BONE ASH
           └─ CUPEL (pressed bone ash dish)
-              └─ Cupellation ──► REFINED SILVER [see silver chain]
+              └─ Cupellation ► REFINED SILVER [see silver chain]
           └─ BONE CHAR (filtered/decolorizing agent)
 
 Tallow
-Raw Fat ─────────────────────────────────────────────────────────────
+Raw Fat ─
   └─ [rendered — boiled, fat separated]
       └─ TALLOW
-          ├─ [+ Lye from Potash] ──► SOFT SOAP
+          ├─ [+ Lye from Potash] ► SOFT SOAP
           │                          └─ Washing, textile scouring,
           │                             medical hygiene
-          ├─ [+ Lye from Salt Ash] ──► HARD SOAP
+          ├─ [+ Lye from Salt Ash] ► HARD SOAP
           │                            (longer lasting, storable)
-          ├─ Candle Works ──► TALLOW CANDLES
+          ├─ Candle Works ► TALLOW CANDLES
           │                   (common lighting, rapid consumption)
-          ├─ [+ Wood Tar] ──► AXLE GREASE
+          ├─ [+ Wood Tar] ► AXLE GREASE
           │                   (wagon, mill, pulley maintenance)
           ├─ LEATHER WATERPROOFING (currying, boot treatment)
           ├─ RUST PREVENTION (applied to iron goods)
           └─ FORGE LUBRICANT (hammer faces, die work)
 
 Beeswax & Honey
-Honeycomb ───────────────────────────────────────────────────────────
+Honeycomb ─
   └─ [crushed and separated]
       ├─ HONEY
       │   ├─ FOOD + OFFICER RATIONS
       │   ├─ WOUND DRESSING (antimicrobial application)
       │   ├─ MEDICINAL PREPARATIONS (preserving herbs)
-      │   └─ [+ Water + Yeast + time] ──► MEAD
+      │   └─ [+ Water + Yeast + time] ► MEAD
       │                                   (trade good, officer 
       │                                    provision, morale item)
       └─ BEESWAX
@@ -410,13 +410,13 @@ Honeycomb ───────────────────────�
           └─ FURNITURE POLISH + WOOD PRESERVATION
 
 Salt
-Rock Salt / Brine / Pan Salt ────────────────────────────────────────
+Rock Salt / Brine / Pan Salt 
   └─ [extracted, evaporated, refined]
       └─ REFINED SALT
           ├─ MEAT PRESERVATION (salting, brining)
           │   └─ SALT MEAT (stored provision — campaign logistics)
-          ├─ FISH PRESERVATION ──► SALT FISH (trade good)
-          ├─ DAIRY PRESERVATION ──► SALT BUTTER, HARD CHEESE
+          ├─ FISH PRESERVATION ► SALT FISH (trade good)
+          ├─ DAIRY PRESERVATION ► SALT BUTTER, HARD CHEESE
           ├─ TANNING (part of hide preparation)
           ├─ CERAMIC SALT GLAZE
           │   └─ [salt thrown into kiln at peak heat]
@@ -424,19 +424,19 @@ Rock Salt / Brine / Pan Salt ─────────────────
           └─ SALT-ASH LYE [salt-rich ash leached]
               └─ HARD SOAP [see tallow chain]
 
-Brine Spring specifically ───────────────────────────────────────────
+Brine Spring specifically ─
   └─ [brine collected, evaporated with fuel]
       └─ [creates strong charcoal demand — links salt 
           production directly to timber/charcoal economy]
 
 Limestone & Flint
-Limestone ───────────────────────────────────────────────────────────
-  ├─ [quarried, cut] ──► BUILDING STONE
+Limestone ─
+  ├─ [quarried, cut] ► BUILDING STONE
   │                       └─ FORTIFICATION, WALLS, FLOORS
   └─ Lime Kiln + Charcoal
       └─ QUICKLIME
-          ├─ [+ Water] ──► SLAKED LIME
-          │   ├─ [+ Sand] ──► LIME MORTAR ──► CONSTRUCTION
+          ├─ [+ Water] ► SLAKED LIME
+          │   ├─ [+ Sand] ► LIME MORTAR ► CONSTRUCTION
           │   ├─ WHITEWASH (wall coating, sanitation marker)
           │   ├─ LATRINES (sanitation — reduces disease)
           │   └─ LIME PIT [see hide chain — hair removal]
@@ -444,25 +444,25 @@ Limestone ───────────────────────�
           │                 raises iron quality)
           └─ SOIL AMENDMENT (agricultural — longer chain)
 
-Flint ────────────────────────────────────────────────────────────────
+Flint 
   └─ [surface-collected or quarried from chalk seams]
       ├─ KNAPPING (antler or hard stone percussion)
       │   ├─ STRIKE-A-LIGHTS (fire starting kit)
       │   ├─ SCRAPERS + ROUGH TOOLS (backup / low-tech)
       │   └─ FLINT NODULES (construction — flint-and-mortar walls)
-      └─ [set in iron striker] ──► TINDERBOX KIT
+      └─ [set in iron striker] ► TINDERBOX KIT
                                    (standard field equipment)
 
 Clay
-Common Clay ─────────────────────────────────────────────────────────
+Common Clay ─
   └─ [dug, wedged, prepared]
       └─ Pottery Kiln
           ├─ STORAGE VESSELS (amphorae, crocks, jars)
           ├─ COOKING POTS
           ├─ ROOF TILES + FLOOR TILES
-          └─ BRICKS ──► KILN CONSTRUCTION, FURNACE LINING
+          └─ BRICKS ► KILN CONSTRUCTION, FURNACE LINING
 
-Fireclay (refractory) ───────────────────────────────────────────────
+Fireclay (refractory) ─
   └─ [specific geological deposit]
       └─ Pottery Kiln
           ├─ CRUCIBLES (for metal smelting — critical)
@@ -471,13 +471,13 @@ Fireclay (refractory) ───────────────────�
           └─ KILN FURNITURE (setters, props)
 
 Potash
-Wood Ash ────────────────────────────────────────────────────────────
+Wood Ash 
   └─ [collected from any burning operation]
       └─ LEACHING (water poured through ash bed)
           └─ LYE SOLUTION
-              └─ [evaporated] ──► POTASH CRYSTALS
-                  ├─ [+ Tallow] ──► SOFT SOAP [see tallow chain]
-                  ├─ [+ Silica Sand + Glass Furnace] ──► POTASH GLASS
+              └─ [evaporated] ► POTASH CRYSTALS
+                  ├─ [+ Tallow] ► SOFT SOAP [see tallow chain]
+                  ├─ [+ Silica Sand + Glass Furnace] ► POTASH GLASS
                   │                                       (vessels,
                   │                                        window panes)
                   ├─ WOOL SCOURING (textile processing input)
@@ -485,7 +485,7 @@ Wood Ash ───────────────────────�
                   └─ DYEING ASSISTANT (raising dye vat pH for woad)
 
 Alum
-Alum Shale ──────────────────────────────────────────────────────────
+Alum Shale 
   └─ [quarried, crushed]
       └─ Roasting Pit (months of weathering + burning)
           └─ Roasted Shale
@@ -505,21 +505,21 @@ Alum Shale ───────────────────────
                                               makes paper less absorbent)
 
 Medicinal Herbs
-Medicinal Herbs (various) ───────────────────────────────────────────
+Medicinal Herbs (various) ─
   └─ [gathered, dried]
       ├─ DRIED HERB STORES (field medicine supply)
-      ├─ [+ Honey] ──► ELECTUARY (thick medicinal paste)
-      ├─ [+ Fat/Oil] ──► SALVE / POULTICE
+      ├─ [+ Honey] ► ELECTUARY (thick medicinal paste)
+      ├─ [+ Fat/Oil] ► SALVE / POULTICE
       │   ├─ Yarrow salve — wound packing
       │   ├─ Plantain poultice — drawing infection
       │   └─ Comfrey salve — bone/bruise treatment
-      ├─ [boiled in water] ──► DECOCTION (infused liquid medicine)
+      ├─ [boiled in water] ► DECOCTION (infused liquid medicine)
       │   ├─ Willow bark decoction — fever, pain
       │   └─ Garlic decoction — infection treatment
-      └─ [+ Beeswax + Fat] ──► OINTMENT (longer shelf life)
+      └─ [+ Beeswax + Fat] ► OINTMENT (longer shelf life)
 
 Sulfur
-Sulfur ──────────────────────────────────────────────────────────────
+Sulfur 
   └─ [collected from deposits, crude]
       └─ [purification — melting and recasting removes rock]
           └─ REFINED SULFUR
