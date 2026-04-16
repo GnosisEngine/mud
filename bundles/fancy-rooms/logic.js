@@ -19,8 +19,8 @@ module.exports = {
     return entity instanceof Player;
   },
 
-  isContainerEmpty: (_, __, { entity } = NOOP) => {
-    return !entity.inventory || !entity.inventory.size;
+  isContainerEmpty: (_, __, { container } = NOOP) => {
+    return !container.inventory || !container.inventory.size;
   },
 
   isContainerClosed,

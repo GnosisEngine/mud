@@ -165,7 +165,11 @@ class LineEditor extends EventEmitter {
     // SSH+PTY raw mode where the PTY does not process Enter locally.
     this._write('\r\n');
     this._buffer.clear();
-    this._history.push(line);
+
+    if (this._stream.socket.echoing) {
+      this._history.push(line);
+    }
+
     this._browsing = false;
     this.emit('line', line);
   }

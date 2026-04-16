@@ -79,6 +79,31 @@ function lookEntity(state, player, args) {
 
   B.sayAt(player, entity.description, 80);
 
+  if (entity instanceof Item) {
+    switch (entity.type) {
+      case ItemType.WEAPON:
+      case ItemType.ARMOR:
+        return B.sayAt(player, ItemUtil.renderItem(state, entity, player));
+      case ItemType.CONTAINER: {
+        if (isContainerEmpty(state, player, { container: entity })) {
+          return B.sayAt(player, `${entity.name} is empty.`);
+        }
+        if (isContainerClosed(state, player, { container: entity })) {
+          return B.sayAt(player, 'It is closed.');
+        }
+        B.at(player, 'Contents');
+        if (isFinite(entity.inventory.getMax())) {
+          B.at(player, ` (${entity.inventory.size}/${entity.inventory.getMax()})`);
+        }
+        B.sayAt(player, ':');
+        for (const [, item] of entity.inventory) {
+          B.sayAt(player, '  ' + ItemUtil.display(item));
+        }
+        break;
+      }
+    }
+  }
+
   if (isRotting(state, player, { entity })) {
     B.sayAt(player, rotDescription(entity));
   }
@@ -99,31 +124,6 @@ function lookEntity(state, player, args) {
 
     if (usable.charges) {
       B.sayAt(player, radianceDescription(usable.charges));
-    }
-  }
-
-  if (entity instanceof Item) {
-    switch (entity.type) {
-      case ItemType.WEAPON:
-      case ItemType.ARMOR:
-        return B.sayAt(player, ItemUtil.renderItem(state, entity, player));
-      case ItemType.CONTAINER: {
-        if (isContainerEmpty(state, player, { entity })) {
-          return B.sayAt(player, `${entity.name} is empty.`);
-        }
-        if (isContainerClosed(state, player, { entity })) {
-          return B.sayAt(player, 'It is closed.');
-        }
-        B.at(player, 'Contents');
-        if (isFinite(entity.inventory.getMax())) {
-          B.at(player, ` (${entity.inventory.size}/${entity.inventory.getMax()})`);
-        }
-        B.sayAt(player, ':');
-        for (const [, item] of entity.inventory) {
-          B.sayAt(player, '  ' + ItemUtil.display(item));
-        }
-        break;
-      }
     }
   }
 }

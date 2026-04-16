@@ -65,7 +65,7 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
     ...(findInventory
       ? [...player.inventory].map(([_,entity]) => ({
         entity,
-        score: fuzzyMatch(entity.name, [entity.description, entity.roomDesc, ...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.roomDesc, [entity.description, entity.name, ...(entity.keywords || [])], query)
       }))
       : []
     ),
@@ -81,7 +81,7 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
     ...(findItems
       ? [...room.items].map(entity => ({
         entity,
-        score: fuzzyMatch(entity.name, [entity.description, entity.roomDesc, ...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.roomDesc, [entity.description, entity.name, ...(entity.keywords || [])], query)
       }))
       : []
     ),
