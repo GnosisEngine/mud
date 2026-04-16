@@ -1,11 +1,22 @@
+// bundles/classes/commands/cast.js
+
 'use strict';
+
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
 
 const { Broadcast } = require('ranvier');
 const { isSpellKnown } = require('../logic');
+const SPELL_REGEX = /^(['"])(.*?)\1(?:\s+(.+))?$/;
 
 module.exports = {
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
-    const match = args.match(/^(['"])([^\1]+)+\1(?:$|\s+(.+)$)/);
+    const match = args.match(SPELL_REGEX);
+    // const match = args.match(/^(['"])([^\1]+)+\1(?:$|\s+(.+)$)/);
     if (!match) {
       return Broadcast.sayAt(player, "Casting spells must be surrounded in quotes e.g., cast 'fireball' target");
     }

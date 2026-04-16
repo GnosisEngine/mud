@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const fs = require('fs');
 const path = require('path');
 
@@ -53,7 +56,7 @@ class PlayerClass {
    * includes things like adding the resource attribute to the player or anything
    * else that should be done when the player is initially given this class
    * @param {GameState} state
-   * @param {Player} player
+   * @param {RanvierPlayer} player
    */
   setupPlayer(state, player) {
     if (typeof this.config.setupPlayer === 'function') {
@@ -83,13 +86,13 @@ class PlayerClass {
 
   /**
    * Get a flattened list of all the abilities available to a given player
-   * @param {Player} player
+   * @param {RanvierPlayer} player
    * @return {Array<string>} Array of ability ids
    */
   getAbilitiesForPlayer(player) {
     let totalAbilities = [];
     Object.entries(this.abilityTable).forEach(([level, abilities]) => {
-      if (level > player.level) {
+      if (parseInt(level) > player.level) {
         return;
       }
       totalAbilities = totalAbilities.concat(abilities.skills || []).concat(abilities.spells || []);
@@ -108,7 +111,7 @@ class PlayerClass {
 
   /**
    * Check if a player can use a given ability
-   * @param {Player} player
+   * @param {RanvierPlayer} player
    * @param {string} abilityId
    * @return {boolean}
    */

@@ -42,6 +42,18 @@ export interface RanvierPlayer extends RanvierCharacter {
   account: object;
   prompt: string;
   keywords: string[];
+  queueCommand(command: { execute: (...args: any[]) => void, label: string }, lag: number): void;
+  playerClass: {
+    id: string;
+    name: string;
+    config: { name: string, abilityTable: Record<number, { skills?: string[], spells?: string[] }> };
+    abilityTable: Record<number, { skills?: string[], spells?: string[] }>;
+    abilityList: string[];
+    hasAbility(id: string): boolean;
+    canUseAbility(player: RanvierPlayer, abilityId: string): boolean;
+    getAbilitiesForPlayer(player: RanvierPlayer): string[];
+    setupPlayer(state: GameState, player: RanvierPlayer): void;
+  };
 }
 
 export interface RanvierNpc extends RanvierCharacter {
@@ -84,6 +96,8 @@ export interface RanvierBroadcast {
   prompt(player: object): void;
   progress(width: number, percent: number, color: string): string;
   wrap(message: string, width?: number): string;
+  line(width: number, char?: string, color?: string): string;
+  center(width: number, text: string, color: string, char?: string): string
 }
 
 declare module 'ranvier' {
@@ -124,4 +138,40 @@ declare module 'ranvier' {
       };
     });
   }
+
+  export const EffectFlag: {
+  readonly BUFF: symbol;
+  readonly DEBUFF: symbol;
+};
+
+  export class Heal {
+    constructor(stat: string, amount: number, source: object, attacker: object, options?: object);
+    commit(target: object): void;
+  }
+
+  export class Damage {
+    constructor(stat: string, amount: number, attacker: object, source: object, options?: object);
+    evaluate(target: object): number;
+    commit(target: object): void;
+  }
+
+  export class Player {
+    constructor(data: object);
+    queueCommand(command: { execute: (...args: any[]) => void, label: string }, lag: number): void;
+    emit(event: string, ...args: any[]): void;
+    moveTo(room: object, callback?: () => void): void;
+    save(callback?: () => void): void;
+    hydrate(state: object): void;
+    serialize(): object;
+  }
+
+  export const SkillType: {
+    readonly SKILL: symbol;
+    readonly SPELL: symbol;
+  };
+
+  export const SkillFlag: {
+    readonly PASSIVE: symbol;
+    readonly ACTIVE: symbol;
+  };
 }

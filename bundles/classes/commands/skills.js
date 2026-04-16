@@ -1,11 +1,19 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B, Logger } = require('ranvier');
 const { hasAbilitiesAtLevel, isAbilityUnlocked } = require('../logic');
 
 module.exports = {
   aliases: ['abilities', 'spells'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     const say = message => B.sayAt(player, message);
     say('<b>' + B.center(80, 'Abilities', 'green'));

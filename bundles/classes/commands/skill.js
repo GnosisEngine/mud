@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 const {
   isPassiveSkill,
@@ -9,6 +12,11 @@ const {
 
 module.exports = {
   aliases: ['spell'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     const say = (message, wrapWidth) => B.sayAt(player, message, wrapWidth);
 

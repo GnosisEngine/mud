@@ -61,6 +61,14 @@
  */
 
 /**
+ * @typedef {object} AbilityManager
+ * @property {function(string): object|undefined} get
+ * @property {function(string): object|undefined} find
+ * @property {function(object): void}             add
+ * @property {function(string): void}             remove
+ */
+
+/**
  * @typedef {object} GameState
  * @property {AreaManager}       AreaManager
  * @property {RoomManager}       RoomManager
@@ -75,7 +83,8 @@
  * @property {object}            ChannelManager
  * @property {object}            CommandManager
  * @property {object}            EffectFactory
- * @property {object}            SkillManager
+ * @property {AbilityManager}    SkillManager
+ * @property {AbilityManager}    SpellManager
  * @property {object}            AccountManager
  * @property {object}            HelpManager
  * @property {object}            EventManager
@@ -88,6 +97,7 @@
  * @property {FactionService}    FactionService
  * @property {WorldManager}      WorldManager
  * @property {StorageManager}    StorageManager
+  * @property {{ get: function(string): any }} Config
  * @property {function(): void}  _timeBundleStop
  * @property {function(RanvierPlayer, string, string[]=, RanvierRoom=): TargetEntity|null} getTarget
  */
