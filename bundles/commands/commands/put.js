@@ -23,7 +23,7 @@ module.exports = {
     }
 
     const item = dot(parts[0], player.inventory);
-    const toContainer = state.getTarget(player.room, parts[1], ['item'])
+    const toContainer = state.getTarget(player, parts[1], ['item'])
       ?? dot(parts[1], player.inventory)
       ?? dot(parts[1], player.equipment);
 

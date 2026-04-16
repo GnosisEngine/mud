@@ -231,20 +231,21 @@ module.exports = {
 `state` is closed over at load time. `args` is the raw argument string the player
 typed after the command word. `player` is the acting `Player` instance.
 
-#### `state.getTarget(room, query, targets)`
+#### `state.getTarget(player, query, targets)`
 
 `state.getTarget` is registered at startup by the `fancy-rooms` bundle. It performs
 fuzzy substring matching across the entities in a room.
 
 ```
-state.getTarget(room, query, targets) → entity | null
+state.getTarget(player, query, targets, room?) → entity | null
 ```
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `room`    | `Room` | The room to search — always `player.room` |
+| `player`    | `Player` | The player performing the search — always `player.room` |
 | `query`   | `string` | The raw argument string from the player |
 | `targets` | `string[]` | Entity types to search: any of `'player'`, `'npc'`, `'item'`, `'exit'` |
+| `room`    | `Room` | The room to search — defaults to `player.room` |
 
 Returns the highest-scoring match, or `null` if nothing scores above zero.
 
@@ -268,7 +269,7 @@ command: state => (args, player) => {
     return;
   }
 
-  const target = state.getTarget(player.room, args, ['player']);
+  const target = state.getTarget(player, args, ['player']);
   if (!target) {
     return Broadcast.sayAt(player, "You can't find anyone named that.");
   }
@@ -280,13 +281,13 @@ command: state => (args, player) => {
 
 ```js
 // NPC or player in the room
-const target = state.getTarget(player.room, args, ['npc', 'player']);
+const target = state.getTarget(player, args, ['npc', 'player']);
 
 // Item in the room only
-const item = state.getTarget(player.room, args, ['item']);
+const item = state.getTarget(player, args, ['item']);
 
 // Exit direction
-const exit = state.getTarget(player.room, args, ['exit']);
+const exit = state.getTarget(player, args, ['exit']);
 ```
 
 #### Collapsing a player-then-NPC fallback
@@ -300,7 +301,7 @@ let target = ArgParser.parseDot(args, player.room.players);
 if (!target) target = ArgParser.parseDot(args, player.room.npcs);
 
 // After
-const target = state.getTarget(player.room, args, ['player', 'npc']);
+const target = state.getTarget(player, args, ['player', 'npc']);
 ```
 
 #### Full command example
@@ -322,7 +323,7 @@ module.exports = {
       return B.sayAt(player, 'You wave at yourself. A little sad.');
     }
 
-    const target = state.getTarget(player.room, args, ['player', 'npc']);
+    const target = state.getTarget(player, args, ['player', 'npc']);
     if (!target) {
       return B.sayAt(player, "You don't see anyone like that here.");
     }

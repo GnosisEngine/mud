@@ -166,7 +166,7 @@ class Combat {
       ? ['npc', 'player']
       : ['npc'];
 
-    const target = getTarget(attacker.room, search, possibleTargets);
+    const target = getTarget(attacker, search, possibleTargets);
 
     if (!target) {
       return null;

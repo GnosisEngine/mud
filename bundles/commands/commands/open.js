@@ -24,7 +24,7 @@ module.exports = {
       exitDirection = parts[1];
     }
 
-    const roomExit = state.getTarget(player.room, exitDirection, ['exit']);
+    const roomExit = state.getTarget(player, exitDirection, ['exit']);
 
     if (roomExit) {
       const roomExitRoom = state.RoomManager.getRoom(roomExit.roomId);
@@ -42,7 +42,7 @@ module.exports = {
       }
     }
 
-    const item = state.getTarget(player.room, args, ['item'])
+    const item = state.getTarget(player, args, ['item'])
       ?? [...player.inventory].find(i => i.name.toLowerCase().includes(args.toLowerCase()));
 
     if (item) {

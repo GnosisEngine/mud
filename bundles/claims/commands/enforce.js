@@ -41,7 +41,7 @@ module.exports = {
       return say(player,  `Submission duration must be between 1 and ${MAX_DURATION_MINUTES} minutes.`);
     }
 
-    const target = state.getTarget(room, targetName, ['player']);
+    const target = state.getTarget(player, targetName, ['player']);
     if (isTargetSelf(state, player, { target })) return say(player, "You can't enforce against yourself.");
 
     if (!target) return say(player,  `${targetName} is not in this room.`);

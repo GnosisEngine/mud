@@ -5,6 +5,10 @@ const { hasMinimap, isDoorBlocked, isContainerClosed } = require('../lib/logic')
 const NOOP = {};
 
 module.exports = {
+  hasBehavior: (_, player, { behavior }) => {
+    return player.getBehavior && player.getBehavior(behavior);
+  },
+
   hasCoordinates: (_, player) => {
     return !!(player.room && player.room.coordinates);
   },
@@ -47,4 +51,8 @@ module.exports = {
       old.coordinates.z === entry.coordinates.z
     );
   },
+
+  isExit(_, __, { exit }) {
+    return exit.inferred !== undefined && exit.roomId !== undefined && exit.direction !== undefined;
+  }
 };

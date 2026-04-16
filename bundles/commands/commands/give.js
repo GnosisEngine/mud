@@ -28,7 +28,7 @@ module.exports = {
       return B.sayAt(player, "You don't have that.");
     }
 
-    const target = state.getTarget(player.room, targetRecip, ['player', 'npc']);
+    const target = state.getTarget(player, targetRecip, ['player', 'npc']);
 
     if (target?.isNpc) {
       const accepts = target.getBehavior('accepts');

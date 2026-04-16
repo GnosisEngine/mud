@@ -40,7 +40,7 @@ subcommands.add({
       return say(player, 'Invite whom?');
     }
 
-    const target = state.getTarget(player.room, args, ['player']);
+    const target = state.getTarget(player, args, ['player']);
 
     if (isSelf(state, player, { target })) {
       return say(player, 'You ask yourself if you want to join your own group. You humbly accept.');
@@ -88,7 +88,7 @@ subcommands.add({
       return say(player, 'Join whose group?');
     }
 
-    const target = state.getTarget(player.room, args, ['player']);
+    const target = state.getTarget(player, args, ['player']);
 
     if (!target) {
       return say(player, "They aren't here.");
@@ -116,7 +116,7 @@ subcommands.add({
       return say(player, 'Decline whose invite?');
     }
 
-    const target = state.getTarget(player.room, args, ['player']);
+    const target = state.getTarget(player, args, ['player']);
 
     if (!target) {
       return say(player, "They aren't here.");

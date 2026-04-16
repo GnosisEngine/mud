@@ -16,7 +16,7 @@ module.exports = {
     if (args === 'self') {
       target = player;
     } else {
-      target = state.getTarget(player.room, args, ['player']);
+      target = state.getTarget(player, args, ['player']);
       if (!target) {
         return Broadcast.sayAt(player, "You can't find anyone named that.");
       }

@@ -81,7 +81,7 @@ module.exports = {
     }
 
     const item = source === player.room.items
-      ? state.getTarget(player.room, search, ['item'])
+      ? state.getTarget(player, search, ['item'])
       : ArgParser.parseDot(search, source);
 
     if (!item) {

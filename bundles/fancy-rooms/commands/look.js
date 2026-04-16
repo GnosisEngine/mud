@@ -1,7 +1,7 @@
 'use strict';
 
 const { Broadcast: B, Item, ItemType } = require('ranvier');
-const ArgParser = require('../../lib/lib/ArgParser');
+// const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { decorate } = require('../lib/RoomDecorator');
 const { getItemEmoji, getNpcEmoji } = require('../lib/EmojiMapper');
@@ -13,6 +13,8 @@ const {
   isContainerClosed,
   isRotting,
   hasMinimap,
+  hasBehavior,
+  isExit
 } = require('../logic');
 
 // ─── rot quantiles ────────────────────────────────────────────────────────────
@@ -51,25 +53,7 @@ function lookEntity(state, player, args) {
     search = args[0];
   }
 
-  const exits = room.getExits ? room.getExits() : (room.exits || []);
-  const matchedExit = exits.find(e => e.direction.toLowerCase() === search.toLowerCase());
-  if (matchedExit) {
-    const exitRoom = state.RoomManager.getRoom(matchedExit.roomId);
-    if (!exitRoom) return B.sayAt(player, "You can't make out anything in that direction.");
-
-    const door = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room));
-    if (isDoorBlocked(state, player, { door })) {
-      return B.sayAt(player, 'The door is closed.');
-    }
-
-    player.socket.write(decorate(exitRoom, undefined, { state }) + '\r\n');
-    return;
-  }
-
-  let entity = ArgParser.parseDot(search, room.items);
-  entity = entity || ArgParser.parseDot(search, room.players);
-  entity = entity || ArgParser.parseDot(search, room.npcs);
-  entity = entity || ArgParser.parseDot(search, player.inventory);
+  const entity = state.getTarget(player, search);
 
   if (!entity) {
     return B.sayAt(player, "You don't see anything like that here.");
@@ -80,13 +64,26 @@ function lookEntity(state, player, args) {
     return;
   }
 
+  if (isExit(state, player, { exit:  entity })) {
+    const exitRoom = state.RoomManager.getRoom(entity.roomId);
+    if (!exitRoom) return B.sayAt(player, "You can't make out anything in that direction.");
+
+    const door = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room));
+    if (isDoorBlocked(state, player, { door })) {
+      return B.sayAt(player, 'The door is closed.');
+    }
+
+    B.sayAt(player, decorate(exitRoom, undefined, { state }) + '\r\n');
+    return;
+  }
+
   B.sayAt(player, entity.description, 80);
 
   if (isRotting(state, player, { entity })) {
     B.sayAt(player, rotDescription(entity));
   }
 
-  const usable = entity.getBehavior('usable');
+  const usable = hasBehavior(state, entity, { behavior: 'usable' });
   if (usable) {
     if (usable.spell) {
       const useSpell = state.SpellManager.get(usable.spell);
@@ -214,19 +211,19 @@ module.exports = {
 
       if (room.items && room.items.size) {
         for (const item of room.items) {
-          B.sayAt(player, describeItem(item) + '\r\n');
+          B.sayAt(player, describeItem(item));
         }
       }
 
       if (room.npcs && room.npcs.size) {
         for (const npc of room.npcs) {
-          B.sayAt(player, describeNpc(npc, player, state) + '\r\n');
+          B.sayAt(player, describeNpc(npc, player, state));
         }
       }
 
       for (const other of room.players) {
         if (other === player) continue;
-        B.sayAt(player, describePlayer(other) + '\r\n');
+        B.sayAt(player, describePlayer(other));
       }
     };
   }

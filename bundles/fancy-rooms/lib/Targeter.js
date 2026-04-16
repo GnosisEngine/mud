@@ -1,18 +1,15 @@
 'use strict';
 
-function fuzzyMatch(texts, q) {
-  if (!texts || !q) return 0;
-
+function fuzzyMatch(primaryText, otherTexts, q) {
+  if (!q) return 0;
   if (q === '*') return 100;
 
-  if (!Array.isArray(texts)) texts = [texts];
-
-  const strings = texts.filter(Boolean);
-  if (!strings.length) return 0;
+  if (!Array.isArray(otherTexts)) otherTexts = otherTexts ? [otherTexts] : [];
 
   const query = q.toLowerCase();
 
-  return Math.max(...strings.map(text => {
+  function scoreText(text) {
+    if (!text) return 0;
     const t = text.toLowerCase();
 
     let tIndex = 0;
@@ -35,27 +32,48 @@ function fuzzyMatch(texts, q) {
 
     const completionRatio = matchCount / query.length;
     const consecutiveBonus = maxConsecutive / query.length;
-    const score = (completionRatio * 0.7 + consecutiveBonus * 0.3) * 100;
+    return (completionRatio * 0.7 + consecutiveBonus * 0.3) * 100;
+  }
 
-    return Math.round(score);
-  }));
+  const primaryScore = scoreText(primaryText);
+
+  const secondaryScore = otherTexts.filter(Boolean).length
+    ? Math.max(...otherTexts.filter(Boolean).map(scoreText))
+    : 0;
+
+  // Primary dominates; secondary can nudge the score up slightly
+  const combined = primaryScore * 0.85 + secondaryScore * 0.15;
+
+  return Math.round(combined);
 }
 
-function getTarget(room, rawQuery, targets = []) {
+function getTarget(player, rawQuery, targets = [], room = player.room) {
   const query = rawQuery.toLowerCase();
   const normalizedTargets = targets.map(t => t.toLowerCase());
+  const hasTargets = normalizedTargets.length === 0;
 
-  const findExits = normalizedTargets.length === 0 || normalizedTargets.includes('exit') || normalizedTargets.includes('exits');
-  const findItems = normalizedTargets.length === 0 || normalizedTargets.includes('item') || normalizedTargets.includes('items');
-  const findPlayers = normalizedTargets.length === 0 || normalizedTargets.includes('player') || normalizedTargets.includes('players');
-  const findNpcs = normalizedTargets.length === 0 || normalizedTargets.includes('npc') || normalizedTargets.includes('npcs');
+  const findExits = hasTargets || normalizedTargets.includes('exit') || normalizedTargets.includes('exits');
+  const findItems = hasTargets || normalizedTargets.includes('item') || normalizedTargets.includes('items');
+  const findPlayers = hasTargets || normalizedTargets.includes('player') || normalizedTargets.includes('players');
+  const findNpcs = hasTargets || normalizedTargets.includes('npc') || normalizedTargets.includes('npcs');
+  // const findResources = hasTargets || normalizedTargets.includes('resources');
+  const findInventory = hasTargets || normalizedTargets.includes('inventory');
+
   const exits = findExits && room.getExits ? room.getExits() : [];
 
   const potentialTargets = [
+    ...(findInventory
+      ? [...player.inventory].map(([_,entity]) => ({
+        entity,
+        score: fuzzyMatch(entity.name, [entity.description, entity.roomDesc, ...(entity.keywords || [])], query)
+      }))
+      : []
+    ),
+
     ...(findExits
       ? exits.map(entity => ({
         entity,
-        score: fuzzyMatch([entity.direction, ...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.direction, [...(entity.keywords || [])], query)
       }))
       : []
     ),
@@ -63,7 +81,7 @@ function getTarget(room, rawQuery, targets = []) {
     ...(findItems
       ? [...room.items].map(entity => ({
         entity,
-        score: fuzzyMatch([entity.name, entity.description, entity.roomDesc, ...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.name, [entity.description, entity.roomDesc, ...(entity.keywords || [])], query)
       }))
       : []
     ),
@@ -71,7 +89,7 @@ function getTarget(room, rawQuery, targets = []) {
     ...(findPlayers
       ? [...room.players].map(entity => ({
         entity,
-        score: fuzzyMatch([entity.name, ...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.name, [...(entity.keywords || [])], query)
       }))
       : []
     ),
@@ -79,13 +97,25 @@ function getTarget(room, rawQuery, targets = []) {
     ...(findNpcs
       ? [...room.npcs].map(entity => ({
         entity,
-        score: fuzzyMatch([entity.name, entity.description, ...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.name, [entity.description, ...(entity.keywords || [])], query)
       }))
       : []
     ),
   ];
 
   const result = potentialTargets.sort((a, b) => b.score - a.score)[0];
+
+  console.log({
+    query,
+    targets: potentialTargets.map(p => {
+      if ((p.entity.name ?? p.entity.direction) === undefined) {
+        console.error(p.entity);
+      }
+
+      return { name: p.entity.name ?? p.entity.direction, score: p.score };
+    }),
+    result: result.entity.name ?? result.entity.direction
+  });
 
   return result?.score > 0 ? result.entity : null;
 }

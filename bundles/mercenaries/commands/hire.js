@@ -20,7 +20,7 @@ module.exports = {
       return B.sayAt(player, 'There is no mercenary broker here.');
     }
 
-    const target = state.getTarget(player.room, args.trim(), ['npc']);
+    const target = state.getTarget(player, args.trim(), ['npc']);
     if (!isVendorTarget(state, player, { target, vendorNpc })) {
       return B.sayAt(player, "You don't see anyone like that offering contracts here.");
     }
