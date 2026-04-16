@@ -1,6 +1,6 @@
 // bundles/vendor-npcs/commands/shop.js
 'use strict';
-
+require('../hints');
 const { Broadcast: B, CommandManager } = require('ranvier');
 const VendorCatalog = require('../lib/VendorCatalog');
 const VendorFormat = require('../lib/VendorFormat');

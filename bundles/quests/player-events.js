@@ -1,5 +1,6 @@
 'use strict';
 
+require('./hints');
 const { Broadcast: B } = require('ranvier');
 const { EVENTS } = require('./events');
 

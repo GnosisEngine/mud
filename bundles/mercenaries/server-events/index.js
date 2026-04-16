@@ -1,6 +1,7 @@
 // bundles/vendor-npcs/server-events/index.js
 'use strict';
 
+require('../hints');
 const { Logger } = require('ranvier');
 const startupPoll = require('../../lib/lib/StartupPoll');
 const MercenaryService = require('../lib/MercenaryService');

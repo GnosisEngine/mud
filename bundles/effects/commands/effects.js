@@ -1,5 +1,6 @@
 'use strict';
 
+require('../hints');
 const humanize = (sec) => { return require('humanize-duration')(sec, { round: true }); };
 const { Broadcast: B } = require('ranvier');
 const {

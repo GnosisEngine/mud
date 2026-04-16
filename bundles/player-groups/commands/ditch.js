@@ -1,5 +1,6 @@
 'use strict';
 
+require('../hints');
 const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const { hasNoArgs } = require('../logic');

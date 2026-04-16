@@ -1,5 +1,6 @@
 'use strict';
 
+require('../hints');
 const { Broadcast: B, PlayerRoles } = require('ranvier');
 const { isAdmin, hasNoArgs, isCommandKnown } = require('../logic');
 

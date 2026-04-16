@@ -5,9 +5,14 @@ ContextService.register(({ _, __, input }) => {
   const performableActions = [];
   const trimmed = input.trim().toLowerCase();
 
-  check('quest', trimmed)
-    && performableActions.push('quest');
+  check('cast', trimmed)
+    && performableActions.push('cast');
 
+  check('skill', trimmed)
+    && performableActions.push('skill');
+
+  check('skills', trimmed)
+    && performableActions.push('skills');
 
   return performableActions;
 });

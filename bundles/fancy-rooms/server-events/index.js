@@ -1,5 +1,6 @@
 'use strict';
 
+require('../hints');
 const { getTarget } = require('../lib/Targeter');
 
 module.exports = {

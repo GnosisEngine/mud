@@ -2,6 +2,7 @@
 
 'use strict';
 
+require('../hints');
 const path = require('path');
 const timeState = require('../lib/time-state');
 const timeStore = require('../lib/time-store');

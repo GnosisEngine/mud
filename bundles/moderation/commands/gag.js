@@ -1,6 +1,7 @@
 // bundles/communication/commands/gag.js
 'use strict';
 
+require('../hints');
 const { Broadcast } = require('ranvier');
 const {
   isAdmin,

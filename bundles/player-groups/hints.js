@@ -1,15 +1,18 @@
 'use strict';
 const { ContextService, check } = require('../world/lib/ContextService');
-const {
-  canDoThing,
-} = require('./logic');
 
-ContextService.register(({ state, player, input }) => {
+ContextService.register(({ _, __, input }) => {
   const performableActions = [];
   const trimmed = input.trim().toLowerCase();
 
-  check('', trimmed) && canDoThing(state, player)
-    && performableActions.push('');
+  check('ditch', trimmed)
+    && performableActions.push('ditch');
+
+  check('follow', trimmed)
+    && performableActions.push('follow');
+
+  check('group', trimmed)
+    && performableActions.push('group');
 
 
   return performableActions;

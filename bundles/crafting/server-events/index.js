@@ -1,6 +1,7 @@
 // resources/server-events/index.js
 'use strict';
 
+require('../hints');
 const TerrainResolver = require('../lib/TerrainResolver');
 const SpawnLoop = require('../lib/SpawnLoop');
 //const NpcDeathHandler = require('../lib/NpcDeathHandler');
