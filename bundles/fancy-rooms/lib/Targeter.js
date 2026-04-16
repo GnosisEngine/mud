@@ -1,5 +1,31 @@
 'use strict';
+/**
+ * @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer
+ * @typedef {import('../../../types/ranvier').RanvierRoom}   RanvierRoom
+ * @typedef {import('../../../types/ranvier').RanvierNpc}    RanvierNpc
+ * @typedef {import('../../../types/ranvier').RanvierItem}   RanvierItem
+ */
 
+/**
+ * @typedef {object} RanvierExit
+ * @property {string}   direction
+ * @property {string}   roomId
+ * @property {string[]} [keywords]
+ */
+
+/**
+ * @typedef {RanvierPlayer | RanvierNpc | RanvierItem | RanvierExit} TargetEntity
+ */
+
+/**
+ * Scores a query string against a primary text and optional secondary texts.
+ * Returns 0–100 based on fuzzy character match quality.
+ *
+ * @param {string}           primaryText
+ * @param {string|string[]}  otherTexts
+ * @param {string}           q
+ * @returns {number}
+ */
 function fuzzyMatch(primaryText, otherTexts, q) {
   if (!q) return 0;
   if (q === '*') return 100;
@@ -47,6 +73,17 @@ function fuzzyMatch(primaryText, otherTexts, q) {
   return Math.round(combined);
 }
 
+/**
+ * Resolves a raw query string to the best-matching entity in the room.
+ * Searches inventory, exits, items, players, and npcs depending on the
+ * targets filter. Returns null if no match scores above zero.
+ *
+ * @param {RanvierPlayer}  player
+ * @param {string}         rawQuery
+ * @param {string[]}       [targets=[]]   - filter by category: 'item', 'npc', 'player', 'exit', 'inventory'
+ * @param {RanvierRoom}    [room]         - defaults to player.room
+ * @returns {TargetEntity|null}
+ */
 function getTarget(player, rawQuery, targets = [], room = player.room) {
   const query = rawQuery.toLowerCase();
   const normalizedTargets = targets.map(t => t.toLowerCase());
@@ -104,18 +141,6 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
   ];
 
   const result = potentialTargets.sort((a, b) => b.score - a.score)[0];
-
-  console.log({
-    query,
-    targets: potentialTargets.map(p => {
-      if ((p.entity.name ?? p.entity.direction) === undefined) {
-        console.error(p.entity);
-      }
-
-      return { name: p.entity.name ?? p.entity.direction, score: p.score };
-    }),
-    result: result.entity.name ?? result.entity.direction
-  });
 
   return result?.score > 0 ? result.entity : null;
 }

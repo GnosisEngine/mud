@@ -1,6 +1,8 @@
 // bundles/claims/server-events/index.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+
 require('../hints');
 const { Log } = require('../lib/log');
 const { Db } = require('../lib/db');
@@ -32,7 +34,10 @@ const { Logger } = require('ranvier');
 
 // Bundle state — module-scoped, initialised in startup listener
 
+/** @type {InstanceType<typeof import('../lib/store').Store>|null} */
 let store = null;
+
+/** @type {ReturnType<typeof setInterval>|null} */
 let expiryTimer = null;
 
 // Ranvier bundle export
@@ -46,6 +51,7 @@ module.exports = {
     /**
      * 'startup' fires after all bundles are loaded but before the server
      * begins accepting connections — safe to do async I/O here.
+     * @param {GameState} state
      */
     startup: state => async() => {
       Logger.log('[claims-storage] initializing...');

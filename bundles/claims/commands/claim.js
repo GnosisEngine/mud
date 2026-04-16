@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast } = require('ranvier');
 const {
   hasNoClaims,
@@ -41,6 +44,11 @@ function claimList(state, player) {
 module.exports = {
   claimList,
   aliases: [],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     const [sub, ...rest] = (args || '').trim().split(/\s+/);
 

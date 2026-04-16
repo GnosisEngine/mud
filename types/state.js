@@ -1,0 +1,94 @@
+'use strict';
+
+/**
+ * @typedef {import('./ranvier').RanvierArea}    RanvierArea
+ * @typedef {import('./ranvier').RanvierRoom}    RanvierRoom
+ * @typedef {import('./ranvier').RanvierPlayer}  RanvierPlayer
+ * @typedef {import('./ranvier').RanvierNpc}     RanvierNpc
+ * @typedef {import('./ranvier').RanvierItem}    RanvierItem
+ * @typedef {import('./ranvier').RanvierQuest}   RanvierQuest
+ * @typedef {import('./ranvier').RanvierLogger}  RanvierLogger
+ * @typedef {import('../bundles/time/types').TimeService}        TimeService
+ * @typedef {import('../bundles/factions/types').FactionService} FactionService
+ * @typedef {import('../bundles/world/types').WorldManager}      WorldManager
+ * @typedef {import('../bundles/fancy-rooms/lib/Targeter').TargetEntity} TargetEntity
+ * @typedef {import('../bundles/claims/lib/store').Store}            Store
+ */
+
+/**
+ * @typedef {object} BehaviorManager
+ * @property {function(string, object): void}     addBehavior
+ * @property {function(string): object|undefined} getBehavior
+ */
+
+/**
+ * @typedef {object} AreaManager
+ * @property {function(string): RanvierArea|undefined}        getArea
+ * @property {function(): Map<string, RanvierArea>}           getAreas
+ */
+
+/**
+ * @typedef {object} RoomManager
+ * @property {function(string): RanvierRoom|undefined}        getRoom
+ */
+
+/**
+ * @typedef {object} PlayerManager
+ * @property {function(string): RanvierPlayer|undefined}      getPlayer
+ * @property {function(): Set<RanvierPlayer>}                 getPlayersAsSet
+ */
+
+/**
+ * @typedef {object} MobFactory
+ * @property {function(string, RanvierArea): RanvierNpc}      create
+ */
+
+/**
+ * @typedef {object} ItemFactory
+ * @property {function(string, RanvierArea): RanvierItem}     create
+ */
+
+/**
+ * @typedef {object} QuestFactory
+ * @property {function(string, RanvierPlayer): RanvierQuest}  create
+ * @property {function(string): boolean}                      has
+ */
+
+/**
+ * @typedef {object} StorageManager
+ * @property {Store} store
+ */
+
+/**
+ * @typedef {object} GameState
+ * @property {AreaManager}       AreaManager
+ * @property {RoomManager}       RoomManager
+ * @property {PlayerManager}     PlayerManager
+ * @property {BehaviorManager}   ItemBehaviorManager
+ * @property {BehaviorManager}   NpcBehaviorManager
+ * @property {BehaviorManager}   RoomBehaviorManager
+ * @property {BehaviorManager}   AreaBehaviorManager
+ * @property {MobFactory}        MobFactory
+ * @property {ItemFactory}       ItemFactory
+ * @property {QuestFactory}      QuestFactory
+ * @property {object}            ChannelManager
+ * @property {object}            CommandManager
+ * @property {object}            EffectFactory
+ * @property {object}            SkillManager
+ * @property {object}            AccountManager
+ * @property {object}            HelpManager
+ * @property {object}            EventManager
+ * @property {object}            InputEventManager
+ * @property {object}            ItemManager
+ * @property {object}            MobManager
+ * @property {object}            GameServer
+ * @property {RanvierLogger}     Logger
+ * @property {TimeService}       TimeService
+ * @property {FactionService}    FactionService
+ * @property {WorldManager}      WorldManager
+ * @property {StorageManager}    StorageManager
+ * @property {function(): void}  _timeBundleStop
+ * @property {function(RanvierPlayer, string, string[]=, RanvierRoom=): TargetEntity|null} getTarget
+ */
+
+module.exports = {};

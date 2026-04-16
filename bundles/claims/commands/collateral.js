@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast } = require('ranvier');
 const say = Broadcast.sayAt;
 
@@ -18,6 +21,11 @@ Collateral commands:
 
 module.exports = {
   aliases: ['col'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     const parts = (args || '').trim().split(/\s+/);
     const sub   = parts[0];

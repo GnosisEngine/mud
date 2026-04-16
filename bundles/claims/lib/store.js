@@ -60,11 +60,7 @@ class Store {
    *
    * @param {string} ownerId
    * @param {string} roomId
-   * @param {object} opts
-   * @param {number}  opts.taxRate
-   * @param {boolean} opts.taxRateLocked
-   * @param {boolean} opts.autoRenewEnabled
-   * @returns {object} the new claim
+   * @param {{ taxRate?: number, taxRateLocked?: boolean, autoRenewEnabled?: boolean }} [opts]
    */
   async claimRoom(ownerId, roomId, { taxRate = 0, taxRateLocked = false, autoRenewEnabled = false } = {}) {
     const existing = this._graph.getClaimByRoom(roomId);
@@ -102,7 +98,7 @@ class Store {
    *
    * @param {string} fromOwnerId
    * @param {string} toOwnerId
-   * @returns {number} count of claims transferred
+   * @returns {Promise<number>} count of claims transferred
    */
   async transferAllClaims(fromOwnerId, toOwnerId) {
     const claims = this._graph.getClaimsByOwner(fromOwnerId);
@@ -128,7 +124,7 @@ class Store {
    * Flush all claims whose expiresAt has passed.
    * Called by the bundle's expiry timer.
    *
-   * @returns {number} count of claims expired
+   * @returns {Promise<number>} count of claims expired
    */
   async flushExpiredClaims() {
     const expired = this._graph.getExpiredClaims();
@@ -270,7 +266,7 @@ class Store {
    *
    * @param {string} packageId
    * @param {string} lenderId
-   * @returns {object} updated package
+   * @returns {Promise<object>} updated package
    */
   async fundPackage(packageId, lenderId) {
     this._db.fundPackage(packageId, lenderId);

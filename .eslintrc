@@ -3,10 +3,19 @@
         "node": true,
         "es2020": true
     },
+    "plugins": ["jsdoc"],
+    "settings": {
+        "jsdoc": {
+        "mode": "typescript"
+        }
+    },
     "parserOptions": {
         "ecmaVersion": 2020
     },
     "rules": {
+        "jsdoc/check-param-names": "warn",
+        "jsdoc/check-types": "warn",
+        "jsdoc/valid-types": "warn",
         "strict": [
             "error",
             "global"

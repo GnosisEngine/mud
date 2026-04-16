@@ -1,5 +1,9 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const enforcement = require('../lib/enforcement');
 const { Broadcast } = require('ranvier');
 const { emit: claimsEmit } = require('../events');
@@ -18,9 +22,14 @@ const MAX_DURATION_MINUTES = 60;
 
 module.exports = {
   aliases: ['threaten'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     const parts = (args || '').trim().split(/\s+/);
-    const [targetName, durationStr = 60] = parts;
+    const [targetName, durationStr = '60'] = parts;
     const { store } = state.StorageManager;
 
     if (!targetName || !durationStr) {
@@ -41,7 +50,7 @@ module.exports = {
       return say(player,  `Submission duration must be between 1 and ${MAX_DURATION_MINUTES} minutes.`);
     }
 
-    const target = state.getTarget(player, targetName, ['player']);
+    const target = /** @type {RanvierPlayer | RanvierNpc | null} */ (state.getTarget(player, targetName, ['player']));
     if (isTargetSelf(state, player, { target })) return say(player, "You can't enforce against yourself.");
 
     if (!target) return say(player,  `${targetName} is not in this room.`);
@@ -73,7 +82,7 @@ module.exports = {
 
     enforcement.addThreat(player.name, target.name, meta, timeoutHandle);
 
-    sayToRoom(room, `${player.name} demands submission from ${target.name}.`, target);
+    sayToRoom(room, `${player.name} demands submission from ${target.name}.`, [target]);
     say(target, `${player.name} demands you pay tax while harvesting from their territory. You can <b>submit</b> or <b>attack ${player.name}</b>.  After 60 seconds, you will automatically submit and begin paying tax.`);
   },
 };
