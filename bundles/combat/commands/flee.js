@@ -4,12 +4,18 @@ const { Random } = require('rando-js');
 const { Broadcast } = require('ranvier');
 const { CommandParser } = require('../../lib/lib/CommandParser');
 const { emit: playerEmit } = require('../../player-events/events');
+const {
+  roomExists,
+  isDoorImpassable,
+  isInCombat
+} = require('../logic');
+
 const say = Broadcast.sayAt;
 
 module.exports = {
   usage: 'flee [direction]',
   command: state => (direction, player) => {
-    if (!player.isInCombat()) {
+    if (!isInCombat(state, player)) {
       return say(player, 'You jump at the sight of your own shadow.');
     }
 
@@ -23,19 +29,20 @@ module.exports = {
 
     const randomRoom = state.RoomManager.getRoom(roomExit.roomId);
 
-    if (!randomRoom) {
+    if (!roomExists(state, player, { room: randomRoom })) {
       say(player, "You can't find anywhere to run!");
       return;
     }
 
 
     const door = player.room.getDoor(randomRoom) || randomRoom.getDoor(player.room);
-    if (randomRoom && door && (door.locked || door.closed)) {
+    if (randomRoom && isDoorImpassable(state, player, { door })) {
       say(player, 'In your panic you run into a closed door!');
       return;
     }
 
     say(player, 'You cowardly flee from the battle!');
+
     player.removeFromCombat();
     playerEmit.move(player, roomExit);
   }

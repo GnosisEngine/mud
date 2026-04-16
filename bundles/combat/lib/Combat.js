@@ -2,7 +2,6 @@
 
 const { Random } = require('rando-js');
 const { Damage, Logger } = require('ranvier');
-// const Parser = require('../../lib/lib/ArgParser');
 const CombatErrors = require('./CombatErrors');
 const { getTarget } = require('../../fancy-rooms/lib/Targeter');
 const { emit: combatEmit } = require('../events');

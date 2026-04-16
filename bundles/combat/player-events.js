@@ -1,4 +1,5 @@
 'use strict';
+require('./hints');
 const { Logger } = require('ranvier');
 
 // Set to true to show the numeric health bar in the combat prompt.

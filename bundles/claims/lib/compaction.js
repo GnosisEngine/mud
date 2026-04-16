@@ -1,5 +1,6 @@
 // bundles/ranvier-storage/lib/compaction.js
 'use strict';
+const { Logger } = require('ranvier');
 
 /**
  * Compaction — collapses the event log down to current graph state.
@@ -40,7 +41,7 @@ async function compact(log, graph) {
 
   log.swap();
 
-  console.log(`compaction: wrote ${claims.length} snapshot entries`);
+  Logger.log(`compaction: wrote ${claims.length} snapshot entries`);
 }
 
 module.exports = { compact };

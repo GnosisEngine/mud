@@ -3,6 +3,8 @@
 function fuzzyMatch(texts, q) {
   if (!texts || !q) return 0;
 
+  if (q === '*') return 100;
+
   if (!Array.isArray(texts)) texts = [texts];
 
   const strings = texts.filter(Boolean);

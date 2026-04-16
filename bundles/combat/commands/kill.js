@@ -5,11 +5,11 @@ const B = Ranvier.Broadcast;
 const Logger = Ranvier.Logger;
 
 const Combat = require('../lib/Combat');
-const CombatErrors = require('../lib/CombatErrors');
+const { cannotFight, isNpc } = require('../logic');
 
 module.exports = {
   aliases: ['attack', 'slay'],
-  command : () => (args, player) => {
+  command : state => (args, player) => {
     args = args.trim();
 
     if (!args.length) {
@@ -20,12 +20,7 @@ module.exports = {
     try {
       target = Combat.findCombatant(player, args);
     } catch (e) {
-      if (
-        e instanceof CombatErrors.CombatSelfError ||
-        e instanceof CombatErrors.CombatNonPvpError ||
-        e instanceof CombatErrors.CombatInvalidTargetError ||
-        e instanceof CombatErrors.CombatPacifistError
-      ) {
+      if (cannotFight(state, player, e)) {
         return B.sayAt(player, e.message);
       }
 
@@ -39,8 +34,10 @@ module.exports = {
     B.sayAt(player, `You attack ${target.name}.`);
 
     player.initiateCombat(target);
+
     B.sayAtExcept(player.room, `${player.name} attacks ${target.name}!`, [player, target]);
-    if (!target.isNpc) {
+
+    if (!isNpc(state, target)) {
       B.sayAt(target, `${player.name} attacks you!`);
     }
   }
