@@ -3,17 +3,7 @@
 
 const { EVENTS } = require('../events');
 const { FACTION_EVENT_NAMES } = require('../constants');
-
-const AXES = ['affinity', 'honor', 'trust', 'debt'];
-
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-function _bracketsEqual(a, b) {
-  if (!a || !b) return false;
-  return AXES.every(axis => a[axis] === b[axis]);
-}
+const { hasFactionStanceChanged } = require('../logic');
 
 function _validate(payload) {
   if (!payload || typeof payload !== 'object') {
@@ -82,7 +72,7 @@ function createHandler(factionManager, logger) {
 
     const { profile, action } = result;
 
-    if (player && !_bracketsEqual(stanceBefore && stanceBefore.brackets, profile.brackets)) {
+    if (player && hasFactionStanceChanged(null, null, { before: stanceBefore && stanceBefore.brackets, after: profile.brackets })) {
       player.emit(EVENTS.FACTION_STANCE_CHANGED, {
         factionId,
         before: stanceBefore ? stanceBefore.brackets : null,

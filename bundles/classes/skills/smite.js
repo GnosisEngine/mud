@@ -2,6 +2,7 @@
 
 const { Broadcast, Damage } = require('ranvier');
 const Combat = require('../../combat/lib/Combat');
+const { hasWeapon } = require('../logic');
 
 const cooldown = 10;
 const damagePercent = 350;
@@ -18,15 +19,12 @@ module.exports = {
   cooldown,
 
   run: () => function(args, player, target) {
-    if (!player.equipment.has('wield')) {
+    if (!hasWeapon(null, player)) {
       return Broadcast.sayAt(player, "You don't have a weapon equipped.");
     }
 
     const amount = Combat.calculateWeaponDamage(player) * (damagePercent / 100);
-
-    const damage = new Damage('health', amount, player, this, {
-      type: 'holy',
-    });
+    const damage = new Damage('health', amount, player, this, { type: 'holy' });
 
     Broadcast.sayAt(player, `<b><yellow>Your weapon radiates holy energy and you strike ${target.name}!</yellow></b>`);
     Broadcast.sayAtExcept(player.room, `<b><yellow>${player.name}'s weapon radiates holy energy and they strike ${target.name}!</yellow></b>`, [target, player]);
@@ -35,7 +33,7 @@ module.exports = {
     damage.commit(target);
   },
 
-  info: (/*player*/) => {
+  info: () => {
     return `Empower your weapon with holy energy and strike, dealing <b>${damagePercent}%</b> weapon damage. Requires a weapon.`;
   }
 };

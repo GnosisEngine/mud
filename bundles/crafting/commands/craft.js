@@ -4,6 +4,13 @@
 const { Broadcast: B, CommandManager, ItemType } = require('ranvier');
 const ResourceContainer = require('../lib/ResourceContainer');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
+const {
+  hasNoArgs,
+  isValidCategory,
+  isValidRecipeEntry,
+  hasSufficientResource,
+  hasInventorySpace,
+} = require('../logic');
 
 const say = B.sayAt;
 const subcommands = new CommandManager();
@@ -36,7 +43,7 @@ subcommands.add({
   command: state => (args, player) => {
     const categories = getCraftingCategories(state);
 
-    if (!args || !args.length) {
+    if (hasNoArgs(state, player, { args })) {
       say(player, '<b>Crafting Categories</b>');
       say(player, B.line(40));
       categories.forEach((cat, i) => say(player, `${i + 1}) ${cat.title}`));
@@ -46,7 +53,7 @@ subcommands.add({
     const [catArg, itemArg] = args.split(' ');
     const catIndex = parseInt(catArg, 10) - 1;
     const category = categories[catIndex];
-    if (!category) return say(player, 'Invalid category.');
+    if (!isValidCategory(state, player, { category })) return say(player, 'Invalid category.');
 
     if (!itemArg) {
       say(player, `<b>${category.title}</b>`);
@@ -58,7 +65,7 @@ subcommands.add({
 
     const itemIndex = parseInt(itemArg, 10) - 1;
     const entry = category.items[itemIndex];
-    if (!entry) return say(player, 'Invalid item.');
+    if (!isValidRecipeEntry(state, player, { entry })) return say(player, 'Invalid item.');
 
     say(player, `${entry.item.name}`);
     say(player, '<b>Recipe:</b>');
@@ -73,7 +80,7 @@ subcommands.add({
 subcommands.add({
   name: 'create',
   command: state => (args, player) => {
-    if (!args || !args.length) {
+    if (hasNoArgs(state, player, { args })) {
       return say(player, "Create what? 'craft create 1 1' for example.");
     }
 
@@ -81,14 +88,14 @@ subcommands.add({
     const [catArg, itemArg] = args.split(' ');
     const catIndex = parseInt(catArg, 10) - 1;
     const category = categories[catIndex];
-    if (!category) return say(player, 'Invalid category.');
+    if (!isValidCategory(state, player, { category })) return say(player, 'Invalid category.');
 
     const itemIndex = parseInt(itemArg, 10) - 1;
     const entry = category.items[itemIndex];
-    if (!entry) return say(player, 'Invalid item.');
+    if (!isValidRecipeEntry(state, player, { entry })) return say(player, 'Invalid item.');
 
     for (const [key, required] of Object.entries(entry.recipe)) {
-      if (ResourceContainer.getAmount(player, key) < required) {
+      if (!hasSufficientResource(state, player, { key, required })) {
         const def = ResourceDefinitions.getDefinition(key);
         const title = def ? def.title : key;
         const shortfall = required - ResourceContainer.getAmount(player, key);
@@ -96,7 +103,7 @@ subcommands.add({
       }
     }
 
-    if (player.isInventoryFull()) {
+    if (!hasInventorySpace(state, player)) {
       return say(player, "You can't hold any more items.");
     }
 
@@ -121,7 +128,7 @@ module.exports = {
   usage: 'craft <list/create> [category #] [item #]',
   subcommands: ['create', 'list'],
   command: state => (args, player) => {
-    if (!args || !args.length) {
+    if (hasNoArgs(state, player, { args })) {
       return say(player, "Missing craft command. See 'help craft'");
     }
 

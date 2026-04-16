@@ -2,6 +2,7 @@
 
 const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B, Logger } = require('ranvier');
+const { hasAbilitiesAtLevel, isAbilityUnlocked } = require('../logic');
 
 module.exports = {
   aliases: ['abilities', 'spells'],
@@ -14,7 +15,7 @@ module.exports = {
       abilities.skills = abilities.skills || [];
       abilities.spells = abilities.spells || [];
 
-      if (!abilities.skills.length && !abilities.spells.length) {
+      if (!hasAbilitiesAtLevel(state, player, { abilities })) {
         continue;
       }
 
@@ -22,27 +23,24 @@ module.exports = {
       say(B.line(50));
 
       let i = 0;
+
       if (abilities.skills.length) {
         say('\r\n<bold>Skills</bold>');
       }
 
       for (const skillId of abilities.skills) {
         const skill = state.SkillManager.get(skillId);
-
         if (!skill) {
           Logger.error(`Invalid skill in ability table: ${player.playerClass.name}:${level}:${skillId}`);
           continue;
         }
 
         let name = sprintf('%-20s', skill.name);
-        if (player.level >= level) {
+        if (isAbilityUnlocked(state, player, { level })) {
           name = `<green>${name}</green>`;
         }
         B.at(player, name);
-
-        if (++i % 3 === 0) {
-          say();
-        }
+        if (++i % 3 === 0) say();
       }
 
       if (abilities.spells.length) {
@@ -51,24 +49,19 @@ module.exports = {
 
       for (const spellId of abilities.spells) {
         const spell = state.SpellManager.get(spellId);
-
         if (!spell) {
           Logger.error(`Invalid spell in ability table: ${player.playerClass.name}:${level}:${spellId}`);
           continue;
         }
 
         let name = sprintf('%-20s', spell.name);
-        if (player.level >= level) {
+        if (isAbilityUnlocked(state, player, { level })) {
           name = `<green>${name}</green>`;
         }
         B.at(player, name);
-
-        if (++i % 3 === 0) {
-          say();
-        }
+        if (++i % 3 === 0) say();
       }
 
-      // end with a line break
       say();
     }
   }

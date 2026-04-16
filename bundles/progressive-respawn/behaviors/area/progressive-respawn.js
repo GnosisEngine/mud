@@ -2,25 +2,21 @@
 
 const { Logger } = require('ranvier');
 const { Random } = require('rando-js');
+const {
+  isRespawnReady,
+  isBelowMaxLoad,
+  shouldReplaceOnRespawn,
+} = require('../../logic');
 
-/**
- * Behavior for having a constant respawn tick happening every [interval]
- * seconds. As opposed to one giant full area respawn every 10 minutes this will
- * constantly try to respawn an entity (item/npc) in an area's rooms based on
- * the entity's respawn chance until it hits the entity's maxLoad for the room.
- *
- * config:
- *   interval: number=30
- */
 module.exports = {
   listeners: {
     updateTick: state => {
       let lastRespawnTick = Date.now();
       return function(config) {
-        // setup respawnTick to only happen every [interval] seconds
         const respawnInterval = config.interval || 30;
         const sinceLastTick = Date.now() - lastRespawnTick;
-        if (sinceLastTick >= respawnInterval * 1000) {
+
+        if (isRespawnReady(state, null, { sinceLastTick, respawnInterval })) {
           lastRespawnTick = Date.now();
           for (const [, room] of this.rooms) {
             room.emit('respawnTick', state);
@@ -36,7 +32,6 @@ module.exports = {
 };
 
 function _respawnRoom(state) {
-  // relock/close doors
   this.doors = new Map(Object.entries(JSON.parse(JSON.stringify(this.defaultDoors || {}))));
 
   this.defaultNpcs.forEach(defaultNpc => {
@@ -51,9 +46,8 @@ function _respawnRoom(state) {
     }, defaultNpc);
 
     const npcCount = [...this.spawnedNpcs].filter(npc => npc.entityReference === defaultNpc.id).length;
-    const needsRespawn = npcCount < defaultNpc.maxLoad;
 
-    if (!needsRespawn) {
+    if (!isBelowMaxLoad(null, null, { count: npcCount, maxLoad: defaultNpc.maxLoad })) {
       return;
     }
 
@@ -78,14 +72,15 @@ function _respawnRoom(state) {
     }, defaultItem);
 
     const itemCount = [...this.items].filter(item => item.entityReference === defaultItem.id).length;
-    const needsRespawn = itemCount < defaultItem.maxLoad;
+    const belowMax = isBelowMaxLoad(null, null, { count: itemCount, maxLoad: defaultItem.maxLoad });
+    const replace  = shouldReplaceOnRespawn(null, null, { defaultItem });
 
-    if (!needsRespawn && !defaultItem.replaceOnRespawn) {
+    if (!belowMax && !replace) {
       return;
     }
 
     if (Random.probability(defaultItem.respawnChance)) {
-      if (defaultItem.replaceOnRespawn) {
+      if (replace) {
         this.items.forEach(item => {
           if (item.entityReference === defaultItem.id) {
             state.ItemManager.remove(item);

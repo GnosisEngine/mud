@@ -1,23 +1,25 @@
 'use strict';
 
 const { Broadcast: B, PlayerRoles } = require('ranvier');
+const { isAdmin, hasNoArgs, isCommandKnown } = require('../logic');
 
-/**
- * Command to allow you to reload a command's definition from disk without restarting the server
- */
 module.exports = {
   requiredRole: PlayerRoles.ADMIN,
   usage: 'hotfix <command name>',
   command: state => (commandName, player) => {
-    if (!commandName || !commandName.length) {
+    if (!isAdmin(state, player)) {
+      return B.sayAt(player, 'You do not have permission to use this command.');
+    }
+
+    if (hasNoArgs(state, player, { args: commandName })) {
       return B.sayAt(player, 'Hotfix which command?');
     }
 
-    const command = state.CommandManager.get(commandName);
-    if (!command) {
+    if (!isCommandKnown(state, player, { commandName })) {
       return B.sayAt(player, 'There is no such command, restart the server to add new commands.');
     }
 
+    const command = state.CommandManager.get(commandName);
     delete require.cache[require.resolve(command.file)];
     B.sayAt(player, `<b><red>HOTFIX</red></b>: Reloading [${commandName}]...`);
 

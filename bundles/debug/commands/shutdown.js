@@ -1,21 +1,23 @@
 'use strict';
 
 const { Broadcast, PlayerRoles } = require('ranvier');
+const { isAdmin, isImmediateShutdown, isConfirmed } = require('../logic');
 
-/**
- * Shut down the MUD from within the game.
- */
 module.exports = {
   requiredRole: PlayerRoles.ADMIN,
   command: state => async(time, player) => {
-    if (time === 'now') {
+    if (!isAdmin(state, player)) {
+      return Broadcast.sayAt(player, 'You do not have permission to use this command.');
+    }
+
+    if (isImmediateShutdown(state, player, { time })) {
       Broadcast.sayAt(state.PlayerManager, '<b><yellow>Game is shutting down now!</yellow></b>');
       await state.PlayerManager.saveAll();
       process.exit();
       return;
     }
 
-    if (!time.length || time !== 'sure') {
+    if (!isConfirmed(state, player, { args: time, word: 'sure' })) {
       return Broadcast.sayAt(player, 'You must confirm the shutdown with "shutdown sure" or force immediate shutdown with "shutdown now"');
     }
 

@@ -3,6 +3,7 @@
 
 const { nanoid } = require('nanoid');
 const { mergeDeltas, resolveProfile } = require('./PolicyResolver');
+const { roomHasFaction } = require('../logic');
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -158,7 +159,7 @@ function build(factionMap, store, policyMap) {
      * @returns {number[]}
      */
     getFactionsForRoom(room) {
-      if (!room || room.faction === undefined) return [];
+      if (!roomHasFaction(null, null, { room })) return [];
       return [room.faction];
     },
 

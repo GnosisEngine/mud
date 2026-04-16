@@ -8,6 +8,7 @@ const {
   BRACKET_LABELS,
   FACTION_EVENT_NAMES,
 } = require('../constants');
+const { isStranger } = require('../logic');
 
 const AXES = ['affinity', 'honor', 'trust', 'debt'];
 
@@ -74,8 +75,7 @@ function resolveProfile(scores, factionDef) {
   };
   const brackets  = scoresToBrackets(axes, factionDef.thresholds);
   const renown    = deriveRenown(axes);
-  const isStranger = renown < factionDef.renownThreshold;
-  return { axes, brackets, renown, isStranger };
+  return { axes, brackets, renown, isStranger: isStranger(null, null, { renown, factionDef }) };
 }
 
 /**

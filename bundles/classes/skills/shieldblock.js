@@ -1,16 +1,13 @@
 'use strict';
 
 const { Broadcast, SkillType } = require('ranvier');
+const { hasShield } = require('../logic');
 
-// config placed here just for easy configuration of this skill later on
 const cooldown = 45;
 const cost = 50;
 const healthPercent = 15;
 const duration = 20 * 1000;
 
-/**
- * Damage mitigation skill
- */
 module.exports = {
   name: 'Shield Block',
   type: SkillType.SKILL,
@@ -21,8 +18,8 @@ module.exports = {
   },
   cooldown,
 
-  run: state => function(args, player/*, target*/) {
-    if (!player.equipment.has('shield')) {
+  run: state => function(args, player) {
+    if (!hasShield(state, player)) {
       Broadcast.sayAt(player, "You aren't wearing a shield!");
       return false;
     }
@@ -44,7 +41,7 @@ module.exports = {
     player.addEffect(effect);
   },
 
-  info: (/*player*/) => {
+  info: () => {
     return `Raise your shield block damage up to <bold>${healthPercent}%</bold> of your maximum health for <bold>${duration / 1000}</bold> seconds. Requires a shield.`;
   }
 };

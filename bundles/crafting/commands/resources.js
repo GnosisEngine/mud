@@ -6,24 +6,23 @@ const ResourceContainer = require('../lib/ResourceContainer');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
 const Colors = require('../../colors/lib/Colors');
 const { CARRY_MULTIPLIER } = ResourceContainer;
+const { hasResources } = require('../logic');
 
 module.exports = {
   aliases: ['materials'],
-  command: () => (args, player) => {
-    const held = ResourceContainer.getHeld(player);
-    const keys = Object.keys(held);
-
-    if (!keys.length) {
+  command: state => (args, player) => {
+    if (!hasResources(state, player)) {
       return B.sayAt(player, "You aren't carrying any resources.");
     }
 
+    const held = ResourceContainer.getHeld(player);
     const currentWeight = ResourceContainer.getTotalWeight(player);
     const capacity = (player.getAttribute('strength') || 0) * CARRY_MULTIPLIER;
 
     B.sayAt(player, '<b>Resources</b>');
     B.sayAt(player, B.line(40));
 
-    for (const key of keys) {
+    for (const key of Object.keys(held)) {
       const amount = ResourceContainer.getAmount(player, key);
       const def = ResourceDefinitions.getDefinition(key);
       const title = def ? def.title : key;

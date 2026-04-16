@@ -4,6 +4,12 @@
 const { Broadcast: B } = require('ranvier');
 const TradeLogic = require('../lib/TradeLogic');
 const ResourceDefinitions = require('../lib/ResourceDefinitions');
+const {
+  hasNoArgs,
+  isSelf,
+  isOnline,
+  isTradeResponse,
+} = require('../logic');
 
 function _parseOffer(offerStr) {
   const resourceMap = {};
@@ -29,16 +35,26 @@ function _formatOffer(resourceMap) {
     .join(', ');
 }
 
+function _findPendingForTarget(target, state) {
+  for (const player of state.PlayerManager.players.values()) {
+    if (player === target) continue;
+    if (TradeLogic.hasPending(player, target)) {
+      return { initiator: player };
+    }
+  }
+  return null;
+}
+
 module.exports = {
   usage: 'trade <player> <amount> <resource> [, <amount> <resource> ...] | trade accept | trade reject',
   command: state => (args, player) => {
-    if (!args || !args.trim().length) {
+    if (hasNoArgs(state, player, { args: args && args.trim() })) {
       return B.sayAt(player, 'Usage: trade <player> <offer> or trade accept/reject');
     }
 
     const [subcommand, ...rest] = args.trim().split(/\s+/);
 
-    if (subcommand === 'accept' || subcommand === 'reject') {
+    if (isTradeResponse(state, player, { subcommand })) {
       const found = _findPendingForTarget(player, state);
       if (!found) {
         return B.sayAt(player, 'You have no pending trade to respond to.');
@@ -68,12 +84,13 @@ module.exports = {
     const targetName = subcommand;
     const offerStr = rest.join(' ');
 
-    const target = state.PlayerManager.getPlayer(targetName);
-    if (!target) {
+    if (!isOnline(state, player, { targetName })) {
       return B.sayAt(player, `No player named "${targetName}" is online.`);
     }
 
-    if (target === player) {
+    const target = state.PlayerManager.getPlayer(targetName);
+
+    if (isSelf(state, player, { target })) {
       return B.sayAt(player, "You can't trade with yourself.");
     }
 
@@ -84,7 +101,7 @@ module.exports = {
 
     const result = TradeLogic.initiate(player, target, resourceMap, {
       onTimeout: () => {
-        B.sayAt(player, 'Your trade offer to ${target.name} has expired.');
+        B.sayAt(player, `Your trade offer to ${target.name} has expired.`);
         B.sayAt(target, `The trade offer from ${player.name} has expired.`);
       },
     });
@@ -106,13 +123,3 @@ module.exports = {
     B.sayAt(target, `${player.name} offers you: ${summary}. Type 'trade accept' or 'trade reject'.`);
   },
 };
-
-function _findPendingForTarget(target, state) {
-  for (const player of state.PlayerManager.players.values()) {
-    if (player === target) continue;
-    if (TradeLogic.hasPending(player, target)) {
-      return { initiator: player };
-    }
-  }
-  return null;
-}

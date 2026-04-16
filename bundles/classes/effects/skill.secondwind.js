@@ -1,10 +1,8 @@
 'use strict';
 
 const { Broadcast, EffectFlag, Heal } = require('ranvier');
+const { isBelowEnergyThreshold, isSkillOnCooldown } = require('../logic');
 
-/**
- * Implementation effect for second wind skill
- */
 module.exports = {
   config: {
     name: 'Second Wind',
@@ -17,11 +15,11 @@ module.exports = {
         return;
       }
 
-      if (this.skill.onCooldown(this.target)) {
+      if (isSkillOnCooldown(null, null, { skill: this.skill, target: this.target })) {
         return;
       }
 
-      if ((this.target.getAttribute('energy') / this.target.getMaxAttribute('energy')) * 100 > this.state.threshold) {
+      if (!isBelowEnergyThreshold(null, this.target, { threshold: this.state.threshold })) {
         return;
       }
 

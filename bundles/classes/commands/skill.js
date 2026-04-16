@@ -1,13 +1,19 @@
 'use strict';
 
-const { Broadcast: B, SkillFlag } = require('ranvier');
+const { Broadcast: B } = require('ranvier');
+const {
+  hasNoArgs,
+  isPassiveSkill,
+  hasResourceCost,
+  hasCooldown,
+} = require('../logic');
 
 module.exports = {
   aliases: ['spell'],
-  command : state => (args, player) => {
+  command: state => (args, player) => {
     const say = (message, wrapWidth) => B.sayAt(player, message, wrapWidth);
 
-    if (!args.length) {
+    if (hasNoArgs(state, player, { args })) {
       return say("What skill or spell do you want to look up? Use 'skills' to view all skills/spells.");
     }
 
@@ -21,19 +27,21 @@ module.exports = {
     }
 
     say('<b>' + B.center(80, skill.name, 'white', '-') + '</b>');
-    if (skill.flags.includes(SkillFlag.PASSIVE)) {
+
+    if (isPassiveSkill(state, player, { skill })) {
       say('<b>Passive</b>');
     } else {
       say(`<b>Usage</b>: ${skill.id}`);
     }
 
-    if (skill.resource && skill.resource.cost) {
+    if (hasResourceCost(state, player, { skill })) {
       say(`<b>Cost</b>: <b>${skill.resource.cost}</b> ${skill.resource.attribute}`);
     }
 
-    if (skill.cooldownLength) {
+    if (hasCooldown(state, player, { skill })) {
       say(`<b>Cooldown</b>: <b>${skill.cooldownLength}</b> seconds`);
     }
+
     say(skill.info(player), 80);
     say('<b>' + B.line(80) + '</b>');
   }

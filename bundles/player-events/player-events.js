@@ -4,6 +4,17 @@ const sprintf = require('sprintf-js').sprintf;
 const LevelUtil = require('../lib/lib/LevelUtil');
 const { Broadcast: B, Config, Logger } = require('ranvier');
 const { EVENTS, emit } = require('./events');
+const {
+  hasPendingCommands,
+  isIdleKickable,
+  hasRoomExit,
+  isInCombat,
+  isDoorLocked,
+  isDoorClosed,
+  isFollowerInRoom,
+  isNpcFollower,
+  isLevelUp,
+} = require('./logic');
 
 module.exports = {
   listeners: {
@@ -21,16 +32,17 @@ module.exports = {
     },
 
     updateTick: state => function() {
-      if (this.commandQueue.hasPending && this.commandQueue.lagRemaining <= 0) {
+      if (hasPendingCommands(state, this)) {
         B.sayAt(this);
         this.commandQueue.execute();
         B.prompt(this);
       }
+
       const lastCommandTime = this._lastCommandTime || Infinity;
       const timeSinceLastCommand = Date.now() - lastCommandTime;
       const maxIdleTime = (Math.abs(Config.get('maxIdleTime')) * 60000) || Infinity;
 
-      if (timeSinceLastCommand > maxIdleTime && !this.isInCombat()) {
+      if (isIdleKickable(state, this, { timeSinceLastCommand, maxIdleTime })) {
         this.save(() => {
           B.sayAt(this, `You were kicked for being idle for more than ${maxIdleTime / 60000} minutes!`);
           B.sayAtExcept(this.room, `${this.name} disappears.`, this);
@@ -40,30 +52,25 @@ module.exports = {
       }
     },
 
-    /**
-     * Handle a player movement command. From: 'commands' input event.
-     * roomExit is a result of CommandParser.parse
-     */
     [EVENTS.MOVE]: state => function({ roomExit }) {
-      if (!roomExit) {
+      if (!hasRoomExit(state, this, { roomExit })) {
         return B.sayAt(this, "You can't go that way!");
       }
 
-      if (this.isInCombat()) {
+      if (isInCombat(state, this)) {
         return B.sayAt(this, 'You are in the middle of a fight!');
       }
 
       const nextRoom = state.RoomManager.getRoom(roomExit.roomId);
       const oldRoom = this.room;
-
       const door = oldRoom.getDoor(nextRoom) || nextRoom.getDoor(oldRoom);
 
       if (door) {
-        if (door.locked) {
+        if (isDoorLocked(state, this, { door })) {
           return B.sayAt(this, 'The door is locked.');
         }
 
-        if (door.closed) {
+        if (isDoorClosed(state, this, { door })) {
           return B.sayAt(this, 'The door is closed.');
         }
       }
@@ -76,11 +83,11 @@ module.exports = {
       B.sayAtExcept(nextRoom, `${this.name} enters.`, this);
 
       for (const follower of this.followers) {
-        if (follower.room !== oldRoom) {
+        if (!isFollowerInRoom(state, this, { follower, room: oldRoom })) {
           continue;
         }
 
-        if (follower.isNpc) {
+        if (isNpcFollower(state, this, { follower })) {
           follower.moveTo(nextRoom);
         } else {
           B.sayAt(follower, `\r\nYou follow ${this.name} to ${nextRoom.title}.`);
@@ -89,23 +96,17 @@ module.exports = {
       }
     },
 
-    /**
-     * Handle player gaining experience
-     * @param {object} payload
-     * @param {number} payload.amount Exp gained
-     */
     [EVENTS.EXPERIENCE]: () => function({ amount }) {
       B.sayAt(this, `<blue>You gained <bold>${amount}</bold> experience!</blue>`);
 
       const totalTnl = LevelUtil.expToLevel(this.level + 1);
 
-      // level up, currently wraps experience if they gain more than needed for multiple levels
-      if (this.experience + amount > totalTnl) {
+      if (isLevelUp(null, this, { amount, totalTnl })) {
         B.sayAt(this, '                                   <bold><blue>!Level Up!</blue></bold>');
         B.sayAt(this, B.progress(80, 100, 'blue'));
 
         let nextTnl = totalTnl;
-        while (this.experience + amount > nextTnl) {
+        while (isLevelUp(null, this, { amount, totalTnl: nextTnl })) {
           amount = (this.experience + amount) - nextTnl;
           this.level++;
           this.experience = 0;
@@ -116,7 +117,6 @@ module.exports = {
       }
 
       this.experience += amount;
-
       this.save();
     },
   }

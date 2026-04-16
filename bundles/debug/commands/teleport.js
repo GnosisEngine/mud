@@ -1,35 +1,46 @@
 'use strict';
 
 const { Broadcast, PlayerRoles } = require('ranvier');
+const {
+  isAdmin,
+  hasNoArgs,
+  isRoomReference,
+  isAlreadyHere,
+  isInCombat,
+} = require('../logic');
 
 module.exports = {
   aliases: ['tp'],
   usage: 'teleport <player/room>',
   requiredRole: PlayerRoles.ADMIN,
-  command: (state) => (args, player) => {
-    if (!args || !args.length) {
+  command: state => (args, player) => {
+    if (!isAdmin(state, player)) {
+      return Broadcast.sayAt(player, 'You do not have permission to use this command.');
+    }
+
+    if (hasNoArgs(state, player, { args })) {
       return Broadcast.sayAt(player, 'Must specify a destination using an online player or room entity reference.');
     }
 
     const target = args;
-    const isRoom = target.includes(':');
     let targetRoom = null;
 
-    if (isRoom) {
+    if (isRoomReference(state, player, { target })) {
       targetRoom = state.RoomManager.getRoom(target);
       if (!targetRoom) {
         return Broadcast.sayAt(player, 'No such room entity reference exists.');
-      } else if (targetRoom === player.room) {
-        return Broadcast.sayAt(player, 'You try really hard to teleport before realizing you\'re already at your destination.');
+      }
+      if (isAlreadyHere(state, player, { targetRoom })) {
+        return Broadcast.sayAt(player, "You try really hard to teleport before realizing you're already at your destination.");
       }
     } else {
       const targetPlayer = state.PlayerManager.getPlayer(target);
       if (!targetPlayer) {
         return Broadcast.sayAt(player, 'No such player online.');
-      } else if (targetPlayer === player || targetPlayer.room === player.room) {
-        return Broadcast.sayAt(player, 'You try really hard to teleport before realizing you\'re already at your destination.');
       }
-
+      if (isAlreadyHere(state, player, { targetRoom: targetPlayer.room })) {
+        return Broadcast.sayAt(player, "You try really hard to teleport before realizing you're already at your destination.");
+      }
       targetRoom = targetPlayer.room;
     }
 
@@ -40,7 +51,7 @@ module.exports = {
       }
     });
 
-    if (player.isInCombat()) {
+    if (isInCombat(state, player)) {
       player.removeFromCombat();
     }
 
