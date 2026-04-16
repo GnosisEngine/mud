@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Random } = require('rando-js');
 const { Broadcast } = require('ranvier');
 const { CommandParser } = require('../../lib/lib/CommandParser');
@@ -14,6 +17,11 @@ const say = Broadcast.sayAt;
 
 module.exports = {
   usage: 'flee [direction]',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (direction, player) => {
     if (!isInCombat(state, player)) {
       return say(player, 'You jump at the sight of your own shadow.');

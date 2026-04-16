@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const Ranvier = require('ranvier');
 const B = Ranvier.Broadcast;
 const Logger = Ranvier.Logger;
@@ -9,6 +12,11 @@ const { cannotFight, isNpc } = require('../logic');
 
 module.exports = {
   aliases: ['attack', 'slay'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command : state => (args, player) => {
     args = args.trim();
 

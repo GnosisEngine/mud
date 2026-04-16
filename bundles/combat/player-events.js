@@ -318,12 +318,12 @@ function promptBuilder(promptee) {
 
   const currentPerc = getHealthPercentage(promptee);
   const progress    = B.progress(progWidth, currentPerc, 'green');
-  let buf         = formatProgressBar(playerName, progress, promptee);
+  let buf         = formatProgressBar(playerName, progress);
 
   for (const target of promptee.combatants) {
     const targetPerc     = Math.floor((target.getAttribute('health') / target.getMaxAttribute('health')) * 100);
     const targetProgress = B.progress(progWidth, targetPerc, 'red');
-    buf += `\r\n${formatProgressBar(target.name, targetProgress, target)}`;
+    buf += `\r\n${formatProgressBar(target.name, targetProgress)}`;
   }
 
   return buf;

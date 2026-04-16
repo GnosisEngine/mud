@@ -77,11 +77,49 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * Resolves a raw query string to the best-matching entity in the room.
  * Searches inventory, exits, items, players, and npcs depending on the
  * targets filter. Returns null if no match scores above zero.
- *
- * @param {RanvierPlayer}  player
- * @param {string}         rawQuery
- * @param {string[]}       [targets=[]]   - filter by category: 'item', 'npc', 'player', 'exit', 'inventory'
- * @param {RanvierRoom}    [room]         - defaults to player.room
+ */
+
+/**
+ * @overload
+ * @param {RanvierPlayer} player
+ * @param {string}        rawQuery
+ * @param {['npc']}       targets
+ * @param {RanvierRoom}   [room]
+ * @returns {RanvierNpc|null}
+ */
+
+/**
+ * @overload
+ * @param {RanvierPlayer} player
+ * @param {string}        rawQuery
+ * @param {['player']}    targets
+ * @param {RanvierRoom}   [room]
+ * @returns {RanvierPlayer|null}
+ */
+
+/**
+ * @overload
+ * @param {RanvierPlayer} player
+ * @param {string}        rawQuery
+ * @param {['npc','player']|['player','npc']} targets
+ * @param {RanvierRoom}   [room]
+ * @returns {RanvierPlayer|RanvierNpc|null}
+ */
+
+/**
+ * @overload
+ * @param {RanvierPlayer} player
+ * @param {string}        rawQuery
+ * @param {string[]}      [targets]
+ * @param {RanvierRoom}   [room]
+ * @returns {TargetEntity|null}
+ */
+
+/**
+ * @param {RanvierPlayer} player
+ * @param {string}        rawQuery
+ * @param {string[]}      [targets=[]]
+ * @param {RanvierRoom}   [room]
  * @returns {TargetEntity|null}
  */
 function getTarget(player, rawQuery, targets = [], room = player.room) {

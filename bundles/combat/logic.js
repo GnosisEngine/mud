@@ -1,4 +1,9 @@
 'use strict';
+
+/** @typedef {import('../../types/state').GameState} GameState */
+/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const CombatErrors = require('./lib/CombatErrors');
 const { hasWeapon, hasExits, isNpc, isDoorImpassable, isInCombat } = require('../lib/logic');
 const NOOP = {};
@@ -22,6 +27,13 @@ module.exports = {
     return player.getMeta('pvp');
   },
 
+  /**
+   *
+   * @param {GameState} _
+   * @param {RanvierPlayer} player
+   * @param {{ target: RanvierPlayer | RanvierNpc, amount: number}} options
+   * @returns
+   */
   isLevelDiff: (_, player, { target, amount }) => {
     return player.level  - target.level > amount;
   },
@@ -108,6 +120,11 @@ module.exports = {
 
   hasExits,
 
+  /**
+   * @param {GameState}     _
+   * @param {RanvierPlayer} __
+   * @param {{ e?: any, error?: any }} ctx
+   */
   cannotFight: (_, __, { e, error }) => {
     const thrown = e ?? error;
     return thrown instanceof CombatErrors.CombatSelfError

@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const Combat = require('../lib/Combat');
 const {
   cannotFight,
@@ -9,6 +12,11 @@ const { Broadcast: B, Logger } = require('ranvier');
 
 module.exports = {
   usage: 'consider <target>',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args || !args.length) {
       return B.sayAt(player, 'Who do you want to size up for a fight?');
@@ -31,16 +39,16 @@ module.exports = {
 
     let description = '';
     switch (true) {
-      case (isLevelDiff(state, player, { target, diff: 4 })):
+      case (isLevelDiff(state, player, { target, amount: 4 })):
         description = 'They are much weaker than you. You would have no trouble dealing with a few of them at once.';
         break;
-      case (isLevelDiff(state, player, { target, diff: 9 })):
+      case (isLevelDiff(state, player, { target, amount: 9 })):
         description = 'They are <b>much</b> stronger than you. They will kill you and it will hurt the whole time you\'re dying.';
         break;
-      case (isLevelDiff(state, player, { target, diff: 5 })):
+      case (isLevelDiff(state, player, { target, amount: 5 })):
         description = 'They are quite a bit more powerful than you. You would need to get lucky to defeat them.';
         break;
-      case (isLevelDiff(state, player, { target, diff: 3 })):
+      case (isLevelDiff(state, player, { target, amount: 3 })):
         description = 'They are a bit stronger than you. You may survive but it would be hard won.';
         break;
       default:

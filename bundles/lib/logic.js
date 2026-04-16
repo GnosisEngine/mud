@@ -1,9 +1,23 @@
 'use strict';
+
+/** @typedef {import('../../types/state').GameState} GameState */
+/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const { PlayerRoles } = require('ranvier');
 
 const NOOP = {};
 
 module.exports = {
+  /**
+    * @param {GameState} state
+    * @param {RanvierPlayer | RanvierNpc} player
+    * @returns {entity is RanvierNpc}
+    */
+  isNpc: (state, player) => {
+    return !!player.isNpc;
+  },
+
   hasExits: (state, player) => {
     const exits = player.room.getExits();
     let count = exits.length;

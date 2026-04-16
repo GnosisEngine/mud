@@ -15,6 +15,11 @@ export interface RanvierArea {
   rooms: Map<string, RanvierRoom>;
 }
 
+export interface RanvierDoor {
+  locked: boolean;
+  closed: boolean;
+  lockedBy?: string;
+}
 export interface RanvierRoom {
   entityReference: string;
   title: string;
@@ -26,6 +31,7 @@ export interface RanvierRoom {
   coordinates: { x: number, y: number, z: number } | null;
   emit(event: string, ...args: any[]): void;
   getExits(): RanvierExit[];
+  getDoor(room: RavnierRoom): RanvierDoor
 }
 
 export interface RanvierCharacter {
@@ -33,9 +39,70 @@ export interface RanvierCharacter {
   level: number;
   room: RanvierRoom;
   inventory: Map<string, RanvierItem>;
-  emit(event: string, ...args: any[]): void;
-  say(message: string): void;
+  equipment: Map<string, RanvierItem>;
+  combatants: Set<CombatTarget>;
+  combatData: {
+    killed?: boolean;
+    killedBy?: CombatTarget;
+    roundStarted?: number;
+    lag?: number;
+  };
   effects: { entries(): Iterable<RanvierEffect> };
+  followers: Set<CombatTarget>;
+  following: CombatTarget | null;
+  party: object | null;
+  metadata: Record<string, any>;
+  isNpc: boolean;
+
+  // Metadatable
+  getMeta(key: string): any;
+  setMeta(key: string, value: any): void;
+
+  // Attribute methods
+  hasAttribute(attr: string): boolean;
+  getAttribute(attr: string): number;
+  getMaxAttribute(attr: string): number;
+  getBaseAttribute(attr: string): number;
+  raiseAttribute(attr: string, amount: number): void;
+  lowerAttribute(attr: string, amount: number): void;
+  setAttributeBase(attr: string, value: number): void;
+  setAttributeToMax(attr: string): void;
+  addAttribute(attr: object): void;
+
+  // Combat methods
+  isInCombat(): boolean;
+  initiateCombat(target: CombatTarget): void;
+  addCombatant(target: CombatTarget): void;
+  removeCombatant(target: CombatTarget): void;
+  removeFromCombat(): void;
+  evaluateIncomingDamage(damage: object, currentAmount: number): number;
+  evaluateOutgoingDamage(damage: object, currentAmount: number): number;
+
+  // Effect methods
+  hasEffectType(type: string): boolean;
+  addEffect(effect: object): boolean;
+  removeEffect(effect: object): void;
+
+  // Inventory methods
+  addItem(item: RanvierItem): void;
+  removeItem(item: RanvierItem): void;
+  hasItem(item: RanvierItem): boolean;
+  isInventoryFull(): boolean;
+  equip(item: RanvierItem, slot: string): void;
+  unequip(slot: string): void;
+
+  // Follow methods
+  follow(target: CombatTarget): void;
+  unfollow(): void;
+  isFollowing(target: CombatTarget): boolean;
+  hasFollower(target: CombatTarget): boolean;
+  addFollower(target: CombatTarget): void;
+  removeFollower(target: CombatTarget): void;
+
+  emit(event: string, ...args: any[]): void;
+  getBroadcastTargets(): (CombatTarget)[];
+  hydrate(state: object): void;
+  serialize(): object;
 }
 
 export interface RanvierPlayer extends RanvierCharacter {
@@ -43,6 +110,14 @@ export interface RanvierPlayer extends RanvierCharacter {
   prompt: string;
   keywords: string[];
   queueCommand(command: { execute: (...args: any[]) => void, label: string }, lag: number): void;
+  initiateCombat(target: CombatTarget): void
+  removeFromCombat(): void
+  removePrompt(id: string): void;
+  addPrompt(id: string, fn: () => string): void;
+  hasPrompt(id: string): boolean;
+  getMeta(key: string): string | boolean | number | null
+  setMeta(key: string, value: string | boolean | number | null): void
+  room: RanvierRoom
   playerClass: {
     id: string;
     name: string;
@@ -61,7 +136,8 @@ export interface RanvierNpc extends RanvierCharacter {
   behaviors: Map<string, any>;
   description: string;
   keywords: string[];
-  effects: { entries(): Iterable<RanvierEffect> };
+  hasBehavior(name: string): boolean;
+  moveTo(room: RanvierRoom, callback?: () => void): void;
 }
 
 export interface RanvierItem {
@@ -70,10 +146,14 @@ export interface RanvierItem {
   roomDesc: string;
   description: string;
   type: string;
-  metadata: object;
   keywords: string[];
+  metadata: {
+    minDamage?: number;
+    maxDamage?: number;
+    speed?: number;
+    [key: string]: any;
+  };
 }
-
 export interface RanvierExit {
   direction: string;
   roomId: string;
@@ -100,29 +180,30 @@ export interface RanvierBroadcast {
   center(width: number, text: string, color: string, char?: string): string
 }
 
+export type CombatTarget = RanvierPlayer | RanvierNpc
 declare module 'ranvier' {
   export const Logger: RanvierLogger;
   export const Broadcast: RanvierBroadcast;
   export class AreaAudience {
-    sender: RanvierPlayer | RanvierNpc;
+    sender: CombatTarget;
     state: import('../types/state').GameState;
-    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+    getBroadcastTargets(): (CombatTarget)[];
   }
 
   export class PartyAudience {
-    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+    getBroadcastTargets(): (CombatTarget)[];
   }
 
   export class PrivateAudience {
-    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+    getBroadcastTargets(): (CombatTarget)[];
   }
 
   export class RoomAudience {
-    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+    getBroadcastTargets(): (CombatTarget)[];
   }
 
   export class WorldAudience {
-    getBroadcastTargets(): (RanvierPlayer | RanvierNpc)[];
+    getBroadcastTargets(): (CombatTarget)[];
   }
 
   export class Channel {
@@ -173,5 +254,16 @@ declare module 'ranvier' {
   export const SkillFlag: {
     readonly PASSIVE: symbol;
     readonly ACTIVE: symbol;
+  };
+
+  export const PlayerRoles: {
+    readonly PLAYER: 0;
+    readonly BUILDER: 1;
+    readonly ADMIN: 2;
+  };
+
+  export const Config: {
+    get(key: string, fallback?: any): any;
+    load(data: object): void;
   };
 }
