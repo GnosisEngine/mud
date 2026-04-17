@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 require('../hints');
 const humanize = (sec) => { return require('humanize-duration')(sec, { round: true }); };
 const { EffectFlag } = require('ranvier');
@@ -12,6 +15,11 @@ const {
 
 module.exports = {
   aliases: ['affects'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: (state) => (args, player) => {
     B.sayAt(player, 'Current Effects:');
 

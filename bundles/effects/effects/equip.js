@@ -27,7 +27,7 @@ module.exports = {
     }
   },
   listeners: {
-    unequip: function(slot, item) {
+    unequip: function(slot, _) {
       if (slot === this.state.slot) {
         this.remove();
       }

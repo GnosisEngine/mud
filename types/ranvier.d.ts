@@ -48,7 +48,7 @@ export interface RanvierCharacter {
     roundStarted?: number;
     lag?: number;
   };
-  effects: { entries(): Iterable<RanvierEffect> };
+  effects: { entries(): RanvierEffect[] };
   followers: Set<CombatTarget>;
   following: CombatTarget | null;
   party: object | null;
