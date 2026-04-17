@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast, PlayerRoles } = require('ranvier');
 const {
   isAdmin,
@@ -12,6 +15,11 @@ module.exports = {
   aliases: ['tp'],
   usage: 'teleport <player/room>',
   requiredRole: PlayerRoles.ADMIN,
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!isAdmin(state, player)) {
       return Broadcast.sayAt(player, 'You do not have permission to use this command.');
@@ -62,6 +70,6 @@ module.exports = {
     });
 
     Broadcast.sayAt(oldRoom, `${player.name} teleported away.`);
-    Broadcast.sayAtExcept(targetRoom, `${player.name} teleported here.`, player);
+    Broadcast.sayAtExcept(targetRoom, `${player.name} teleported here.`, [player]);
   }
 };

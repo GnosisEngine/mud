@@ -110,6 +110,7 @@ export interface RanvierPlayer extends RanvierCharacter {
   account: object;
   prompt: string;
   keywords: string[];
+  moveTo(room: RanvierRoom, done: () => void): void
   queueCommand(command: { execute: (...args: any[]) => void, label: string }, lag: number): void;
   initiateCombat(target: CombatTarget): void
   removeFromCombat(): void

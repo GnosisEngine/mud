@@ -8,6 +8,7 @@
  * @typedef {import('./ranvier').RanvierItem}    RanvierItem
  * @typedef {import('./ranvier').RanvierQuest}   RanvierQuest
  * @typedef {import('./ranvier').RanvierLogger}  RanvierLogger
+ * @typedef {import('./ranvier').RanvierCommand}  RanvierCommand
  * @typedef {import('../bundles/time/types').TimeService}        TimeService
  * @typedef {import('../bundles/factions/types').FactionService} FactionService
  * @typedef {import('../bundles/world/types').WorldManager}      WorldManager
@@ -36,6 +37,7 @@
  * @typedef {object} PlayerManager
  * @property {function(string): RanvierPlayer|undefined}         getPlayer
  * @property {function(): Set<RanvierPlayer>}                    getPlayersAsSet
+ * @property {function(): void}                    saveAll
  * @property {function(function(RanvierPlayer): boolean): RanvierPlayer[]} filter
  * @property {Map<string, RanvierPlayer>}                        players
  */
@@ -70,6 +72,11 @@
  */
 
 /**
+ * @typedef {object} BundleManager
+ * @property {function(string, string, string): RanvierCommand} createCommand
+ */
+
+/**
  * @typedef {object} GameState
  * @property {AreaManager}       AreaManager
  * @property {RoomManager}       RoomManager
@@ -93,6 +100,7 @@
  * @property {object}            ItemManager
  * @property {object}            MobManager
  * @property {object}            GameServer
+ * @property {BundleManager}     BundleManager
  * @property {RanvierLogger}     Logger
  * @property {TimeService}       TimeService
  * @property {FactionService}    FactionService

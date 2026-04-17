@@ -1,11 +1,19 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast, PlayerRoles } = require('ranvier');
 const Parser = require('../../lib/lib/ArgParser');
 const { isAdmin } = require('../logic');
 
 module.exports = {
   requiredRole: PlayerRoles.ADMIN,
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!isAdmin(state, player)) {
       return Broadcast.sayAt(player, 'You do not have permission to use this command.');
