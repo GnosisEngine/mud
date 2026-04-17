@@ -1,6 +1,9 @@
 // bundles/factions/behaviors/npc/faction-npc.js
 'use strict';
 
+/** @typedef {import('../../../../types/state').GameState} GameState */
+/** @typedef {import('../../../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const { Broadcast: B, Logger } = require('ranvier');
 const { EVENTS } = require('../../events');
 
@@ -50,7 +53,7 @@ module.exports = {
     // spawn — validate metadata, warn loudly if faction is missing so
     // world authors know the NPC is misconfigured.
     // -----------------------------------------------------------------------
-    spawn: () => function() {
+    spawn: () => /** @this {RanvierNpc} */ function() {
       const factionId = _getFactionId(this);
       if (factionId === null) {
         Logger.warn(
@@ -74,7 +77,7 @@ module.exports = {
     //   'reject'       → message only (used by honor_check)
     //   anything else  → message only
     // -----------------------------------------------------------------------
-    playerEnter: state => async function(config, player) {
+    playerEnter: state => /** @this {RanvierNpc} */ async function(config, player) {
       if (!state.FactionManager) return;
       if (this.isInCombat()) return;
 
@@ -149,7 +152,7 @@ module.exports = {
     // -----------------------------------------------------------------------
     // playerLeave — cancel any pending attack timer for the departing player.
     // -----------------------------------------------------------------------
-    playerLeave: () => function(config, player) {
+    playerLeave: () => /** @this {RanvierNpc} */ function(config, player) {
       if (this._factionAttackTarget === player) {
         _cancelAttackTimer(this);
       }
@@ -159,7 +162,7 @@ module.exports = {
     // killed — emit a factionEvent on the killer so their reputation is updated.
     // Ignored when killed by another NPC (isNpc guard).
     // -----------------------------------------------------------------------
-    killed: state => function(config, killer) {
+    killed: state => /** @this {RanvierNpc} */ function(config, killer) {
       if (!killer || killer.isNpc) return;
       if (!state.FactionManager) return;
 

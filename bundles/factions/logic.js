@@ -14,10 +14,6 @@ function _bracketMeetsMinimum(brackets, axis, minLabel) {
 }
 
 module.exports = {
-  canDoThing: (state, player, {} = NOOP) => {
-    return false;
-  },
-
   hasFactionStanceChanged: (_, __, { before, after } = NOOP) => {
     if (!before || !after) return false;
     return !AXES.every(axis => before[axis] === after[axis]);
@@ -45,13 +41,14 @@ module.exports = {
    * player + player:
    *   Returns null — undefined behavior in this system.
    *
+   *
    * @param {object} state
-   * @param {object} source            — player or NPC
-   * @param {object} opts
-   * @param {object} opts.target       — player or NPC
-   * @param {string} [opts.axis]        — defaults to 'affinity'
-   * @param {string} [opts.minLabel]    — defaults to 'neutral'
-   * @param {string[]} [opts.acceptableRelations] — defaults to ['cold', 'neutral']
+   * @param {object} source player or NPC
+   * @param {object} [opts]
+   * @param {object} [opts.target] player or NPC
+   * @param {string} [opts.axis] defaults to 'affinity'
+   * @param {string} [opts.minLabel] defaults to 'neutral'
+   * @param {string[]} [opts.acceptableRelations] defaults to ['cold', 'neutral']
    * @returns {Promise<boolean|null>}
    */
   async areFactionsCompatible(state, source, {

@@ -35,7 +35,7 @@ export interface RanvierRoom {
   removeItem(item: RanvierItem): void
 }
 
-export interface RanvierCharacter {
+export interface RanvierCharacter extends NodeJS.EventEmitter {
   name: string;
   level: number;
   room: RanvierRoom;
@@ -104,23 +104,31 @@ export interface RanvierCharacter {
   getBroadcastTargets(): (CombatTarget)[];
   hydrate(state: object): void;
   serialize(): object;
+
+  // Faction stuff
+  _factionAttackTarget: CombatTarget
+  _factionAttackTimer: NodeJS.Timeout
+  _factionEventHandler?: (payload: any) => Promise<void>;
+
+  moveTo(room: RanvierRoom, done: () => void): void
+  keywords: string[];
+  initiateCombat(target: CombatTarget): void
+  removeFromCombat(): void
+
+  getMeta(key: string): string | boolean | number | null
+  setMeta(key: string, value: string | boolean | number | null): void
+
+  room: RanvierRoom
 }
 
 export interface RanvierPlayer extends RanvierCharacter {
   account: object;
   prompt: string;
-  keywords: string[];
-  moveTo(room: RanvierRoom, done: () => void): void
   queueCommand(command: { execute: (...args: any[]) => void, label: string }, lag: number): void;
-  initiateCombat(target: CombatTarget): void
-  removeFromCombat(): void
   removePrompt(id: string): void;
   addPrompt(id: string, fn: () => string): void;
   hasPrompt(id: string): boolean;
-  getMeta(key: string): string | boolean | number | null
-  setMeta(key: string, value: string | boolean | number | null): void
   save(): void
-  room: RanvierRoom
   playerClass: {
     id: string;
     name: string;
@@ -138,9 +146,7 @@ export interface RanvierNpc extends RanvierCharacter {
   entityReference: string;
   behaviors: Map<string, any>;
   description: string;
-  keywords: string[];
   hasBehavior(name: string): boolean;
-  moveTo(room: RanvierRoom, callback?: () => void): void;
 }
 
 export interface RanvierItem {

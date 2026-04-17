@@ -1,6 +1,9 @@
 // bundles/factions/player-events.js
 'use strict';
 
+/** @typedef {import('../../types/state').GameState} GameState */
+/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { createHandler } = require('./lib/FactionEvents');
 const { EVENTS }        = require('./events');
 
@@ -18,7 +21,7 @@ module.exports = {
     // remove the previous listener before attaching a new one, preventing
     // duplicate processing.
     // -----------------------------------------------------------------------
-    login: state => function() {
+    login: state => /** @this {RanvierPlayer} */ function() {
       if (!state.FactionManager) return;
 
       const handler = createHandler(state.FactionManager);
