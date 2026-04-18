@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B, CommandManager } = require('ranvier');
 const say = B.sayAt;
 const ArgParser = require('../../lib/lib/ArgParser');
@@ -19,6 +22,11 @@ const subcommands = new CommandManager();
 
 subcommands.add({
   name: 'list',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (options, player) => {
     if (hasNoOptions(state, player, { options })) {
       return say(player, 'List quests from whom? quest list <npc>');
@@ -58,13 +66,18 @@ subcommands.add({
 subcommands.add({
   name: 'start',
   aliases: ['accept'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (options, player) => {
     if (options.length < 2) {
       return say(player, "Start which quest from whom? 'quest start <npc> <number>'");
     }
 
     const search = options[0];
-    const questIndex = parseInt(options[1] = 1, 10);
+    const questIndex = parseInt(options[1] || '1', 10);
 
     const npc = ArgParser.parseDot(search, player.room.npcs);
     if (!npc) {
@@ -94,6 +107,10 @@ subcommands.add({
 
 subcommands.add({
   name: 'log',
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (options, player) => {
     const active = [...player.questTracker.activeQuests];
     if (!active.length) {
@@ -140,6 +157,11 @@ subcommands.add({
 
 subcommands.add({
   name: 'complete',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (options, player) => {
     const active = [...player.questTracker.activeQuests];
     let targetIndex = parseInt(options[0], 10);

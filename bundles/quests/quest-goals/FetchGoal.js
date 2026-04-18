@@ -1,5 +1,11 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierQuest} RanvierQuest */
+/** @typedef {import('../../../types/ranvier').RanvierRoom} RanvierRoom */
+/** @typedef {import('../../../types/ranvier').RanvierItem} RanvierItem */
+
 const { QuestGoal } = require('ranvier');
 const { EVENTS: CommandEvents } = require('../../commands/events');
 const { EVENTS } = require('../events');
@@ -8,6 +14,11 @@ const { EVENTS } = require('../events');
  * A quest goal requiring the player picks up a certain number of a particular item
  */
 module.exports = class FetchGoal extends QuestGoal {
+  /**
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   * @param {RanvierPlayer} player
+   */
   constructor(quest, config, player) {
     config = Object.assign({
       title: 'Retrieve Item',
@@ -57,6 +68,9 @@ module.exports = class FetchGoal extends QuestGoal {
     super.complete();
   }
 
+  /**
+   * @param {{ item: RanvierItem }} item
+   */
   _getItem({ item }) {
     if (item.entityReference !== this.config.item) {
       return;
@@ -71,6 +85,9 @@ module.exports = class FetchGoal extends QuestGoal {
     this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
   }
 
+  /**
+   * @param {{ item: RanvierItem }} item
+   */
   _dropItem({ item }) {
     if (!this.state.count || item.entityReference !== this.config.item) {
       return;

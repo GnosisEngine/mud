@@ -543,6 +543,7 @@ export interface RanvierBroadcast {
   wrap(message: string, width?: number): string;
   line(width: number, char?: string, color?: string): string;
   center(width: number, text: string, color?: string, char?: string): string
+  indent(text: string, offset: number): string
 }
 
 export type CombatTarget = RanvierPlayer | RanvierNpc
@@ -550,6 +551,74 @@ export type CombatTarget = RanvierPlayer | RanvierNpc
 export interface RanvierCommand {
   name: string;
   command: (state: GameState) => (args: string, player: RanvierPlayer) => void;
+  aliases?: string[]
+}
+
+export class RanvierQuestGoal extends NodeJS.EventEmitter {
+  constructor(quest: RanvierQuest, config: Record<string, any>, player: RanvierPlayer);
+
+  config:  Record<string, any>;
+  quest:   RanvierQuest;
+  state:   Record<string, any>;
+  player:  RanvierPlayer;
+
+  getProgress(): { percent: number; display: string };
+  complete(): void;
+  serialize(): object;
+  hydrate(state: Record<string, any>): void;
+  emit(event: string | symbol, ...args: any[]): boolean;
+  on(event: string | symbol, listener: (...args: any[]) => void): this;
+  once(event: string | symbol, listener: (...args: any[]) => void): this;
+  off(event: string | symbol, listener: (...args: any[]) => void): this;
+  removeAllListeners(event?: string | symbol): this;
+}
+
+export class RanvierQuestReward {
+  static reward(state: GameState, quest: RanvierQuest, config: Record<string, any>, player: RanvierPlayer): void;
+  static display(state: GameState, quest: RanvierQuest, config: Record<string, any>, player: RanvierPlayer): string;
+}
+
+export class RanvierQuest extends NodeJS.EventEmitter {
+  constructor(state: GameState, id: string, config: {
+    entityReference?:   string;
+    title?:             string;
+    description?:       string;
+    completionMessage?: string | null;
+    requires?:          string[];
+    level?:             number;
+    autoComplete?:      boolean;
+    repeatable?:        boolean;
+    rewards?:           any[];
+    goals?:             any[];
+    [key: string]:      any;
+  }, player: RanvierPlayer);
+
+  id:              string;
+  entityReference: string;
+  config: {
+    title:             string;
+    description:       string;
+    completionMessage: string | null;
+    requires:          string[];
+    level:             number;
+    autoComplete:      boolean;
+    repeatable:        boolean;
+    rewards:           any[];
+    goals:             any[];
+    [key: string]:     any;
+  };
+  player:    RanvierPlayer;
+  goals:     RanvierQuestGoal[];
+  state:     any[];
+  GameState: GameState;
+
+  emit(event: string | symbol, ...args: any[]): boolean;
+  addGoal(goal: RanvierQuestGoal): void;
+  onProgressUpdated(): void;
+  getProgress(): { percent: number; display: string };
+  serialize(): object;
+  hydrate(): void;
+  complete(): void;
 }
 
 /**
@@ -561,6 +630,9 @@ declare module 'ranvier' {
   export class Account extends RanvierAccount {}
   export const Logger: RanvierLogger;
   export const Broadcast: RanvierBroadcast;
+  export class QuestGoal extends RanvierQuestGoal {}
+  export class QuestReward extends RanvierQuestReward {}
+  export class Quest extends RanvierQuest {}
   export class AreaAudience {
     sender: CombatTarget;
     state: import('../types/state').GameState;

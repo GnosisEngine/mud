@@ -1,5 +1,9 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierQuest} RanvierQuest */
+
 const { QuestReward } = require('ranvier');
 const { emit: questsEmit } = require('../events');
 
@@ -11,11 +15,22 @@ const { emit: questsEmit } = require('../events');
  *   amount: number, required
  */
 module.exports = class CurrencyReward extends QuestReward {
+  /**
+   * @param {GameState} GameState
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   * @param {RanvierPlayer} player
+   */
   static reward(GameState, quest, config, player) {
     const amount = this._getAmount(quest, config);
     questsEmit.currency(player, config.currency, amount);
   }
 
+  /**
+   * @param {GameState} GameState
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   */
   static display(GameState, quest, config) {
     const amount = this._getAmount(quest, config);
     const friendlyName = config.currency.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -23,6 +38,10 @@ module.exports = class CurrencyReward extends QuestReward {
     return `Currency: <b>${amount}</b> x <b><white>[${friendlyName}]</white></b>`;
   }
 
+  /**
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   */
   static _getAmount(quest, config) {
     config = Object.assign({
       amount: 0,

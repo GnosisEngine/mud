@@ -1,9 +1,19 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierQuest} RanvierQuest */
+/** @typedef {import('../../../types/ranvier').RanvierRoom} RanvierRoom */
+
 const { Logger, QuestGoal } = require('ranvier');
 const { EVENTS } = require('../events');
 
 module.exports = class BountyGoal extends QuestGoal {
+  /**
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   * @param {RanvierPlayer} player
+   */
   constructor(quest, config, player) {
     config = Object.assign({
       title: 'Locate NPC',
@@ -37,6 +47,9 @@ module.exports = class BountyGoal extends QuestGoal {
     return { percent, display };
   }
 
+  /**
+   * @param {RanvierRoom} room
+   */
   _enterRoom(room) {
     if (this.state.found) {
       if (room.entityReference == this.config.home) {

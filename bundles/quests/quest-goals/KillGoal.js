@@ -1,5 +1,12 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierQuest} RanvierQuest */
+/** @typedef {import('../../../types/ranvier').RanvierRoom} RanvierRoom */
+/** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
+
+
 const { QuestGoal } = require('ranvier');
 const { EVENTS: CombatEvents } = require('../../combat/events');
 const { EVENTS } = require('../events');
@@ -8,6 +15,11 @@ const { EVENTS } = require('../events');
  * A quest goal requiring the player kill a certain target a certain number of times
  */
 module.exports = class KillGoal extends QuestGoal {
+  /**
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   * @param {RanvierPlayer} player
+   */
   constructor(quest, config, player) {
     config = Object.assign({
       title: 'Kill Enemy',
@@ -30,6 +42,9 @@ module.exports = class KillGoal extends QuestGoal {
     return { percent, display };
   }
 
+  /**
+   * @param {RanvierCharacter} target
+   */
   _targetKilled(target) {
     if (target.entityReference !== this.config.npc || this.state.count > this.config.count) {
       return;

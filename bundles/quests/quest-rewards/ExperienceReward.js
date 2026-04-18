@@ -1,5 +1,9 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierQuest} RanvierQuest */
+
 const { QuestReward } = require('ranvier');
 const LevelUtil = require('../../lib/lib/LevelUtil');
 const { emit: playerEmit } = require('../../player-events/events');
@@ -21,16 +25,31 @@ const { emit: playerEmit } = require('../../player-events/events');
  *     amount: 500
  */
 module.exports = class ExperienceReward extends QuestReward {
+  /**
+   * @param {GameState} GameState
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   * @param {RanvierPlayer} player
+   */
   static reward(GameState, quest, config, player) {
     const amount = this._getAmount(quest, config, player);
     playerEmit.experience(player, amount);
   }
 
+  /**
+   * @param {GameState} GameState
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   */
   static display(GameState, quest, config, player) {
     const amount = this._getAmount(quest, config, player);
     return `Experience: <b>${amount}</b>`;
   }
 
+  /**
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   */
   static _getAmount(quest, config, player) {
     config = Object.assign({
       amount: 0,

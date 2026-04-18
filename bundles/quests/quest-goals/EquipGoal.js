@@ -1,5 +1,10 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierQuest} RanvierQuest */
+/** @typedef {import('../../../types/ranvier').RanvierRoom} RanvierRoom */
+
 const { QuestGoal } = require('ranvier');
 const { EVENTS } = require('../events');
 
@@ -7,6 +12,11 @@ const { EVENTS } = require('../events');
  * A quest goal requiring the player equip something to a particular slot
  */
 module.exports = class EquipGoal extends QuestGoal {
+  /**
+   * @param {RanvierQuest} quest
+   * @param {Record<string, any>} config
+   * @param {RanvierPlayer} player
+   */
   constructor(quest, config, player) {
     config = Object.assign({
       title: 'Equip Item',
@@ -29,6 +39,9 @@ module.exports = class EquipGoal extends QuestGoal {
     return { percent, display };
   }
 
+  /**
+   * @param {Record<string, any>} slot
+   */
   _equipItem(slot) {
     if (slot !== this.config.slot) {
       return;
@@ -38,6 +51,9 @@ module.exports = class EquipGoal extends QuestGoal {
     this.emit(EVENTS.GOAL_PROGRESS, this.getProgress());
   }
 
+  /**
+   * @param {Record<string, any>} slot
+   */
   _unequipItem(slot) {
     if (slot !== this.config.slot) {
       return;

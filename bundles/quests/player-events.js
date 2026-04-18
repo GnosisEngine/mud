@@ -1,11 +1,21 @@
 'use strict';
 
+/** @typedef {import('../../types/state').GameState} GameState */
+/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../types/ranvier').RanvierQuest} RanvierQuest */
+/** @typedef {import('../../types/ranvier').RanvierQuestReward} RanvierQuestReward */
+
+
 require('./hints');
 const { Broadcast: B } = require('ranvier');
 const { EVENTS } = require('./events');
 
 module.exports = {
   listeners: {
+    /**
+     * @param {GameState} state
+     * @returns {function(RanvierQuest): void}
+     */
     [EVENTS.QUEST_START]: state => function(quest) {
       B.sayAt(this, `\r\n<bold><yellow>Quest Started: ${quest.config.title}!</yellow></bold>`);
       if (quest.config.description) {
@@ -27,15 +37,27 @@ module.exports = {
       B.sayAt(this, B.line(80));
     },
 
-    [EVENTS.QUEST_PROGRESS]: () => function(quest, progress) {
+    /**
+     * @param {GameState} _
+     * @returns {function(RanvierQuest, { display: string }): void}
+     */
+    [EVENTS.QUEST_PROGRESS]: (_) => function(quest, progress) {
       B.sayAt(this, `\r\n<bold><yellow>${progress.display}</yellow></bold>`);
     },
 
-    [EVENTS.QUEST_TURN_IN_READY]: () => function(quest) {
+    /**
+     * @param {GameState} _
+     * @returns {function(RanvierQuest): void}
+     */
+    [EVENTS.QUEST_TURN_IN_READY]: (_) => function(quest) {
       B.sayAt(this, `<bold><yellow>${quest.config.title} ready to turn in!</yellow></bold>`);
     },
 
-    [EVENTS.QUEST_COMPLETE]: () => function(quest) {
+    /**
+     * @param {GameState} _
+     * @returns {function(RanvierQuest): void}
+     */
+    [EVENTS.QUEST_COMPLETE]: (_) => function(quest) {
       B.sayAt(this, `<bold><yellow>Quest Complete: ${quest.config.title}!</yellow></bold>`);
 
       if (quest.config.completionMessage) {
@@ -45,10 +67,10 @@ module.exports = {
     },
 
     /**
-     * Player received a quest reward
-     * @param {object} reward Reward config _not_ an instance of QuestReward
+     * @param {GameState} _
+     * @returns {function(RanvierQuestReward): void}
      */
-    [EVENTS.QUEST_REWARD]: () => function(/*reward*/) {
+    [EVENTS.QUEST_REWARD]: (_) => function(/*reward*/) {
       // do stuff when the player receives a quest reward. Generally the Reward instance
       // will emit an event that will be handled elsewhere and display its own message
       // e.g., 'currency' or 'experience'. But if you want to handle that all in one

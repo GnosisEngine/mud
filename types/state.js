@@ -55,9 +55,25 @@
  * @property {function(): void}                                                 tickAll
  * @property {function(): RanvierPlayer[]}                                      getBroadcastTargets
  */
+
 /**
- * @typedef {object} MobFactory
- * @property {function(string, RanvierArea): RanvierNpc}      create
+ * @typedef {object} EntityFactory
+ * @property {Map<string, Record<string, any>>} entities
+ * @property {object}                           scripts
+ *
+ * @property {function(string, string): string}                                        createEntityRef
+ * @property {function(string): Record<string, any>|undefined}                         getDefinition
+ * @property {function(string, Record<string, any>): void}                             setDefinition
+ * @property {function(string, string, Function): void}                                addScriptListener
+ * @property {function(RanvierArea, string, Function): any}                            createByType
+ * @property {function(RanvierArea, string): any}                                      create
+ * @property {function(RanvierItem|RanvierNpc|RanvierRoom|RanvierArea): any}           clone
+ */
+
+/**
+ * @typedef {EntityFactory & {
+ *   create: function(RanvierArea, string): RanvierNpc
+ * }} MobFactory
  */
 
 /**
@@ -67,8 +83,14 @@
 
 /**
  * @typedef {object} QuestFactory
- * @property {function(string, RanvierPlayer): RanvierQuest}  create
- * @property {function(string): boolean}                      has
+ * @property {Map<string, { id: string, area: string, config: Record<string, any> }>} quests
+ *
+ * @property {function(string, string, RanvierQuest): void}                           add
+ * @property {function(string, RanvierQuest): void}                                   set
+ * @property {function(string): RanvierQuest|undefined}                               get
+ * @property {function(RanvierPlayer, string): boolean}                               canStart
+ * @property {function(GameState, string, RanvierPlayer, any[]=): RanvierQuest}       create
+ * @property {function(string, string): string}                                       makeQuestKey
  */
 
 /**
@@ -168,7 +190,8 @@
  * @property {object}            ItemManager
  * @property {object}            MobManager
  * @property {object}            GameServer
- * @property {PartyManager} PartyManager
+ * @property {Map}               QuestRewardManager
+ * @property {PartyManager}      PartyManager
  * @property {MercenaryService}  MercenaryService
  * @property {BundleManager}     BundleManager
  * @property {RanvierLogger}     Logger
