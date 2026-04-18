@@ -1,8 +1,7 @@
 'use strict';
 
 /** @typedef {import('../../types/state').GameState} GameState */
-/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../types/ranvier').RanvierNpc} RanvierNpc */
+/** @typedef {import('../../types/ranvier').RanvierCharacter} RanvierCharacter */
 
 const { PlayerRoles } = require('ranvier');
 
@@ -11,7 +10,7 @@ const NOOP = {};
 module.exports = {
   /**
     * @param {GameState} state
-    * @param {RanvierPlayer | RanvierNpc} player
+    * @param {RanvierCharacter} player
     * @returns {entity is RanvierNpc}
     */
   isNpc: (state, player) => {

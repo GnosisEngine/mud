@@ -223,6 +223,33 @@ export class RanvierEffectList {
   hydrate(state: GameState): void;
 }
 
+export interface RanvierCommandExecutable {
+  execute: () => void;
+  label:   string;
+  lag:     number;
+}
+
+export class RanvierCommandQueue {
+  constructor();
+
+  commands: RanvierCommandExecutable[];
+  lag:      number;
+  lastRun:  number;
+
+  readonly hasPending:    boolean;
+  readonly queue:         RanvierCommandExecutable[];
+  readonly lagRemaining:  number;
+  readonly msTilNextRun:  number;
+
+  addLag(amount: number): void;
+  enqueue(executable: Omit<RanvierCommandExecutable, 'lag'>, lag: number): number;
+  execute(): boolean;
+  flush(): void;
+  reset(): void;
+  getTimeTilRun(commandIndex: number): number;
+  getMsTilRun(commandIndex: number): number;
+}
+
 export class RanvierAccount {
   username:   string;
   characters: Array<{ username: string; deleted: boolean }>;
@@ -317,6 +344,7 @@ export class RanvierCharacter extends NodeJS.EventEmitter implements RanvierMeta
   hydrate(state: GameState): void;
   serialize(): object;
   getBroadcastTargets(): RanvierCharacter[];
+  moveTo(nextRoom: RanvierRoom, onMoved?: () => void): void;
 
   setMeta(key: string, value: any): void;
   getMeta(key: string): any;
@@ -346,7 +374,7 @@ export class RanvierPlayer extends RanvierCharacter {
   prompt:       string;
   socket:       import('net').Socket | null;
   questTracker: any;
-  commandQueue: any;
+  commandQueue: RanvierCommandQueue;
   role:         number;
 
   queueCommand(executable: any, lag: number): void;
@@ -359,6 +387,8 @@ export class RanvierPlayer extends RanvierCharacter {
   save(callback?: Function): void;
   hydrate(state: GameState): void;
   serialize(): object;
+
+  _lastCommandTime: number
 }
 
 export interface RanvierScriptable {
@@ -404,7 +434,6 @@ export class RanvierNpc extends RanvierCharacter implements RanvierScriptable {
 
   __pruned: boolean;
 
-  moveTo(nextRoom: RanvierRoom, onMoved?: () => void): void;
   hydrate(state: GameState): void;
   hasBehavior(name: string): boolean;
   getBehavior(name: string): any;

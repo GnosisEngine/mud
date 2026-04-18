@@ -1,5 +1,10 @@
 'use strict';
 
+/** @typedef {import('../../types/state').GameState} GameState */
+/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../types/ranvier').RanvierExit} RanvierExit */
+
+
 const sprintf = require('sprintf-js').sprintf;
 const LevelUtil = require('../lib/lib/LevelUtil');
 const { Broadcast: B, Config, Logger } = require('ranvier');
@@ -18,20 +23,33 @@ const {
 
 module.exports = {
   listeners: {
-    save: state => async function(callback) {
+    /**
+     * @param {GameState} state
+     * @returns {function(): void}
+     */
+    save: state => /** @this { RanvierPlayer} */ async function(callback) {
       await state.PlayerManager.save(this);
       if (typeof callback === 'function') {
         callback();
       }
     },
 
-    commandQueued: () => function(commandIndex) {
+    /**
+     * @param {GameState} _
+     * @returns {function(number): void}
+     */
+    commandQueued: (_) => /** @this { RanvierPlayer} */ function(commandIndex) {
       const command = this.commandQueue.queue[commandIndex];
       const ttr = sprintf('%.1f', this.commandQueue.getTimeTilRun(commandIndex));
       B.sayAt(this, `<bold><yellow>Executing</yellow> '<white>${command.label}</white>' <yellow>in</yellow> <white>${ttr}</white> <yellow>seconds.</yellow>`);
     },
 
-    updateTick: state => function() {
+    /**
+     * @param {GameState} state
+     * @returns {function(): void}
+     */
+
+    updateTick: state => /** @this { RanvierPlayer} */ function() {
       if (hasPendingCommands(state, this)) {
         B.sayAt(this);
         this.commandQueue.execute();
@@ -45,14 +63,18 @@ module.exports = {
       if (isIdleKickable(state, this, { timeSinceLastCommand, maxIdleTime })) {
         this.save(() => {
           B.sayAt(this, `You were kicked for being idle for more than ${maxIdleTime / 60000} minutes!`);
-          B.sayAtExcept(this.room, `${this.name} disappears.`, this);
+          B.sayAtExcept(this.room, `${this.name} disappears.`, [this]);
           Logger.log(`Kicked ${this.name} for being idle.`);
           state.PlayerManager.removePlayer(this, true);
         });
       }
     },
 
-    [EVENTS.MOVE]: state => function({ roomExit }) {
+    /**
+     * @param {GameState} state
+     * @returns {function({ roomExit: RanvierExit}): void}
+     */
+    [EVENTS.MOVE]: state => /** @this { RanvierPlayer} */ function({ roomExit }) {
       if (!hasRoomExit(state, this, { roomExit })) {
         return B.sayAt(this, "You can't go that way!");
       }
@@ -80,7 +102,7 @@ module.exports = {
       });
 
       B.sayAt(oldRoom, `${this.name} leaves.`);
-      B.sayAtExcept(nextRoom, `${this.name} enters.`, this);
+      B.sayAtExcept(nextRoom, `${this.name} enters.`, [this]);
 
       for (const follower of this.followers) {
         if (!isFollowerInRoom(state, this, { follower, room: oldRoom })) {
@@ -96,7 +118,11 @@ module.exports = {
       }
     },
 
-    [EVENTS.EXPERIENCE]: () => function({ amount }) {
+    /**
+     * @param {GameState} _
+     * @returns {function({ amount: number}): void}
+     */
+    [EVENTS.EXPERIENCE]: (_) => /** @this { RanvierPlayer} */ function({ amount }) {
       B.sayAt(this, `<blue>You gained <bold>${amount}</bold> experience!</blue>`);
 
       const totalTnl = LevelUtil.expToLevel(this.level + 1);
