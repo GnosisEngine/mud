@@ -77,6 +77,41 @@
  */
 
 /**
+ * @typedef {object} MercRegistryEntry
+ * @property {string}            contractId
+ * @property {string}            mercRef
+ * @property {string}            mercName
+ * @property {string}            homeRoomId
+ * @property {string}            holderId
+ * @property {string}            targetRoomId
+ * @property {number}            nextUpkeepAt
+ * @property {number}            expiresAt
+ * @property {number}            upkeepCost
+ * @property {string}            upkeepCurrency
+ * @property {'EN_ROUTE'|'STATIONED'|'RETURNING'|'FLEEING'} status
+ * @property {import('./ranvier').RanvierNpc|null}  npcInstance
+ * @property {import('./ranvier').RanvierItem|null} contractItem
+ * @property {import('./ranvier').RanvierRoom[]}    path
+ * @property {number}            pathIndex
+ * @property {number}            lastMoveAt
+ * @property {number}            lastClaimCheckAt
+ */
+
+/**
+ * @typedef {object} MercenaryService
+ * @property {function(string): number}                                          getActiveMercCount
+ * @property {function(string): Set<string>}                                     getCoveredRoomIds
+ * @property {function(string): MercRegistryEntry[]}                             getContractsByPlayer
+ * @property {function(string, GameState): import('./ranvier').RanvierPlayer|null} findHolderForContract
+ * @property {function(string, GameState): void}                                 beginFleeing
+ * @property {function(import('./ranvier').RanvierPlayer, import('./ranvier').RanvierNpc, GameState): void} hire
+ * @property {function(string, GameState): void}                                 dismiss
+ * @property {function(import('./ranvier').RanvierNpc, GameState): void}         handleMercDeath
+ * @property {function(GameState): void}                                         tick
+ * @property {function(GameState): Promise<void>}                                boot
+ */
+
+/**
  * @typedef {object} GameState
  * @property {AreaManager}       AreaManager
  * @property {RoomManager}       RoomManager
@@ -100,6 +135,7 @@
  * @property {object}            ItemManager
  * @property {object}            MobManager
  * @property {object}            GameServer
+ * @property {MercenaryService} MercenaryService
  * @property {BundleManager}     BundleManager
  * @property {RanvierLogger}     Logger
  * @property {TimeService}       TimeService

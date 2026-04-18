@@ -1,6 +1,9 @@
 // bundles/vendor-npcs/player-events.js
 'use strict';
 
+/** @typedef {import('../../types/state').GameState} GameState */
+/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 
 module.exports = {
@@ -21,6 +24,8 @@ module.exports = {
      *      is not yet ready (startupPoll still running), we skip gracefully.
      *
      * `this` is the Player instance.
+     * @param {GameState} state
+     * @returns {function(string, RanvierPlayer): void}
      */
     login: state => function() {
       if (!state.MercenaryService) return;

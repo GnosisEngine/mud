@@ -1,6 +1,12 @@
 // bundles/vendor-npcs/lib/MercenaryService.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierItem} RanvierItem */
+/** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const fs = require('fs');
 const path = require('path');
 const { Broadcast: B } = require('ranvier');
@@ -34,9 +40,9 @@ const CLAIM_CHECK_INTERVAL_MS = 60000;
 /**
  * Scan a player's inventory for the contract item matching contractId.
  * Returns the item or null.
- * @param {Character} player
+ * @param {RanvierCharacter} player
  * @param {string} contractId
- * @returns {Item|null}
+ * @returns {RanvierItem|null}
  */
 function _findContractItem(player, contractId) {
   if (!player.inventory) return null;
@@ -372,7 +378,7 @@ function build() {
      * Find the online player currently holding the contract.
      * @param {string} contractId
      * @param {object} state
-     * @returns {Player|null}
+     * @returns {RanvierPlayer|null}
      */
     findHolderForContract(contractId, state) {
       return _findOnlineHolder(contractId, registry, state);
@@ -407,8 +413,8 @@ function build() {
      * Validates guild cooldown, cap, coverage, and currency.
      * On success: deducts hire cost, creates contract item, spawns NPC.
      *
-     * @param {Player} player
-     * @param {Npc}    vendorNpc
+     * @param {RanvierPlayer} player
+     * @param {RanvierNpc}    vendorNpc
      * @param {object} state
      */
     hire(player, vendorNpc, state) {
@@ -526,7 +532,7 @@ function build() {
      * Handle a mercenary NPC dying in combat.
      * Cancels the contract, removes the item, and applies the guild penalty.
      *
-     * @param {Npc}    mercNpc
+     * @param {RanvierNpc}    mercNpc
      * @param {object} state
      */
     handleMercDeath(mercNpc, state) {

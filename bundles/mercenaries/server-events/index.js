@@ -1,6 +1,9 @@
 // bundles/vendor-npcs/server-events/index.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 require('../hints');
 const { Logger } = require('ranvier');
 const startupPoll = require('../../lib/lib/StartupPoll');
@@ -20,6 +23,8 @@ module.exports = {
      *   3. Call service.boot() to reconstruct active contracts from player files
      *      and spawn mercs at their home rooms.
      *   4. Start the 1-second tick interval that drives billing and movement.
+     * @param {GameState} state
+     * @returns {function(string, RanvierPlayer): void}
      */
     startup: state => async() => {
       // Step 1 — build and register synchronously.
@@ -30,7 +35,7 @@ module.exports = {
 
       // Step 2 — poll for WorldManager and StorageManager.
       await startupPoll(
-        () => state.WorldManager && state.StorageManager,
+        () => !!state.WorldManager && !!state.StorageManager,
         async() => {
           Logger.log('[mercenaries] Dependencies ready. Running boot scan...');
 

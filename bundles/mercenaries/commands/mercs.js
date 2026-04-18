@@ -1,11 +1,13 @@
 // bundles/vendor-npcs/commands/mercs.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B } = require('ranvier');
 const {
   hasNoContracts,
-  getTargetLabel,
 } = require('../logic');
 
 const STATUS_LABEL = {

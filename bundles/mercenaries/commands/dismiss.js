@@ -1,6 +1,9 @@
 // bundles/vendor-npcs/commands/dismiss.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 const {
   hasEmptyInventory,
@@ -11,6 +14,11 @@ const {
 
 module.exports = {
   usage: 'dismiss <mercenary name>',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args) {
       return B.sayAt(player, 'Dismiss which mercenary? Try: <b>dismiss <n></b>');

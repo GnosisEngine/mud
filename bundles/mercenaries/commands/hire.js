@@ -1,6 +1,9 @@
 // bundles/vendor-npcs/commands/hire.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 const {
   isVendorTarget,
@@ -8,6 +11,11 @@ const {
 
 module.exports = {
   usage: 'hire <mercenary>',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args) {
       return B.sayAt(player, 'Hire whom? Try: <b>hire <n></b>');

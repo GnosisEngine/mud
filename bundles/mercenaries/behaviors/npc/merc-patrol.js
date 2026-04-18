@@ -1,6 +1,9 @@
 // bundles/vendor-npcs/behaviors/npc/merc-patrol.js
 'use strict';
 
+/** @typedef {import('../../../../types/state').GameState} GameState */
+/** @typedef {import('../../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 // HP fraction at which a merc breaks off and flees toward homeRoomId.
 const FLEE_HP_THRESHOLD = 0.5;
 
@@ -12,9 +15,10 @@ module.exports = {
      * MercenaryService.tick() so that movement intervals are enforced
      * consistently regardless of the entity tick rate.
      *
-     * @param {object} _config — behavior config from the NPC's YAML (unused)
+     * @param {GameState} state
+     * @returns {function(string, RanvierPlayer): void}
      */
-    updateTick: state => function(_config) {
+    updateTick: state => function() {
       if (!this.room || !state.MercenaryService) return;
 
       const contractId = this.getMeta('merc.contractId');
