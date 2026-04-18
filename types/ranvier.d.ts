@@ -264,6 +264,8 @@ export class RanvierCharacter extends NodeJS.EventEmitter implements RanvierMeta
     [key: string]: any;
   });
 
+  uuid:       string;
+  entityReference:  string;
   name:       string;
   inventory:  Inventory | null;
   equipment:  Map<string, any>;
@@ -293,7 +295,7 @@ export class RanvierCharacter extends NodeJS.EventEmitter implements RanvierMeta
   hasEffectType(type: string): boolean;
   addEffect(effect: RanvierEffect): boolean;
   removeEffect(effect: RanvierEffect): void;
-  initiateCombat(target: RanvierCharacter, lag?: number): void;
+  initiateCombat(target: CombatTarget, lag?: number): void;
   isInCombat(target?: RanvierCharacter): boolean;
   addCombatant(target: RanvierCharacter): void;
   removeCombatant(target: RanvierCharacter): void;
@@ -392,7 +394,6 @@ export class RanvierNpc extends RanvierCharacter implements RanvierScriptable {
   defaultEquipment: Record<string, string>;
   defaultItems:     string[];
   description:      string | undefined;
-  entityReference:  string;
   id:               string | number;
   keywords:         string[];
   quests:           string[];
@@ -408,6 +409,11 @@ export class RanvierNpc extends RanvierCharacter implements RanvierScriptable {
   hasBehavior(name: string): boolean;
   getBehavior(name: string): any;
   setupBehaviors(manager: any): void;
+
+  _aggroTimer: number
+  _aggroTarget: CombatTarget | null
+  _aggroWarned: boolean
+  _lastWanderTime: number
 }
 
 export const ItemType: {

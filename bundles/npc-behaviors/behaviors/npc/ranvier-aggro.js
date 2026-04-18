@@ -1,5 +1,9 @@
 'use strict';
 
+/** @typedef {import('../../../../types/state').GameState} GameState */
+/** @typedef {import('../../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const { Broadcast: B, Logger } = require('ranvier');
 const {
   isInCombat,
@@ -14,7 +18,11 @@ const {
 
 module.exports = {
   listeners: {
-    updateTick: () => function(config) {
+    /**
+     * @param {GameState} _
+     * @returns {function(AggressiveBehaviorConfig): void}
+     */
+    updateTick: (_) => /** @this {RanvierNpc} */ function(config) {
       if (!this.room) {
         return;
       }

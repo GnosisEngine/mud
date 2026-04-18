@@ -18,11 +18,13 @@ module.exports = {
     return !!player.isNpc;
   },
 
-  hasExits: (state, player) => {
-    const exits = player.room.getExits();
-    let count = exits.length;
+  hasExits: (state, player, { exits }) => {
+    const knownExits = exits
+      ? exits
+      : player.room.getExits();
+    let count = knownExits.length;
 
-    for (const exit of exits) {
+    for (const exit of knownExits) {
       if (!state.RoomManager.getRoom(exit.roomId)) {
         count -= 1;
       }

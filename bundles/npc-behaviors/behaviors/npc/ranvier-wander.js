@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../../types/state').GameState} GameState */
+/** @typedef {import('../../../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const { Random } = require('rando-js');
 const { Broadcast, Logger } = require('ranvier');
 const {
@@ -12,7 +15,11 @@ const {
 
 module.exports = {
   listeners: {
-    updateTick: state => function(config) {
+    /**
+     * @param {GameState} state
+     * @returns {function(WanderBehaviorConfig|true): void}
+     */
+    updateTick: state => /** @this {RanvierNpc} */ function(config) {
       if (isInCombat(state, this) || !this.room) {
         return;
       }
