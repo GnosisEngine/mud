@@ -1,5 +1,9 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
+
 const { Broadcast: B, CommandManager } = require('ranvier');
 const say = B.sayAt;
 const {
@@ -15,6 +19,10 @@ const subcommands = new CommandManager();
 
 subcommands.add({
   name: 'create',
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (isInParty(state, player)) {
       return say(player, "You're already in a group.");
@@ -27,6 +35,11 @@ subcommands.add({
 
 subcommands.add({
   name: 'invite',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!isInParty(state, player)) {
       return say(player, "You don't have a group, create one with '<b>group create</b>'.");
@@ -40,7 +53,7 @@ subcommands.add({
       return say(player, 'Invite whom?');
     }
 
-    const target = state.getTarget(player, args, ['player']);
+    const target = /** @type {RanvierCharacter|null} */ (state.getTarget(player, args, ['player']));
 
     if (isSelf(state, player, { target })) {
       return say(player, 'You ask yourself if you want to join your own group. You humbly accept.');
@@ -63,6 +76,11 @@ subcommands.add({
 
 subcommands.add({
   name: 'disband',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!isInParty(state, player)) {
       return say(player, "You aren't in a group.");
@@ -83,12 +101,17 @@ subcommands.add({
 
 subcommands.add({
   name: 'join',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args) {
       return say(player, 'Join whose group?');
     }
 
-    const target = state.getTarget(player, args, ['player']);
+    const target = /** @type {RanvierCharacter|null} */ (state.getTarget(player, args, ['player']));
 
     if (!target) {
       return say(player, "They aren't here.");
@@ -111,12 +134,17 @@ subcommands.add({
 
 subcommands.add({
   name: 'decline',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args) {
       return say(player, 'Decline whose invite?');
     }
 
-    const target = state.getTarget(player, args, ['player']);
+    const target = /** @type {RanvierCharacter|null} */ (state.getTarget(player, args, ['player']));
 
     if (!target) {
       return say(player, "They aren't here.");
@@ -130,7 +158,12 @@ subcommands.add({
 
 subcommands.add({
   name: 'list',
-  command: () => (args, player) => {
+
+  /**
+   * @param {GameState} _
+   * @returns {function(string, RanvierPlayer): void}
+   */
+  command: (_) => (args, player) => {
     if (!isInParty(null, player)) {
       return say(player, "You're not in a group.");
     }
@@ -145,7 +178,12 @@ subcommands.add({
 
 subcommands.add({
   name: 'leave',
-  command: () => (args, player) => {
+
+  /**
+   * @param {GameState} _
+   * @returns {function(string, RanvierPlayer): void}
+   */
+  command: (_) => (args, player) => {
     if (!isInParty(null, player)) {
       return say(player, "You're not in a group.");
     }
@@ -164,6 +202,11 @@ subcommands.add({
 module.exports = {
   aliases: ['party'],
   subcommands: ['create', 'decline', 'disband', 'invite', 'join', 'leave', 'list'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args || !args.length) {
       args = 'list';

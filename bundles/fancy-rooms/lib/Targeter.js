@@ -3,19 +3,18 @@
  * @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer
  * @typedef {import('../../../types/ranvier').RanvierRoom}   RanvierRoom
  * @typedef {import('../../../types/ranvier').RanvierNpc}    RanvierNpc
+ * @typedef {import('../../../types/ranvier').RanvierCharacter}    RanvierCharacter
  * @typedef {import('../../../types/ranvier').RanvierItem}   RanvierItem
+ * @typedef {import('../../../types/ranvier').RanvierExit}   RanvierExit
  */
 
-/**
- * @typedef {object} RanvierExit
- * @property {string}   direction
- * @property {string}   roomId
- * @property {string[]} [keywords]
- */
-
-/**
- * @typedef {RanvierPlayer | RanvierNpc | RanvierItem | RanvierExit} TargetEntity
- */
+/** @type {['player']}        */ const TARGET_PLAYERS = ['player'];
+/** @type {['player', 'npc']} */ const TARGET_CHARACTERS = ['player', 'npc'];
+/** @type {['npc']}           */ const TARGET_NPCS = ['npc'];
+/** @type {['item']}          */ const TARGET_ITEMS   = ['item'];
+/** @type {['exit']}          */ const TARGET_EXITS   = ['exit'];
+/** @type {['inventory']}     */ const TARGET_INVENTORY   = ['inventory'];
+/** @type {[]}                */ const TARGET_ALL   = [];
 
 /**
  * Scores a query string against a primary text and optional secondary texts.
@@ -82,37 +81,55 @@ function fuzzyMatch(primaryText, otherTexts, q) {
 /**
  * @overload
  * @param {RanvierPlayer} player
- * @param {string}        rawQuery
- * @param {['npc']}       targets
- * @param {RanvierRoom}   [room]
- * @returns {RanvierNpc|null}
- */
-
-/**
- * @overload
- * @param {RanvierPlayer} player
- * @param {string}        rawQuery
- * @param {['player']}    targets
- * @param {RanvierRoom}   [room]
+ * @param {string} rawQuery
+ * @param {['player']} targets
+ * @param {RanvierRoom} [room]
  * @returns {RanvierPlayer|null}
  */
 
 /**
  * @overload
  * @param {RanvierPlayer} player
- * @param {string}        rawQuery
- * @param {['npc','player']|['player','npc']} targets
- * @param {RanvierRoom}   [room]
- * @returns {RanvierPlayer|RanvierNpc|null}
+ * @param {string} rawQuery
+ * @param {['npc']} targets
+ * @param {RanvierRoom} [room]
+ * @returns {RanvierNpc|null}
  */
 
 /**
  * @overload
  * @param {RanvierPlayer} player
- * @param {string}        rawQuery
- * @param {string[]}      [targets]
- * @param {RanvierRoom}   [room]
- * @returns {TargetEntity|null}
+ * @param {string} rawQuery
+ * @param {['player', 'npc']|['npc', 'player']} targets
+ * @param {RanvierRoom} [room]
+ * @returns {RanvierCharacter|null}
+ */
+
+/**
+ * @overload
+ * @param {RanvierPlayer} player
+ * @param {string} rawQuery
+ * @param {['item']|['inventory']} targets
+ * @param {RanvierRoom} [room]
+ * @returns {RanvierItem|null}
+ */
+
+/**
+ * @overload
+ * @param {RanvierPlayer} player
+ * @param {string} rawQuery
+ * @param {['exit']} targets
+ * @param {RanvierRoom} [room]
+ * @returns {RanvierExit|null}
+ */
+
+/**
+ * @overload
+ * @param {RanvierPlayer} player
+ * @param {string} rawQuery
+ * @param {[]} [targets]
+ * @param {RanvierRoom} [room]
+ * @returns {RanvierPlayer|RanvierNpc|RanvierItem|RanvierExit|null}
  */
 
 /**
@@ -120,7 +137,7 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * @param {string}        rawQuery
  * @param {string[]}      [targets=[]]
  * @param {RanvierRoom}   [room]
- * @returns {TargetEntity|null}
+ * @returns {RanvierPlayer|RanvierNpc|RanvierItem|RanvierExit|null}
  */
 function getTarget(player, rawQuery, targets = [], room = player.room) {
   const query = rawQuery.toLowerCase();
@@ -148,7 +165,7 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
     ...(findExits
       ? exits.map(entity => ({
         entity,
-        score: fuzzyMatch(entity.direction, [...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.direction, [], query)
       }))
       : []
     ),
@@ -164,7 +181,7 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
     ...(findPlayers
       ? [...room.players].map(entity => ({
         entity,
-        score: fuzzyMatch(entity.name, [...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.name, [], query)
       }))
       : []
     ),
@@ -183,4 +200,14 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
   return result?.score > 0 ? result.entity : null;
 }
 
-module.exports = { fuzzyMatch, getTarget };
+module.exports = {
+  fuzzyMatch,
+  getTarget,
+  TARGET_PLAYERS,
+  TARGET_CHARACTERS,
+  TARGET_NPCS,
+  TARGET_ITEMS,
+  TARGET_EXITS,
+  TARGET_INVENTORY,
+  TARGET_ALL
+};

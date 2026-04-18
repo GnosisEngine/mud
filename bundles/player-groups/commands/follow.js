@@ -1,5 +1,10 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
+
+
 const { Broadcast } = require('ranvier');
 const {
   isSelf,
@@ -7,28 +12,25 @@ const {
 } = require('../logic');
 
 module.exports = {
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args) {
       return Broadcast.sayAt(player, 'Follow whom?');
     }
 
+    /** @type {RanvierCharacter|null} */
     let target;
     if (args === 'self') {
       target = player;
     } else {
-      target = state.getTarget(player, args, ['player']);
+      target = /** @type {RanvierCharacter|null} */ (state.getTarget(player, args, ['player']));
       if (!target) {
         return Broadcast.sayAt(player, "You can't find anyone named that.");
       }
     }
-
-    // if (!target) {
-    //   if (arg === 'self') {
-    //     target = player;
-    //   } else {
-    //     return Broadcast.sayAt(player, "You can't find anyone named that.");
-    //   }
-    // }
 
     if (isSelf(state, player, { target })) {
       if (isFollowing(state, player)) {

@@ -1,20 +1,20 @@
 'use strict';
 
 /**
- * @typedef {import('./ranvier').RanvierArea}    RanvierArea
- * @typedef {import('./ranvier').RanvierRoom}    RanvierRoom
- * @typedef {import('./ranvier').RanvierPlayer}  RanvierPlayer
- * @typedef {import('./ranvier').RanvierNpc}     RanvierNpc
- * @typedef {import('./ranvier').RanvierItem}    RanvierItem
- * @typedef {import('./ranvier').RanvierQuest}   RanvierQuest
- * @typedef {import('./ranvier').RanvierLogger}  RanvierLogger
- * @typedef {import('./ranvier').RanvierCommand}  RanvierCommand
- * @typedef {import('./ranvier').RanvierAccount}  RanvierAccount
+ * @typedef {import('./ranvier').RanvierArea}                    RanvierArea
+ * @typedef {import('./ranvier').RanvierRoom}                    RanvierRoom
+ * @typedef {import('./ranvier').RanvierPlayer}                  RanvierPlayer
+ * @typedef {import('./ranvier').RanvierNpc}                     RanvierNpc
+ * @typedef {import('./ranvier').RanvierItem}                    RanvierItem
+ * @typedef {import('./ranvier').RanvierQuest}                   RanvierQuest
+ * @typedef {import('./ranvier').RanvierLogger}                  RanvierLogger
+ * @typedef {import('./ranvier').RanvierCommand}                 RanvierCommand
+ * @typedef {import('./ranvier').RanvierAccount}                 RanvierAccount
+ * @typedef {import('./ranvier').RanvierExit}                    RanvierExit
  * @typedef {import('../bundles/time/types').TimeService}        TimeService
  * @typedef {import('../bundles/factions/types').FactionService} FactionService
  * @typedef {import('../bundles/world/types').WorldManager}      WorldManager
- * @typedef {import('../bundles/fancy-rooms/lib/Targeter').TargetEntity} TargetEntity
- * @typedef {import('../bundles/claims/lib/store').Store}            Store
+ * @typedef {import('../bundles/claims/lib/store').Store}        Store
  */
 
 /**
@@ -125,6 +125,26 @@
  */
 
 /**
+ * @typedef {object} Party
+ * @property {Set<RanvierPlayer>} invited
+ * @property {RanvierPlayer}      leader
+ *
+ * @property {function(RanvierPlayer): void}          delete
+ * @property {function(RanvierPlayer): void}          add
+ * @property {function(): void}                       disband
+ * @property {function(RanvierPlayer): void}          invite
+ * @property {function(RanvierPlayer): boolean}       isInvited
+ * @property {function(RanvierPlayer): void}          removeInvite
+ * @property {function(): RanvierPlayer[]}            getBroadcastTargets
+ */
+
+/**
+ * @typedef {object} PartyManager
+ * @property {function(RanvierPlayer): void}    create
+ * @property {function(Party): void}     disband
+ */
+
+/**
  * @typedef {object} GameState
  * @property {AreaManager}       AreaManager
  * @property {RoomManager}       RoomManager
@@ -148,6 +168,7 @@
  * @property {object}            ItemManager
  * @property {object}            MobManager
  * @property {object}            GameServer
+ * @property {PartyManager} PartyManager
  * @property {MercenaryService}  MercenaryService
  * @property {BundleManager}     BundleManager
  * @property {RanvierLogger}     Logger
@@ -157,7 +178,7 @@
  * @property {StorageManager}    StorageManager
   * @property {{ get: function(string): any }} Config
  * @property {function(): void}  _timeBundleStop
- * @property {function(RanvierPlayer, string, string[]=, RanvierRoom=): TargetEntity|null} getTarget
+ * @property {function(RanvierPlayer, string, string[]=, RanvierRoom=): RanvierPlayer|RanvierNpc|RanvierItem|RanvierExit|null} getTarget
  */
 
 module.exports = {};

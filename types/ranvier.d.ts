@@ -378,7 +378,7 @@ export class RanvierPlayer extends RanvierCharacter {
   role:         number;
 
   queueCommand(executable: any, lag: number): void;
-  emit(event: string, ...args: any[]): void;
+  emit(event: string, ...args: any[]): boolean;
   interpolatePrompt(promptStr: string, extraData?: object): string;
   addPrompt(id: string, renderer: () => string, removeOnRender?: boolean): void;
   removePrompt(id: string): void;

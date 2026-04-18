@@ -1,11 +1,19 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
+
 require('../hints');
 const { Broadcast } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 
 module.exports = {
-  command: () => (args, player) => {
+  /**
+   * @param {GameState} _
+   * @returns {function(string, RanvierPlayer): void}
+   */
+  command: (_) => (args, player) => {
     if (!args) {
       return Broadcast.sayAt(player, 'Ditch whom?');
     }
