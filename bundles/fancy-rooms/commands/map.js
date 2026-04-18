@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 
 const R = '\x1b[0m';
@@ -42,6 +45,7 @@ const C_WP_CHAR  = rgb(255, 230,  80);   // bright gold — waypoint char on map
 const C_WP_LABEL = rgb(255, 215,   0);   // gold — waypoint label in list
 const C_MUTE     = rgb(120, 120, 100);
 
+/** @type {Array<[string, string, number]>} */
 const LEGEND = [
   [T_PLAYER, 'you',      2],  // emoji = 2 cols
   [T_ROOM,   'room',     2],
@@ -64,7 +68,12 @@ function areaTag(name) {
 
 module.exports = {
   usage: 'map [size]',
-  command: () => (args, player) => {
+
+  /**
+   * @param {GameState} _
+   * @returns {function(string, RanvierPlayer): void}
+   */
+  command: (_) => (args, player) => {
     const room = player.room;
     if (!room || !room.coordinates) {
       return B.sayAt(player, `${rgb(200,80,80)}You can't see a map from here.${R}`);

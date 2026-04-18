@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast: B } = require('ranvier');
 const {
   hasCoordinates,
@@ -19,7 +22,11 @@ const WP_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 module.exports = {
   usage: 'waypoint [list | remove <label|#> | <label>]',
-  command: () => (args, player) => {
+  /**
+   * @param {GameState} _
+   * @returns {function(string, RanvierPlayer): void}
+   */
+  command: (_) => (args, player) => {
     if (!player.metadata.waypoints) player.metadata.waypoints = [];
     const waypoints = player.metadata.waypoints;
 

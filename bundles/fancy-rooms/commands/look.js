@@ -1,7 +1,6 @@
 'use strict';
 
 const { Broadcast: B, Item, ItemType } = require('ranvier');
-// const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { decorate } = require('../lib/RoomDecorator');
 const { getItemEmoji, getNpcEmoji } = require('../lib/EmojiMapper');
@@ -141,6 +140,7 @@ function describeNpc(npc, player, state) {
   const emoji = getNpcEmoji(npc.keywords);
   const name = npc.roomDesc || npc.name;
   const tags = npc.keywords || [];
+
   const color = tags.includes('friendly') ? Colors.named.green
     : tags.includes('hostile') || tags.includes('aggro') ? Colors.named.red
       : tags.includes('vendor') || tags.includes('shop') ? Colors.named.blue

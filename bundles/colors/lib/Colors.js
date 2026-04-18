@@ -65,6 +65,10 @@ function clamp(val, min, max) {
   return Math.min(max, Math.max(min, val));
 }
 
+/**
+ * @param {string} hex
+ * @returns {[number, number, number]}
+ */
 function hexToRgb(hex) {
   hex = hex.replace(/^#/, '');
   if (hex.length === 3) {
@@ -74,6 +78,9 @@ function hexToRgb(hex) {
   return [(n >> 16) & 0xFF, (n >> 8) & 0xFF, n & 0xFF];
 }
 
+/**
+ * @returns {[number, number, number]}
+ */
 function lerpColor(c1, c2, t) {
   return [
     Math.round(c1[0] + (c2[0] - c1[0]) * t),
@@ -242,6 +249,7 @@ const Colors = {
       //  <rgb R,G,B>
       const rgbM = lower.match(/^rgb\s+([\d\s,]+)$/);
       if (rgbM) {
+        /** @type {[number, number, number]} */
         const parts = rgbM[1].split(',').map(n => clamp(parseInt(n.trim(), 10), 0, 255));
         if (parts.length === 3 && parts.every(n => !isNaN(n))) {
           const code = self.rgb(...parts);
@@ -324,7 +332,7 @@ const Colors = {
   /**
    * Apply a color gradient to each character of a string.
    * @param {string}   text
-   * @param {number[]} fromRgb  - [r, g, b]
+   * @param {[number, number, number]} fromRgb  - [r, g, b]
    * @param {number[]} toRgb    - [r, g, b]
    * @returns {string}
    *
@@ -345,7 +353,7 @@ const Colors = {
   /**
    * Render a solid-color horizontal bar using block characters.
    * @param {number}   width
-   * @param {number[]} rgb      - [r, g, b]
+   * @param {[number, number, number]} rgb      - [r, g, b]
    * @param {string}   [char]   - default '█'
    * @returns {string}
    */
@@ -357,7 +365,7 @@ const Colors = {
   /**
    * Render a gradient horizontal bar.
    * @param {number}   width
-   * @param {number[]} fromRgb
+   * @param {[number, number, number]} fromRgb
    * @param {number[]} toRgb
    * @param {string}   [char]   - default '█'
    * @returns {string}
@@ -379,9 +387,9 @@ const Colors = {
    * @param {number} width     - Total character width of the bar
    * @param {object} [opts]
    *
-   * @param {number[]} [opts.fillColor]    - Filled fg color.    Default: green
-   * @param {number[]} [opts.fillColor2]   - If set, gradient from fillColor → fillColor2
-   * @param {number[]} [opts.emptyColor]   - Empty fg color.     Default: dark red
+   * @param {[number, number, number]} [opts.fillColor]    - Filled fg color.    Default: green
+   * @param {[number, number, number]} [opts.fillColor2]   - If set, gradient from fillColor → fillColor2
+   * @param {[number, number, number]} [opts.emptyColor]   - Empty fg color.     Default: dark red
    * @param {string}   [opts.fillChar]     - Fill character.     Default: '█'
    * @param {string}   [opts.emptyChar]    - Empty character.    Default: '░'
    *
@@ -392,7 +400,7 @@ const Colors = {
    *
    * @param {boolean}  [opts.showText]     - Overlay "current/max" centered in the bar.
    *                                         Uses background color of the bar cell.
-   * @param {number[]} [opts.textColor]    - Text color for overlay. Default: white
+   * @param {[number, number, number]} [opts.textColor]    - Text color for overlay. Default: white
    *
    * @returns {string}
    *
@@ -503,7 +511,7 @@ const Colors = {
    * @param {string}   text
    * @param {number}   width
    * @param {string}   [padChar=' ']
-   * @param {number[]} [padColor]    - [r, g, b] for the padding. null = no color
+   * @param {[number, number, number]} [padColor]    - [r, g, b] for the padding. null = no color
    * @returns {string}
    */
   center(text, width, padChar = ' ', padColor = null) {
@@ -540,7 +548,7 @@ const Colors = {
    * Render a horizontal rule line.
    * @param {number}   width
    * @param {string}   [char='─']    - Box-drawing char, '─', '═', '~', '-', etc.
-   * @param {number[]} [rgb]         - Color, or null for no color
+   * @param {[number, number, number]} [rgb]         - Color, or null for no color
    * @returns {string}
    *
    * @example
@@ -557,7 +565,7 @@ const Colors = {
    * @param {number} h  - Hue, 0–360
    * @param {number} s  - Saturation, 0–1
    * @param {number} l  - Lightness, 0–1
-   * @returns {number[]} [r, g, b] each 0–255
+   * @returns {[number, number, number]} [r, g, b] each 0–255
    *
    * @example
    *   // Cycle through hues
@@ -600,7 +608,7 @@ const Colors = {
   /**
    * Preset [r, g, b] arrays for common colors.
    * Pass these directly to rgb(), bgRgb(), gradientBar(), bar(), etc.
-   *
+   * @type {Record<string, [number, number, number]>}
    * @example
    *   Colors.rgb(...Colors.named.gold)
    *   Colors.gradientBar(20, Colors.named.red, Colors.named.orange)

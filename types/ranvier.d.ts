@@ -13,6 +13,7 @@ export interface RanvierArea {
   name: string;
   title: string;
   rooms: Map<string, RanvierRoom>;
+  getRoomAtCoordinates(x: number, y: number, z: number): RanvierRoom
 }
 
 export interface RanvierDoor {
@@ -290,6 +291,32 @@ declare module 'ranvier' {
     readonly POTION: 5;
     readonly RESOURCE: 6;
   };
+
+  export class Item {
+    uuid: string;
+    name: string;
+    entityReference: string;
+    carriedBy: any;
+    inventory?: Inventory;
+    type: ItemType
+    serialize(): object;
+    hydrate(state: GameState, data: object): void;
+    initializeInventory(inv: object): void;
+  }
+
+  export class Inventory extends Map {
+    maxSize: number;
+    isFull: boolean;
+    constructor(init?: { items?: Array<Item>, max?: number });
+    setMax(size: number): void;
+    getMax(): number;
+    addItem(item: Item): void;
+    removeItem(item: Item): void;
+    serialize(): object;
+    hydrate(state: GameState, carriedBy: any): void;
+  }
+
+  export class InventoryFullError extends Error {}
 
   export class CommandManager {
     get(name: string): RanvierCommand | undefined;
