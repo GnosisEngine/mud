@@ -554,6 +554,12 @@ export interface RanvierCommand {
   aliases?: string[]
 }
 
+export interface RanvierVendorCommand {
+  name:     string;
+  aliases?: string[];
+  command:  (state: GameState) => (vendor: RanvierNpc, args: string, player: RanvierPlayer) => void;
+}
+
 export class RanvierQuestGoal extends NodeJS.EventEmitter {
   constructor(quest: RanvierQuest, config: Record<string, any>, player: RanvierPlayer);
 
@@ -728,11 +734,12 @@ declare module 'ranvier' {
 
   export class InventoryFullError extends Error {}
 
-  export class CommandManager {
-    get(name: string): RanvierCommand | undefined;
-    add(command: RanvierCommand): void;
+  export class CommandManager<T extends { name: string; aliases?: string[] } = RanvierCommand> {
+    get(name: string): T | undefined;
+    add(command: T): void;
     remove(name: string): void;
-    find(name: string): RanvierCommand | undefined;
+    find(name: string, returnAlias?: false): T | undefined;
+    find(name: string, returnAlias: true): { command: T; alias: string } | undefined;
   }
 
   export class EventUtil {

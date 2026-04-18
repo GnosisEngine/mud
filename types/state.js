@@ -199,7 +199,9 @@
  * @property {FactionService}    FactionService
  * @property {WorldManager}      WorldManager
  * @property {StorageManager}    StorageManager
-  * @property {{ get: function(string): any }} Config
+ * @property {boolean}           WorldReady
+ * @property {typeof import('../bundles/world/lib/ContextService').ContextService} ContextService
+ * @property {{ get: function(string): any }} Config
  * @property {function(): void}  _timeBundleStop
  * @property {function(RanvierPlayer, string, string[]=, RanvierRoom=): RanvierPlayer|RanvierNpc|RanvierItem|RanvierExit|null} getTarget
  */

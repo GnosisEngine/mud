@@ -1,6 +1,11 @@
 // bundles/vendor-npcs/lib/VendorTransaction.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierItem} RanvierItem */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const { Broadcast: B } = require('ranvier');
 const ArgParser = require('../../lib/lib/ArgParser');
 const ItemUtil = require('../../lib/lib/ItemUtil');
@@ -17,6 +22,12 @@ const {
 const CONFIRM_WORD = 'sure';
 const NO_CONFIRM_QUALITIES = new Set(['poor', 'common']);
 
+/**
+ * @param {GameState} state
+ * @param {RanvierNpc} vendor
+ * @param {RanvierPlayer} player
+ * @param {string} args
+ */
 function buy(state, vendor, player, args) {
   const vendorConfig = vendor.getMeta('vendor');
   const tell = VendorFormat.makeTell(state, vendor, player);
@@ -52,6 +63,12 @@ function buy(state, vendor, player, args) {
   player.save();
 }
 
+/**
+ * @param {GameState} state
+ * @param {RanvierNpc} vendor
+ * @param {RanvierPlayer} player
+ * @param {string} args
+ */
 function sell(state, vendor, player, args) {
   const tell = VendorFormat.makeTell(state, vendor, player);
 
@@ -87,6 +104,12 @@ function sell(state, vendor, player, args) {
   state.ItemManager.remove(item);
 }
 
+/**
+ * @param {GameState} state
+ * @param {RanvierNpc} vendor
+ * @param {RanvierPlayer} player
+ * @param {string} args
+ */
 function appraise(state, vendor, player, args) {
   const tell = VendorFormat.makeTell(state, vendor, player);
 

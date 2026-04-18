@@ -1,7 +1,7 @@
 'use strict';
 const { ContextService, check } = require('../world/lib/ContextService');
 
-ContextService.register(({ _, __, input }) => {
+ContextService.register(({ input }) => {
   const performableActions = [];
   const trimmed = input.trim().toLowerCase();
 

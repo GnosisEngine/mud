@@ -1,6 +1,10 @@
 // bundles/vendor-npcs/lib/VendorFormat.js
 'use strict';
 
+/** @typedef {import('../../../types/ranvier').RanvierItem} RanvierItem */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
+
 const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B, ItemType } = require('ranvier');
 const ItemUtil = require('../../lib/lib/ItemUtil');
@@ -22,8 +26,8 @@ function friendlyCurrencyName(currency) {
  * Build a tell helper that routes vendor speech to a player.
  *
  * @param {object} state
- * @param {Npc}    vendor
- * @param {Player} player
+ * @param {RanvierNpc}    vendor
+ * @param {RanvierPlayer} player
  * @returns {(message: string) => void}
  */
 function makeTell(state, vendor, player) {
@@ -36,7 +40,7 @@ function makeTell(state, vendor, player) {
  * Render the full vendor inventory table, grouped by category.
  * Iterates categories in stable ItemType declaration order.
  *
- * @param {Player}  player
+ * @param {RanvierPlayer}  player
  * @param {object}  groups      — output of VendorCatalog.groupByCategory()
  * @param {object}  vendorConfig — the full vendor metadata block (vendorConfig.items used for pricing)
  */
@@ -68,8 +72,8 @@ function renderItemList(player, groups, vendorConfig) {
  * Render full detail for a single vendor item (used by 'shop list <item>').
  *
  * @param {object} state
- * @param {Player} player
- * @param {Item}   item
+ * @param {RanvierPlayer} player
+ * @param {RanvierItem}   item
  * @param {object} vendorConfig — the full vendor metadata block
  */
 function renderItemDetail(state, player, item, vendorConfig) {

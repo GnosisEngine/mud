@@ -1,6 +1,9 @@
 // bundles/world/server-events/index.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const path = require('path');
 
 const { load } = require('../lib/WorldLoader');
@@ -28,6 +31,11 @@ const NULL_WORLD_MANAGER = {
 
 module.exports = {
   listeners: {
+
+    /**
+     * @param {GameState} state
+     * @returns {function(): void}
+     */
     startup: state => () => {
       Logger.log('[world] initializing...');
 
@@ -35,7 +43,8 @@ module.exports = {
       try {
         loaded = load(WORLD_JSON_PATH);
       } catch (err) {
-        Logger.warn(`[world] world.json not found or invalid — running with null world manager. (${err.message})`);
+        const msg = err instanceof Error ? err.message : String(err);
+        Logger.warn(`[world] world.json not found or invalid — running with null world manager. (${msg})`);
         state.WorldManager = NULL_WORLD_MANAGER;
         return;
       }
