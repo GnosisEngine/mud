@@ -1,6 +1,9 @@
 // bundles/communication/lib/canSpeak.js
 'use strict';
 
+/** @typedef {import('../../../types/ranvier').RanvierEffect} RanvierEffect */
+/** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
+
 /**
  * Check whether a player is permitted to use a given communication channel.
  *
@@ -18,9 +21,9 @@
  * Restrictions are evaluated independently per active effect — no combined
  * mask is accumulated, so expiry of one effect never corrupts another.
  *
- * @param {Character} player
+ * @param {RanvierCharacter} player
  * @param {string}    channel  The channel name to check, e.g. 'say', 'yell'
- * @returns {{ blocked: boolean, effect: Effect|null }}
+ * @returns {{ blocked: boolean, effect: RanvierEffect|null }}
  */
 function canSpeak(player, channel) {
   for (const effect of player.effects.entries()) {

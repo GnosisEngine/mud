@@ -1,6 +1,9 @@
 // bundles/communication/commands/gag.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 require('../hints');
 const { Broadcast } = require('ranvier');
 const {
@@ -16,6 +19,11 @@ const VALID_EFFECTS = new Set(['censored', 'muted', 'raspy', 'outcasted', 'dull'
 module.exports = {
   requiredRole: require('ranvier').PlayerRoles.ADMIN,
   usage: 'gag <player> <effect>',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!isAdmin(state, player)) {
       return Broadcast.sayAt(player, 'You do not have permission to use this command.');

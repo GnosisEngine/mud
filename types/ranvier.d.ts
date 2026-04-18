@@ -129,6 +129,100 @@ export class RanvierRoom extends RanvierGameEntity {
   getBroadcastTargets(): any[];
 }
 
+export class RanvierEffect extends NodeJS.EventEmitter {
+  constructor(id: string, def: {
+    flags?:     string[];
+    config?: {
+      autoActivate?:  boolean;
+      description?:   string;
+      duration?:      number;
+      hidden?:        boolean;
+      maxStacks?:     number;
+      name?:          string;
+      persists?:      boolean;
+      refreshes?:     boolean;
+      tickInterval?:  boolean | number;
+      type?:          string;
+      unique?:        boolean;
+    };
+    modifiers?: {
+      attributes?:      Record<string, (current: number) => number> | ((attrName: string, current: number) => number);
+      incomingDamage?:  (damage: any, current: number) => number;
+      outgoingDamage?:  (damage: any, current: number) => number;
+    };
+    state?: Record<string, any>;
+  });
+
+  id:        string;
+  flags:     string[];
+  config: {
+    autoActivate:    boolean;
+    description:     string;
+    duration:        number;
+    hidden:          boolean;
+    maxStacks:       number;
+    name:            string;
+    persists:        boolean;
+    refreshes:       boolean;
+    tickInterval:    boolean | number;
+    type:            string;
+    unique:          boolean;
+    blockedChannels: string[]
+  };
+  startedAt: number;
+  paused:    number | null;
+  modifiers: {
+    attributes:      Record<string, (current: number) => number> | ((attrName: string, current: number) => number);
+    incomingDamage:  (damage: any, current: number) => number;
+    outgoingDamage:  (damage: any, current: number) => number;
+  };
+  state:     Record<string, any>;
+  active:    boolean;
+  target:    RanvierCharacter | undefined;
+  skill?:    any;
+
+  readonly name:        string;
+  readonly description: string;
+  readonly duration:    number;
+  readonly elapsed:     number | null;
+  readonly remaining:   number;
+
+  isCurrent(): boolean;
+  activate(): void;
+  deactivate(): void;
+  remove(): void;
+  pause(): void;
+  resume(): void;
+  modifyAttribute(attrName: string, currentValue: number): number;
+  modifyIncomingDamage(damage: any, currentAmount: number): number;
+  modifyOutgoingDamage(damage: any, currentAmount: number): number;
+  serialize(): object;
+  hydrate(state: GameState, data: object): void;
+}
+
+export class RanvierEffectList {
+  constructor(target: RanvierCharacter, effects: Array<RanvierEffect | object>);
+
+  effects: Set<RanvierEffect>;
+  target:  RanvierCharacter;
+
+  readonly size: number;
+
+  entries(): RanvierEffect[];
+  hasEffectType(type: string): boolean;
+  getByType(type: string): RanvierEffect | undefined;
+  emit(event: string, ...args: any[]): void;
+  add(effect: RanvierEffect): boolean;
+  remove(effect: RanvierEffect): void;
+  clear(): void;
+  validateEffects(): void;
+  evaluateAttribute(attr: { name: string; base: number }): number;
+  evaluateIncomingDamage(damage: any, currentAmount: number): number;
+  evaluateOutgoingDamage(damage: any, currentAmount: number): number;
+  serialize(): object[];
+  hydrate(state: GameState): void;
+}
+
 export class RanvierAccount {
   username:   string;
   characters: Array<{ username: string; deleted: boolean }>;
@@ -165,7 +259,7 @@ export class RanvierCharacter extends NodeJS.EventEmitter implements RanvierMeta
     level?:      number;
     room?:       RanvierRoom | string | null;
     attributes?: object;
-    effects?:    any[];
+    effects?:    RanvierEffect[];
     metadata?:   Record<string, any>;
     [key: string]: any;
   });
@@ -181,7 +275,7 @@ export class RanvierCharacter extends NodeJS.EventEmitter implements RanvierMeta
   followers:  Set<RanvierCharacter>;
   following:  RanvierCharacter | null;
   party:      any;
-  effects:    any;
+  effects:    RanvierEffectList;
   metadata:   Record<string, any>;
 
   readonly isNpc: boolean;
@@ -197,8 +291,8 @@ export class RanvierCharacter extends NodeJS.EventEmitter implements RanvierMeta
   lowerAttribute(attr: string, amount: number): void;
   setAttributeBase(attr: string, newBase: number): void;
   hasEffectType(type: string): boolean;
-  addEffect(effect: any): boolean;
-  removeEffect(effect: any): void;
+  addEffect(effect: RanvierEffect): boolean;
+  removeEffect(effect: RanvierEffect): void;
   initiateCombat(target: RanvierCharacter, lag?: number): void;
   isInCombat(target?: RanvierCharacter): boolean;
   addCombatant(target: RanvierCharacter): void;

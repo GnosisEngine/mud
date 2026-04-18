@@ -1,6 +1,9 @@
 // bundles/communication/commands/ungag.js
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { Broadcast } = require('ranvier');
 const {
   isAdmin,
@@ -11,6 +14,11 @@ const {
 module.exports = {
   requiredRole: require('ranvier').PlayerRoles.ADMIN,
   usage: 'ungag <player> [effect]',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!isAdmin(state, player)) {
       return Broadcast.sayAt(player, 'You do not have permission to use this command.');

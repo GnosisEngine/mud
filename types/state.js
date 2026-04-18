@@ -9,6 +9,7 @@
  * @typedef {import('./ranvier').RanvierQuest}   RanvierQuest
  * @typedef {import('./ranvier').RanvierLogger}  RanvierLogger
  * @typedef {import('./ranvier').RanvierCommand}  RanvierCommand
+ * @typedef {import('./ranvier').RanvierAccount}  RanvierAccount
  * @typedef {import('../bundles/time/types').TimeService}        TimeService
  * @typedef {import('../bundles/factions/types').FactionService} FactionService
  * @typedef {import('../bundles/world/types').WorldManager}      WorldManager
@@ -35,13 +36,25 @@
 
 /**
  * @typedef {object} PlayerManager
- * @property {function(string): RanvierPlayer|undefined}         getPlayer
- * @property {function(): Set<RanvierPlayer>}                    getPlayersAsSet
- * @property {function(): void}                    saveAll
- * @property {function(function(RanvierPlayer): boolean): RanvierPlayer[]} filter
- * @property {Map<string, RanvierPlayer>}                        players
+ * @property {Map<string, RanvierPlayer>} players
+ * @property {object}                     events
+ * @property {object|null}                loader
+ *
+ * @property {function(object): void}                                           setLoader
+ * @property {function(string): RanvierPlayer|undefined}                        getPlayer
+ * @property {function(RanvierPlayer): void}                                    addPlayer
+ * @property {function(RanvierPlayer, boolean=): void}                          removePlayer
+ * @property {function(): RanvierPlayer[]}                                      getPlayersAsArray
+ * @property {function(string, Function): void}                                 addListener
+ * @property {function(function(RanvierPlayer): boolean): RanvierPlayer[]}      filter
+ * @property {function(GameState, RanvierAccount, string, boolean=): Promise<RanvierPlayer>} loadPlayer
+ * @property {function(RanvierPlayer): string}                                  keyify
+ * @property {function(string): boolean}                                        exists
+ * @property {function(RanvierPlayer): Promise<void>}                           save
+ * @property {function(): Promise<void>}                                        saveAll
+ * @property {function(): void}                                                 tickAll
+ * @property {function(): RanvierPlayer[]}                                      getBroadcastTargets
  */
-
 /**
  * @typedef {object} MobFactory
  * @property {function(string, RanvierArea): RanvierNpc}      create
@@ -135,7 +148,7 @@
  * @property {object}            ItemManager
  * @property {object}            MobManager
  * @property {object}            GameServer
- * @property {MercenaryService} MercenaryService
+ * @property {MercenaryService}  MercenaryService
  * @property {BundleManager}     BundleManager
  * @property {RanvierLogger}     Logger
  * @property {TimeService}       TimeService
