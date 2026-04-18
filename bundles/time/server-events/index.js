@@ -1,5 +1,8 @@
 // bundles/time-bundle/server-events.js
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 'use strict';
 
 require('../hints');
@@ -36,6 +39,11 @@ function buildTimeService() {
 module.exports = {
   configure,
   listeners: {
+
+    /**
+     * @param {GameState} state
+     * @returns {function(): void}
+     */
     startup: state => async() => {
       timeStore.configure(dataPath);
 

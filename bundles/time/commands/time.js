@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 // bundles/time-bundle/commands/time.js
 const { Broadcast: B } = require('ranvier');
 const say = B.sayAt;
@@ -14,6 +17,10 @@ const {
 module.exports = {
   usage: 'time',
 
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     const ts = state.TimeService;
     const tick = hasTickArg(state, player, { args }) ? parseInt(args.trim(), 10) : ts.getTick();

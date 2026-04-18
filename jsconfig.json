@@ -2,7 +2,11 @@
   "compilerOptions": {
     "checkJs": true,
     "resolveJsonModule": true,
-    "strict": false,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitAny": false,
+    "noImplicitThis": true,
     "moduleResolution": "node",
     "target": "ES2020"
   },
