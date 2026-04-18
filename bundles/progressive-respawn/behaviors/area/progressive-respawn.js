@@ -1,5 +1,10 @@
 'use strict';
 
+/** @typedef {import('../../../../types/state').GameState} GameState */
+/** @typedef {import('../../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../../types/ranvier').RanvierRoom} RanvierRoom */
+
+
 const { Logger } = require('ranvier');
 const { Random } = require('rando-js');
 const {
@@ -10,6 +15,9 @@ const {
 
 module.exports = {
   listeners: {
+    /**
+     * @param {GameState} state
+     */
     updateTick: state => {
       let lastRespawnTick = Date.now();
       return function(config) {
@@ -25,12 +33,20 @@ module.exports = {
       };
     },
 
-    roomAdded: () => function(config, room) {
+    /**
+     * @param {GameState} _
+     * @returns {function(string, RanvierRoom): void}
+    */
+    roomAdded: (_) => function(_, room) {
       room.on('respawnTick', _respawnRoom.bind(room));
     },
   },
 };
 
+/**
+ * @param {GameState} state
+ * @this {RanvierRoom}
+ */
 function _respawnRoom(state) {
   this.doors = new Map(Object.entries(JSON.parse(JSON.stringify(this.defaultDoors || {}))));
 

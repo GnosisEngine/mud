@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 export interface RanvierLogger {
   error(message: string, ...args: any[]): void;
   warn(message: string, ...args: any[]): void;
@@ -16,7 +18,11 @@ export class RanvierGameEntity extends NodeJS.EventEmitter
   behaviors: Map<string, any>;
   metadata:  Record<string, any>;
 
-  emit(name: string, ...args: any[]): boolean;
+  emit(event: string | symbol, ...args: any[]): boolean;
+  on(event: string | symbol, listener: (...args: any[]) => void): this;
+  once(event: string | symbol, listener: (...args: any[]) => void): this;
+  off(event: string | symbol, listener: (...args: any[]) => void): this;
+  removeAllListeners(event?: string | symbol): this;
   hasBehavior(name: string): boolean;
   getBehavior(name: string): any;
   setupBehaviors(manager: any): void;
@@ -106,7 +112,7 @@ export class RanvierRoom extends RanvierGameEntity {
   players:         Set<RanvierPlayer>;
   spawnedNpcs:     Set<RanvierNpc>;
 
-  emit(eventName: string, ...args: any[]): void;
+  emit(event: string | symbol, ...args: any[]): boolean;
   addPlayer(player: RanvierPlayer): void;
   removePlayer(player: RanvierPlayer): void;
   addNpc(npc: RanvierNpc): void;
@@ -211,7 +217,7 @@ export class RanvierEffectList {
   entries(): RanvierEffect[];
   hasEffectType(type: string): boolean;
   getByType(type: string): RanvierEffect | undefined;
-  emit(event: string, ...args: any[]): void;
+  emit(event: string | symbol, ...args: any[]): boolean;
   add(effect: RanvierEffect): boolean;
   remove(effect: RanvierEffect): void;
   clear(): void;
@@ -309,7 +315,7 @@ export class RanvierCharacter extends NodeJS.EventEmitter implements RanvierMeta
 
   readonly isNpc: boolean;
 
-  emit(event: string, ...args: any[]): boolean;
+  emit(event: string | symbol, ...args: any[]): boolean;
   hasAttribute(attr: string): boolean;
   getMaxAttribute(attr: string): number;
   getAttribute(attr: string): number;
@@ -378,7 +384,7 @@ export class RanvierPlayer extends RanvierCharacter {
   role:         number;
 
   queueCommand(executable: any, lag: number): void;
-  emit(event: string, ...args: any[]): boolean;
+  emit(event: string | symbol, ...args: any[]): boolean;
   interpolatePrompt(promptStr: string, extraData?: object): string;
   addPrompt(id: string, renderer: () => string, removeOnRender?: boolean): void;
   removePrompt(id: string): void;
@@ -395,7 +401,7 @@ export interface RanvierScriptable {
   __pruned:  boolean;
   behaviors: Map<string, any>;
 
-  emit(name: string, ...args: any[]): void;
+  emit(event: string | symbol, ...args: any[]): boolean;
   hasBehavior(name: string): boolean;
   getBehavior(name: string): any;
   setupBehaviors(manager: any): void;
@@ -438,6 +444,7 @@ export class RanvierNpc extends RanvierCharacter implements RanvierScriptable {
   hasBehavior(name: string): boolean;
   getBehavior(name: string): any;
   setupBehaviors(manager: any): void;
+  emit(event: string | symbol, ...args: any[]): boolean;
 
   _aggroTimer: number
   _aggroTarget: CombatTarget | null
