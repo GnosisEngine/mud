@@ -8,7 +8,7 @@ const { Config } = require('ranvier');
 
 /**
  * @param {string} name
- * @return {boolean}
+ * @return {string|false}
  */
 exports.validateName = function(name) {
   const maxLength = Config.get('maxAccountNameLength');

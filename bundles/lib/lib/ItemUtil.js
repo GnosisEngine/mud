@@ -1,5 +1,9 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierItem} RanvierItem */
+
 /**
  * General functions used across the ranvier bundles
  */
@@ -20,7 +24,7 @@ exports.qualityColors = qualityColors;
 
 /**
  * Colorize the given string according to this item's quality
- * @param {Item} item
+ * @param {RanvierItem} item
  * @param {string} string
  * @return string
  */
@@ -42,8 +46,8 @@ exports.display = function(item) {
 /**
  * Render a pretty display of an item
  * @param {GameState} state
- * @param {Item}      item
- * @param {Player}    player
+ * @param {RanvierItem}      item
+ * @param {RanvierPlayer}    player
  */
 exports.renderItem = function(state, item, player) {
   let buf = qualityColorize(item, '.' + B.line(38) + '.') + '\r\n';
@@ -125,3 +129,4 @@ exports.renderItem = function(state, item, player) {
   buf = buf.replace(/\|/g, qualityColorize(item, '|'));
   return buf;
 };
+

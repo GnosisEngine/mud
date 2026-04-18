@@ -1,5 +1,9 @@
 'use strict';
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierExit} RanvierExit */
+
 const { CommandType, Room } = require('ranvier');
 
 /**
@@ -10,14 +14,15 @@ class CommandParser {
    * Parse a given string to find the resulting command/arguments
    * @param {GameState} state
    * @param {string} data
-   * @param {Player} player
+   * @param {RanvierPlayer} player
    * @return {{
-   *   type: CommandType,
-   *   command: Command,
-   *   skill: Skill,
-   *   channel: Channel,
+   *   type: symbol,
+   *   command?: any,
+   *   skill?: any,
+   *   channel?: any,
    *   args: string,
-   *   originalCommand: string
+   *   originalCommand?: string
+   *   roomExit?: RanvierExit | false
    * }}
    */
   static parse(state, data, player) {
@@ -112,7 +117,7 @@ class CommandParser {
 
   /**
    * Check command for partial match on primary directions, or exact match on secondary name or abbreviation
-   * @param {Player} player
+   * @param {RanvierPlayer} player
    * @param {string} command
    * @return {?string}
    */
@@ -150,9 +155,9 @@ class CommandParser {
 
   /**
    * Determine if a player can leave the current room to a given direction
-   * @param {Player} player
+   * @param {RanvierPlayer} player
    * @param {string} direction
-   * @return {boolean}
+   * @return {RanvierExit|false}
    */
   static canGo(player, direction)
   {

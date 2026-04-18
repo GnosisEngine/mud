@@ -9,166 +9,385 @@ export interface RanvierLogger {
   log(message: string, meta?: object): void;
 }
 
-export interface RanvierArea {
-  name: string;
-  title: string;
-  rooms: Map<string, RanvierRoom>;
-  getRoomAtCoordinates(x: number, y: number, z: number): RanvierRoom
+export class RanvierGameEntity extends NodeJS.EventEmitter 
+  implements RanvierMetadatable, RanvierScriptable {
+
+  __pruned:  boolean;
+  behaviors: Map<string, any>;
+  metadata:  Record<string, any>;
+
+  emit(name: string, ...args: any[]): boolean;
+  hasBehavior(name: string): boolean;
+  getBehavior(name: string): any;
+  setupBehaviors(manager: any): void;
+  setMeta(key: string, value: any): void;
+  getMeta(key: string): any;
+}
+
+export class RanvierArea extends RanvierGameEntity {
+  constructor(bundle: string, name: string, manifest: {
+    title:      string;
+    metadata?:  Record<string, any>;
+    script?:    string;
+    behaviors?: Record<string, any>;
+  });
+
+  bundle:   string;
+  name:     string;
+  title:    string;
+  metadata: Record<string, any>;
+  rooms:    Map<string, RanvierRoom>;
+  npcs:     Set<RanvierNpc>;
+  map:      Map<number, any>;
+  script:   string | undefined;
+  behaviors: Map<string, any>;
+
+  readonly areaPath: string;
+  readonly floors:   number[];
+
+  getRoomById(id: string): RanvierRoom | undefined;
+  addRoom(room: RanvierRoom): void;
+  removeRoom(room: RanvierRoom): void;
+  addRoomToMap(room: RanvierRoom): void;
+  getRoomAtCoordinates(x: number, y: number, z: number): RanvierRoom | false;
+  addNpc(npc: RanvierNpc): void;
+  removeNpc(npc: RanvierNpc): void;
+  update(state: GameState): void;
+  hydrate(state: GameState): void;
+  getBroadcastTargets(): any[];
 }
 
 export interface RanvierDoor {
-  locked: boolean;
-  closed: boolean;
   lockedBy?: string;
+  locked:    boolean;
+  closed:    boolean;
 }
-export interface RanvierRoom {
+
+export interface RanvierExit {
+  roomId?:    string;
+  direction:  string;
+  inferred:   boolean;
+  room?:      RanvierRoom;
+}
+
+export class RanvierRoom extends RanvierGameEntity {
+  constructor(area: RanvierArea, def: {
+    title:        string;
+    description:  string;
+    id:           string | number;
+    items?:       any[];
+    npcs?:        any[];
+    metadata?:    Record<string, any>;
+    script?:      string;
+    behaviors?:   Record<string, any>;
+    coordinates?: [number, number, number];
+    exits?:       RanvierExit[];
+    doors?:       Record<string, RanvierDoor>;
+    [key: string]: any;
+  });
+
+  def:             object;
+  area:            RanvierArea;
+  defaultItems:    any[];
+  defaultNpcs:     any[];
+  metadata:        Record<string, any>;
+  script:          string | undefined;
+  behaviors:       Map<string, any>;
+  coordinates:     { x: number; y: number; z: number } | null;
+  description:     string;
   entityReference: string;
-  title: string;
-  description: string;
-  area: RanvierArea;
-  players: Set<RanvierPlayer>;
-  npcs: Set<RanvierNpc>;
-  items: Set<RanvierItem>;
-  coordinates: { x: number, y: number, z: number } | null;
-  emit(event: string, ...args: any[]): void;
+  exits:           RanvierExit[];
+  id:              string | number;
+  title:           string;
+  doors:           Map<string, RanvierDoor>;
+  defaultDoors:    Record<string, RanvierDoor> | undefined;
+  items:           Set<any>;
+  npcs:            Set<RanvierNpc>;
+  players:         Set<RanvierPlayer>;
+  spawnedNpcs:     Set<RanvierNpc>;
+
+  emit(eventName: string, ...args: any[]): void;
+  addPlayer(player: RanvierPlayer): void;
+  removePlayer(player: RanvierPlayer): void;
+  addNpc(npc: RanvierNpc): void;
+  removeNpc(npc: RanvierNpc, removeSpawn?: boolean): void;
+  addItem(item: any): void;
+  removeItem(item: any): void;
   getExits(): RanvierExit[];
-  getDoor(room: RavnierRoom): RanvierDoor
-  removeItem(item: RanvierItem): void
+  findExit(exitName: string): RanvierExit | false;
+  getExitToRoom(nextRoom: RanvierRoom): RanvierExit | false;
+  hasDoor(fromRoom: RanvierRoom): boolean;
+  getDoor(fromRoom: RanvierRoom): RanvierDoor | null;
+  isDoorLocked(fromRoom: RanvierRoom): boolean;
+  openDoor(fromRoom: RanvierRoom): void;
+  closeDoor(fromRoom: RanvierRoom): void;
+  unlockDoor(fromRoom: RanvierRoom): void;
+  lockDoor(fromRoom: RanvierRoom): void;
+  spawnItem(state: GameState, entityRef: string): any;
+  spawnNpc(state: GameState, entityRef: string): RanvierNpc;
+  hydrate(state: GameState): void;
+  getBroadcastTargets(): any[];
 }
 
-export interface RanvierCharacter extends NodeJS.EventEmitter {
-  name: string;
-  level: number;
-  room: RanvierRoom;
-  inventory: Map<string, RanvierItem>;
-  equipment: Map<string, RanvierItem>;
-  combatants: Set<CombatTarget>;
-  combatData: {
-    killed?: boolean;
-    killedBy?: CombatTarget;
-    roundStarted?: number;
-    lag?: number;
-  };
-  effects: { entries(): RanvierEffect[] };
-  followers: Set<CombatTarget>;
-  following: CombatTarget | null;
-  party: object | null;
-  metadata: Record<string, any>;
-  isNpc: boolean;
+export class RanvierAccount {
+  username:   string;
+  characters: Array<{ username: string; deleted: boolean }>;
+  password:   string;
+  banned:     boolean;
+  deleted:    boolean;
+  metadata:   Record<string, any>;
 
-  // Metadatable
-  getMeta(key: string): any;
+  constructor(data: object);
+
+  getUsername(): string;
+  addCharacter(username: string): void;
+  hasCharacter(name: string): boolean;
+  deleteCharacter(name: string): void;
+  undeleteCharacter(name: string): void;
+  setPassword(pass: string): void;
+  checkPassword(pass: string): boolean;
+  save(callback?: Function): void;
+  ban(): void;
+  deleteAccount(): void;
+  serialize(): object;
+}
+
+export interface RanvierMetadatable {
   setMeta(key: string, value: any): void;
+  getMeta(key: string): any;
+}
 
-  // Attribute methods
+export class RanvierCharacter extends NodeJS.EventEmitter implements RanvierMetadatable {
+  constructor(data: {
+    name:        string;
+    inventory?:  object;
+    equipment?:  Map<string, any>;
+    level?:      number;
+    room?:       RanvierRoom | string | null;
+    attributes?: object;
+    effects?:    any[];
+    metadata?:   Record<string, any>;
+    [key: string]: any;
+  });
+
+  name:       string;
+  inventory:  Inventory | null;
+  equipment:  Map<string, any>;
+  combatants: Set<RanvierCharacter>;
+  combatData: Record<string, any>;
+  level:      number;
+  room:       RanvierRoom | null;
+  attributes: any;
+  followers:  Set<RanvierCharacter>;
+  following:  RanvierCharacter | null;
+  party:      any;
+  effects:    any;
+  metadata:   Record<string, any>;
+
+  readonly isNpc: boolean;
+
+  emit(event: string, ...args: any[]): boolean;
   hasAttribute(attr: string): boolean;
-  getAttribute(attr: string): number;
   getMaxAttribute(attr: string): number;
+  getAttribute(attr: string): number;
   getBaseAttribute(attr: string): number;
+  addAttribute(attribute: any): void;
+  setAttributeToMax(attr: string): void;
   raiseAttribute(attr: string, amount: number): void;
   lowerAttribute(attr: string, amount: number): void;
-  setAttributeBase(attr: string, value: number): void;
-  setAttributeToMax(attr: string): void;
-  addAttribute(attr: object): void;
-
-  // Combat methods
-  isInCombat(): boolean;
-  initiateCombat(target: CombatTarget): void;
-  addCombatant(target: CombatTarget): void;
-  removeCombatant(target: CombatTarget): void;
-  removeFromCombat(): void;
-  evaluateIncomingDamage(damage: object, currentAmount: number): number;
-  evaluateOutgoingDamage(damage: object, currentAmount: number): number;
-
-  // Effect methods
+  setAttributeBase(attr: string, newBase: number): void;
   hasEffectType(type: string): boolean;
-  addEffect(effect: object): boolean;
-  removeEffect(effect: object): void;
-
-  // Inventory methods
-  addItem(item: RanvierItem): void;
-  removeItem(item: RanvierItem): void;
-  hasItem(item: RanvierItem): boolean;
-  isInventoryFull(): boolean;
-  equip(item: RanvierItem, slot: string): void;
+  addEffect(effect: any): boolean;
+  removeEffect(effect: any): void;
+  initiateCombat(target: RanvierCharacter, lag?: number): void;
+  isInCombat(target?: RanvierCharacter): boolean;
+  addCombatant(target: RanvierCharacter): void;
+  removeCombatant(target: RanvierCharacter): void;
+  removeFromCombat(): void;
+  evaluateIncomingDamage(damage: any, currentAmount: number): number;
+  evaluateOutgoingDamage(damage: any, currentAmount: number): number;
+  equip(item: any, slot: string): void;
   unequip(slot: string): void;
-
-  // Follow methods
-  follow(target: CombatTarget): void;
+  addItem(item: any): void;
+  removeItem(item: any): void;
+  hasItem(itemReference: string): any | false;
+  isInventoryFull(): boolean;
+  follow(target: RanvierCharacter): void;
   unfollow(): void;
-  isFollowing(target: CombatTarget): boolean;
-  hasFollower(target: CombatTarget): boolean;
-  addFollower(target: CombatTarget): void;
-  removeFollower(target: CombatTarget): void;
-
-  emit(event: string, ...args: any[]): void;
-  getBroadcastTargets(): (CombatTarget)[];
-  hydrate(state: object): void;
+  addFollower(follower: RanvierCharacter): void;
+  removeFollower(follower: RanvierCharacter): void;
+  isFollowing(target: RanvierCharacter): boolean;
+  hasFollower(target: RanvierCharacter): boolean;
+  hydrate(state: GameState): void;
   serialize(): object;
+  getBroadcastTargets(): RanvierCharacter[];
+
+  setMeta(key: string, value: any): void;
+  getMeta(key: string): any;
 
   // Faction stuff
   _factionAttackTarget: CombatTarget
   _factionAttackTimer: NodeJS.Timeout
   _factionEventHandler?: (payload: any) => Promise<void>;
-
-  moveTo(room: RanvierRoom, done: () => void): void
-  keywords: string[];
-  initiateCombat(target: CombatTarget): void
-  removeFromCombat(): void
-
-  getMeta(key: string): string | boolean | number | null
-  setMeta(key: string, value: string | boolean | number | null): void
-
-  room: RanvierRoom
 }
 
-export interface RanvierPlayer extends RanvierCharacter {
-  account: object;
-  prompt: string;
-  queueCommand(command: { execute: (...args: any[]) => void, label: string }, lag: number): void;
-  removePrompt(id: string): void;
-  addPrompt(id: string, fn: () => string): void;
-  hasPrompt(id: string): boolean;
-  save(): void
-  playerClass: {
-    id: string;
-    name: string;
-    config: { name: string, abilityTable: Record<number, { skills?: string[], spells?: string[] }> };
-    abilityTable: Record<number, { skills?: string[], spells?: string[] }>;
-    abilityList: string[];
-    hasAbility(id: string): boolean;
-    canUseAbility(player: RanvierPlayer, abilityId: string): boolean;
-    getAbilitiesForPlayer(player: RanvierPlayer): string[];
-    setupPlayer(state: GameState, player: RanvierPlayer): void;
-  };
-}
-
-export interface RanvierNpc extends RanvierCharacter {
-  entityReference: string;
-  behaviors: Map<string, any>;
-  description: string;
-  hasBehavior(name: string): boolean;
-}
-
-export interface RanvierItem {
-  entityReference: string;
-  name: string;
-  roomDesc: string;
-  description: string;
-  type: string;
-  keywords: string[];
-  metadata: {
-    minDamage?: number;
-    maxDamage?: number;
-    speed?: number;
+export class RanvierPlayer extends RanvierCharacter {
+  constructor(data: {
+    account?:    RanvierAccount;
+    experience?: number;
+    password?:   string;
+    prompt?:     string;
+    socket?:     import('net').Socket;
+    quests?:     { completed: any[]; active: any[] };
+    role?:       number;
     [key: string]: any;
-  };
+  });
+
+  account:      RanvierAccount;
+  experience:   number;
+  extraPrompts: Map<string, { removeOnRender: boolean; renderer: () => string }>;
+  password:     string;
+  prompt:       string;
+  socket:       import('net').Socket | null;
+  questTracker: any;
+  commandQueue: any;
+  role:         number;
+
+  queueCommand(executable: any, lag: number): void;
+  emit(event: string, ...args: any[]): void;
+  interpolatePrompt(promptStr: string, extraData?: object): string;
+  addPrompt(id: string, renderer: () => string, removeOnRender?: boolean): void;
+  removePrompt(id: string): void;
+  hasPrompt(id: string): boolean;
+  moveTo(nextRoom: RanvierRoom, onMoved?: () => void): void;
+  save(callback?: Function): void;
+  hydrate(state: GameState): void;
+  serialize(): object;
 }
-export interface RanvierExit {
-  direction: string;
-  roomId: string;
-  name?: string;
-  keywords?: string[];
+
+export interface RanvierScriptable {
+  __pruned:  boolean;
+  behaviors: Map<string, any>;
+
+  emit(name: string, ...args: any[]): void;
+  hasBehavior(name: string): boolean;
+  getBehavior(name: string): any;
+  setupBehaviors(manager: any): void;
+}
+
+export class RanvierNpc extends RanvierCharacter implements RanvierScriptable {
+  constructor(area: RanvierArea, data: {
+    id:               string | number;
+    name:             string;
+    keywords:         string[];
+    area?:            string;
+    script?:          string;
+    behaviors?:       Record<string, any>;
+    equipment?:       Record<string, string>;
+    items?:           string[];
+    description?:     string;
+    entityReference?: string;
+    quests?:          string[];
+    uuid?:            string;
+    [key: string]:    any;
+  });
+
+  area:             RanvierArea;
+  script:           string | undefined;
+  behaviors:        Map<string, any>;
+  defaultEquipment: Record<string, string>;
+  defaultItems:     string[];
+  description:      string | undefined;
+  entityReference:  string;
+  id:               string | number;
+  keywords:         string[];
+  quests:           string[];
+  uuid:             string;
+  commandQueue:     any;
+
+  readonly isNpc: true;
+
+  __pruned: boolean;
+
+  moveTo(nextRoom: RanvierRoom, onMoved?: () => void): void;
+  hydrate(state: GameState): void;
+  hasBehavior(name: string): boolean;
+  getBehavior(name: string): any;
+  setupBehaviors(manager: any): void;
+}
+
+export const ItemType: {
+  readonly OBJECT: 1;
+  readonly CONTAINER: 2;
+  readonly ARMOR: 3;
+  readonly WEAPON: 4;
+  readonly POTION: 5;
+  readonly RESOURCE: 6;
+};
+
+export type ItemTypeValue = typeof ItemType[keyof typeof ItemType];
+
+export class RanvierItem extends RanvierGameEntity {
+  constructor(area: RanvierArea, item: {
+    keywords:         string[];
+    name:             string;
+    id:               string | number;
+    metadata?:        Record<string, any>;
+    behaviors?:       Record<string, any>;
+    items?:           any[];
+    description?:     string;
+    entityReference?: string;
+    maxItems?:        number;
+    inventory?:       object;
+    isEquipped?:      boolean;
+    room?:            RanvierRoom | null;
+    roomDesc?:        string;
+    script?:          string | null;
+    type?:            ItemTypeValue | string;
+    uuid?:            string;
+    closeable?:       boolean;
+    closed?:          boolean;
+    locked?:          boolean;
+    lockedBy?:        string | null;
+    [key: string]:    any;
+  });
+
+  area:            RanvierArea;
+  metadata:        Record<string, any>;
+  behaviors:       Map<string, any>;
+  defaultItems:    any[];
+  description:     string;
+  entityReference: string;
+  id:              string | number;
+  maxItems:        number;
+  inventory:       Inventory | null;
+  isEquipped:      boolean;
+  keywords:        string[];
+  name:            string;
+  room:            RanvierRoom | null;
+  roomDesc:        string;
+  script:          string | null;
+  type:            ItemTypeValue | string;
+  uuid:            string;
+  closeable:       boolean;
+  closed:          boolean;
+  locked:          boolean;
+  lockedBy:        string | null;
+  carriedBy:       RanvierCharacter | RanvierItem | null;
+  equippedBy:      RanvierCharacter | null;
+
+  initializeInventory(inventory: object | null): void;
+  hasKeyword(keyword: string): boolean;
+  addItem(item: RanvierItem): void;
+  removeItem(item: RanvierItem): void;
+  isInventoryFull(): boolean;
+  findCarrier(): RanvierCharacter | RanvierItem | null;
+  open(): void;
+  close(): void;
+  lock(): void;
+  unlock(): void;
+  hydrate(state: GameState, serialized?: object): void;
+  serialize(): object;
 }
 
 export interface RanvierQuest {
@@ -197,7 +416,13 @@ export interface RanvierCommand {
   command: (state: GameState) => (args: string, player: RanvierPlayer) => void;
 }
 
+/**
+ * Module Declaration
+ */
+
 declare module 'ranvier' {
+  export class Room extends RanvierRoom {}
+  export class Account extends RanvierAccount {}
   export const Logger: RanvierLogger;
   export const Broadcast: RanvierBroadcast;
   export class AreaAudience {
@@ -252,14 +477,8 @@ declare module 'ranvier' {
     commit(target: object): void;
   }
 
-  export class Player {
-    constructor(data: object);
-    queueCommand(command: { execute: (...args: any[]) => void, label: string }, lag: number): void;
-    emit(event: string, ...args: any[]): void;
-    moveTo(room: object, callback?: () => void): void;
-    save(callback?: () => void): void;
-    hydrate(state: object): void;
-    serialize(): object;
+  export class Player extends RanvierPlayer {
+    constructor(options: { name: string; account: RanvierAccount });
   }
 
   export const SkillType: {
@@ -283,26 +502,9 @@ declare module 'ranvier' {
     load(data: object): void;
   };
 
-  export const ItemType: {
-    readonly OBJECT: 1;
-    readonly CONTAINER: 2;
-    readonly ARMOR: 3;
-    readonly WEAPON: 4;
-    readonly POTION: 5;
-    readonly RESOURCE: 6;
-  };
+  export const ItemType: RanvierItemType
 
-  export class Item {
-    uuid: string;
-    name: string;
-    entityReference: string;
-    carriedBy: any;
-    inventory?: Inventory;
-    type: ItemType
-    serialize(): object;
-    hydrate(state: GameState, data: object): void;
-    initializeInventory(inv: object): void;
-  }
+  export class Item extends RanvierItem {}
 
   export class Inventory extends Map {
     maxSize: number;
@@ -324,4 +526,18 @@ declare module 'ranvier' {
     remove(name: string): void;
     find(name: string): RanvierCommand | undefined;
   }
+
+  export class EventUtil {
+    static genWrite(socket: import('net').Socket): (str: string) => void;
+    static genSay(socket: import('net').Socket): (str: string) => void;
+  }
+
+  export type CommandTypeValue = symbol;
+
+  export const CommandType: {
+    COMMAND:  CommandTypeValue;
+    SKILL:    CommandTypeValue;
+    CHANNEL:  CommandTypeValue;
+    MOVEMENT: CommandTypeValue;
+  };
 }

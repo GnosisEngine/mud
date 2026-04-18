@@ -27,6 +27,7 @@ function toHelperName(constKey) {
  * @returns {Record<string, Function>}
  */
 function buildEmitHelpers(events, schema) {
+  /** @type {Record<string, Function>} */
   const helpers = {};
 
   for (const [constKey, eventName] of Object.entries(events)) {

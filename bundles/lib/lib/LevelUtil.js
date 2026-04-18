@@ -30,8 +30,8 @@ const reduction = level => {
 
 /**
  * Difficulty modifier starting around level 30
- * @param int level
- * @return int
+ * @param {number} level
+ * @return {number}
  * @private
 */
 const diff = level => {
@@ -56,14 +56,14 @@ const diff = level => {
 const LevelUtil = {
 /**
  * Get the exp that a mob gives
- * @param int level
+ * @param {number} level
  * @return int
  */
   mobExp: level => 45 + (5 * level),
 
   /**
    * Helper to get the amount of experience a player needs to level
-   * @param int level Target level
+   * @param {number} level Target level
    * @return int
    * @memberof! LevelUtil
    */
