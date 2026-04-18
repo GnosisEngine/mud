@@ -3,6 +3,7 @@
 /** @typedef {import('../../../types/state').GameState} GameState */
 /** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
 /** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
+/** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
 
 const enforcement = require('../lib/enforcement');
 const { Broadcast } = require('ranvier');
@@ -50,7 +51,7 @@ module.exports = {
       return say(player,  `Submission duration must be between 1 and ${MAX_DURATION_MINUTES} minutes.`);
     }
 
-    const target = /** @type {RanvierPlayer | RanvierNpc | null} */ (state.getTarget(player, targetName, ['player']));
+    const target = /** @type {RanvierCharacter | null} */ (state.getTarget(player, targetName, ['player']));
     if (isTargetSelf(state, player, { target })) return say(player, "You can't enforce against yourself.");
 
     if (!target) return say(player,  `${targetName} is not in this room.`);

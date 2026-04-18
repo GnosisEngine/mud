@@ -4,7 +4,6 @@
 /** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
 /** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
 /** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
-/** @typedef {import('../../../types/ranvier').CombatTarget} CombatTarget */
 
 const { Random } = require('rando-js');
 const { Damage, Logger } = require('ranvier');
@@ -20,7 +19,7 @@ class Combat {
   /**
    * Handle a single combat round for a given attacker
    * @param {GameState} state
-   * @param {CombatTarget} attacker
+   * @param {RanvierCharacter} attacker
    * @return {boolean}  true if combat actions were performed this round
    */
   static updateRound(state, attacker) {
@@ -48,6 +47,7 @@ class Combat {
 
     // currently just grabs the first combatant from their list but could easily be modified to
     // implement a threat table and grab the attacker with the highest threat
+    /** @type {RanvierCharacter} */
     let target = null;
     try {
       target = Combat.chooseCombatant(attacker);
@@ -76,8 +76,8 @@ class Combat {
 
   /**
    * Find a target for a given attacker
-   * @param {CombatTarget} attacker
-   * @return {CombatTarget|null}
+   * @param {RanvierCharacter} attacker
+   * @return {RanvierCharacter|null}
    */
   static chooseCombatant(attacker) {
     if (!attacker.combatants.size) {
@@ -98,8 +98,8 @@ class Combat {
 
   /**
    * Actually apply some damage from an attacker to a target
-   * @param {CombatTarget} attacker
-   * @param {CombatTarget} target
+   * @param {RanvierCharacter} attacker
+   * @param {RanvierCharacter} target
    */
   static makeAttack(attacker, target) {
     let amount = this.calculateWeaponDamage(attacker);
@@ -124,8 +124,8 @@ class Combat {
   /**
    * Any cleanup that has to be done if the character is killed
    * @param {GameState}                    state
-   * @param {CombatTarget}             deadEntity
-   * @param {CombatTarget|null}        killer
+   * @param {RanvierCharacter}             deadEntity
+   * @param {RanvierCharacter|null}        killer
    */
   static handleDeath(state, deadEntity, killer) {
     if (deadEntity.combatData.killed) {
@@ -162,18 +162,16 @@ class Combat {
   /**
    * @param {RanvierPlayer} attacker
    * @param {string} search
-   * @returns {RanvierPlayer|RanvierNpc}
+   * @returns {RanvierCharacter}
    */
   static findCombatant(attacker, search) {
     if (!search.length) {
       return null;
     }
 
-    const possibleTargets = attacker.getMeta('pvp')
-      ? ['npc', 'player']
-      : ['npc'];
-
-    const target = /** @type {CombatTarget | null} */ (getTarget(attacker, search, possibleTargets));
+    const target = attacker.getMeta('pvp')
+      ? /** @type {RanvierCharacter | null} */ (getTarget(attacker, search, ['player', 'npc']))
+      : /** @type {RanvierNpc | null} */ (getTarget(attacker, search, ['npc']));
 
     if (!target) {
       return null;
@@ -202,7 +200,7 @@ class Combat {
 
   /**
    * Generate an amount of weapon damage
-   * @param {CombatTarget} attacker
+   * @param {RanvierCharacter} attacker
    * @param {boolean} average Whether to find the average or a random between min/max
    * @return {number}
    */
@@ -220,7 +218,7 @@ class Combat {
 
   /**
    * Get the damage of the weapon the character is wielding
-   * @param {CombatTarget} attacker
+   * @param {RanvierCharacter} attacker
    * @return {{max: number, min: number}}
    */
   static getWeaponDamage(attacker) {
@@ -239,7 +237,7 @@ class Combat {
 
   /**
    * Get the speed of the currently equipped weapon
-   * @param {CombatTarget} attacker
+   * @param {RanvierCharacter} attacker
    * @return {number}
    */
   static getWeaponSpeed(attacker) {
@@ -254,7 +252,7 @@ class Combat {
 
   /**
    * Get a damage amount adjusted by attack power/weapon speed
-   * @param {CombatTarget} attacker
+   * @param {RanvierCharacter} attacker
    * @param {number} amount
    * @return {number}
    */

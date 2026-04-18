@@ -3,6 +3,8 @@
 
 /** @typedef {import('../../../types/state').GameState} GameState */
 /** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
+
 
 const { Broadcast: B } = require('ranvier');
 const {
@@ -28,7 +30,7 @@ module.exports = {
       return B.sayAt(player, 'There is no mercenary broker here.');
     }
 
-    const target = state.getTarget(player, args.trim(), ['npc']);
+    const target = /** @type {RanvierNpc|null} */ (state.getTarget(player, args.trim(), ['npc']));
     if (!isVendorTarget(state, player, { target, vendorNpc })) {
       return B.sayAt(player, "You don't see anyone like that offering contracts here.");
     }
