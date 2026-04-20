@@ -135,6 +135,36 @@ export class RanvierRoom extends RanvierGameEntity {
   getBroadcastTargets(): any[];
 }
 
+export class RanvierAttributeFormula {
+  requires: string[];
+  formula: (...args: number[]) => number;
+
+  constructor(requires: string[], fn: (...args: number[]) => number);
+  evaluate(attribute: RanvierAttribute, ...args: number[]): number;
+}
+
+export class RanvierAttribute {
+  name: string;
+  base: number;
+  delta: number;
+  formula: RanvierAttributeFormula | null;
+  metadata: Record<string, unknown>;
+
+  constructor(
+    name: string,
+    base: number,
+    delta?: number,
+    formula?: RanvierAttributeFormula | null,
+    metadata?: Record<string, unknown>
+  );
+
+  lower(amount: number): void;
+  raise(amount: number): void;
+  setBase(amount: number): void;
+  setDelta(amount: number): void;
+  serialize(): { delta: number; base: number };
+}
+
 export class RanvierEffect extends NodeJS.EventEmitter {
   constructor(id: string, def: {
     flags?:     string[];
@@ -385,6 +415,7 @@ export class RanvierPlayer extends RanvierCharacter {
   role:         number;
 
   queueCommand(executable: any, lag: number): void;
+  on(event: string | symbol, listener: (...args: any[]) => void): this;
   emit(event: string | symbol, ...args: any[]): boolean;
   interpolatePrompt(promptStr: string, extraData?: object): string;
   addPrompt(id: string, renderer: () => string, removeOnRender?: boolean): void;
@@ -716,6 +747,66 @@ declare module 'ranvier' {
     get(key: string, fallback?: any): any;
     load(data: object): void;
   };
+
+  export const ResourceCost: {
+    attribute: string;
+    cost: number;
+  }
+
+  export const SkillConfig: {
+    configureEffect?: (effect: Effect) => Effect;
+    cooldown?: number | { group: string; length: number } | null;
+    effect?: string | null;
+    flags?: SkillFlag[];
+    info?: (player: Player) => void;
+    initiatesCombat?: boolean;
+    name: string;
+    requiresTarget?: boolean;
+    resource?: ResourceCost | ResourceCost[] | null;
+    run?: (...args: unknown[]) => unknown;
+    targetSelf?: boolean;
+    type?: SkillType;
+    options?: Record<string, unknown>;
+  }
+
+  export class RanvierSkill {
+    id: string;
+    name: string;
+    configureEffect: (effect: Effect) => Effect;
+    cooldownGroup: string | null;
+    cooldownLength: number | null;
+    effect: string | null;
+    flags: SkillFlag[];
+    info: (player: Player) => void;
+    initiatesCombat: boolean;
+    options: Record<string, unknown>;
+    requiresTarget: boolean;
+    resource: ResourceCost | ResourceCost[] | null;
+    run: (...args: unknown[]) => unknown;
+    state: GameState;
+    targetSelf: boolean;
+    type: SkillType;
+
+    constructor(id: string, config: SkillConfig, state: GameState);
+
+    execute(args: string, player: Player, target: Character): boolean;
+    payResourceCosts(player: Player): boolean;
+    payResourceCost(player: Player, resource: ResourceCost): void;
+    activate(player: Player): void;
+    onCooldown(character: Character): Effect | false;
+    cooldown(character: Character): void;
+    getCooldownId(): string;
+    hasEnoughResources(character: Character): boolean;
+    hasEnoughResource(character: Character, resource: ResourceCost): boolean;
+  }
+
+  export class NotEnoughResourcesError extends Error {}
+  export class PassiveError extends Error {}
+
+  export class CooldownError extends Error {
+    effect: Effect;
+    constructor(effect: Effect);
+  }
 
   export const ItemType: RanvierItemType
 

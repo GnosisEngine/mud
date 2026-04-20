@@ -11,6 +11,9 @@
  * @typedef {import('./ranvier').RanvierCommand}                 RanvierCommand
  * @typedef {import('./ranvier').RanvierAccount}                 RanvierAccount
  * @typedef {import('./ranvier').RanvierExit}                    RanvierExit
+ * @typedef {import('./ranvier').RanvierAttribute}               RanvierAttribute
+ * @typedef {import('./ranvier').RanvierAttributeFormula}        RanvierAttributeFormula
+ * @typedef {import('./ranvier').RanvierSkill}                   RanvierSkill
  * @typedef {import('../bundles/time/types').TimeService}        TimeService
  * @typedef {import('../bundles/factions/types').FactionService} FactionService
  * @typedef {import('../bundles/world/types').WorldManager}      WorldManager
@@ -100,10 +103,11 @@
 
 /**
  * @typedef {object} AbilityManager
- * @property {function(string): object|undefined} get
- * @property {function(string): object|undefined} find
- * @property {function(object): void}             add
- * @property {function(string): void}             remove
+ * @property {Map<string, RanvierSkill>} skills
+ * @property {function(string): RanvierSkill|undefined} get
+ * @property {function(RanvierSkill): void} add
+ * @property {function(RanvierSkill): void} remove
+ * @property {function(string, boolean=): RanvierSkill|undefined} find
  */
 
 /**
@@ -167,6 +171,15 @@
  */
 
 /**
+ * @typedef {object} AttributeFactory
+ * @property {function(string, number, RanvierAttributeFormula=, object=): void} add
+ * @property {function(string): boolean} has
+ * @property {function(string): object} get
+ * @property {function(string, number=, number=): RanvierAttribute} create
+ * @property {function(): void} validateAttributes
+ */
+
+/**
  * @typedef {object} GameState
  * @property {AreaManager}       AreaManager
  * @property {RoomManager}       RoomManager
@@ -192,6 +205,7 @@
  * @property {object}            GameServer
  * @property {Map}               QuestRewardManager
  * @property {PartyManager}      PartyManager
+ * @property {AttributeFactory}  AttributeFactory
  * @property {MercenaryService}  MercenaryService
  * @property {BundleManager}     BundleManager
  * @property {RanvierLogger}     Logger

@@ -1,4 +1,8 @@
 'use strict';
+
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 const { renderStatusBar } = require('../lib/statusBar');
 
 /**
@@ -19,6 +23,10 @@ module.exports = {
     10: { skills: ['secondwind'] },
   },
 
+  /**
+   * @param {GameState} state
+   * @param {RanvierPlayer} player
+   */
   setupPlayer: (state, player) => {
     const actionName = 'energy';
     const energy = state.AttributeFactory.create(actionName, 100);

@@ -1,6 +1,9 @@
 'use strict';
 const { renderStatusBar } = require('../lib/statusBar');
 
+/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+
 /**
  * See warrior.js for more on classes.
  */
@@ -11,6 +14,11 @@ module.exports = {
     5: { spells: ['fireball'] },
   },
 
+
+  /**
+   * @param {GameState} state
+   * @param {RanvierPlayer} player
+   */
   setupPlayer: (state, player) => {
     const actionName = 'mana';
     const mana = state.AttributeFactory.create(actionName, 100);
