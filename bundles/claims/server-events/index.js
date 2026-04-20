@@ -76,6 +76,10 @@ module.exports = {
 
       // Expiry flush timer — checks for timed-out claims on interval
       expiryTimer = setInterval(async() => {
+        if (!store) {
+          return;
+        }
+
         const count = await store.flushExpiredClaims();
 
         if (count > 0) {

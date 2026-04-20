@@ -47,7 +47,8 @@ module.exports = {
           });
           say(player,  `Package created. ID: ${pkg.id}  Name: "${pkg.name}"`);
         } catch (err) {
-          say(player,  `Could not create package: ${err.message}`);
+          const msg = err instanceof Error ? err.message : String(err);
+          say(player, `Could not create package: ${msg}`);
         }
         break;
       }

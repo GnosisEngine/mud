@@ -81,6 +81,11 @@ module.exports = {
 
       store.expireClaim(claim.id).then(() => {
         const room = state.RoomManager.getRoom(claim.roomId);
+
+        if (!room) {
+          throw new RangeError('Player is not in a room!');
+        }
+
         say(player, `Claim #${claimId} on ${room.title} released.`);
       });
       return;
@@ -90,6 +95,10 @@ module.exports = {
     const taxRate = parseInt(sub, 10);
     if (isNaN(taxRate) || taxRate < 0 || taxRate > 100) {
       return say(player, 'Usage: claim <taxRate 0–100> | claim list | claim release <claimId>');
+    }
+
+    if (!player.room) {
+      throw new RangeError('Player is not in a room!');
     }
 
     const room = player.room;

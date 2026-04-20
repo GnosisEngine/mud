@@ -37,6 +37,10 @@ module.exports = {
       return say(player,  'Usage: enforce <playerName> <durationMinutes 1–60>');
     }
 
+    if (!player.room) {
+      throw new RangeError('Player is not in a room!');
+    }
+
     const room   = player.room;
     const roomId = room.entityReference;
     const claim  = store.getClaimByRoom(roomId);

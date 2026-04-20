@@ -11,7 +11,7 @@ module.exports = {
    * @param {GameState} state
    * @returns {function(string, RanvierPlayer): void}
    */
-  command: state => (args, player) => {
+  command: state => (_, player) => {
     return claimList(state, player);
   },
 };

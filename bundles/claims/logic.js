@@ -9,7 +9,7 @@ function hasSubmitted(_, enforcer, { target } = NOOP) {
 
 module.exports = {
   hasEnforcablesNear: (_, player) => {
-    const count = 0;
+    let count = 0;
 
     for (const occupant of player.room.players) {
       if (occupant === player) {
