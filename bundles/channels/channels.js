@@ -2,11 +2,7 @@
 'use strict';
 
 /** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
-
-/**
- * @typedef {object} RanvierEffect
- * @property {{ blockedMessage: string, blockedChannels: string[] }} config
- */
+/** @typedef {import('../../types/ranvier').RanvierEffect} RanvierEffect */
 
 /**
  * @typedef {object} CanSpeakResult
@@ -50,7 +46,7 @@ module.exports = [
       sender(sender, target, message, colorify) {
         const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'chat');
         if (blocked) {
-          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          Broadcast.sayAt(sender, effect?.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`🌐 You chat, '${message}'`);
@@ -72,7 +68,7 @@ module.exports = [
       sender(sender, target, message, colorify) {
         const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'say');
         if (blocked) {
-          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          Broadcast.sayAt(sender, effect?.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`💬 You say, '${message}'`);
@@ -94,7 +90,7 @@ module.exports = [
       sender(sender, target, message, colorify) {
         const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'tell');
         if (blocked) {
-          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          Broadcast.sayAt(sender, effect?.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`👂 You tell ${target.name}, '${message}'`);
@@ -116,7 +112,7 @@ module.exports = [
       sender(sender, target, message, colorify) {
         const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'yell');
         if (blocked) {
-          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          Broadcast.sayAt(sender, effect?.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`🗯️  You yell, '${message}'`);
@@ -138,7 +134,7 @@ module.exports = [
       sender(sender, target, message, colorify) {
         const /** @type {CanSpeakResult} */ { blocked, effect } = canSpeak(sender, 'gtell');
         if (blocked) {
-          Broadcast.sayAt(sender, effect.config.blockedMessage);
+          Broadcast.sayAt(sender, effect?.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
         return colorify(`👥 You tell the group, '${message}'`);

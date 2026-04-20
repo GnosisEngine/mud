@@ -174,6 +174,7 @@ export class RanvierEffect extends NodeJS.EventEmitter {
     type:            string;
     unique:          boolean;
     blockedChannels: string[]
+    blockedMessage?: string
   };
   startedAt: number;
   paused:    number | null;

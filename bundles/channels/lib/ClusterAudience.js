@@ -45,7 +45,11 @@ class ClusterAudience extends AreaAudience {
       return super.getBroadcastTargets();
     }
 
-    const { x, y } = this.sender.room.coordinates;
+    const coords = this.sender.room.coordinates;
+    if (!coords) {
+      throw new Error('Room has no coordinates');
+    }
+    const { x, y } = coords;
     const cacheKey = `${x},${y}`;
 
     let roadRooms = bfsCache.get(cacheKey);
@@ -62,7 +66,7 @@ class ClusterAudience extends AreaAudience {
     /** @type {RanvierCharacter[]} */
     const players = this.state.PlayerManager.filter(player =>
       player !== this.sender &&
-      player.room &&
+      !!player.room &&
       roadRooms.has(player.room.entityReference)
     );
 
@@ -113,8 +117,13 @@ class ClusterAudience extends AreaAudience {
     while (queue.length) {
       const current = queue.shift();
 
+      if (current === undefined) {
+        break;
+      }
+
       for (const exit of current.getExits()) {
         const ref = exit.roomId;
+
         if (!ref || visited.has(ref)) continue;
 
         const neighbor = this.state.RoomManager.getRoom(ref);
