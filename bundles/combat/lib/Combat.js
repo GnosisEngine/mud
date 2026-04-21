@@ -1,9 +1,9 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
-/** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
 
 const { Random } = require('rando-js');
 const { Damage, Logger } = require('ranvier');
@@ -47,7 +47,7 @@ class Combat {
 
     // currently just grabs the first combatant from their list but could easily be modified to
     // implement a threat table and grab the attacker with the highest threat
-    /** @type {RanvierCharacter} */
+    /** @type {RanvierCharacter | null} */
     let target = null;
     try {
       target = Combat.chooseCombatant(attacker);
@@ -124,7 +124,7 @@ class Combat {
   /**
    * Any cleanup that has to be done if the character is killed
    * @param {GameState}                    state
-   * @param {RanvierCharacter}             deadEntity
+   * @param {RanvierNpc}                   deadEntity
    * @param {RanvierCharacter|null}        killer
    */
   static handleDeath(state, deadEntity, killer) {
@@ -162,7 +162,7 @@ class Combat {
   /**
    * @param {RanvierPlayer} attacker
    * @param {string} search
-   * @returns {RanvierCharacter}
+   * @returns {RanvierCharacter | null}
    */
   static findCombatant(attacker, search) {
     if (!search.length) {

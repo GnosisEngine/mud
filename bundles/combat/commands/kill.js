@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const Ranvier = require('ranvier');
 const B = Ranvier.Broadcast;
@@ -27,7 +27,7 @@ module.exports = {
     let target = null;
     try {
       target = Combat.findCombatant(player, args);
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       if (cannotFight(state, player, e)) {
         return B.sayAt(player, e.message);
       }
@@ -43,7 +43,9 @@ module.exports = {
 
     player.initiateCombat(target);
 
-    B.sayAtExcept(player.room, `${player.name} attacks ${target.name}!`, [player, target]);
+    if (player.room) {
+      B.sayAtExcept(player.room, `${player.name} attacks ${target.name}!`, [player, target]);
+    }
 
     if (!isNpc(state, target)) {
       B.sayAt(target, `${player.name} attacks you!`);

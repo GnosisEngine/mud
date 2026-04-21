@@ -63,6 +63,12 @@ export interface MobFactory extends EntityFactory {
   create(area: RanvierArea, ref: string): RanvierNpc;
 }
 
+export interface MobManager {
+  mobs: Map<string, RanvierNpc>;
+  addMob(mob: RanvierNpc): void;
+  removeMob(mob: RanvierNpc): void;
+}
+
 export interface ItemFactory {
   create(ref: string, area: RanvierArea): RanvierItem;
 }

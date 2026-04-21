@@ -641,6 +641,7 @@ export interface RanvierHeal {
 }
 
 export interface RanvierDamage {
+  attacker?: RanvierCharacter
   evaluate(target: object): number;
   commit(target: object): void;
 }

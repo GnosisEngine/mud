@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const { Random } = require('rando-js');
 const { Broadcast } = require('ranvier');
@@ -23,6 +23,10 @@ module.exports = {
    * @returns {function(string, RanvierPlayer): void}
    */
   command: state => (direction, player) => {
+    if (player.room === null) {
+      return;
+    }
+
     if (!isInCombat(state, player)) {
       return say(player, 'You jump at the sight of your own shadow.');
     }
@@ -37,7 +41,7 @@ module.exports = {
 
     const randomRoom = state.RoomManager.getRoom(roomExit.roomId);
 
-    if (!roomExists(state, player, { room: randomRoom })) {
+    if (randomRoom === undefined || !roomExists(state, player, { room: randomRoom })) {
       say(player, "You can't find anywhere to run!");
       return;
     }

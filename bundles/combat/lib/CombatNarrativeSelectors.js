@@ -37,7 +37,7 @@ function pick(arr) {
  * Walk a nested object by a sequence of keys, returning the value at the end
  * or null if any key is missing along the way.
  *
- * @param {Object} obj
+ * @param {object} obj
  * @param {string[]} keys
  * @returns {any|null}
  */
@@ -54,7 +54,7 @@ function dig(obj, keys) {
  * Try each fallback path in order, returning the first non-null pick().
  * Each path is an array of keys passed to dig().
  *
- * @param {Object}    root   — the template subtree to search
+ * @param {object}    root   — the template subtree to search
  * @param {string[][]} paths — ordered list of key-path arrays
  * @returns {string|null}
  */
@@ -183,7 +183,7 @@ function selectArcLanguage(stage) {
  * @returns {string}    — empty string if no flavor should fire
  */
 function selectExhaustionFlavor(pov, tier) {
-  const pool = dig(T.exhaustion, [pov, tier]);
+  const pool = dig(T.exhaustion, [pov, tier.toString()]);
   if (!pool || pool.length === 0) return '';
   return pick(pool) || '';
 }
@@ -196,7 +196,7 @@ function selectExhaustionFlavor(pov, tier) {
  * @returns {string}    — empty string if no flavor should fire
  */
 function selectClarityFlavor(tier) {
-  const pool = dig(T.clarity, [tier]);
+  const pool = dig(T.clarity, [tier.toString()]);
   if (!pool || pool.length === 0) return '';
   return pick(pool) || '';
 }

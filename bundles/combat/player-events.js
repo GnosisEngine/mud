@@ -41,7 +41,7 @@ module.exports = {
 
     // updateTick
     // Drives the combat loop, injects arc language and status flavor.
-    updateTick: state => function() {
+    updateTick: state => /** @this {import('types').RanvierPlayer } */ function() {
       Combat.startRegeneration(state, this);
 
       let hadActions = false;
@@ -100,7 +100,7 @@ module.exports = {
 
     // hit
     // You struck a target. Build attacker-pov message.
-    [EVENTS.HIT]: () => function(damage, target, finalAmount) {
+    [EVENTS.HIT]: () => /** @this {import('types').RanvierPlayer } */ function(damage, target, finalAmount) {
       if (damage.metadata.hidden) {
         return;
       }
@@ -134,7 +134,7 @@ module.exports = {
 
     // heal
     // You healed a target. Build healer-pov message.
-    [EVENTS.HEAL]: () => function(heal, target, finalAmount) {
+    [EVENTS.HEAL]: () => /** @this {import('types').RanvierPlayer } */ function(heal, target, finalAmount) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -163,7 +163,7 @@ module.exports = {
 
     // damaged
     // You were struck. Build target-pov message and check for death.
-    [EVENTS.DAMAGED]: state => function(damage, finalAmount) {
+    [EVENTS.DAMAGED]: state => /** @this {import('types').RanvierPlayer } */ function(damage, finalAmount) {
       if (damage.metadata.hidden || damage.attribute !== 'health') {
         return;
       }
@@ -188,7 +188,7 @@ module.exports = {
 
     // healed
     // You received a heal. Build target-pov message.
-    [EVENTS.HEALED]: () => function(heal, finalAmount) {
+    [EVENTS.HEALED]: () => /** @this {import('types').RanvierPlayer } */ function(heal, finalAmount) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -217,7 +217,7 @@ module.exports = {
         Logger.error('No startingRoom defined in ranvier.json');
       }
 
-      return function({ killer }) {
+      return /** @this {import('types').RanvierPlayer } */ function({ killer }) {
         this.removePrompt('combat');
         ArcTracker.reset(this);
 
@@ -226,7 +226,9 @@ module.exports = {
           ? `<b><red>${this.name} collapses to the ground, dead at the hands of ${killer.name}.</red></b>`
           : `<b><red>${this.name} collapses to the ground, dead.</red></b>`;
 
-        B.sayAtExcept(this.room, othersDeathMessage, (killer ? [killer, this] : this));
+        if (this.room) {
+          B.sayAtExcept(this.room, othersDeathMessage, (killer ? [killer, this] : [this]));
+        }
 
         if (this.party) {
           B.sayAt(this.party, `<b><green>${this.name} was killed!</green></b>`);
@@ -263,7 +265,7 @@ module.exports = {
 
     // deathblow
     // You killed a target. Award XP, proxy to party.
-    [EVENTS.DEATHBLOW]: () => function({ target, skipParty }) {
+    [EVENTS.DEATHBLOW]: () => /** @this {import('types').RanvierPlayer } */ function({ target, skipParty }) {
       const xp = LevelUtil.mobExp(target.level);
 
       if (this.party && !skipParty) {

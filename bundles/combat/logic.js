@@ -1,16 +1,18 @@
 'use strict';
 
-/** @typedef {import('../../types/state').GameState} GameState */
-/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../types/ranvier').RanvierNpc} RanvierNpc */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
 
 const CombatErrors = require('./lib/CombatErrors');
 const { hasWeapon, hasExits, isNpc, isDoorImpassable, isInCombat } = require('../lib/logic');
 const NOOP = {};
 
 module.exports = {
+  /** @type {import('types').LogicCheck} */
   isNpc,
 
+  /** @type {import('types').LogicCheck} */
   roomExists: (state, _, { room, roomId } = NOOP) => {
     if (roomId !== undefined) {
       room = state.RoomManager.getRoom(roomId);
@@ -19,31 +21,33 @@ module.exports = {
     return room !== undefined;
   },
 
+  /** @type {import('types').LogicCheck} */
   isDoorImpassable,
 
+  /** @type {import('types').LogicCheck} */
   isInCombat,
 
+  /** @type {import('types').LogicCheck} */
   isPvpFlagged: (_, player) => {
     return player.getMeta('pvp');
   },
 
-  /**
-   *
-   * @param {GameState} _
-   * @param {RanvierPlayer} player
-   * @param {{ target: RanvierPlayer | RanvierNpc, amount: number}} options
-   * @returns
-   */
+  /** @type {import('types').LogicCheck} */
   isLevelDiff: (_, player, { target, amount }) => {
     return player.level  - target.level > amount;
   },
 
+  /** @type {import('types').LogicCheck} */
   hasPvpTargetsNear: (_, player) => {
     if (player.getMeta('pvp') === false) {
       return false;
     }
 
-    const candidates = player.room.players;
+    if (player.room === null) {
+      return false;
+    }
+
+    const candidates = [...player.room.players];
 
     return candidates.filter(c =>
       c !== player
@@ -54,8 +58,13 @@ module.exports = {
     ).length > 0;
   },
 
+  /** @type {import('types').LogicCheck} */
   hasPveTargetsNear: (_, player) => {
-    const candidates = player.room.npcs;
+    if (player.room === null) {
+      return false;
+    }
+
+    const candidates = [...player.room.npcs];
 
     return candidates.filter(c =>
       c.hasAttribute('health')
@@ -65,7 +74,12 @@ module.exports = {
     ).length > 0;
   },
 
+  /** @type {import('types').LogicCheck} */
   hasTargetsNear: (_, player) => {
+    if (player.room === null) {
+      return false;
+    }
+
     const candidates = [
       ...player.room.players,
       ...player.room.npcs
@@ -88,20 +102,25 @@ module.exports = {
     }).length > 0;
   },
 
+  /** @type {import('types').LogicCheck} */
   hasWeapon,
 
+  /** @type {import('types').LogicCheck} */
   isRegenerating: (_, player) => {
     return player.hasEffectType('regen');
   },
 
+  /** @type {import('types').LogicCheck} */
   canPerformCriticalAttack: (_, player) => {
     return player.hasAttribute('critical');
   },
 
+  /** @type {import('types').LogicCheck} */
   isAlive: (_, player) => {
     return player.getAttribute('health') > 0;
   },
 
+  /** @type {import('types').LogicCheck} */
   canBeAtatcked: (_, player, { target }) => {
     const isAlive = target.hasAttribute('health')
       && (target.getAttribute('health') > 0
@@ -118,13 +137,10 @@ module.exports = {
       && conditions;
   },
 
+  /** @type {import('types').LogicCheck} */
   hasExits,
 
-  /**
-   * @param {GameState}     _
-   * @param {RanvierPlayer} __
-   * @param {{ e?: any, error?: any }} ctx
-   */
+  /** @type {import('types').LogicCheck} */
   cannotFight: (_, __, { e, error }) => {
     const thrown = e ?? error;
     return thrown instanceof CombatErrors.CombatSelfError

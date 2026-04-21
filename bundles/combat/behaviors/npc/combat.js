@@ -1,5 +1,9 @@
 'use strict';
 
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('types').RanvierDamage} RanvierDamage */
+
 const Combat = require('../../lib/Combat');
 
 /**
@@ -11,30 +15,34 @@ module.exports = () => {
   return  {
     listeners: {
       /**
-       * @param {*} config Behavior config
+       * @param {GameState} state
+       * @returns {function(Record<string, any>): void}
        */
-      updateTick: state => function(/*config*/) {
+      updateTick: state => /** @this {RanvierCharacter} */ function(/*config*/) {
         Combat.updateRound(state, this);
       },
 
       /**
        * NPC was killed
-       * @param {*} config Behavior config
-       * @param {Character} killer
+       * @param {GameState} _
+       * @returns {function(Record<string, any>, RanvierCharacter): void}
        */
-      killed: () => function(/*config, killer*/) {
+      killed: (_) => /** @this {RanvierCharacter} */ function(/*config, killer*/) {
       },
 
       /**
        * NPC hit another character
-       * @param {*} config Behavior config
-       * @param {Damage} damage
-       * @param {Character} target
+       * @param {GameState} _
+       * @returns {function(Record<string, any>, RanvierDamage, RanvierCharacter): void}
        */
-      hit: () => function(/*config, damage, target*/) {
+      hit: (_) => /** @this {RanvierCharacter} */ function(/*config, damage, target*/) {
       },
 
-      damaged: state => function(_, damage) {
+      /**
+       * @param {GameState} state
+       * @returns {function(Record<string, any>, RanvierDamage): void}
+       */
+      damaged: state => /** @this {RanvierCharacter} */ function(_, damage) {
         if (this.getAttribute('health') <= 0) {
           Combat.handleDeath(state, this, damage.attacker);
         }
@@ -42,16 +50,15 @@ module.exports = () => {
 
       /**
        * NPC killed a target
-       * @param {*} config Behavior config
-       * @param {Character} target
+       * @param {GameState} state
+       * @returns {function(Record<string, any>, RanvierDamage): void}
+
        */
-      deathblow: state => function(/*config, target*/) {
+      deathblow: state => /** @this {RanvierCharacter} */ function(/*config, target*/) {
         if (!this.isInCombat()) {
           Combat.startRegeneration(state, this);
         }
       }
-
-      // refer to bundles/ranvier-combat/player-events.js for a further list of combat events
     }
   };
 };

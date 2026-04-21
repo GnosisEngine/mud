@@ -514,7 +514,7 @@ const Colors = {
    * @param {[number, number, number]} [padColor]    - [r, g, b] for the padding. null = no color
    * @returns {string}
    */
-  center(text, width, padChar = ' ', padColor = null) {
+  center(text, width, padChar = ' ', padColor = undefined) {
     const visible  = this.visibleLength(text);
     const total    = Math.max(0, width - visible);
     const left     = Math.floor(total / 2);
@@ -555,7 +555,7 @@ const Colors = {
    *   Colors.rule(60, '═', Colors.named.gold)
    *   Colors.rule(60, '─', [100, 100, 100])
    */
-  rule(width, char = '─', rgb = null) {
+  rule(width, char = '─', rgb = undefined) {
     const line = char.repeat(width);
     return rgb ? `${this.rgb(...rgb)}${line}${Codes.RESET}` : line;
   },

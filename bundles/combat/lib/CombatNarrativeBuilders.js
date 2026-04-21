@@ -47,8 +47,8 @@ const PLAYER_EMOJI = '🧍';
  * Players always get PLAYER_EMOJI.
  * NPCs are resolved via EmojiMapper using their keywords array.
  *
- * @param {Object} entity — a Character or NPC
- * @returns {string}      — a single emoji character
+ * @param {object} entity — a Character or NPC
+ * @returns {string | string[]}      — a single emoji character
  */
 function getEntityEmoji(entity) {
   if (!entity) return PLAYER_EMOJI;
@@ -62,8 +62,8 @@ function getEntityEmoji(entity) {
  * Replace {attacker} and {target} tokens in a template string.
  *
  * @param {string} template
- * @param {Object} attacker — entity with a .name property
- * @param {Object} target   — entity with a .name property
+ * @param {object} attacker — entity with a .name property
+ * @param {object} target   — entity with a .name property
  * @returns {string}
  */
 function interpolate(template, attacker, target) {
@@ -105,9 +105,9 @@ function damageBadge(tier) {
  * Build a hit message from the attacker's perspective.
  * Called from the 'hit' event listener on the attacking entity.
  *
- * @param {Object} attacker    — the entity doing the hitting
- * @param {Object} target      — the entity being hit
- * @param {Object} damage      — Ranvier Damage object
+ * @param {object} attacker    — the entity doing the hitting
+ * @param {object} target      — the entity being hit
+ * @param {object} damage      — Ranvier Damage object
  * @param {number} finalAmount — post-mitigation damage value
  * @returns {string}
  */
@@ -127,9 +127,9 @@ function buildHitMessage(attacker, target, damage, finalAmount) {
  * Build a hit message from the target's perspective.
  * Called from the 'damaged' event listener on the entity taking damage.
  *
- * @param {Object} attacker    — the entity that struck (may be null for env damage)
- * @param {Object} target      — the entity receiving the damage (self)
- * @param {Object} damage      — Ranvier Damage object
+ * @param {object} attacker    — the entity that struck (may be null for env damage)
+ * @param {object} target      — the entity receiving the damage (self)
+ * @param {object} damage      — Ranvier Damage object
  * @param {number} finalAmount — post-mitigation damage value
  * @returns {string}
  */
@@ -155,8 +155,8 @@ function buildDamagedMessage(attacker, target, damage, finalAmount) {
  *                             'target'   (you avoided their attack)
  * @param {string} avoidType — 'miss' | 'dodge' | 'block' | 'parry' | 'partial'
  * @param {string} ease      — 'effortless' | 'narrow' | 'desperate'
- * @param {Object} attacker  — entity doing the attacking
- * @param {Object} target    — entity doing the defending
+ * @param {object} attacker  — entity doing the attacking
+ * @param {object} target    — entity doing the defending
  * @returns {string}
  */
 function buildAvoidMessage(pov, avoidType, ease, attacker, target) {
@@ -170,8 +170,8 @@ function buildAvoidMessage(pov, avoidType, ease, attacker, target) {
  * Build a heal message for the entity being healed (self pov).
  * Called from the 'healed' event listener.
  *
- * @param {Object} entity      — the entity receiving the heal
- * @param {Object} heal        — Ranvier Heal object
+ * @param {object} entity      — the entity receiving the heal
+ * @param {object} heal        — Ranvier Heal object
  * @param {number} finalAmount — post-calculation heal value
  * @returns {string}
  */
@@ -192,9 +192,9 @@ function buildHealedMessage(entity, heal, finalAmount) {
  * Build a heal message for the entity doing the healing (other pov).
  * Called from the 'heal' event listener on the healer.
  *
- * @param {Object} healer      — the entity casting/applying the heal
- * @param {Object} target      — the entity being healed
- * @param {Object} heal        — Ranvier Heal object
+ * @param {object} healer      — the entity casting/applying the heal
+ * @param {object} target      — the entity being healed
+ * @param {object} heal        — Ranvier Heal object
  * @param {number} finalAmount — post-calculation heal value
  * @returns {string}
  */
@@ -237,7 +237,7 @@ function colorDeath(str) { return `<b><red>${str}</red></b>`; }
  *
  * Called from the updateTick listener, after arc tracking.
  *
- * @param {Object} entity — the player entity
+ * @param {object} entity — the player entity
  * @returns {string|null}
  */
 function buildStatusFlavor(entity) {
@@ -257,8 +257,8 @@ function buildStatusFlavor(entity) {
  * observes about their opponent's condition).
  * Returns null if the throttle says it's too soon or the target is fresh.
  *
- * @param {Object} observer — the player doing the observing (owns combatData)
- * @param {Object} target   — the entity being observed
+ * @param {object} observer — the player doing the observing (owns combatData)
+ * @param {object} target   — the entity being observed
  * @returns {string|null}
  */
 function buildTargetExhaustionFlavor(observer, target) {
@@ -274,8 +274,8 @@ function buildTargetExhaustionFlavor(observer, target) {
 /**
  * Build the kill message for the entity that landed the killing blow.
  *
- * @param {Object} killer — the entity that did the killing
- * @param {Object} dead   — the entity that died
+ * @param {object} killer — the entity that did the killing
+ * @param {object} dead   — the entity that died
  * @returns {string}
  */
 function buildKillMessage(killer, dead) {
@@ -286,8 +286,8 @@ function buildKillMessage(killer, dead) {
 /**
  * Build the death message for the entity that was killed.
  *
- * @param {Object} dead   — the entity that died
- * @param {Object} killer — the entity that did the killing (may be null)
+ * @param {object} dead   — the entity that died
+ * @param {object} killer — the entity that did the killing (may be null)
  * @returns {string}
  */
 function buildDeathMessage(dead, killer) {

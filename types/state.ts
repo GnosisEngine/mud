@@ -19,7 +19,8 @@ import type {
   BundleManager,
   PartyManager,
   AttributeFactory,
-  EffectFactory
+  EffectFactory,
+  MobManager
 } from './managers';
 import type {
   TimeService,
@@ -56,7 +57,7 @@ export interface GameState {
   EventManager:        object;
   InputEventManager:   object;
   ItemManager:         object;
-  MobManager:          object;
+  MobManager:          MobManager;
   GameServer:          object;
   QuestRewardManager:  Map<any, any>;
   PartyManager:        PartyManager;

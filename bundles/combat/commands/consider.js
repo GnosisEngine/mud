@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const Combat = require('../lib/Combat');
 const {
@@ -25,7 +25,7 @@ module.exports = {
     let target = null;
     try {
       target = Combat.findCombatant(player, args);
-    } catch (e) {
+    } catch (/** @type {any}*/ e) {
       if (cannotFight(state, player, { e })) {
         return B.sayAt(player, e.message);
       }
