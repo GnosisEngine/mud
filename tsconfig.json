@@ -2,6 +2,8 @@
   "compilerOptions": {
     "strict": true,
     "noEmit": true,
+    "allowJs": true,
+    "checkJs": false,
     "lib": ["ES2020"],
     "module": "node16",
     "moduleResolution": "node16",

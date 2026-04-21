@@ -1,12 +1,13 @@
 // bundles/channels/lib/ClusterAudience.js
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
-/** @typedef {import('../../../types/ranvier').RanvierRoom} RanvierRoom */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
+/** @typedef {import('types').RanvierRoom} RanvierRoom */
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
 /** @typedef {import('../../../bundles/world/types').WorldManager} WorldManager */
-/** @typedef {RanvierPlayer | RanvierNpc} RanvierCharacter */
+
 
 const { AreaAudience } = require('ranvier');
 

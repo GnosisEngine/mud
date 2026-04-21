@@ -288,7 +288,7 @@ export interface RanvierCharacter extends EventEmitter, RanvierMetadatable {
   hasEffectType(type: string): boolean;
   addEffect(effect: RanvierEffect): boolean;
   removeEffect(effect: RanvierEffect): void;
-  initiateCombat(target: CombatTarget, lag?: number): void;
+  initiateCombat(target: RanvierCharacter, lag?: number): void;
   isInCombat(target?: RanvierCharacter): boolean;
   addCombatant(target: RanvierCharacter): void;
   removeCombatant(target: RanvierCharacter): void;
@@ -313,7 +313,7 @@ export interface RanvierCharacter extends EventEmitter, RanvierMetadatable {
   moveTo(nextRoom: RanvierRoom, onMoved?: () => void): void;
 
   // Faction
-  _factionAttackTarget:   CombatTarget;
+  _factionAttackTarget:   RanvierCharacter;
   _factionAttackTimer:    NodeJS.Timeout;
   _factionEventHandler?:  (payload: any) => Promise<void>;
 }
@@ -376,7 +376,7 @@ export interface RanvierNpc extends RanvierCharacter, RanvierScriptable {
 
   // Aggro
   _aggroTimer:     number;
-  _aggroTarget:    CombatTarget | null;
+  _aggroTarget:    RanvierCharacter | null;
   _aggroWarned:    boolean;
   _lastWanderTime: number;
 }
@@ -441,8 +441,6 @@ export interface RanvierBroadcast {
   center(width: number, text: string, color?: string, char?: string): string
   indent(text: string, offset: number): string
 }
-
-export type CombatTarget = RanvierPlayer | RanvierNpc
 
 export interface RanvierCommand {
   name: string;
@@ -565,25 +563,25 @@ export interface NamedIndex {
 }
 
 export interface RanvierAreaAudience {
-  sender: CombatTarget;
+  sender: RanvierCharacter;
   state: GameState;
-  getBroadcastTargets(): (CombatTarget)[];
+  getBroadcastTargets(): (RanvierCharacter)[];
 }
 
 export interface RanvierPartyAudience {
-  getBroadcastTargets(): (CombatTarget)[];
+  getBroadcastTargets(): (RanvierCharacter)[];
 }
 
 export interface RanvierPrivateAudience {
-  getBroadcastTargets(): (CombatTarget)[];
+  getBroadcastTargets(): (RanvierCharacter)[];
 }
 
 export interface RanvierRoomAudience {
-  getBroadcastTargets(): (CombatTarget)[];
+  getBroadcastTargets(): (RanvierCharacter)[];
 }
 
 export interface RanvierWorldAudience {
-  getBroadcastTargets(): (CombatTarget)[];
+  getBroadcastTargets(): (RanvierCharacter)[];
 }
 
 export type RanvierEffectFlag = {
@@ -707,4 +705,67 @@ export type RanvierCommandType = {
 
 export interface RanvierCooldownError {
   effect: RanvierEffect;
+}
+
+export interface MercRegistryEntry {
+  contractId:       string;
+  mercRef:          string;
+  mercName:         string;
+  homeRoomId:       string;
+  holderId:         string;
+  targetRoomId:     string;
+  nextUpkeepAt:     number;
+  expiresAt:        number;
+  upkeepCost:       number;
+  upkeepCurrency:   string;
+  status:           'EN_ROUTE' | 'STATIONED' | 'RETURNING' | 'FLEEING';
+  npcInstance:      RanvierNpc | null;
+  contractItem:     RanvierItem | null;
+  path:             RanvierRoom[];
+  pathIndex:        number;
+  lastMoveAt:       number;
+  lastClaimCheckAt: number;
+}
+
+
+export interface FactionProfile {
+  axes:       object;
+  brackets:   object;
+  renown:     number;
+  isStranger: boolean;
+}
+
+export interface FactionStance {
+  brackets:   object;
+  renown:     number;
+  isStranger: boolean;
+}
+
+export interface PhaseInfo {
+  name:  string;
+  emoji: string;
+  index: number;
+}
+
+export interface NamedIndex {
+  name:  string;
+  index: number | null;
+}
+
+export interface RanvierParty {
+  invited: Set<RanvierPlayer>;
+  leader:  RanvierPlayer;
+
+  delete(player: RanvierPlayer): void;
+  add(player: RanvierPlayer): void;
+  disband(): void;
+  invite(player: RanvierPlayer): void;
+  isInvited(player: RanvierPlayer): boolean;
+  removeInvite(player: RanvierPlayer): void;
+  getBroadcastTargets(): RanvierPlayer[];
+}
+
+export interface WorldPath {
+  clusters: object[];
+  coords:   number[][];
 }

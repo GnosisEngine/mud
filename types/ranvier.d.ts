@@ -30,7 +30,8 @@ declare module 'ranvier' {
   export const CommandType: Ctor<import('.').RanvierCommandType>;
   export const InventoryFullError: Ctor<Error>
   export const CommandManager: Ctor<import('.').RanvierCommandManager>;
-  
+  export const EventUtil: import('.').RanvierEventUtil
+
   export const Player: Ctor<import('.').RanvierPlayer, [
     data: {
       name: string,
@@ -84,13 +85,4 @@ declare module 'ranvier' {
       max?: number
     }
   ]>
-
-  
-
-  export class EventUtil {
-    static genWrite(socket: import('net').Socket): (str: string) => void;
-    static genSay(socket: import('net').Socket): (str: string) => void;
-  }
-
-
 }

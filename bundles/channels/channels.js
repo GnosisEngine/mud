@@ -1,8 +1,8 @@
 // bundles/channels/channels.js
 'use strict';
 
-/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../types/ranvier').RanvierEffect} RanvierEffect */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierEffect} RanvierEffect */
 
 /**
  * @typedef {object} CanSpeakResult

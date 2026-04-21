@@ -1,8 +1,8 @@
 'use strict';
 
-/** @typedef {import('../../../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../../../types/ranvier').RanvierNpc} RanvierNpc */
-/** @typedef {import('../../../../types/ranvier').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
 
 const { Logger } = require('ranvier');
 

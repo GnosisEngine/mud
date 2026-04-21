@@ -1,15 +1,14 @@
-// ─── Time ────────────────────────────────────────────────────────────────────
-
-export interface PhaseInfo {
-  name:  string;
-  emoji: string;
-  index: number;
-}
-
-export interface NamedIndex {
-  name:  string;
-  index: number | null;
-}
+import { GameState } from './state';
+import {
+  FactionProfile,
+  FactionStance,
+  NamedIndex,
+  WorldPath,
+  MercRegistryEntry,
+  PhaseInfo,
+  RanvierNpc,
+  RanvierPlayer
+} from './primitives';
 
 export interface TimeService {
   getTick(): number;
@@ -25,21 +24,6 @@ export interface TimeService {
   getTimePosition(tick?: number): string;
 }
 
-// ─── Factions ────────────────────────────────────────────────────────────────
-
-export interface FactionProfile {
-  axes:       object;
-  brackets:   object;
-  renown:     number;
-  isStranger: boolean;
-}
-
-export interface FactionStance {
-  brackets:   object;
-  renown:     number;
-  isStranger: boolean;
-}
-
 export interface FactionService {
   getFaction(id: number): object | null;
   getFactionIds(): number[];
@@ -49,13 +33,6 @@ export interface FactionService {
   getFactionRelation(factionA: number, factionB: number): string | null;
   getFactionsForRoom(room: object): number[];
   executePolicy(policy: string, context: object): object | null;
-}
-
-// ─── World ───────────────────────────────────────────────────────────────────
-
-export interface WorldPath {
-  clusters: object[];
-  coords:   number[][];
 }
 
 export interface WorldManager {
@@ -70,4 +47,17 @@ export interface WorldManager {
   getPathBetweenClusters(fromCluster: number, toCluster: number): WorldPath | null;
   getDirection(from: number[], to: number[]): string | null;
   getClusterIndex(): Map<number, object>;
+}
+
+export interface MercenaryService {
+  getActiveMercCount(holderId: string): number;
+  getCoveredRoomIds(holderId: string): Set<string>;
+  getContractsByPlayer(holderId: string): MercRegistryEntry[];
+  findHolderForContract(contractId: string, state: GameState): RanvierPlayer | null;
+  beginFleeing(contractId: string, state: GameState): void;
+  hire(player: RanvierPlayer, npc: RanvierNpc, state: GameState): void;
+  dismiss(contractId: string, state: GameState): void;
+  handleMercDeath(npc: RanvierNpc, state: GameState): void;
+  tick(state: GameState): void;
+  boot(state: GameState): Promise<void>;
 }

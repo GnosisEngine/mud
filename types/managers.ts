@@ -1,3 +1,4 @@
+import { RanvierSkill, RanvierParty } from './primitives';
 import type {
   RanvierArea,
   RanvierRoom,
@@ -11,13 +12,6 @@ import type {
   RanvierCommand,
 } from './primitives';
 import type { GameState } from './state';
-
-// Minimal structural type for manager use — full implementation in declare module 'ranvier' in primitives.d.ts
-export interface RanvierSkill {
-  id:   string;
-  name: string;
-  [key: string]: any;
-}
 
 export interface BehaviorManager {
   addBehavior(name: string, behavior: object): void;
@@ -37,7 +31,6 @@ export interface PlayerManager {
   players: Map<string, RanvierPlayer>;
   events:  object;
   loader:  object | null;
-
   setLoader(loader: object): void;
   getPlayer(name: string): RanvierPlayer | undefined;
   addPlayer(player: RanvierPlayer): void;
@@ -57,7 +50,6 @@ export interface PlayerManager {
 export interface EntityFactory {
   entities: Map<string, Record<string, any>>;
   scripts:  object;
-
   createEntityRef(area: string, id: string): string;
   getDefinition(ref: string): Record<string, any> | undefined;
   setDefinition(ref: string, def: Record<string, any>): void;
@@ -77,7 +69,6 @@ export interface ItemFactory {
 
 export interface QuestFactory {
   quests: Map<string, { id: string; area: string; config: Record<string, any> }>;
-
   add(area: string, id: string, quest: RanvierQuest): void;
   set(id: string, quest: RanvierQuest): void;
   get(id: string): RanvierQuest | undefined;
@@ -92,7 +83,6 @@ export interface StorageManager {
 
 export interface AbilityManager {
   skills: Map<string, RanvierSkill>;
-
   get(id: string): RanvierSkill | undefined;
   add(skill: RanvierSkill): void;
   remove(skill: RanvierSkill): void;
@@ -103,55 +93,11 @@ export interface BundleManager {
   createCommand(bundle: string, area: string, name: string): RanvierCommand;
 }
 
-export interface MercRegistryEntry {
-  contractId:       string;
-  mercRef:          string;
-  mercName:         string;
-  homeRoomId:       string;
-  holderId:         string;
-  targetRoomId:     string;
-  nextUpkeepAt:     number;
-  expiresAt:        number;
-  upkeepCost:       number;
-  upkeepCurrency:   string;
-  status:           'EN_ROUTE' | 'STATIONED' | 'RETURNING' | 'FLEEING';
-  npcInstance:      RanvierNpc | null;
-  contractItem:     RanvierItem | null;
-  path:             RanvierRoom[];
-  pathIndex:        number;
-  lastMoveAt:       number;
-  lastClaimCheckAt: number;
-}
 
-export interface MercenaryService {
-  getActiveMercCount(holderId: string): number;
-  getCoveredRoomIds(holderId: string): Set<string>;
-  getContractsByPlayer(holderId: string): MercRegistryEntry[];
-  findHolderForContract(contractId: string, state: GameState): RanvierPlayer | null;
-  beginFleeing(contractId: string, state: GameState): void;
-  hire(player: RanvierPlayer, npc: RanvierNpc, state: GameState): void;
-  dismiss(contractId: string, state: GameState): void;
-  handleMercDeath(npc: RanvierNpc, state: GameState): void;
-  tick(state: GameState): void;
-  boot(state: GameState): Promise<void>;
-}
-
-export interface Party {
-  invited: Set<RanvierPlayer>;
-  leader:  RanvierPlayer;
-
-  delete(player: RanvierPlayer): void;
-  add(player: RanvierPlayer): void;
-  disband(): void;
-  invite(player: RanvierPlayer): void;
-  isInvited(player: RanvierPlayer): boolean;
-  removeInvite(player: RanvierPlayer): void;
-  getBroadcastTargets(): RanvierPlayer[];
-}
 
 export interface PartyManager {
   create(player: RanvierPlayer): void;
-  disband(party: Party): void;
+  disband(party: RanvierParty): void;
 }
 
 export interface AttributeFactory {

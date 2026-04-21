@@ -17,7 +17,6 @@ import type {
   StorageManager,
   AbilityManager,
   BundleManager,
-  MercenaryService,
   PartyManager,
   AttributeFactory,
 } from './managers';
@@ -25,7 +24,9 @@ import type {
   TimeService,
   FactionService,
   WorldManager,
+  MercenaryService
 } from './services';
+import { ContextService } from '../bundles/world/lib/ContextService.js'
 
 export interface GameState {
   AreaManager:         AreaManager;
@@ -61,7 +62,7 @@ export interface GameState {
   WorldManager:        WorldManager;
   StorageManager:      StorageManager;
   WorldReady:          boolean;
-  ContextService:      any; // full type: bundles/world/lib/ContextService.js — no declarations yet
+  ContextService:      typeof ContextService;
   Config:              { get(key: string): any };
   _timeBundleStop():   void;
   getTarget(
