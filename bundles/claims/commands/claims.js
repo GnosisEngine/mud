@@ -1,8 +1,8 @@
 'use strict';
 const { claimList } = require('./claim');
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 module.exports = {
   aliases: [],

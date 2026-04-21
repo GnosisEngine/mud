@@ -1,12 +1,11 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const enforcement = require('../lib/enforcement');
 const { applySubmission } = require('./enforce');
 const { Broadcast } = require('ranvier');
-const { isThreatened } = require('../logic');
 const say = Broadcast.sayAt;
 
 module.exports = {
@@ -17,7 +16,7 @@ module.exports = {
    * @returns {function(string, RanvierPlayer): void}
    */
   command: state => (args, player) => {
-    const pending = isThreatened(state, player);
+    const pending = enforcement.findThreatAgainst(player.name);
 
     if (!pending) {
       return say(player,  'Nobody has issued an enforcement demand against you right now.');

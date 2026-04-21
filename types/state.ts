@@ -28,6 +28,12 @@ import type {
 } from './services';
 import { ContextService } from '../bundles/world/lib/ContextService.js'
 
+export type LogicCheck =( state: GameState, player: RanvierPlayer, options?: any) => boolean
+
+export interface LogicChecks {
+  [key: string]: LogicCheck
+}
+
 export interface GameState {
   AreaManager:         AreaManager;
   RoomManager:         RoomManager;

@@ -1,7 +1,7 @@
 // bundles/claims/server-events/index.js
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
+/** @typedef {import('types').GameState} GameState */
 
 require('../hints');
 const { Log } = require('../lib/log');

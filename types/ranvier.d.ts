@@ -3,6 +3,8 @@ declare module 'ranvier' {
   export const Broadcast: import('./').RanvierBroadcast;
   export const Logger: import('./').RanvierLogger;
   export const EffectFlag: import('.').RanvierEffectFlag
+  export const Config: import('.').RanvierConfig
+  export const EventUtil: import('.').RanvierEventUtil
 
   export const ItemType: Ctor<import('.').RanvierItemType>
   export const SkillConfig: Ctor<import('.').RanvierSkillConfig>
@@ -11,7 +13,7 @@ declare module 'ranvier' {
   export const SkillType: Ctor<import('.').RanvierSkillType>
   export const SkillFlag: Ctor<import('.').RanvierSkillFlag>
   export const PlayerRoles: Ctor<import('.').RanvierPlayerRoles>
-  export const Config: Ctor<import('.').RanvierConfig>
+
   export const ResourceCost: Ctor<import('.').RanvierResourceCost>
   export const Room: Ctor<import('.').RanvierRoom>;
   export const Area: Ctor<import('.').RanvierArea>;
@@ -30,7 +32,6 @@ declare module 'ranvier' {
   export const CommandType: Ctor<import('.').RanvierCommandType>;
   export const InventoryFullError: Ctor<Error>
   export const CommandManager: Ctor<import('.').RanvierCommandManager>;
-  export const EventUtil: import('.').RanvierEventUtil
 
   export const Player: Ctor<import('.').RanvierPlayer, [
     data: {
