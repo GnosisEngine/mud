@@ -428,17 +428,14 @@ export interface RanvierNpc extends RanvierCharacter, RanvierScriptable {
   _lastWanderTime: number;
 }
 
-export const ItemType = {
+export type RanvierItemType = {
   OBJECT:    1,
   CONTAINER: 2,
   ARMOR:     3,
   WEAPON:    4,
   POTION:    5,
   RESOURCE:  6,
-} as const;
-
-export type RanvierItemType = typeof ItemType;
-export type RanvierItemTypeValue = typeof ItemType[keyof typeof ItemType];
+};
 
 export interface RanvierItem extends RanvierGameEntity {
   area:            RanvierArea;
@@ -489,10 +486,26 @@ export interface RanvierBroadcast {
   indent(text: string, offset: number): string
 }
 
+export interface RanvierCommandDef {
+  type?: RanvierCommandType;
+  command: (args: string, player: RanvierPlayer, arg0: string) => unknown;
+  aliases?: string[];
+  usage?: string;
+  requiredRole?: RanvierPlayerRoles;
+  metadata?: Record<string, unknown>;
+}
+
 export interface RanvierCommand {
+  bundle: string;
+  type: RanvierCommandType;
   name: string;
-  command: (state: GameState) => (args: string, player: RanvierPlayer) => void;
-  aliases?: string[]
+  func: RanvierCommandDef['command'];
+  aliases: string[];
+  usage: string;
+  requiredRole: RanvierPlayerRoles;
+  file: string;
+  metadata: Record<string, unknown>;
+  execute(args: string|null, player: RanvierPlayer, arg0?: string): unknown;
 }
 
 export interface RanvierVendorCommand {
@@ -641,7 +654,9 @@ export interface RanvierHeal {
 }
 
 export interface RanvierDamage {
+  attribute: string
   attacker?: RanvierCharacter
+  metadata: Record<string, any>
   evaluate(target: object): number;
   commit(target: object): void;
 }
@@ -712,14 +727,6 @@ export interface RanvierInventory extends Map<string, RanvierItem> {
   removeItem(item: RanvierItem): void;
   serialize(): { items: [string, RanvierItem][]; max: number };
   hydrate(state: GameState, carriedBy: RanvierCharacter | RanvierItem): void;
-}
-
-export interface RanvierCommandManager<T extends { name: string; aliases?: string[] } = RanvierCommand> {
-  get(name: string): T | undefined;
-  add(command: T): void;
-  remove(name: string): void;
-  find(name: string, returnAlias?: false): T | undefined;
-  find(name: string, returnAlias: true): { command: T; alias: string } | undefined;
 }
 
 export interface RanvierEventUtil {

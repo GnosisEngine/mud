@@ -1,15 +1,19 @@
 'use strict';
 
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierItem} RanvierItem */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+
 require('./hints');
 
 module.exports = {
   listeners: {
     /**
      * Handle a player equipping an item with a `stats` property
-     * @param {string} slot
-     * @param {Item} item
+     * @param {GameState} state
+     * @returns {function(string, RanvierItem): void}
      */
-    equip: state => function(slot, item) {
+    equip: state => /** @this {RanvierPlayer} */function(slot, item) {
       if (!item.metadata.stats) {
         return;
       }

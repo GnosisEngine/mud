@@ -20,7 +20,8 @@ import type {
   PartyManager,
   AttributeFactory,
   EffectFactory,
-  MobManager
+  MobManager,
+  CommandManager
 } from './managers';
 import type {
   TimeService,
@@ -30,7 +31,11 @@ import type {
 } from './services';
 import { ContextService } from '../bundles/world/lib/ContextService.js'
 
-export type LogicCheck =( state: GameState, player: RanvierPlayer, options?: any) => boolean
+export type LogicCheck = (state: GameState, player: RanvierPlayer, options?: any) => boolean
+
+export type PlayeEvents = (state: GameState) => () => void
+
+export type ServerEvent = (state: GameState) => () => void
 
 export interface LogicChecks {
   [key: string]: LogicCheck
@@ -48,7 +53,7 @@ export interface GameState {
   ItemFactory:         ItemFactory;
   QuestFactory:        QuestFactory;
   ChannelManager:      object;
-  CommandManager:      object;
+  CommandManager:      CommandManager;
   EffectFactory:       EffectFactory;
   SkillManager:        AbilityManager;
   SpellManager:        AbilityManager;

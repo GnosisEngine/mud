@@ -1,4 +1,13 @@
 'use strict';
+
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierDamage} RanvierDamage */
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
+
+
+
 require('./hints');
 const { Logger } = require('ranvier');
 
@@ -41,7 +50,11 @@ module.exports = {
 
     // updateTick
     // Drives the combat loop, injects arc language and status flavor.
-    updateTick: state => /** @this {import('types').RanvierPlayer } */ function() {
+    /**
+     * @param {GameState} state
+     * @returns {function(): void}
+     */
+    updateTick: state => /** @this {RanvierPlayer } */ function() {
       Combat.startRegeneration(state, this);
 
       let hadActions = false;
@@ -100,7 +113,11 @@ module.exports = {
 
     // hit
     // You struck a target. Build attacker-pov message.
-    [EVENTS.HIT]: () => /** @this {import('types').RanvierPlayer } */ function(damage, target, finalAmount) {
+    /**
+     * @param {GameState} _
+     * @returns {function(RanvierDamage, RanvierCharacter, number): void}
+     */
+    [EVENTS.HIT]: (_) => /** @this {RanvierPlayer } */ function(damage, target, finalAmount) {
       if (damage.metadata.hidden) {
         return;
       }
@@ -134,7 +151,11 @@ module.exports = {
 
     // heal
     // You healed a target. Build healer-pov message.
-    [EVENTS.HEAL]: () => /** @this {import('types').RanvierPlayer } */ function(heal, target, finalAmount) {
+    /**
+     * @param {GameState} _
+     * @returns {function(RanvierDamage, RanvierCharacter, number): void}
+     */
+    [EVENTS.HEAL]: (_) => /** @this {RanvierPlayer } */ function(heal, target, finalAmount) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -163,7 +184,11 @@ module.exports = {
 
     // damaged
     // You were struck. Build target-pov message and check for death.
-    [EVENTS.DAMAGED]: state => /** @this {import('types').RanvierPlayer } */ function(damage, finalAmount) {
+    /**
+     * @param {GameState} state
+     * @returns {function(RanvierDamage, number): void}
+     */
+    [EVENTS.DAMAGED]: state => /** @this {RanvierNpc } */ function(damage, finalAmount) {
       if (damage.metadata.hidden || damage.attribute !== 'health') {
         return;
       }
@@ -188,7 +213,11 @@ module.exports = {
 
     // healed
     // You received a heal. Build target-pov message.
-    [EVENTS.HEALED]: () => /** @this {import('types').RanvierPlayer } */ function(heal, finalAmount) {
+    /**
+     * @param {GameState} _
+     * @returns {function(RanvierDamage, number): void}
+     */
+    [EVENTS.HEALED]: (_) => /** @this {RanvierPlayer } */ function(heal, finalAmount) {
       if (heal.metadata.hidden) {
         return;
       }
@@ -211,13 +240,17 @@ module.exports = {
 
     // killed
     // You were killed. Respawn, strip experience, move to home room.
+    /**
+     * @param {GameState} state
+     * @returns {function({ killer: RanvierCharacter }): void}
+     */
     [EVENTS.KILLED]: state => {
       const startingRoomRef = Config.get('startingRoom');
       if (!startingRoomRef) {
         Logger.error('No startingRoom defined in ranvier.json');
       }
 
-      return /** @this {import('types').RanvierPlayer } */ function({ killer }) {
+      return /** @this {RanvierPlayer } */ function({ killer }) {
         this.removePrompt('combat');
         ArcTracker.reset(this);
 
@@ -241,8 +274,12 @@ module.exports = {
           home = state.RoomManager.getRoom(startingRoomRef);
         }
 
+        if (!home) {
+          return;
+        }
+
         this.moveTo(home, _ => {
-          state.CommandManager.get('look').execute(null, this);
+          state.CommandManager.get('look')?.execute(null, this);
 
           // Death message (your pov).
           const deathMsg = buildDeathMessage(this, killer);
@@ -265,7 +302,11 @@ module.exports = {
 
     // deathblow
     // You killed a target. Award XP, proxy to party.
-    [EVENTS.DEATHBLOW]: () => /** @this {import('types').RanvierPlayer } */ function({ target, skipParty }) {
+    /**
+     * @param {GameState} _
+     * @returns {function({ target: RanvierCharacter, skipParty: boolean }): void}
+     */
+    [EVENTS.DEATHBLOW]: (_) => /** @this {RanvierPlayer} */ function({ target, skipParty }) {
       const xp = LevelUtil.mobExp(target.level);
 
       if (this.party && !skipParty) {

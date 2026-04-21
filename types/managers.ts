@@ -127,3 +127,11 @@ export interface EffectFactory {
   get(id: string): EffectEntry | undefined;
   create(id: string, config?: Record<string, unknown>, state?: Record<string, unknown>): RanvierEffect;
 }
+
+export interface CommandManager<T extends { name: string; aliases?: string[] } = RanvierCommand> {
+  get(name: string): T | undefined;
+  add(command: T): void;
+  remove(name: string): void;
+  find(name: string, returnAlias?: false): T | undefined;
+  find(name: string, returnAlias: true): { command: T; alias: string } | undefined;
+}

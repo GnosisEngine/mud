@@ -125,7 +125,7 @@ class Combat {
    * Any cleanup that has to be done if the character is killed
    * @param {GameState}                    state
    * @param {RanvierNpc}                   deadEntity
-   * @param {RanvierCharacter|null}        killer
+   * @param {RanvierCharacter|null|undefined}        killer
    */
   static handleDeath(state, deadEntity, killer) {
     if (deadEntity.combatData.killed) {
