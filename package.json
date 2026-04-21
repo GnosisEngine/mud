@@ -16,6 +16,7 @@
     "dev": "node ./ranvier -v",
     "start": "node ./ranvier",
     "test": "NODE_ENV=test node --trace-warnings test/integration/run.js",
+    "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint bundles/**/*.js",
     "lint:fix": "eslint --fix bundles/**/*.js"
   },
@@ -35,7 +36,8 @@
     "@types/node": "^25.6.0",
     "eslint": "^8.57.1",
     "eslint-plugin-jsdoc": "^61.7.1",
-    "git-url-parse": "^11.1.2"
+    "git-url-parse": "^11.1.2",
+    "typescript": "^6.0.3"
   },
   "workspaces": [
     "bundles/*"

@@ -1,19 +1,19 @@
 'use strict';
 
 /**
- * @typedef {import('./ranvier').RanvierArea}                    RanvierArea
- * @typedef {import('./ranvier').RanvierRoom}                    RanvierRoom
- * @typedef {import('./ranvier').RanvierPlayer}                  RanvierPlayer
- * @typedef {import('./ranvier').RanvierNpc}                     RanvierNpc
- * @typedef {import('./ranvier').RanvierItem}                    RanvierItem
- * @typedef {import('./ranvier').RanvierQuest}                   RanvierQuest
- * @typedef {import('./ranvier').RanvierLogger}                  RanvierLogger
- * @typedef {import('./ranvier').RanvierCommand}                 RanvierCommand
- * @typedef {import('./ranvier').RanvierAccount}                 RanvierAccount
- * @typedef {import('./ranvier').RanvierExit}                    RanvierExit
- * @typedef {import('./ranvier').RanvierAttribute}               RanvierAttribute
- * @typedef {import('./ranvier').RanvierAttributeFormula}        RanvierAttributeFormula
- * @typedef {import('./ranvier').RanvierSkill}                   RanvierSkill
+ * @typedef {import('./primitives').RanvierArea}                    RanvierArea
+ * @typedef {import('./primitives').RanvierRoom}                    RanvierRoom
+ * @typedef {import('./primitives').RanvierPlayer}                  RanvierPlayer
+ * @typedef {import('./primitives').RanvierNpc}                     RanvierNpc
+ * @typedef {import('./primitives').RanvierItem}                    RanvierItem
+ * @typedef {import('./primitives').RanvierQuest}                   RanvierQuest
+ * @typedef {import('./primitives').RanvierLogger}                  RanvierLogger
+ * @typedef {import('./primitives').RanvierCommand}                 RanvierCommand
+ * @typedef {import('./primitives').RanvierAccount}                 RanvierAccount
+ * @typedef {import('./primitives').RanvierExit}                    RanvierExit
+ * @typedef {import('./primitives').RanvierAttribute}               RanvierAttribute
+ * @typedef {import('./primitives').RanvierAttributeFormula}        RanvierAttributeFormula
+ * @typedef {import('./primitives').RanvierSkill}                   RanvierSkill
  * @typedef {import('../bundles/time/types').TimeService}        TimeService
  * @typedef {import('../bundles/factions/types').FactionService} FactionService
  * @typedef {import('../bundles/world/types').WorldManager}      WorldManager
@@ -128,9 +128,9 @@
  * @property {number}            upkeepCost
  * @property {string}            upkeepCurrency
  * @property {'EN_ROUTE'|'STATIONED'|'RETURNING'|'FLEEING'} status
- * @property {import('./ranvier').RanvierNpc|null}  npcInstance
- * @property {import('./ranvier').RanvierItem|null} contractItem
- * @property {import('./ranvier').RanvierRoom[]}    path
+ * @property {import('./primitives').RanvierNpc|null}  npcInstance
+ * @property {import('./primitives').RanvierItem|null} contractItem
+ * @property {import('./primitives').RanvierRoom[]}    path
  * @property {number}            pathIndex
  * @property {number}            lastMoveAt
  * @property {number}            lastClaimCheckAt
@@ -141,11 +141,11 @@
  * @property {function(string): number}                                          getActiveMercCount
  * @property {function(string): Set<string>}                                     getCoveredRoomIds
  * @property {function(string): MercRegistryEntry[]}                             getContractsByPlayer
- * @property {function(string, GameState): import('./ranvier').RanvierPlayer|null} findHolderForContract
+ * @property {function(string, GameState): import('./primitives').RanvierPlayer|null} findHolderForContract
  * @property {function(string, GameState): void}                                 beginFleeing
- * @property {function(import('./ranvier').RanvierPlayer, import('./ranvier').RanvierNpc, GameState): void} hire
+ * @property {function(import('./primitives').RanvierPlayer, import('./primitives').RanvierNpc, GameState): void} hire
  * @property {function(string, GameState): void}                                 dismiss
- * @property {function(import('./ranvier').RanvierNpc, GameState): void}         handleMercDeath
+ * @property {function(import('./primitives').RanvierNpc, GameState): void}         handleMercDeath
  * @property {function(GameState): void}                                         tick
  * @property {function(GameState): Promise<void>}                                boot
  */

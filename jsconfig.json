@@ -8,7 +8,14 @@
     "noImplicitAny": false,
     "noImplicitThis": true,
     "moduleResolution": "node",
-    "target": "ES2020"
+    "target": "ES2020",
+    "baseUrl": ".",
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "paths": {
+      "ranvier":  ["./types/ranvier/index.d.ts"],
+      "types":    ["./types/index.d.ts"],
+      "types/*":  ["./types/*.d.ts"]
+    }
   },
   "exclude": ["node_modules", "data", "log"]
 }
