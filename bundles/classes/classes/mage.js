@@ -1,8 +1,8 @@
 'use strict';
 const { renderStatusBar } = require('../lib/statusBar');
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 /**
  * See warrior.js for more on classes.

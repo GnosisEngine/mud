@@ -21,7 +21,7 @@ module.exports = {
   },
   cooldown,
 
-  run: () => function(args, player, target) {
+  run: () => /** @this {import('types').RanvierSkill } */function(args, player, target) {
     const maxHealth = target.getMaxAttribute('health');
     let amount = Math.round(maxHealth * (healPercent / 100));
     if (target.getAttribute('health') < (maxHealth *  (bonusThreshold / 100))) {

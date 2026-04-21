@@ -44,7 +44,7 @@ const HEALTH_DARK   = [10,  2,   3];
 const DOTS       = 4;
 const FILL_CHAR  = '●';
 const EMPTY_CHAR = '○';
-const EMPTY_COLOR = [45, 45, 45];
+const EMPTY_COLOR = /** @type {[number, number, number]} */ ([45, 45, 45]);
 
 /**
  * Render a small inline HUD bar like:
@@ -119,6 +119,9 @@ function makeDots(pct, brightRgb, darkRgb) {
   return parts.join(' ') + Colors.RESET;
 }
 
+/**
+ * @returns {[number, number, number]}
+ */
 function lerpColor(a, b, t) {
   return [
     Math.round(a[0] + (b[0] - a[0]) * t),

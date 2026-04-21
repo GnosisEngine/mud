@@ -11,7 +11,7 @@ module.exports = {
   requiresTarget: true,
   targetSelf: true,
 
-  run: () => function(args, player) {
+  run: () => /** @this {import('types').RanvierSkill } */function(args, player) {
     const stat = this.options.stat || 'health';
     const amount = Math.round(player.getMaxAttribute('health') * (this.options.restores / 100));
     const heal = new Heal(stat, amount, player, this);

@@ -5,16 +5,12 @@ declare module 'ranvier' {
   export const EffectFlag: import('.').RanvierEffectFlag
   export const Config: import('.').RanvierConfig
   export const EventUtil: import('.').RanvierEventUtil
+  export const SkillType: import('.').RanvierSkillType
+  export const SkillFlag: import('.').RanvierSkillFlag
+  export const PlayerRoles: import('.').RanvierPlayerRoles
 
   export const ItemType: Ctor<import('.').RanvierItemType>
   export const SkillConfig: Ctor<import('.').RanvierSkillConfig>
-  export const NotEnoughResourcesError: Ctor<Error>
-  export const PassiveError: Ctor<Error>
-  export const SkillType: Ctor<import('.').RanvierSkillType>
-  export const SkillFlag: Ctor<import('.').RanvierSkillFlag>
-  export const PlayerRoles: Ctor<import('.').RanvierPlayerRoles>
-
-  export const ResourceCost: Ctor<import('.').RanvierResourceCost>
   export const Room: Ctor<import('.').RanvierRoom>;
   export const Area: Ctor<import('.').RanvierArea>;
   export const Npc: Ctor<import('.').RanvierNpc>;
@@ -43,16 +39,16 @@ declare module 'ranvier' {
   export const Heal: Ctor<import('.').RanvierHeal, [
     stat: string,
     amount: number,
-    source: object,
-    attacker: object,
+    source: import('.').RanvierCharacter,
+    attacker: import('.').RanvierSkill,
     options?: object
   ]>;
   
   export const Damage: Ctor<import('.').RanvierDamage, [
     stat: string,
     amount: number,
-    attacker: object,
-    source: object,
+    attacker: import('.').RanvierCharacter,
+    source: import('.').RanvierSkill,
     options?: object
   ]>;
 
@@ -76,14 +72,19 @@ declare module 'ranvier' {
     state: import('.').GameState
   ]>
 
-  export const CooldownError: Ctor<import('.').RanvierCooldownError, [
-    effect: import('.').RanvierEffect
-  ]>
-
   export const Inventory: Ctor<import('.').RanvierInventory, [
     init?: {
       items?: Array<import('.').RanvierItem>,
       max?: number
     }
   ]>
+
+    export const SkillErrors: {
+      PassiveError: Ctor<Error>
+      ResourceCost: Ctor<import('.').RanvierResourceCost>
+      NotEnoughResourcesError: Ctor<Error>,
+      CooldownError: Ctor<import('.').RanvierCooldownError, [
+        effect: import('.').RanvierEffect
+      ]>
+  }
 }

@@ -1,4 +1,4 @@
-import { RanvierSkill, RanvierParty } from './primitives';
+import { RanvierEffect, EffectEntry, RanvierSkill, RanvierParty, EventEmitter, EffectConfig } from './primitives';
 import type {
   RanvierArea,
   RanvierRoom,
@@ -93,8 +93,6 @@ export interface BundleManager {
   createCommand(bundle: string, area: string, name: string): RanvierCommand;
 }
 
-
-
 export interface PartyManager {
   create(player: RanvierPlayer): void;
   disband(party: RanvierParty): void;
@@ -106,4 +104,20 @@ export interface AttributeFactory {
   get(name: string): object;
   create(name: string, base?: number, delta?: number): RanvierAttribute;
   validateAttributes(): void;
+}
+
+export interface EventManager {
+  events: Map<string, Set<(...args: unknown[]) => void>>;
+  get(name: string): Set<(...args: unknown[]) => void> | undefined;
+  add(eventName: string, listener: (...args: unknown[]) => void): void;
+  attach(emitter: EventEmitter, config?: Record<string, unknown>): void;
+  detach(emitter: EventEmitter, events?: string | Iterable<string>): void;
+}
+
+export interface EffectFactory {
+  effects: Map<string, EffectEntry>;
+  add(id: string, config: EffectConfig, state?: GameState): void;
+  has(id: string): boolean;
+  get(id: string): EffectEntry | undefined;
+  create(id: string, config?: Record<string, unknown>, state?: Record<string, unknown>): RanvierEffect;
 }

@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const { Broadcast: B } = require('ranvier');
 const {
@@ -42,7 +42,9 @@ module.exports = {
     }
 
     if (hasResourceCost(state, player, { skill })) {
-      say(`<b>Cost</b>: <b>${skill.resource.cost}</b> ${skill.resource.attribute}`);
+      for (const resource of skill.resource ?? []) {
+        say(`<b>Cost</b>: <b>${resource.cost}</b> ${resource.attribute}`);
+      }
     }
 
     if (hasCooldown(state, player, { skill })) {

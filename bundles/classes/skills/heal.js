@@ -24,7 +24,7 @@ module.exports = {
   },
   cooldown: 10,
 
-  run: () => function(args, player, target) {
+  run: () => /** @this {import('types').RanvierSkill } */function(args, player, target) {
     const heal = new Heal('health', getHeal(player), player, this);
 
     if (target !== player) {

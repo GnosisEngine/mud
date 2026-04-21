@@ -9,7 +9,6 @@ const damagePercent = 150;
 const favorAmount = 3;
 const reductionPercent = 30;
 
-
 module.exports = {
   name: 'Judge',
   type: SkillType.SKILL,
@@ -17,8 +16,8 @@ module.exports = {
   initiatesCombat: true,
   cooldown,
 
-  run: state => function(args, player, target) {
-    const effect = state.EffectFactory.create('skill.judge', {}, { reductionPercent });
+  run: () => /** @this {import('types').RanvierSkill } */function(args, player, target) {
+    const effect = this.state.EffectFactory.create('skill.judge', {}, { reductionPercent });
     effect.skill = this;
     effect.attacker = player;
 

@@ -1,7 +1,8 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierPlayer} RanvierAbilityTable */
 
 const fs = require('fs');
 const path = require('path');
@@ -72,12 +73,15 @@ class PlayerClass {
    *       2: { skills: ['bash'], spells: ['fireball']},
    *       5: { skills: ['rend', 'secondwind'] },
    *     }
-   * @type {Object<number, Array<string>>}
+   * @returns {RanvierAbilityTable}
    */
   get abilityTable() {
     return this.config.abilityTable;
   }
 
+  /**
+   * @returns {string[]}
+   */
   get abilityList() {
     return Object.entries(this.abilityTable).reduce((acc, [, abilities]) => {
       return acc.concat(abilities.skills || []).concat(abilities.spells || []);

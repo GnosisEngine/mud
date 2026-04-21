@@ -29,8 +29,8 @@ module.exports = {
   },
   cooldown,
 
-  run: state => function(args, player, target) {
-    const effect = state.EffectFactory.create(
+  run: () => /** @this {import('types').RanvierSkill } */function(args, player, target) {
+    const effect = this.state.EffectFactory.create(
       'skill.rend',
       {
         duration,

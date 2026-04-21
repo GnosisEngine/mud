@@ -1,4 +1,5 @@
-import { GameState } from '../types/state';
+import { EventManager } from './managers';
+import { GameState } from './state';
 
 export interface EventEmitter {
   emit(event: string | symbol, ...args: any[]): boolean;
@@ -163,7 +164,8 @@ export interface RanvierEffect extends EventEmitter {
   state:     Record<string, any>;
   active:    boolean;
   target:    RanvierCharacter | undefined;
-  skill?:    any;
+  skill?:    RanvierSkill;
+  attacker?: RanvierCharacter
 
   readonly name:        string;
   readonly description: string;
@@ -317,6 +319,50 @@ export interface RanvierCharacter extends EventEmitter, RanvierMetadatable {
   _factionAttackTimer:    NodeJS.Timeout;
   _factionEventHandler?:  (payload: any) => Promise<void>;
 }
+export interface RanvierSkillConfig {
+  configureEffect?: (effect: RanvierEffect) => RanvierEffect;
+  cooldown?: number | { group: string; length: number } | null;
+  effect?: string | null;
+  flags?: RanvierSkillFlag[];
+  info?: (player: RanvierPlayer) => void;
+  initiatesCombat?: boolean;
+  name: string;
+  requiresTarget?: boolean;
+  resource?: SkillResource | SkillResource[] | null;
+  run?: (args?: string, player?: RanvierPlayer, target?: RanvierCharacter) => boolean | void;
+  targetSelf?: boolean;
+  type?: RanvierSkillType;
+  options?: Record<string, any>;
+}
+
+interface SkillResource {
+  attribute: string;
+  cost: number;
+}
+
+export interface RanvierAbility {
+  skills: string[]
+  spells: string[]
+}
+export interface RanvierAbilityTable {
+  [key: string]: RanvierAbility
+}
+
+export interface RanvierPlayerClass {
+  id: string,
+  config: {
+    name: string,
+    description: string,
+    abilityTable: RanvierAbilityTable,
+    setupPlayer: (state: GameState, player: RanvierPlayer) => void
+  },
+  name: string,
+  description: string,
+  abilityTable: RanvierAbilityTable,
+  setupPlayer: (state: GameState, player: RanvierPlayer) => void
+  hasAbility: (id: string) => boolean
+  canUseAbility: (player: RanvierPlayer, id: string) => boolean
+}
 
 export interface RanvierPlayer extends RanvierCharacter {
   account:          RanvierAccount;
@@ -328,6 +374,7 @@ export interface RanvierPlayer extends RanvierCharacter {
   questTracker:     any;
   commandQueue:     RanvierCommandQueue;
   role:             number;
+  playerClass:      RanvierPlayerClass
   _lastCommandTime: number;
 
   queueCommand(executable: any, lag: number): void;
@@ -624,22 +671,6 @@ export interface RanvierSkillFlag {
   readonly ACTIVE: symbol;
 };
 
-export interface RanvierSkillConfig {
-  configureEffect?: (effect: RanvierEffect) => RanvierEffect;
-  cooldown?: number | { group: string; length: number } | null;
-  effect?: string | null;
-  flags?: RanvierSkillFlag[];
-  info?: (player: RanvierPlayer) => void;
-  initiatesCombat?: boolean;
-  name: string;
-  requiresTarget?: boolean;
-  resource?: RanvierResourceCost | RanvierResourceCost[] | null;
-  run?: (...args: unknown[]) => unknown;
-  targetSelf?: boolean;
-  type?: RanvierSkillType;
-  options?: Record<string, unknown>;
-}
-
 export interface RanvierSkill {
   id: string;
   name: string;
@@ -650,13 +681,14 @@ export interface RanvierSkill {
   flags: RanvierSkillFlag[];
   info: (player: RanvierPlayer) => void;
   initiatesCombat: boolean;
-  options: Record<string, unknown>;
+  options: Record<string, any>;
   requiresTarget: boolean;
-  resource: RanvierResourceCost | RanvierResourceCost[] | null;
+  resource: RanvierResourceCost[] | null;
   run: (...args: unknown[]) => unknown;
   state: GameState;
   targetSelf: boolean;
   type: RanvierSkillType;
+  lag?: number
 
   execute(args: string, player: RanvierPlayer, target: RanvierCharacter): boolean;
   payResourceCosts(player: RanvierPlayer): boolean;
@@ -769,3 +801,23 @@ export interface WorldPath {
   clusters: object[];
   coords:   number[][];
 }
+
+export interface EffectDefinition {
+  config: Record<string, unknown>;
+  state?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface EffectConfig {
+  config: Record<string, unknown>;
+  state?: Record<string, unknown>;
+  listeners?:
+    | Record<string, (...args: unknown[]) => void>
+    | ((state: GameState) => Record<string, (...args: unknown[]) => void>);
+}
+
+export interface EffectEntry {
+  definition: Omit<EffectConfig, 'listeners'>;
+  eventManager: EventManager;
+}
+

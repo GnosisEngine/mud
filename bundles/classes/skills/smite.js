@@ -18,8 +18,8 @@ module.exports = {
   },
   cooldown,
 
-  run: () => function(args, player, target) {
-    if (!hasWeapon(null, player)) {
+  run: () => /** @this {import('types').RanvierSkill } */function(args, player, target) {
+    if (!hasWeapon(this.state, player)) {
       return Broadcast.sayAt(player, "You don't have a weapon equipped.");
     }
 

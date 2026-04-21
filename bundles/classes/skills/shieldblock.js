@@ -18,13 +18,13 @@ module.exports = {
   },
   cooldown,
 
-  run: state => function(args, player) {
-    if (!hasShield(state, player)) {
+  run: () => /** @this {import('types').RanvierSkill } */function(args, player) {
+    if (!hasShield(this.state, player)) {
       Broadcast.sayAt(player, "You aren't wearing a shield!");
       return false;
     }
 
-    const effect = state.EffectFactory.create(
+    const effect = this.state.EffectFactory.create(
       'skill.shieldblock',
       {
         duration,

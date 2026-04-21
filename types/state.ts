@@ -19,6 +19,7 @@ import type {
   BundleManager,
   PartyManager,
   AttributeFactory,
+  EffectFactory
 } from './managers';
 import type {
   TimeService,
@@ -47,7 +48,7 @@ export interface GameState {
   QuestFactory:        QuestFactory;
   ChannelManager:      object;
   CommandManager:      object;
-  EffectFactory:       object;
+  EffectFactory:       EffectFactory;
   SkillManager:        AbilityManager;
   SpellManager:        AbilityManager;
   AccountManager:      object;

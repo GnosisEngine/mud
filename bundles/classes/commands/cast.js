@@ -2,8 +2,8 @@
 
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const { Broadcast } = require('ranvier');
 const { isSpellKnown } = require('../logic');
@@ -28,11 +28,14 @@ module.exports = {
     }
 
     const spell = state.SpellManager.find(spellName);
-    player.queueCommand({
-      execute: _ => {
-        player.emit('useAbility', spell, targetArgs);
-      },
-      label: `cast ${args}`,
-    }, spell.lag || state.Config.get('skillLag') || 1000);
+
+    if (spell) {
+      player.queueCommand({
+        execute: _ => {
+          player.emit('useAbility', spell, targetArgs);
+        },
+        label: `cast ${args}`,
+      }, spell.lag || state.Config.get('skillLag') || 1000);
+    }
   }
 };

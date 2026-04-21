@@ -24,7 +24,7 @@ module.exports = {
   },
   cooldown: 6,
 
-  run: () => function(args, player, target) {
+  run: () => /** @this {import('types').RanvierSkill } */function(args, player, target) {
     const damage = new Damage('health', getDamage(player), player, this, {
       type: 'physical',
     });

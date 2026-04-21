@@ -8,7 +8,7 @@ const { EVENTS: PlayerEvents } = require('../player-events/events');
 
 module.exports = {
   listeners: {
-    useAbility: () => function(ability, args) {
+    useAbility: () => /** @this {import('types').RanvierPlayer} */ function(ability, args) {
       if (!this.playerClass.hasAbility(ability.id)) {
         return B.sayAt(this, 'Your class cannot use that ability.');
       }
@@ -31,7 +31,7 @@ module.exports = {
           try {
             const targetSearch = args.split(' ').pop();
             target = Combat.findCombatant(this, targetSearch);
-          } catch (e) {
+          } catch (/** @type {any} */ e) {
             if (
               e instanceof CombatErrors.CombatSelfError ||
               e instanceof CombatErrors.CombatNonPvpError ||
@@ -52,10 +52,10 @@ module.exports = {
 
       try {
         ability.execute(args, this, target);
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         if (e instanceof SkillErrors.CooldownError) {
           if (ability.cooldownGroup) {
-            return B.sayAt(this, `Cannot use ${ability.name} while ${e.effect.skill.name} is on cooldown.`);
+            return B.sayAt(this, `Cannot use ${ability.name} while ${e.effect.skill?.name} is on cooldown.`);
           }
           return B.sayAt(this, `${ability.name} is on cooldown. ${humanize(e.effect.remaining)} remaining.`);
         }
@@ -76,7 +76,7 @@ module.exports = {
     /**
      * Handle player leveling up
      */
-    [PlayerEvents.LEVEL]: state => function() {
+    [PlayerEvents.LEVEL]: state => /** @this {import('types').RanvierPlayer} */ function() {
       const abilities = this.playerClass.abilityTable;
       if (!(this.level in this.playerClass.abilityTable)) {
         return;

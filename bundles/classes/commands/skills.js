@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B, Logger } = require('ranvier');
@@ -18,7 +18,7 @@ module.exports = {
     const say = message => B.sayAt(player, message);
     say('<b>' + B.center(80, 'Abilities', 'green'));
     say('<b>' + B.line(80, '=', 'green'));
-
+    console.log(player.playerClass);
     for (const [level, abilities] of Object.entries(player.playerClass.abilityTable)) {
       abilities.skills = abilities.skills || [];
       abilities.spells = abilities.spells || [];
