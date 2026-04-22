@@ -13,19 +13,16 @@ const { emit: craftingEmit } = require('../events');
 
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
-/**
- * @type {{
- *   listeners: {
- *     startup: function(GameState): function(): void
- *   }
- * }}
- */
+
 module.exports = {
   listeners: {
-    /** @param {GameState} state */
+    /**
+     * @param {GameState} state
+     * @returns {function(string, RanvierPlayer): Promise<void>}
+     */
     startup: state => () => startupPoll(
       () => !!state.WorldManager,
       async() => {

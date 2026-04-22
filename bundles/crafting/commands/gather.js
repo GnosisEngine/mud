@@ -54,7 +54,7 @@ module.exports = {
       return;
     }
 
-    const playerAlloc = result.allocation.find(a => a.entity === player);
+    const playerAlloc = result.allocation?.find(a => a.entity === player);
     const received = playerAlloc ? playerAlloc.amounts : {};
 
     for (const [resourceKey, amount] of Object.entries(received)) {

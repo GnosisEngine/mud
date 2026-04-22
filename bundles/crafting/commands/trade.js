@@ -97,6 +97,10 @@ module.exports = {
 
     const target = state.PlayerManager.getPlayer(targetName);
 
+    if (!target) {
+      return B.sayAt(player, 'That person does not exist.');
+    }
+
     if (isSelf(state, player, { target })) {
       return B.sayAt(player, "You can't trade with yourself.");
     }
