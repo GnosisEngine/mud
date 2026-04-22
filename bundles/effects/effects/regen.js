@@ -1,5 +1,8 @@
 'use strict';
 
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierSkill} RanvierSkill */
+
 const { Damage, EffectFlag, Heal } = require('ranvier');
 
 module.exports = {
@@ -14,39 +17,45 @@ module.exports = {
     magnitude: 10,
   },
   listeners: {
-    updateTick: function() {
+    updateTick: /** @this {RanvierSkill} */function() {
       // pools that regenerate over time
+      const target = this.target;
+
+      if (!target) {
+        return;
+      }
+
       const regens = [
-        { pool: 'health', modifier: this.target.isInCombat() ? 0 : 1 },
+        { pool: 'health', modifier: target.isInCombat() ? 0 : 1 },
         // energy and mana recovers 50% faster than health
-        { pool: 'energy', modifier: this.target.isInCombat() ? 0.25 : 1.5 },
-        { pool: 'mana', modifier: this.target.isInCombat() ? 0.25 : 1.5 },
+        { pool: 'energy', modifier: target.isInCombat() ? 0.25 : 1.5 },
+        { pool: 'mana', modifier: target.isInCombat() ? 0.25 : 1.5 },
       ];
 
       for (const regen of regens) {
-        if (!this.target.hasAttribute(regen.pool)) {
+        if (!target.hasAttribute(regen.pool)) {
           continue;
         }
 
-        const poolMax = this.target.getMaxAttribute(regen.pool);
+        const poolMax = target.getMaxAttribute(regen.pool);
         const amount = Math.round((poolMax / 10) * regen.modifier);
-        const heal = new Heal(regen.pool, amount, this.target, this, {
+        const heal = new Heal(regen.pool, amount, target, this, {
           hidden: true,
         });
-        heal.commit(this.target);
+        heal.commit(target);
       }
 
       // favor is treated specially in that it drains over time
-      if (this.target.hasAttribute('favor')) {
-        if (this.target.getAttribute('favor') < 1 || this.target.isInCombat()) {
+      if (target.hasAttribute('favor')) {
+        if (target.getAttribute('favor') < 1 || target.isInCombat()) {
           return;
         }
 
-        const amount = Math.ceil(this.target.getMaxAttribute('favor') / 10);
-        const drain = new Damage('favor', amount, this.target, this, {
+        const amount = Math.ceil(target.getMaxAttribute('favor') / 10);
+        const drain = new Damage('favor', amount, target, this, {
           hidden: true
         });
-        drain.commit(this.target);
+        drain.commit(target);
       }
     },
   }

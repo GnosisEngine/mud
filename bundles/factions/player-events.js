@@ -1,8 +1,8 @@
 // bundles/factions/player-events.js
 'use strict';
 
-/** @typedef {import('../../types/state').GameState} GameState */
-/** @typedef {import('../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const { createHandler } = require('./lib/FactionEvents');
 const { EVENTS }        = require('./events');

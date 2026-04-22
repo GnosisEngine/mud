@@ -87,10 +87,10 @@ class ReputationStore {
       logEvent: this.db.prepare(`
         INSERT INTO reputation_events
           (id, player_id, faction_id, event_type,
-           affinity_delta, honor_delta, trust_delta, debt_delta, ts)
+          affinity_delta, honor_delta, trust_delta, debt_delta, ts)
         VALUES
           (@id, @player_id, @faction_id, @event_type,
-           @affinity_delta, @honor_delta, @trust_delta, @debt_delta, @ts)
+          @affinity_delta, @honor_delta, @trust_delta, @debt_delta, @ts)
       `),
       getHistory: this.db.prepare(
         'SELECT * FROM reputation_events WHERE player_id = @player_id AND faction_id = @faction_id ORDER BY ts DESC'

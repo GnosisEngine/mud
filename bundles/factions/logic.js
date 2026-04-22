@@ -1,6 +1,9 @@
 'use strict';
+
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+
 const { BRACKET_LABELS } = require('./constants');
-const NOOP = {};
+const NOOP = /** @type {any} */ ({});
 
 const AXES = ['affinity', 'honor', 'trust', 'debt'];
 const DEFAULT_AXIS                 = 'affinity';
@@ -14,15 +17,18 @@ function _bracketMeetsMinimum(brackets, axis, minLabel) {
 }
 
 module.exports = {
+  /** @type {import('types').LogicCheck<{ before: any, after: any }>} */
   hasFactionStanceChanged: (_, __, { before, after } = NOOP) => {
     if (!before || !after) return false;
     return !AXES.every(axis => before[axis] === after[axis]);
   },
 
+  /** @type {import('types').LogicCheck<{ room: any }>} */
   roomHasFaction: (_, __, { room } = NOOP) => {
     return !!(room && room.faction !== undefined);
   },
 
+  /** @type {import('types').LogicCheck<{ renown: any, factionDef: any }>} */
   isStranger: (_, __, { renown, factionDef } = NOOP) => {
     return renown < factionDef.renownThreshold;
   },
@@ -40,16 +46,9 @@ module.exports = {
    *
    * player + player:
    *   Returns null — undefined behavior in this system.
-   *
-   *
-   * @param {object} state
-   * @param {object} source player or NPC
-   * @param {object} [opts]
-   * @param {object} [opts.target] player or NPC
-   * @param {string} [opts.axis] defaults to 'affinity'
-   * @param {string} [opts.minLabel] defaults to 'neutral'
-   * @param {string[]} [opts.acceptableRelations] defaults to ['cold', 'neutral']
-   * @returns {Promise<boolean|null>}
+   */
+  /**
+   * @type {import('types').LogicCheck<{target: RanvierPlayer, axis?: 'affinity' | 'honor' | 'trust' | 'debt', minLabel?, string, acceptableRelations?: string[] }>}
    */
   async areFactionsCompatible(state, source, {
     target,

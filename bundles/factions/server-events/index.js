@@ -1,6 +1,9 @@
 // bundles/factions/server-events/index.js
 'use strict';
 
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+
 const path = require('path');
 
 const { Logger } = require('ranvier');
@@ -63,13 +66,17 @@ module.exports = {
     // 5. Build FactionService
     // 6. Register state.FactionManager
     // -----------------------------------------------------------------------
+    /**
+     * @param {GameState} state
+     * @returns {function(string, RanvierPlayer): void}
+     */
     startup: state => async() => {
       Logger.log('[factions] initializing...');
 
       let factionMap;
       try {
         factionMap = load(FACTIONS_YML_PATH);
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         Logger.warn(
           '[factions] factions.yml not found or invalid — ' +
           `running with null faction manager. (${err.message})`
@@ -81,7 +88,7 @@ module.exports = {
       let policyMap;
       try {
         policyMap = loadPolicies(POLICIES_DIR);
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         Logger.warn(
           '[factions] failed to load policies — ' +
           `running with null faction manager. (${err.message})`
@@ -95,7 +102,7 @@ module.exports = {
       let store;
       try {
         store = await ReputationStore.create(DATA_DIR);
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         Logger.warn(
           '[factions] failed to create reputation store — ' +
           `running with null faction manager. (${err.message})`
@@ -116,11 +123,15 @@ module.exports = {
     // -----------------------------------------------------------------------
     // shutdown — close the SQLite connection cleanly.
     // -----------------------------------------------------------------------
+    /**
+     * @param {GameState} state
+     * @returns {function(string, RanvierPlayer): void}
+     */
     shutdown: state => () => {
       if (state._factionStore) {
         try {
           state._factionStore.close();
-        } catch (err) {
+        } catch (/** @type {any} */ err) {
           Logger.warn(`[factions] error closing store on shutdown: ${err.message}`);
         }
         state._factionStore = null;

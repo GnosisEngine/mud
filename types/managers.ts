@@ -156,3 +156,4 @@ export interface ItemManager {
   remove(item: RanvierItem): void;
   tickAll(): void;
 }
+

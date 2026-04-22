@@ -7,6 +7,7 @@ export interface EventEmitter {
   on(event: string | symbol, listener: (...args: any[]) => void): this;
   once(event: string | symbol, listener: (...args: any[]) => void): this;
   off(event: string | symbol, listener: (...args: any[]) => void): this;
+  removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
   removeAllListeners(event?: string | symbol): this;
   listeners(event: string | symbol): Function[];
   rawListeners(event: string | symbol): Function[];
@@ -139,7 +140,7 @@ export interface RanvierAttribute {
 
 export interface RanvierEffect extends EventEmitter {
   id:        string;
-  flags:     string[];
+  flags:     symbol[];
   config: {
     autoActivate:    boolean;
     description:     string;
@@ -316,8 +317,8 @@ export interface RanvierCharacter extends EventEmitter, RanvierMetadatable {
   moveTo(nextRoom: RanvierRoom, onMoved?: () => void): void;
 
   // Faction
-  _factionAttackTarget:   RanvierCharacter;
-  _factionAttackTimer:    NodeJS.Timeout;
+  _factionAttackTarget:   RanvierCharacter | null;
+  _factionAttackTimer:    NodeJS.Timeout | null;
   _factionEventHandler?:  (payload: any) => Promise<void>;
 }
 export interface RanvierSkillConfig {
@@ -609,19 +610,6 @@ export interface MercRegistryEntry {
   lastClaimCheckAt: number;
 }
 
-export interface FactionProfile {
-  axes:      object;
-  brackets:  object;
-  renown:    number;
-  isStranger: boolean;
-}
-
-export interface FactionStance {
-  brackets:  object;
-  renown:    number;
-  isStranger: boolean;
-}
-
 export interface PhaseInfo {
   name:  string;
   emoji: string;
@@ -714,6 +702,7 @@ export interface RanvierSkill {
   run: (...args: unknown[]) => unknown;
   state: GameState;
   targetSelf: boolean;
+  target?: RanvierCharacter;
   type: RanvierSkillType;
   lag?: number
 
@@ -776,20 +765,6 @@ export interface MercRegistryEntry {
   pathIndex:        number;
   lastMoveAt:       number;
   lastClaimCheckAt: number;
-}
-
-
-export interface FactionProfile {
-  axes:       object;
-  brackets:   object;
-  renown:     number;
-  isStranger: boolean;
-}
-
-export interface FactionStance {
-  brackets:   object;
-  renown:     number;
-  isStranger: boolean;
 }
 
 export interface PhaseInfo {

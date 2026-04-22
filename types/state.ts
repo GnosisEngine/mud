@@ -31,8 +31,14 @@ import type {
   MercenaryService
 } from './services';
 import { ContextService } from '../bundles/world/lib/ContextService.js'
+import { FactionManager, ReputationStore } from './factions';
 
-export type LogicCheck = (state: GameState, player: RanvierPlayer, options?: any) => boolean
+//export type LogicCheck<T = {}> = (state: GameState, player: RanvierPlayer, options?: T) => boolean
+export type LogicCheck<T = Record<string, never>> = (
+  state:   GameState,
+  player:  RanvierPlayer,
+  options: T
+) => boolean | null
 
 export type PlayerEvents = (state: GameState) => () => void
 
@@ -76,6 +82,8 @@ export interface GameState {
   WorldManager:        WorldManager;
   StorageManager:      StorageManager;
   WorldReady:          boolean;
+  FactionManager:      FactionManager;
+  _factionStore:       ReputationStore | null;
   ContextService:      typeof ContextService;
   Config:              { get(key: string): any };
   _timeBundleStop():   void;

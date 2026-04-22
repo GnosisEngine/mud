@@ -1,8 +1,8 @@
 // bundles/factions/behaviors/npc/faction-npc.js
 'use strict';
 
-/** @typedef {import('../../../../types/state').GameState} GameState */
-/** @typedef {import('../../../../types/ranvier').RanvierNpc} RanvierNpc */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
 
 const { Broadcast: B, Logger } = require('ranvier');
 const { EVENTS } = require('../../events');
@@ -96,7 +96,7 @@ module.exports = {
       let stance;
       try {
         stance = await state.FactionManager.getStance(player.name, factionId);
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         Logger.warn(
           `[faction-npc] getStance failed for player "${player.name}" ` +
           `faction ${factionId}: ${err.message}`
