@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const { Broadcast, PlayerRoles } = require('ranvier');
 const {
@@ -64,9 +64,17 @@ module.exports = {
 
     const oldRoom = player.room;
 
+    if (!targetRoom || !oldRoom) {
+      throw new RangeError('Rooms are missing!');
+    }
+
     player.moveTo(targetRoom, () => {
-      Broadcast.sayAt(player, '<b><green>You snap your finger and instantly appear in a new room.</green></b>\r\n');
-      state.CommandManager.get('look').execute('', player);
+      const look = state.CommandManager.get('look');
+
+      if (look) {
+        Broadcast.sayAt(player, '<b><green>You snap your finger and instantly appear in a new room.</green></b>\r\n');
+        look.execute('', player);
+      }
     });
 
     Broadcast.sayAt(oldRoom, `${player.name} teleported away.`);

@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 require('../hints');
 const { Broadcast: B, PlayerRoles } = require('ranvier');
@@ -29,6 +29,11 @@ module.exports = {
     }
 
     const command = state.CommandManager.get(commandName);
+
+    if (!command) {
+      return B.sayAt(player, 'There is no file for this command, restart the server to add new commands.');
+    }
+
     delete require.cache[require.resolve(command.file)];
     B.sayAt(player, `<b><red>HOTFIX</red></b>: Reloading [${commandName}]...`);
 

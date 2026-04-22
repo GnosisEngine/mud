@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const { Broadcast, PlayerRoles } = require('ranvier');
 const Parser = require('../../lib/lib/ArgParser');
@@ -23,6 +23,10 @@ module.exports = {
 
     if (!args) {
       return Broadcast.sayAt(player, 'setadmin <player>');
+    }
+
+    if (!player.room) {
+      throw new RangeError('Player not in room!');
     }
 
     const target = Parser.parseDot(args, player.room.players);
