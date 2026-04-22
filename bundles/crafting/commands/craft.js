@@ -1,8 +1,15 @@
 // resources/commands/craft.js
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierItem} RanvierItem */
+/** @typedef {import('types').RanvierCraftCommand} RanvierCraftCommand */
+/** @typedef {import('types').CommandManager<import('types').RanvierCraftCommand>} RanvierCraftCommandManager */
+
+/**
+ * @typedef {{ type: number, title: string, items: RanvierItem[] }} ItemCategory
+ */
 
 const { Broadcast: B, CommandManager, ItemType } = require('ranvier');
 const ResourceContainer = require('../lib/ResourceContainer');
@@ -15,9 +22,15 @@ const {
 } = require('../logic');
 
 const say = B.sayAt;
+
+/** @type {RanvierCraftCommandManager} */
 const subcommands = new CommandManager();
 
+/**
+ * @param {GameState} state
+ */
 function getCraftingCategories(state) {
+  /** @type {ItemCategory[]} */
   const categories = [
     { type: ItemType.POTION, title: 'Potion', items: [] },
     { type: ItemType.WEAPON, title: 'Weapon', items: [] },
@@ -27,14 +40,22 @@ function getCraftingCategories(state) {
   const recipes = require('../data/recipes.json');
 
   for (const recipe of recipes) {
+    const area = state.AreaManager.getAreaByReference(recipe.item);
+
+    if (!area) {
+      throw new RangeError(`Item ${recipe.item} does not have an area reference`);
+    }
+
     const recipeItem = state.ItemFactory.create(
-      state.AreaManager.getAreaByReference(recipe.item),
+      area,
       recipe.item
     );
     const catIndex = categories.findIndex(c => c.type === recipeItem.type);
+
     if (catIndex === -1) continue;
+
     recipeItem.hydrate(state);
-    categories[catIndex].items.push({ item: recipeItem, recipe: recipe.recipe, itemRef: recipe.item });
+    categories[catIndex].items.push({ item: recipeItem.type, recipe: recipe.recipe, itemRef: recipe.item });
   }
 
   return categories;

@@ -13,14 +13,27 @@ import type {
 } from './primitives';
 import type { GameState } from './state';
 
+// export interface BehaviorManager {
+//   addBehavior(name: string, behavior: object): void;
+//   getBehavior(name: string): object | undefined;
+// }
+
 export interface BehaviorManager {
-  addBehavior(name: string, behavior: object): void;
-  getBehavior(name: string): object | undefined;
+  behaviors: Map<string, EventManager>;
+  get(name: string): EventManager | undefined;
+  has(name: string): boolean;
+  addListener(behaviorName: string, event: string, listener: (...args: unknown[]) => void): void;
 }
 
 export interface AreaManager {
-  getArea(id: string): RanvierArea | undefined;
-  getAreas(): Map<string, RanvierArea>;
+  areas: Map<string, RanvierArea>;
+  scripts: BehaviorManager;
+  getArea(name: string): RanvierArea | undefined;
+  getAreaByReference(entityRef: string): RanvierArea | undefined;
+  addArea(area: RanvierArea): void;
+  removeArea(area: RanvierArea): void;
+  tickAll(state: GameState): void;
+  getPlaceholderArea(): RanvierArea;
 }
 
 export interface RoomManager {
@@ -70,7 +83,7 @@ export interface MobManager {
 }
 
 export interface ItemFactory {
-  create(ref: string, area: RanvierArea): RanvierItem;
+  create(area: RanvierArea, ref: string): RanvierItem;
 }
 
 export interface QuestFactory {

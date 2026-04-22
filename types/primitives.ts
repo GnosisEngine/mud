@@ -506,6 +506,13 @@ export interface RanvierCommand {
   file: string;
   metadata: Record<string, unknown>;
   execute(args: string|null, player: RanvierPlayer, arg0?: string): unknown;
+  command: (state: GameState) => (args: string) => void
+}
+
+export interface RanvierCraftCommand {
+  name:     string;
+  aliases?: string[];
+  command: (state: GameState) => (args: string, player: RanvierPlayer) => void
 }
 
 export interface RanvierVendorCommand {
@@ -513,6 +520,7 @@ export interface RanvierVendorCommand {
   aliases?: string[];
   command:  (state: GameState) => (vendor: RanvierNpc, args: string, player: RanvierPlayer) => void;
 }
+
 
 export type RanvierQuestState = Record<string, any>;
 
