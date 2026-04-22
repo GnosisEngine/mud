@@ -6,10 +6,8 @@
 /** @typedef {import('types').RanvierItem} RanvierItem */
 /** @typedef {import('types').RanvierCraftCommand} RanvierCraftCommand */
 /** @typedef {import('types').CommandManager<import('types').RanvierCraftCommand>} RanvierCraftCommandManager */
-
-/**
- * @typedef {{ type: number, title: string, items: RanvierItem[] }} ItemCategory
- */
+/** @typedef {{ item: RanvierItem, recipe: Record<string, number>, itemRef: string }} ItemCategoryEntry */
+/** @typedef {{ type: number, title: string, items: ItemCategoryEntry[] }} ItemCategory */
 
 const { Broadcast: B, CommandManager, ItemType } = require('ranvier');
 const ResourceContainer = require('../lib/ResourceContainer');
@@ -55,7 +53,11 @@ function getCraftingCategories(state) {
     if (catIndex === -1) continue;
 
     recipeItem.hydrate(state);
-    categories[catIndex].items.push({ item: recipeItem.type, recipe: recipe.recipe, itemRef: recipe.item });
+    categories[catIndex].items.push({
+      item: recipeItem,
+      recipe: recipe.recipe,
+      itemRef: recipe.item
+    });
   }
 
   return categories;
@@ -107,6 +109,11 @@ subcommands.add({
 
 subcommands.add({
   name: 'create',
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args) {
       return say(player, "Create what? 'craft create 1 1' for example.");
@@ -143,6 +150,11 @@ subcommands.add({
     }
 
     const area = state.AreaManager.getAreaByReference(entry.itemRef);
+
+    if (!area) {
+      throw new RangeError('There is no area!');
+    }
+
     const newItem = state.ItemFactory.create(area, entry.itemRef);
     newItem.hydrate(state);
     state.ItemManager.add(newItem);
@@ -155,6 +167,11 @@ subcommands.add({
 module.exports = {
   usage: 'craft <list/create> [category #] [item #]',
   subcommands: ['create', 'list'],
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command: state => (args, player) => {
     if (!args) {
       return say(player, "Missing craft command. See 'help craft'");

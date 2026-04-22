@@ -8,7 +8,7 @@ declare module 'ranvier' {
   export const SkillType: import('.').RanvierSkillType
   export const SkillFlag: import('.').RanvierSkillFlag
   export const PlayerRoles: import('.').RanvierPlayerRoles
-  export const ItemType: import('.').RanvierItemType
+  export const ItemType: import('.').RanvierItemTypes
 
   export const SkillConfig: Ctor<import('.').RanvierSkillConfig>
   export const Room: Ctor<import('.').RanvierRoom>;

@@ -54,7 +54,7 @@ module.exports = {
      * @param {GameState} state
      * @returns {function(): void}
      */
-    updateTick: state => /** @this {RanvierPlayer } */ function() {
+    updateTick: state => /** @this {RanvierPlayer} */ function() {
       Combat.startRegeneration(state, this);
 
       let hadActions = false;

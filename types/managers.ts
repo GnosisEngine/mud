@@ -148,3 +148,11 @@ export interface CommandManager<T extends { name: string; aliases?: string[] } =
   find(name: string, returnAlias?: false): T | undefined;
   find(name: string, returnAlias: true): { command: T; alias: string } | undefined;
 }
+
+export interface ItemManager {
+  items: Set<RanvierItem>;
+
+  add(item: RanvierItem): void;
+  remove(item: RanvierItem): void;
+  tickAll(): void;
+}

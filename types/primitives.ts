@@ -1,3 +1,4 @@
+import { Socket } from 'net';
 import { EventManager } from './managers';
 import { GameState } from './state';
 
@@ -370,7 +371,7 @@ export interface RanvierPlayer extends RanvierCharacter {
   extraPrompts:     Map<string, { removeOnRender: boolean; renderer: () => string }>;
   password:         string;
   prompt:           string;
-  socket:           import('net').Socket | null;
+  socket:           Socket | null;
   questTracker:     any;
   commandQueue:     RanvierCommandQueue;
   role:             number;
@@ -428,7 +429,7 @@ export interface RanvierNpc extends RanvierCharacter, RanvierScriptable {
   _lastWanderTime: number;
 }
 
-export type RanvierItemType = {
+export type RanvierItemTypes = {
   OBJECT:    1,
   CONTAINER: 2,
   ARMOR:     3,
@@ -436,6 +437,8 @@ export type RanvierItemType = {
   POTION:    5,
   RESOURCE:  6,
 };
+
+export type RanvierItemType = RanvierItemTypes[keyof RanvierItemTypes];
 
 export interface RanvierItem extends RanvierGameEntity {
   area:            RanvierArea;
@@ -451,7 +454,7 @@ export interface RanvierItem extends RanvierGameEntity {
   room:            RanvierRoom | null;
   roomDesc:        string;
   script:          string | null;
-  type:            RanvierItemType | string;
+  type:            RanvierItemType;
   uuid:            string;
   closeable:       boolean;
   closed:          boolean;

@@ -3,16 +3,17 @@
 /** @typedef {import('types').GameState} GameState */
 /** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 /** @typedef {import('types').RanvierNpc} RanvierNpc */
+/** @typedef {import('types').LogicCheck} LogicCheck */
 
 const CombatErrors = require('./lib/CombatErrors');
 const { hasWeapon, hasExits, isNpc, isDoorImpassable, isInCombat } = require('../lib/logic');
 const NOOP = {};
 
 module.exports = {
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   isNpc,
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   roomExists: (state, _, { room, roomId } = NOOP) => {
     if (roomId !== undefined) {
       room = state.RoomManager.getRoom(roomId);
@@ -21,23 +22,23 @@ module.exports = {
     return room !== undefined;
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   isDoorImpassable,
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   isInCombat,
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   isPvpFlagged: (_, player) => {
     return player.getMeta('pvp');
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   isLevelDiff: (_, player, { target, amount }) => {
     return player.level  - target.level > amount;
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   hasPvpTargetsNear: (_, player) => {
     if (player.getMeta('pvp') === false) {
       return false;
@@ -58,7 +59,7 @@ module.exports = {
     ).length > 0;
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   hasPveTargetsNear: (_, player) => {
     if (player.room === null) {
       return false;
@@ -74,7 +75,7 @@ module.exports = {
     ).length > 0;
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   hasTargetsNear: (_, player) => {
     if (player.room === null) {
       return false;
@@ -102,25 +103,25 @@ module.exports = {
     }).length > 0;
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   hasWeapon,
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   isRegenerating: (_, player) => {
     return player.hasEffectType('regen');
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   canPerformCriticalAttack: (_, player) => {
     return player.hasAttribute('critical');
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   isAlive: (_, player) => {
     return player.getAttribute('health') > 0;
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   canBeAtatcked: (_, player, { target }) => {
     const isAlive = target.hasAttribute('health')
       && (target.getAttribute('health') > 0
@@ -137,10 +138,10 @@ module.exports = {
       && conditions;
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   hasExits,
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {LogicCheck} */
   cannotFight: (_, __, { e, error }) => {
     const thrown = e ?? error;
     return thrown instanceof CombatErrors.CombatSelfError
