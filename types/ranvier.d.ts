@@ -10,6 +10,7 @@ declare module 'ranvier' {
   export const SkillFlag: import('.').RanvierSkillFlag
   export const PlayerRoles: import('.').RanvierPlayerRoles
   export const ItemType: import('.').RanvierItemTypes
+  export const CommandType: import('.').RanvierCommandType;
 
   export const SkillConfig: Ctor<import('.').RanvierSkillConfig>
   export const Room: Ctor<import('.').RanvierRoom>;
@@ -26,7 +27,6 @@ declare module 'ranvier' {
   export const RoomAudience: Ctor<import('.').RanvierRoomAudience>
   export const WorldAudience: Ctor<import('.').RanvierWorldAudience>
   export const CommandTypeValue: Ctor<import('.').RanvierCommandTypeValue>;
-  export const CommandType: Ctor<import('.').RanvierCommandType>;
   export const InventoryFullError: Ctor<Error>
   export const CommandManager: Ctor<import('.').CommandManager>;
 

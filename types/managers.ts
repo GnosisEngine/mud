@@ -10,6 +10,7 @@ import type {
   RanvierAttribute,
   RanvierAttributeFormula,
   RanvierCommand,
+  RanvierChannel,
 } from './primitives';
 import type { GameState } from './state';
 
@@ -157,3 +158,11 @@ export interface ItemManager {
   tickAll(): void;
 }
 
+export interface ChannelManager {
+  channels: Map<string, RanvierChannel>;
+
+  get(name: string): RanvierChannel | undefined;
+  add(channel: RanvierChannel): void;
+  remove(channel: RanvierChannel): void;
+  find(search: string): RanvierChannel | undefined;
+}

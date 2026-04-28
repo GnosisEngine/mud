@@ -46,6 +46,7 @@ const diff = level => {
       return 6;
     case (level >= 32):
     case (level <= 59):
+    default:
       return 5 * (level - 30);
   }
 };

@@ -1,8 +1,8 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../../types/ranvier').RanvierExit} RanvierExit */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierExit} RanvierExit */
 
 const { CommandType, Room } = require('ranvier');
 
@@ -30,7 +30,7 @@ class CommandParser {
 
     const parts = data.split(' ');
 
-    const command = parts.shift().toLowerCase();
+    const command = parts.shift()?.toLowerCase() ?? '';
     if (!command.length) {
       throw new InvalidCommandError();
     }
@@ -82,7 +82,7 @@ class CommandParser {
     }
 
     // see if they typed at least the beginning of a command and try to match
-    let found = state.CommandManager.find(command, /* returnAlias: */ true);
+    const found = state.CommandManager.find(command, /* returnAlias: */ true);
     if (found) {
       return {
         type: CommandType.COMMAND,
@@ -93,21 +93,21 @@ class CommandParser {
     }
 
     // check channels
-    found = state.ChannelManager.find(command);
-    if (found) {
+    const foundChannel = state.ChannelManager.find(command);
+    if (foundChannel) {
       return {
         type: CommandType.CHANNEL,
-        channel: found,
+        channel: foundChannel,
         args
       };
     }
 
     // finally check skills
-    found = state.SkillManager.find(command);
-    if (found) {
+    const foundSkill = state.SkillManager.find(command);
+    if (foundSkill) {
       return {
         type: CommandType.SKILL,
-        skill: found,
+        skill: foundSkill,
         args
       };
     }

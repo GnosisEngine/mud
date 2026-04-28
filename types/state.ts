@@ -22,7 +22,8 @@ import type {
   EffectFactory,
   MobManager,
   CommandManager,
-  ItemManager
+  ItemManager,
+  ChannelManager
 } from './managers';
 import type {
   TimeService,
@@ -68,7 +69,7 @@ export interface GameState {
   MobFactory:          MobFactory;
   ItemFactory:         ItemFactory;
   QuestFactory:        QuestFactory;
-  ChannelManager:      object;
+  ChannelManager:      ChannelManager;
   CommandManager:      CommandManager;
   EffectFactory:       EffectFactory;
   SkillManager:        AbilityManager;

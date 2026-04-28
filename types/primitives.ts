@@ -829,3 +829,56 @@ export interface EffectEntry {
   eventManager: EventManager;
 }
 
+// Channels
+
+type ColorifyFn = (message: string) => string;
+
+interface ChannelFormatter {
+  sender: (sender: RanvierPlayer, target: RanvierPlayer | null, message: string, colorify: ColorifyFn) => string;
+  target: (sender: RanvierPlayer, target: RanvierPlayer, message: string, colorify: ColorifyFn) => string;
+}
+
+export interface RanvierChannelConfig {
+  name: string;
+  audience: ChannelAudience;
+  description?: string;
+  minRequiredRole?: RanvierPlayerRoles;
+  color?: string | string[];
+  aliases?: string[];
+  bundle?: string;
+  formatter?: ChannelFormatter;
+}
+
+interface AudienceConfig {
+  state: GameState;
+  sender: RanvierPlayer;
+  message: string;
+}
+
+interface ChannelAudience {
+  state: GameState;
+  sender: RanvierPlayer;
+  message: string;
+
+  configure(options: AudienceConfig): void;
+  getBroadcastTargets(): RanvierPlayer[];
+  alterMessage(message: string): string;
+}
+
+export interface RanvierChannel {
+  name: string;
+  audience: ChannelAudience;
+  description: string | undefined;
+  minRequiredRole: RanvierPlayerRoles | null;
+  bundle: string | null;
+  color: string | string[] | null;
+  aliases: string[] | undefined;
+  formatter: ChannelFormatter;
+
+  send(state: GameState, sender: RanvierPlayer, message: string): void;
+  describeSelf(sender: RanvierPlayer): void;
+  getUsage(): string;
+  formatToSender(sender: RanvierPlayer, target: RanvierPlayer | null, message: string, colorify: ColorifyFn): string;
+  formatToReceipient(sender: RanvierPlayer, target: RanvierPlayer | null, message: string, colorify: ColorifyFn): string;
+  colorify(message: string): string;
+}

@@ -1,8 +1,8 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../../types/ranvier').RanvierItem} RanvierItem */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierItem} RanvierItem */
 
 /**
  * General functions used across the ranvier bundles

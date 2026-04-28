@@ -4,29 +4,25 @@
 /** @typedef {import('types').RanvierCharacter} RanvierCharacter */
 /** @typedef {import('types').RanvierDoor} RanvierDoor */
 /** @typedef {import('types').RanvierItem} RanvierItem */
+/** @typedef {import('types').RanvierExit} RanvierExit */
 
 const { PlayerRoles } = require('ranvier');
 
-const NOOP = {};
-
 module.exports = {
-  /**
-    * @param {GameState} state
-    * @param {RanvierCharacter} player
-    * @returns {entity is RanvierNpc}
-    */
-  isNpc: (state, player) => {
+  /** @type {import('types').LogicCheckNoOptions} */
+  isNpc: (_, player) => {
     return !!player.isNpc;
   },
 
+  /** @type {import('types').LogicCheck<{ exits: RanvierExit[] }>} */
   hasExits: (state, player, { exits }) => {
     const knownExits = exits
       ? exits
-      : player.room.getExits();
+      : player.room?.getExits() ?? [];
     let count = knownExits.length;
 
     for (const exit of knownExits) {
-      if (!state.RoomManager.getRoom(exit.roomId)) {
+      if (!state.RoomManager.getRoom(exit.roomId ?? '')) {
         count -= 1;
       }
     }
@@ -34,6 +30,7 @@ module.exports = {
     return count > 0;
   },
 
+  /** @type {import('types').LogicCheckNoOptions} */
   hasInventorySpace: (_, player) => {
     return !player.isInventoryFull();
   },
@@ -43,31 +40,38 @@ module.exports = {
     return !!player.getMeta('config.minimap');
   },
 
+  /** @type {import('types').LogicCheckNoOptions} */
   hasPendingCommands: (_, player) => {
     return !!(player.commandQueue.hasPending && player.commandQueue.lagRemaining <= 0);
   },
 
+  /** @type {import('types').LogicCheckNoOptions} */
   isAdmin: (_, player) => {
     return player.role >= PlayerRoles.ADMIN;
   },
 
-  isDoorPassable: (_, __, { door } = NOOP) => {
+  /** @type {import('types').LogicCheckOptionsOnly<{ door: RanvierDoor }>} */
+  isDoorPassable: ({ door }) => {
     return !door || (!door.locked && !door.closed);
   },
 
-  isDoorImpassable: (_, __, { door } = NOOP) => {
+  /** @type {import('types').LogicCheckOptionsOnly<{ door: RanvierDoor }>} */
+  isDoorImpassable: ({ door }) => {
     return door && (door.locked || door.closed);
   },
 
+  /** @type {import('types').LogicCheckNoOptions} */
   isInCombat: (_, player) => {
     return player.isInCombat && player.isInCombat();
   },
 
-  isDoorLocked: (_, __, { door } = NOOP) => {
+  /** @type {import('types').LogicCheckOptionsOnly<{ door: RanvierDoor }>} */
+  isDoorLocked: ({ door }) => {
     return !!(door && door.locked);
   },
 
-  isDoorClosed: (_, __, { door } = NOOP) => {
+  /** @type {import('types').LogicCheckOptionsOnly<{ door: RanvierDoor }>} */
+  isDoorClosed: ({ door }) => {
     return !!(door && door.closed);
   },
 
@@ -76,7 +80,8 @@ module.exports = {
     return !!(door && (door.locked || door.closed));
   },
 
-  isSelf: (_, player, { target } = NOOP) => {
+  /** @type {import('types').LogicCheck<{ target: RanvierCharacter }>} */
+  isSelf: (_, player, { target }) => {
     return target === player;
   },
 
@@ -85,10 +90,12 @@ module.exports = {
     return !!(container && container.closed);
   },
 
-  isPlayerOnline: (state, __, { targetName } = NOOP) => {
+  /** @type {import('types').LogicCheck<{ targetName: string }>} */
+  isPlayerOnline: (state, __, { targetName }) => {
     return !!state.PlayerManager.getPlayer(targetName);
   },
 
+  /** @type {import('types').LogicCheckNoOptions} */
   hasWeapon: (_, player) => {
     return player.equipment.get('wield');
   },
