@@ -2,6 +2,8 @@ import { Socket } from 'net';
 import { EventManager } from './managers';
 import { GameState } from './state';
 
+export type Ctor<T, A extends any[] = any[]> = new (...args: A) => T;
+
 export interface EventEmitter {
   emit(event: string | symbol, ...args: any[]): boolean;
   on(event: string | symbol, listener: (...args: any[]) => void): this;
@@ -94,6 +96,7 @@ export interface RanvierRoom extends RanvierGameEntity {
   npcs:            Set<RanvierNpc>;
   players:         Set<RanvierPlayer>;
   spawnedNpcs:     Set<RanvierNpc>;
+  faction?:        string | number
 
   addPlayer(player: RanvierPlayer): void;
   removePlayer(player: RanvierPlayer): void;

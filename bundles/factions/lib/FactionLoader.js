@@ -149,7 +149,7 @@ function load(filePath) {
   let raw;
   try {
     raw = yaml.load(fs.readFileSync(resolved, 'utf8'));
-  } catch (e) {
+  } catch (/** @type {any} */ e) {
     throw new Error(`FactionLoader: failed to parse YAML at ${resolved}: ${e.message}`);
   }
 

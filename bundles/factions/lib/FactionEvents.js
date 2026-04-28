@@ -1,6 +1,8 @@
 // bundles/factions/lib/FactionEvents.js
 'use strict';
 
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+
 const { EVENTS } = require('../events');
 const { FACTION_EVENT_NAMES } = require('../constants');
 const { hasFactionStanceChanged } = require('../logic');
@@ -38,13 +40,14 @@ function _validate(payload) {
  * The handler never throws — all errors are logged and the call returns null.
  * The game loop must not crash due to a bad faction event payload.
  *
- * @param {object} factionManager  — state.FactionManager
- * @param {object} [logger]        — object with .warn() method; defaults to console
- * @returns {Function}             — async (payload) => { profile, action } | null
+ * @param {object} factionManager  state.FactionManager
+ * @param {object} [logger]        object with .warn() method; defaults to console
+ * @returns {Function}             async (payload) => { profile, action } | null
  */
 function createHandler(factionManager, logger) {
   const log = logger ?? console;
 
+  /** @param {{ playerId: number, factionId; number, eventType: string, player: RanvierPlayer }} payload */
   return async function handleFactionEvent(payload) {
     const validationError = _validate(payload);
     if (validationError) {
@@ -65,14 +68,14 @@ function createHandler(factionManager, logger) {
     try {
       stanceBefore = await factionManager.getStance(playerId, factionId);
       result = await factionManager.applyEvent(playerId, factionId, eventType);
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       log.warn(`[factions] applyEvent failed for player "${playerId}" faction ${factionId} event "${eventType}": ${err.message}`);
       return null;
     }
 
     const { profile, action } = result;
 
-    if (player && hasFactionStanceChanged(null, null, { before: stanceBefore && stanceBefore.brackets, after: profile.brackets })) {
+    if (player && hasFactionStanceChanged({ before: stanceBefore && stanceBefore.brackets, after: profile.brackets })) {
       player.emit(EVENTS.FACTION_STANCE_CHANGED, {
         factionId,
         before: stanceBefore ? stanceBefore.brackets : null,

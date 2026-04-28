@@ -34,6 +34,17 @@ export interface FactionApplyEventResult {
   action:  string | null;
 }
 
+export interface FactionScores {
+  affinity: number,
+  honor: number,
+  trust: number,
+  debt: number
+}
+
+export type FactionAxes = {
+  [key: string]: string
+}
+
 // --- Store interface ---
 
 export interface FactionStore {

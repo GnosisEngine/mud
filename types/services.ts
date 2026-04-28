@@ -1,7 +1,5 @@
 import { GameState } from './state';
 import {
-  FactionProfile,
-  FactionStance,
   NamedIndex,
   WorldPath,
   MercRegistryEntry,
@@ -9,6 +7,10 @@ import {
   RanvierNpc,
   RanvierPlayer
 } from './primitives';
+import {
+  FactionProfile,
+  FactionStance
+} from './factions'
 
 export interface TimeService {
   getTick(): number;

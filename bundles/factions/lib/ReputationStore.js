@@ -1,6 +1,12 @@
 // bundles/factions/lib/ReputationStore.js
 'use strict';
 
+/**
+ * @template T
+ * @template {any[]} [A=any[]]
+ * @typedef {import('types').Ctor<T, A>} Ctor
+ */
+
 const path = require('path');
 const fs = require('fs');
 const initSqlJs = require('sql.js');
@@ -122,7 +128,7 @@ class ReputationStore {
   }
 
   _persist() {
-    for (const stmt of Object.values(this._stmts)) stmt.free();
+    for (const stmt of Object.values(this._stmts ?? [])) stmt.free();
     const data = this.db.export();
     fs.writeFileSync(this._dbPath, Buffer.from(data));
     this._prepare();
@@ -136,7 +142,7 @@ class ReputationStore {
    * @returns {object|null}
    */
   get(playerId, factionId) {
-    return this._get(this._stmts.get, {
+    return this._get(this._stmts?.get, {
       '@player_id':  playerId,
       '@faction_id': factionId,
     });
@@ -157,7 +163,7 @@ class ReputationStore {
       ? { affinity: existing.affinity, honor: existing.honor, trust: existing.trust, debt: existing.debt }
       : { affinity: 0, honor: 0, trust: 0, debt: 0 };
 
-    this._run(this._stmts.upsert, {
+    this._run(this._stmts?.upsert, {
       '@player_id':  playerId,
       '@faction_id': factionId,
       '@affinity':   _clamp(base.affinity + (deltas.affinity ?? 0)),
@@ -179,7 +185,7 @@ class ReputationStore {
    * @param {number}  now
    */
   logEvent(id, playerId, factionId, eventType, deltas, now) {
-    this._run(this._stmts.logEvent, {
+    this._run(this._stmts?.logEvent, {
       '@id':             id,
       '@player_id':      playerId,
       '@faction_id':     factionId,
@@ -200,7 +206,7 @@ class ReputationStore {
    * @returns {object[]}
    */
   getHistory(playerId, factionId) {
-    return this._all(this._stmts.getHistory, {
+    return this._all(this._stmts?.getHistory, {
       '@player_id':  playerId,
       '@faction_id': factionId,
     });
@@ -213,13 +219,13 @@ class ReputationStore {
    * @returns {object[]}
    */
   getAllForPlayer(playerId) {
-    return this._all(this._stmts.getAllForPlayer, {
+    return this._all(this._stmts?.getAllForPlayer, {
       '@player_id': playerId,
     });
   }
 
   close() {
-    for (const stmt of Object.values(this._stmts)) stmt.free();
+    for (const stmt of Object.values(this._stmts ?? [])) stmt.free();
     this.db.close();
   }
 }

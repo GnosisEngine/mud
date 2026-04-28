@@ -1,5 +1,6 @@
-type Ctor<T, A extends any[] = any[]> = new (...args: A) => T;
 declare module 'ranvier' {
+  type Ctor<T, A extends any[] = any[]> = import('./primitives').Ctor<T, A>;
+
   export const Broadcast: import('./').RanvierBroadcast;
   export const Logger: import('./').RanvierLogger;
   export const EffectFlag: import('.').RanvierEffectFlag

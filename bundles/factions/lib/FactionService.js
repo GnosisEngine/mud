@@ -1,6 +1,8 @@
 // bundles/factions/lib/FactionService.js
 'use strict';
 
+/** @typedef {import('types').ReputationStore} ReputationStore */
+
 const { nanoid } = require('nanoid');
 const { mergeDeltas, resolveProfile } = require('./PolicyResolver');
 const { roomHasFaction } = require('../logic');
@@ -159,7 +161,7 @@ function build(factionMap, store, policyMap) {
      * @returns {number[]}
      */
     getFactionsForRoom(room) {
-      if (!roomHasFaction(null, null, { room })) return [];
+      if (!roomHasFaction({ room })) return [];
       return [room.faction];
     },
 

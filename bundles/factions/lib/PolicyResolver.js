@@ -1,6 +1,10 @@
 // bundles/factions/lib/PolicyResolver.js
 'use strict';
 
+/** @typedef {import('types').FactionScores} FactionScores */
+/** @typedef {import('types').FactionAxes} FactionAxes */
+
+
 const fs = require('fs');
 const path = require('path');
 
@@ -34,12 +38,12 @@ function _scoreToIndex(score, thresholds) {
  * score range into five named brackets. A score equal to a boundary value
  * falls into the lower bracket (score <= threshold[i]).
  *
- * @param {{ affinity, honor, trust, debt }} scores
- * @param {{ affinity, honor, trust, debt }} thresholds  — per-axis arrays of 4 numbers
- * @returns {{ affinity, honor, trust, debt }}            — bracket label strings
+ * @param {FactionScores} scores
+ * @param {FactionScores} thresholds  — per-axis arrays of 4 numbers
+ * @returns {FactionAxes}            — bracket label strings
  */
 function scoresToBrackets(scores, thresholds) {
-  const result = {};
+  const result = /** @type {FactionAxes} */ ({});
   for (const axis of AXES) {
     const idx = _scoreToIndex(scores[axis] ?? 0, thresholds[axis]);
     result[axis] = BRACKET_LABELS[axis][idx];
@@ -52,7 +56,7 @@ function scoresToBrackets(scores, thresholds) {
  * Renown is the sum of the absolute values of all four axes.
  * A player with all scores at zero has zero renown — they are a stranger.
  *
- * @param {{ affinity, honor, trust, debt }} scores
+ * @param {FactionScores} scores
  * @returns {number}
  */
 function deriveRenown(scores) {
@@ -62,7 +66,7 @@ function deriveRenown(scores) {
 /**
  * Resolves a full reputation profile from raw scores and a faction definition.
  *
- * @param {{ affinity, honor, trust, debt }} scores
+ * @param {FactionScores} scores
  * @param {object} factionDef   — from FactionLoader
  * @returns {{ axes, brackets, renown, isStranger }}
  */
@@ -75,7 +79,7 @@ function resolveProfile(scores, factionDef) {
   };
   const brackets  = scoresToBrackets(axes, factionDef.thresholds);
   const renown    = deriveRenown(axes);
-  return { axes, brackets, renown, isStranger: isStranger(null, null, { renown, factionDef }) };
+  return { axes, brackets, renown, isStranger: isStranger({ renown, factionDef }) };
 }
 
 /**
@@ -85,7 +89,7 @@ function resolveProfile(scores, factionDef) {
  *
  * @param {string} eventType
  * @param {object} factionDef
- * @returns {{ affinity, honor, trust, debt }}
+ * @returns {FactionScores}
  */
 function mergeDeltas(eventType, factionDef) {
   if (!FACTION_EVENT_NAMES.has(eventType)) {

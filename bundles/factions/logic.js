@@ -1,6 +1,7 @@
 'use strict';
 
 /** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierRoom} RanvierRoom */
 
 const { BRACKET_LABELS } = require('./constants');
 const NOOP = /** @type {any} */ ({});
@@ -17,19 +18,19 @@ function _bracketMeetsMinimum(brackets, axis, minLabel) {
 }
 
 module.exports = {
-  /** @type {import('types').LogicCheck<{ before: any, after: any }>} */
-  hasFactionStanceChanged: (_, __, { before, after } = NOOP) => {
+  /** @type {import('types').LogicCheckOptionsOnly<{ before: string, after: string }>} */
+  hasFactionStanceChanged: ({ before, after } = NOOP) => {
     if (!before || !after) return false;
     return !AXES.every(axis => before[axis] === after[axis]);
   },
 
-  /** @type {import('types').LogicCheck<{ room: any }>} */
-  roomHasFaction: (_, __, { room } = NOOP) => {
+  /** @type {import('types').LogicCheckOptionsOnly<{ room: RanvierRoom }>} */
+  roomHasFaction: ({ room } = NOOP) => {
     return !!(room && room.faction !== undefined);
   },
 
-  /** @type {import('types').LogicCheck<{ renown: any, factionDef: any }>} */
-  isStranger: (_, __, { renown, factionDef } = NOOP) => {
+  /** @type {import('types').LogicCheckOptionsOnly<{ renown: any, factionDef: any }>} */
+  isStranger: ({ renown, factionDef } = NOOP) => {
     return renown < factionDef.renownThreshold;
   },
 

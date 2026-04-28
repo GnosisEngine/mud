@@ -33,10 +33,13 @@ import type {
 import { ContextService } from '../bundles/world/lib/ContextService.js'
 import { FactionManager, ReputationStore } from './factions';
 
-//export type LogicCheck<T = {}> = (state: GameState, player: RanvierPlayer, options?: T) => boolean
 export type LogicCheck<T = Record<string, never>> = (
   state:   GameState,
   player:  RanvierPlayer,
+  options: T
+) => boolean | null
+
+export type LogicCheckOptionsOnly<T = Record<string, never>> = (
   options: T
 ) => boolean | null
 
