@@ -1,5 +1,11 @@
 'use strict';
 
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierExit} RanvierExit */
+/** @typedef {import('types').RanvierItem} RanvierItem */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
+
 const { Broadcast: B, Item, ItemType } = require('ranvier');
 const ItemUtil = require('../../lib/lib/ItemUtil');
 const { decorate } = require('../lib/RoomDecorator');
@@ -18,14 +24,18 @@ const {
 
 //  rot quantiles
 
+/** @param {RanvierPlayer | RanvierNpc | RanvierItem | RanvierExit} entity */
 function rotDescription(entity) {
-  if (!entity.timeUntilDecay) return null;
-  const sec = entity.timeUntilDecay / 1000;
-  if (sec > 3600) return `${entity.name} looks perfectly fresh — no sign of decay yet.`;
-  if (sec > 1800) return `${entity.name} carries a faint, stale smell. It won't last forever.`;
-  if (sec > 600)  return `${entity.name} is visibly decaying. Dark patches spread across its surface.`;
-  if (sec > 120)  return `${entity.name} is heavily rotted, reeking and barely holding together.`;
-  return `${entity.name} is on the verge of collapse — crumbling and putrid.`;
+  const timeUntilDecay = /** @type {{ timeUntilDecay?: number }} */ (entity).timeUntilDecay ?? 0;
+  const name = /** @type {{ name?: string }} */ (entity).name ?? '';
+
+  if (!timeUntilDecay) return null;
+  const sec = timeUntilDecay / 1000;
+  if (sec > 3600) return `${name} looks perfectly fresh — no sign of decay yet.`;
+  if (sec > 1800) return `${name} carries a faint, stale smell. It won't last forever.`;
+  if (sec > 600)  return `${name} is visibly decaying. Dark patches spread across its surface.`;
+  if (sec > 120)  return `${name} is heavily rotted, reeking and barely holding together.`;
+  return `${name} is on the verge of collapse — crumbling and putrid.`;
 }
 
 //  radiance quantiles
@@ -41,10 +51,15 @@ function radianceDescription(charges) {
 
 //  entity look
 
-function lookEntity(state, player, args) {
+/**
+ * @param {GameState} state
+ * @param {RanvierPlayer} player
+ * @param {string} wholeArgs
+ */
+function lookEntity(state, player, wholeArgs) {
   const room = player.room;
 
-  args = args.split(' ');
+  const args = wholeArgs.split(' ');
   let search = null;
   if (args.length > 1) {
     search = args[0] === 'in' ? args[1] : args[0];
@@ -52,31 +67,36 @@ function lookEntity(state, player, args) {
     search = args[0];
   }
 
-  const entity = state.getTarget(player, search);
+  const entity = state.getTarget(player, search, []);
 
   if (!entity) {
     return B.sayAt(player, "You don't see anything like that here.");
   }
 
   if (isPlayerEntity(state, player, { entity })) {
-    B.sayAt(player, `You see fellow player ${entity.name}.`);
+    const p = /** @type {RanvierPlayer} */ (entity);
+    B.sayAt(player, `You see fellow player ${p.name}.`);
     return;
   }
 
   if (isExit(state, player, { exit:  entity })) {
-    const exitRoom = state.RoomManager.getRoom(entity.roomId);
+    const x = /** @type {RanvierExit} */ (entity);
+    const exitRoom = state.RoomManager.getRoom(x.roomId ?? '');
     if (!exitRoom) return B.sayAt(player, "You can't make out anything in that direction.");
 
-    const door = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room));
-    if (isDoorBlocked(state, player, { door })) {
-      return B.sayAt(player, 'The door is closed.');
+    if (room) {
+      const door = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room));
+      if (isDoorBlocked(state, player, { door })) {
+        return B.sayAt(player, 'The door is closed.');
+      }
     }
 
     B.sayAt(player, decorate(exitRoom, undefined, { state }) + '\r\n');
     return;
   }
 
-  B.sayAt(player, entity.description, 80);
+  const desc = /** @type {{ description?: string }} */ (entity).description ?? '';
+  B.sayAt(player, desc, 80);
 
   if (entity instanceof Item) {
     switch (entity.type) {
@@ -91,11 +111,11 @@ function lookEntity(state, player, args) {
           return B.sayAt(player, 'It is closed.');
         }
         B.at(player, 'Contents');
-        if (isFinite(entity.inventory.getMax())) {
-          B.at(player, ` (${entity.inventory.size}/${entity.inventory.getMax()})`);
+        if (isFinite(entity.inventory?.getMax() ?? 0)) {
+          B.at(player, ` (${entity.inventory?.size}/${entity.inventory?.getMax()})`);
         }
         B.sayAt(player, ':');
-        for (const [, item] of entity.inventory) {
+        for (const [, item] of entity.inventory ?? []) {
           B.sayAt(player, '  ' + ItemUtil.display(item));
         }
         break;
@@ -104,7 +124,10 @@ function lookEntity(state, player, args) {
   }
 
   if (isRotting(state, player, { entity })) {
-    B.sayAt(player, rotDescription(entity));
+    const rotDesc = rotDescription(entity);
+    if (rotDesc) {
+      B.sayAt(player, rotDesc);
+    }
   }
 
   const usable = hasBehavior(state, entity, { behavior: 'usable' });
@@ -113,7 +136,11 @@ function lookEntity(state, player, args) {
       const useSpell = state.SpellManager.get(usable.spell);
       if (useSpell) {
         useSpell.options = usable.options;
-        B.sayAt(player, useSpell.info(player));
+        const info = useSpell.info(player);
+
+        if (info) {
+          B.sayAt(player, info);
+        }
       }
     }
 
@@ -179,6 +206,11 @@ module.exports = {
   aliases: ['l'],
   usage: 'look [target]',
 
+
+  /**
+   * @param {GameState} state
+   * @returns {function(string, RanvierPlayer): void}
+   */
   command(state) {
     return (args, player) => {
       if (!!args) {
@@ -187,26 +219,26 @@ module.exports = {
       }
 
       const room = player.room;
-      if (!room) return player.socket.write('You are nowhere.\r\n');
+      if (!room) return player.socket?.write('You are nowhere.\r\n');
 
       const waypoints = (player.metadata && player.metadata.waypoints) || [];
       const matchedWp = room.coordinates
         ? waypoints.find(w =>
           w.areaId === room.area.name &&
-          w.coordinates.x === room.coordinates.x &&
-          w.coordinates.y === room.coordinates.y &&
-          w.coordinates.z === room.coordinates.z
+          w.coordinates.x === room.coordinates?.x &&
+          w.coordinates.y === room.coordinates?.y &&
+          w.coordinates.z === room.coordinates?.z
         )
         : null;
 
-      player.socket.write(decorate(room, undefined, {
+      player.socket?.write(decorate(room, undefined, {
         waypointLabel: matchedWp ? matchedWp.label : null,
         state,
       }) + '\r\n');
 
       if (hasMinimap(state, player)) {
         B.sayAt(player, '');
-        state.CommandManager.get('map').execute(4, player);
+        state.CommandManager.get('map')?.execute(4, player);
       }
 
       if (room.items && room.items.size) {

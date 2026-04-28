@@ -1,7 +1,7 @@
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const { Broadcast: B } = require('ranvier');
 const {
@@ -63,9 +63,9 @@ module.exports = {
     const label = args.trim();
     const entry = {
       label,
-      roomId:      player.room.entityReference,
-      areaId:      player.room.area.name,
-      coordinates: { ...player.room.coordinates }
+      roomId:      player.room?.entityReference,
+      areaId:      player.room?.area.name,
+      coordinates: { ...player.room?.coordinates }
     };
 
     if (hasWaypointWithLabel(null, null, { waypoints, label })) {

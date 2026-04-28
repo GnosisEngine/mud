@@ -1,11 +1,11 @@
 'use strict';
 /**
- * @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer
- * @typedef {import('../../../types/ranvier').RanvierRoom}   RanvierRoom
- * @typedef {import('../../../types/ranvier').RanvierNpc}    RanvierNpc
- * @typedef {import('../../../types/ranvier').RanvierCharacter}    RanvierCharacter
- * @typedef {import('../../../types/ranvier').RanvierItem}   RanvierItem
- * @typedef {import('../../../types/ranvier').RanvierExit}   RanvierExit
+ * @typedef {import('types').RanvierPlayer} RanvierPlayer
+ * @typedef {import('types').RanvierRoom}   RanvierRoom
+ * @typedef {import('types').RanvierNpc}    RanvierNpc
+ * @typedef {import('types').RanvierCharacter}    RanvierCharacter
+ * @typedef {import('types').RanvierItem}   RanvierItem
+ * @typedef {import('types').RanvierExit}   RanvierExit
  */
 
 /** @type {['player']}        */ const TARGET_PLAYERS = ['player'];
@@ -83,7 +83,7 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * @param {RanvierPlayer} player
  * @param {string} rawQuery
  * @param {['player']} targets
- * @param {RanvierRoom} [room]
+ * @param {RanvierRoom | null} [room]
  * @returns {RanvierPlayer|null}
  */
 
@@ -92,7 +92,7 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * @param {RanvierPlayer} player
  * @param {string} rawQuery
  * @param {['npc']} targets
- * @param {RanvierRoom} [room]
+ * @param {RanvierRoom | null} [room]
  * @returns {RanvierNpc|null}
  */
 
@@ -101,7 +101,7 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * @param {RanvierPlayer} player
  * @param {string} rawQuery
  * @param {['player', 'npc']|['npc', 'player']} targets
- * @param {RanvierRoom} [room]
+ * @param {RanvierRoom | null} [room]
  * @returns {RanvierCharacter|null}
  */
 
@@ -110,7 +110,7 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * @param {RanvierPlayer} player
  * @param {string} rawQuery
  * @param {['item']|['inventory']} targets
- * @param {RanvierRoom} [room]
+ * @param {RanvierRoom | null} [room]
  * @returns {RanvierItem|null}
  */
 
@@ -119,7 +119,7 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * @param {RanvierPlayer} player
  * @param {string} rawQuery
  * @param {['exit']} targets
- * @param {RanvierRoom} [room]
+ * @param {RanvierRoom | null} [room]
  * @returns {RanvierExit|null}
  */
 
@@ -128,7 +128,7 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * @param {RanvierPlayer} player
  * @param {string} rawQuery
  * @param {[]} [targets]
- * @param {RanvierRoom} [room]
+ * @param {RanvierRoom | null} [room]
  * @returns {RanvierPlayer|RanvierNpc|RanvierItem|RanvierExit|null}
  */
 
@@ -136,7 +136,7 @@ function fuzzyMatch(primaryText, otherTexts, q) {
  * @param {RanvierPlayer} player
  * @param {string}        rawQuery
  * @param {string[]}      [targets=[]]
- * @param {RanvierRoom}   [room]
+ * @param {RanvierRoom | null}   [room]
  * @returns {RanvierPlayer|RanvierNpc|RanvierItem|RanvierExit|null}
  */
 function getTarget(player, rawQuery, targets = [], room = player.room) {
@@ -151,11 +151,11 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
   // const findResources = hasTargets || normalizedTargets.includes('resources');
   const findInventory = hasTargets || normalizedTargets.includes('inventory');
 
-  const exits = findExits && room.getExits ? room.getExits() : [];
+  const exits = findExits && room?.getExits ? room?.getExits() : [];
 
   const potentialTargets = [
     ...(findInventory
-      ? [...player.inventory].map(([_,entity]) => ({
+      ? [...player.inventory ?? []].map(([_,entity]) => ({
         entity,
         score: fuzzyMatch(entity.roomDesc, [entity.description, entity.name, ...(entity.keywords || [])], query)
       }))
@@ -171,7 +171,7 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
     ),
 
     ...(findItems
-      ? [...room.items].map(entity => ({
+      ? [...room?.items ?? []].map(entity => ({
         entity,
         score: fuzzyMatch(entity.roomDesc, [entity.description, entity.name, ...(entity.keywords || [])], query)
       }))
@@ -179,7 +179,7 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
     ),
 
     ...(findPlayers
-      ? [...room.players].map(entity => ({
+      ? [...room?.players ?? []].map(entity => ({
         entity,
         score: fuzzyMatch(entity.name, [], query)
       }))
@@ -187,9 +187,9 @@ function getTarget(player, rawQuery, targets = [], room = player.room) {
     ),
 
     ...(findNpcs
-      ? [...room.npcs].map(entity => ({
+      ? [...room?.npcs ?? []].map(entity => ({
         entity,
-        score: fuzzyMatch(entity.name, [entity.description, ...(entity.keywords || [])], query)
+        score: fuzzyMatch(entity.name, [entity.description ?? '', ...(entity.keywords || [])], query)
       }))
       : []
     ),

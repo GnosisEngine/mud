@@ -512,7 +512,7 @@ export interface RanvierCommand {
   requiredRole: RanvierPlayerRoles;
   file: string;
   metadata: Record<string, unknown>;
-  execute(args: string|null, player: RanvierPlayer, arg0?: string): unknown;
+  execute(args: string|number|null, player: RanvierPlayer, arg0?: string): unknown;
   command: (state: GameState) => (args: string) => void
 }
 
@@ -697,7 +697,7 @@ export interface RanvierSkill {
   cooldownLength: number | null;
   effect: string | null;
   flags: RanvierSkillFlag[];
-  info: (player: RanvierPlayer) => void;
+  info: (player: RanvierPlayer) => string | undefined;
   initiatesCombat: boolean;
   options: Record<string, any>;
   requiresTarget: boolean;

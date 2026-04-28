@@ -1,4 +1,5 @@
 'use strict';
+
 const { ContextService, check } = require('../world/lib/ContextService');
 
 ContextService.register(({ input }) => {
