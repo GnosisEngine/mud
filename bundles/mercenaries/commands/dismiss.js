@@ -1,13 +1,29 @@
 // bundles/vendor-npcs/commands/dismiss.js
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+
+/**
+ *
+ * @param {RanvierPlayer} player
+ * @param {string} query
+ * @returns
+ */
+const findContractInInventory = (player, query) => {
+  for (const [, item] of player.inventory ?? []) {
+    const contract = item.getMeta ? item.getMeta('contract') : null;
+    if (!contract || !contract.contractId) continue;
+    if (contract.mercName && contract.mercName.toLowerCase().includes(query)) {
+      return { contractId: contract.contractId, mercName: contract.mercName };
+    }
+  }
+  return null;
+};
 
 const { Broadcast: B } = require('ranvier');
 const {
   hasEmptyInventory,
-  findContractInInventory,
   hasActiveContract,
   isContractRetiring,
 } = require('../logic');

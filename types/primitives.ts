@@ -604,26 +604,6 @@ export interface Party {
   getBroadcastTargets(): RanvierPlayer[];
 }
 
-export interface MercRegistryEntry {
-  contractId:      string;
-  mercRef:         string;
-  mercName:        string;
-  homeRoomId:      string;
-  holderId:        string;
-  targetRoomId:    string;
-  nextUpkeepAt:    number;
-  expiresAt:       number;
-  upkeepCost:      number;
-  upkeepCurrency:  string;
-  status:          'EN_ROUTE' | 'STATIONED' | 'RETURNING' | 'FLEEING';
-  npcInstance:     RanvierNpc | null;
-  contractItem:    RanvierItem | null;
-  path:            RanvierRoom[];
-  pathIndex:       number;
-  lastMoveAt:      number;
-  lastClaimCheckAt: number;
-}
-
 export interface PhaseInfo {
   name:  string;
   emoji: string;
@@ -759,26 +739,6 @@ export type RanvierCommandType = {
 
 export interface RanvierCooldownError {
   effect: RanvierEffect;
-}
-
-export interface MercRegistryEntry {
-  contractId:       string;
-  mercRef:          string;
-  mercName:         string;
-  homeRoomId:       string;
-  holderId:         string;
-  targetRoomId:     string;
-  nextUpkeepAt:     number;
-  expiresAt:        number;
-  upkeepCost:       number;
-  upkeepCurrency:   string;
-  status:           'EN_ROUTE' | 'STATIONED' | 'RETURNING' | 'FLEEING';
-  npcInstance:      RanvierNpc | null;
-  contractItem:     RanvierItem | null;
-  path:             RanvierRoom[];
-  pathIndex:        number;
-  lastMoveAt:       number;
-  lastClaimCheckAt: number;
 }
 
 export interface PhaseInfo {

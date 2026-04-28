@@ -1,8 +1,10 @@
 // bundles/vendor-npcs/behaviors/npc/merc-patrol.js
 'use strict';
 
-/** @typedef {import('../../../../types/state').GameState} GameState */
-/** @typedef {import('../../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
+
 
 // HP fraction at which a merc breaks off and flees toward homeRoomId.
 const FLEE_HP_THRESHOLD = 0.5;
@@ -18,7 +20,7 @@ module.exports = {
      * @param {GameState} state
      * @returns {function(string, RanvierPlayer): void}
      */
-    updateTick: state => function() {
+    updateTick: state => /** @this {RanvierNpc} */ function() {
       if (!this.room || !state.MercenaryService) return;
 
       const contractId = this.getMeta('merc.contractId');

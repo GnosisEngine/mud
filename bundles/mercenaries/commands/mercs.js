@@ -1,8 +1,8 @@
 // bundles/vendor-npcs/commands/mercs.js
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 const sprintf = require('sprintf-js').sprintf;
 const { Broadcast: B } = require('ranvier');

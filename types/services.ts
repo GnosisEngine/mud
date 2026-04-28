@@ -2,15 +2,15 @@ import { GameState } from './state';
 import {
   NamedIndex,
   WorldPath,
-  MercRegistryEntry,
   PhaseInfo,
+  RanvierPlayer,
   RanvierNpc,
-  RanvierPlayer
 } from './primitives';
 import {
   FactionProfile,
   FactionStance
 } from './factions'
+import { MercenaryContract } from './mercenaries';
 
 export interface TimeService {
   getTick(): number;
@@ -52,14 +52,19 @@ export interface WorldManager {
 }
 
 export interface MercenaryService {
-  getActiveMercCount(holderId: string): number;
-  getCoveredRoomIds(holderId: string): Set<string>;
-  getContractsByPlayer(holderId: string): MercRegistryEntry[];
+  // Queries
+  getActiveMercCount(playerId: string): number;
+  getCoveredRoomIds(playerId: string): Set<string>;
+  getContractsByPlayer(playerId: string): MercenaryContract[];
   findHolderForContract(contractId: string, state: GameState): RanvierPlayer | null;
+
+  // Commands
   beginFleeing(contractId: string, state: GameState): void;
-  hire(player: RanvierPlayer, npc: RanvierNpc, state: GameState): void;
+  hire(player: RanvierPlayer, vendorNpc: RanvierNpc, state: GameState): void;
   dismiss(contractId: string, state: GameState): void;
-  handleMercDeath(npc: RanvierNpc, state: GameState): void;
+  handleMercDeath(mercNpc: RanvierNpc, state: GameState): void;
+
+  // Lifecycle
   tick(state: GameState): void;
   boot(state: GameState): Promise<void>;
 }

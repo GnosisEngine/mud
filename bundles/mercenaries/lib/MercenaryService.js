@@ -1,11 +1,11 @@
 // bundles/vendor-npcs/lib/MercenaryService.js
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../../../types/ranvier').RanvierItem} RanvierItem */
-/** @typedef {import('../../../types/ranvier').RanvierCharacter} RanvierCharacter */
-/** @typedef {import('../../../types/ranvier').RanvierNpc} RanvierNpc */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierItem} RanvierItem */
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('types').RanvierNpc} RanvierNpc */
 
 const fs = require('fs');
 const path = require('path');
@@ -522,10 +522,14 @@ function build() {
 
       _beginReturning(entry, state);
 
-      B.sayAt(
-        service.findHolderForContract(contractId, state),
-        `<yellow>[Mercenaries' Guild] ${entry.mercName} has been dismissed and is returning home.</yellow>`
-      );
+      const holder = service.findHolderForContract(contractId, state);
+
+      if (holder) {
+        B.sayAt(
+          holder,
+          `<yellow>[Mercenaries' Guild] ${entry.mercName} has been dismissed and is returning home.</yellow>`
+        );
+      }
     },
 
     /**

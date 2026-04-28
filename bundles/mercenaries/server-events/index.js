@@ -1,8 +1,8 @@
 // bundles/vendor-npcs/server-events/index.js
 'use strict';
 
-/** @typedef {import('../../../types/state').GameState} GameState */
-/** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 
 require('../hints');
 const { Logger } = require('ranvier');
@@ -48,7 +48,7 @@ module.exports = {
           tickInterval = setInterval(() => {
             try {
               service.tick(state);
-            } catch (err) {
+            } catch (/** @type {any} */ err) {
               Logger.error(`[mercenaries] tick error: ${err.message}`);
             }
           }, 1000);
