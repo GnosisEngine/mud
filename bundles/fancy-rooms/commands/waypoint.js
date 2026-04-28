@@ -2,6 +2,7 @@
 
 /** @typedef {import('types').GameState} GameState */
 /** @typedef {import('types').RanvierPlayer} RanvierPlayer */
+/** @typedef {import('types').RanvierWaypoint} RanvierWaypoint */
 
 const { Broadcast: B } = require('ranvier');
 const {
@@ -23,14 +24,14 @@ const WP_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 module.exports = {
   usage: 'waypoint [list | remove <label|#> | <label>]',
   /**
-   * @param {GameState} _
+   * @param {GameState} state
    * @returns {function(string, RanvierPlayer): void}
    */
-  command: (_) => (args, player) => {
+  command: (state) => (args, player) => {
     if (!player.metadata.waypoints) player.metadata.waypoints = [];
     const waypoints = player.metadata.waypoints;
 
-    if (isListCommand(null, null, { args })) {
+    if (isListCommand({ args })) {
       if (!waypoints.length) return B.sayAt(player, `${MUTE}No waypoints saved.${R}`);
       B.sayAt(player, `${GOLD}Waypoints:${R}`);
       waypoints.forEach((w, i) => {
@@ -39,7 +40,7 @@ module.exports = {
       return;
     }
 
-    if (isRemoveCommand(null, null, { args })) {
+    if (isRemoveCommand({ args })) {
       const target = args.trim().slice(7).trim();
 
       const num = parseInt(target, 10);
@@ -56,23 +57,23 @@ module.exports = {
       return B.sayAt(player, `${GOLD}Waypoint "${removed.label}" removed.${R}`);
     }
 
-    if (!hasCoordinates(null, player)) {
+    if (!hasCoordinates(state, player)) {
       return B.sayAt(player, `${ROSE}This room cannot be waypointed.${R}`);
     }
 
     const label = args.trim();
-    const entry = {
+    const entry = /** @type {RanvierWaypoint} */({
       label,
       roomId:      player.room?.entityReference,
       areaId:      player.room?.area.name,
       coordinates: { ...player.room?.coordinates }
-    };
+    });
 
-    if (hasWaypointWithLabel(null, null, { waypoints, label })) {
+    if (hasWaypointWithLabel({ waypoints, label })) {
       const idx = waypoints.findIndex(w => w.label.toLowerCase() === label.toLowerCase());
       const old = waypoints[idx];
 
-      if (isWaypointSameRoom(null, null, { old, entry })) {
+      if (isWaypointSameRoom(state, player, { old, entry })) {
         return B.sayAt(player, `${MUTE}Waypoint "${label}" already points here.${R}`);
       }
 

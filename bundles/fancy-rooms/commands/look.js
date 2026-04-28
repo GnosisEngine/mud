@@ -79,14 +79,14 @@ function lookEntity(state, player, wholeArgs) {
     return;
   }
 
-  if (isExit(state, player, { exit:  entity })) {
-    const x = /** @type {RanvierExit} */ (entity);
+  const x = /** @type {RanvierExit} */ (entity);
+  if (isExit(state, player, { exit:  x })) {
     const exitRoom = state.RoomManager.getRoom(x.roomId ?? '');
     if (!exitRoom) return B.sayAt(player, "You can't make out anything in that direction.");
 
     if (room) {
       const door = room.getDoor(exitRoom) || (exitRoom && exitRoom.getDoor(room));
-      if (isDoorBlocked(state, player, { door })) {
+      if (door && isDoorBlocked(state, player, { door })) {
         return B.sayAt(player, 'The door is closed.');
       }
     }
@@ -130,12 +130,13 @@ function lookEntity(state, player, wholeArgs) {
     }
   }
 
-  const usable = hasBehavior(state, entity, { behavior: 'usable' });
-  if (usable) {
-    if (usable.spell) {
-      const useSpell = state.SpellManager.get(usable.spell);
+  const usableTarget = /** @type {RanvierItem | RanvierNpc} */ (entity);
+  const behavior = usableTarget.getBehavior('usable');
+  if (behavior) {
+    if (behavior.spell) {
+      const useSpell = state.SpellManager.get(behavior.spell);
       if (useSpell) {
-        useSpell.options = usable.options;
+        useSpell.options = behavior.options;
         const info = useSpell.info(player);
 
         if (info) {
@@ -144,12 +145,12 @@ function lookEntity(state, player, wholeArgs) {
       }
     }
 
-    if (usable.effect && usable.config.description) {
-      B.sayAt(player, usable.config.description);
+    if (behavior.effect && behavior.config.description) {
+      B.sayAt(player, behavior.config.description);
     }
 
-    if (usable.charges) {
-      B.sayAt(player, radianceDescription(usable.charges));
+    if (behavior.charges) {
+      B.sayAt(player, radianceDescription(behavior.charges));
     }
   }
 }

@@ -55,6 +55,17 @@ export interface RanvierGameEntity extends EventEmitter, RanvierMetadatable, Ran
   getMeta(key: string): any;
 }
 
+export interface RanvierWaypoint {
+  label: string
+  roomId: string
+  areaId: string
+  coordinates: {
+    x: number,
+    y: number,
+    z: number
+  }
+}
+
 export interface RanvierArea extends RanvierGameEntity {
   bundle:    string;
   name:      string;

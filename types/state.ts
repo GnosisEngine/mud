@@ -39,6 +39,12 @@ export type LogicCheck<T = Record<string, never>> = (
   options: T
 ) => boolean | null
 
+export type LogicCheckNoOptions = (
+  state:   GameState,
+  player:  RanvierPlayer
+) => boolean | null
+
+
 export type LogicCheckOptionsOnly<T = Record<string, never>> = (
   options: T
 ) => boolean | null

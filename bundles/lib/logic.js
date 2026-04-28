@@ -1,7 +1,9 @@
 'use strict';
 
-/** @typedef {import('../../types/state').GameState} GameState */
-/** @typedef {import('../../types/ranvier').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('types').RanvierDoor} RanvierDoor */
+/** @typedef {import('types').RanvierItem} RanvierItem */
 
 const { PlayerRoles } = require('ranvier');
 
@@ -36,6 +38,7 @@ module.exports = {
     return !player.isInventoryFull();
   },
 
+  /** @type {import('types').LogicCheckNoOptions} */
   hasMinimap: (_, player) => {
     return !!player.getMeta('config.minimap');
   },
@@ -68,7 +71,8 @@ module.exports = {
     return !!(door && door.closed);
   },
 
-  isDoorBlocked: (_, __, { door } = NOOP) => {
+  /** @type {import('types').LogicCheck<{ door: RanvierDoor }>} */
+  isDoorBlocked: (_, __, { door }) => {
     return !!(door && (door.locked || door.closed));
   },
 
@@ -76,7 +80,8 @@ module.exports = {
     return target === player;
   },
 
-  isContainerClosed: (_, __, { container } = NOOP) => {
+  /** @type {import('types').LogicCheck<{ container: RanvierItem }>} */
+  isContainerClosed: (_, __, { container }) => {
     return !!(container && container.closed);
   },
 
