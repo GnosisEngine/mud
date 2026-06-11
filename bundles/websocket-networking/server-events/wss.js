@@ -7,6 +7,7 @@ const { Logger } = require('ranvier');
 
 // import our adapter
 const WebsocketStream = require('../lib/WebsocketStream');
+const linkMonitor = require('../../session/lib/linkMonitor');
 
 module.exports = {
   listeners: {
@@ -24,6 +25,9 @@ module.exports = {
 
         // Register all of the input events (login, etc.)
         state.InputEventManager.attach(stream);
+
+        // Track link state for ethereal/grace handling on disconnect
+        linkMonitor.attach(state, stream);
 
         stream.write('Connecting...\n');
         Logger.log('User connected via websocket...');

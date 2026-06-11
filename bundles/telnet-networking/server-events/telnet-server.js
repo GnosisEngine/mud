@@ -4,6 +4,7 @@ const Telnet = require('ranvier-telnet');
 const { Logger } = require('ranvier');
 const TelnetStream = require('../lib/TelnetStream');
 const LineEditor   = require('../lib/LineEditor');
+const linkMonitor  = require('../../session/lib/linkMonitor');
 
 module.exports = {
   listeners: {
@@ -36,6 +37,9 @@ module.exports = {
 
         // Register all of the input events (login, etc.)
         state.InputEventManager.attach(stream);
+
+        // Track link state for ethereal/grace handling on disconnect
+        linkMonitor.attach(state, stream);
 
         stream.write('Connecting...\n');
         Logger.log('User connected...');

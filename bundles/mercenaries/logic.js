@@ -7,7 +7,7 @@ const NOOP = {};
 module.exports = {
 
   /** @type {import('types').LogicCheckOptionsOnly<{ target: RanvierCharacter, vendorNpc: RanvierCharacter}>} */
-  isVendorTarget: ({ target, vendorNpc }) => {
+  isVendorTarget: (_, __, { target, vendorNpc } = NOOP) => {
     return !!target && target === vendorNpc;
   },
 

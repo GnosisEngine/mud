@@ -6,11 +6,9 @@
 
 /**
  *
- * @param {RanvierPlayer} player
- * @param {string} query
  * @returns
  */
-const findContractInInventory = (player, query) => {
+const findContractInInventory = (_state, player, { query }) => {
   for (const [, item] of player.inventory ?? []) {
     const contract = item.getMeta ? item.getMeta('contract') : null;
     if (!contract || !contract.contractId) continue;

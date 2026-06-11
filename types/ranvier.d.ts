@@ -1,3 +1,5 @@
+import { EventEmitter } from 'node:stream';
+
 declare module 'ranvier' {
   type Ctor<T, A extends any[] = any[]> = import('./primitives').Ctor<T, A>;
 
@@ -88,4 +90,6 @@ declare module 'ranvier' {
         effect: import('.').RanvierEffect
       ]>
   }
+
+  export const TransportStream: Ctor<EventEmitter, []>
 }

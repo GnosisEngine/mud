@@ -24,6 +24,7 @@
     "player-groups",
     "factions",
     "progressive-respawn",
+    "session",
     "telnet-networking",
     "websocket-networking"
   ],
@@ -103,6 +104,7 @@
   "defaultMaxPlayerInventory": 16,
   "maxIdleTime": 20,
   "logoutGraceMs": 30000,
+  "etherealGraceMs": 30000,
   "compactThreshold": 10000,
   "dataDir": "data",
   "carryCapacityMultiplier": 10,

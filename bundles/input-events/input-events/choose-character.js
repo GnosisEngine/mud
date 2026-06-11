@@ -1,6 +1,7 @@
 'use strict';
 
 const { Broadcast, Config, EventUtil, Logger } = require('ranvier');
+const { isEthereal } = require('../../session/logic');
 
 /**
  * Account character selection event
@@ -61,6 +62,11 @@ module.exports = {
 
               // link new socket
               currentPlayer.socket = socket;
+
+              if (isEthereal(state, currentPlayer)) {
+                currentPlayer.removeEffect(currentPlayer.effects.getByType('ethereal'));
+              }
+
               Broadcast.at(currentPlayer, 'Taking over old connection. Welcome.');
               Broadcast.prompt(currentPlayer);
 
