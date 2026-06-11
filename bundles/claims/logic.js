@@ -1,4 +1,7 @@
 'use strict';
+
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
+
 const enforcement = require('./lib/enforcement');
 const { isSelf } = require('../lib/logic');
 const NOOP = {};
@@ -25,7 +28,7 @@ module.exports = {
     return count > 0;
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {import('types').LogicCheck<{}>} */
   canClaimRoom: (state, player, { roomId, claim } = NOOP) => {
     if (claim === undefined) {
       roomId = roomId === undefined
@@ -77,7 +80,7 @@ module.exports = {
     return claimState === 'E';
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {import('types').LogicCheck<{ target: RanvierCharacter }>} */
   isTargetSelf: isSelf,
 
   /** @type {import('types').LogicCheck} */

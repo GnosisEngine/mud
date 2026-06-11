@@ -14,11 +14,13 @@
     "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     "typeRoots": ["./types", "./node_modules/@types"],
+    "types": ["node"],
+    "skipLibCheck": true,
     "paths": {
       "ranvier":  ["./types/ranvier/index.d.ts"],
       "types":    ["./types/index.d.ts"],
       "types/*":  ["./types/*.d.ts"]
     }
   },
-  "exclude": ["node_modules", "data", "log"]
+  "exclude": ["**/node_modules/**", "**/data/**", "**/log/**"]
 }

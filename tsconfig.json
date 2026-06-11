@@ -1,15 +1,26 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "noEmit": true,
     "allowJs": true,
-    "checkJs": false,
-    "lib": ["ES2020"],
-    "module": "node16",
-    "moduleResolution": "node16",
-    "strictPropertyInitialization": false,
+    "checkJs": true,
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitAny": false,
+    "noImplicitThis": true,
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "typeRoots": ["./types", "./node_modules/@types"],
     "types": ["node"],
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "skipLibCheck": true,
+    "paths": {
+      "ranvier":  ["./types/ranvier/index.d.ts"],
+      "types":    ["./types/index.d.ts"],
+      "types/*":  ["./types/*.d.ts"]
+    }
   },
-  "include": ["types/**/*.ts", "types/**/*.d.ts"]
+  "exclude": ["node_modules", "data", "log"]
 }

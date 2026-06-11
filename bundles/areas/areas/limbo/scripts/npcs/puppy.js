@@ -4,7 +4,7 @@ const { Broadcast } = require('ranvier');
 
 module.exports = {
   listeners: {
-    playerEnter: state => function (player) {
+    playerEnter: (/*state*/) => /** @this {import('types').RanvierNpc} */ function(player) {
       if (this.following) {
         return;
       }

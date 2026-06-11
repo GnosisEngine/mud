@@ -9,7 +9,7 @@ const { Broadcast, Heal } = require('ranvier');
  */
 module.exports = {
   listeners: {
-    hit: state => function (damage, target, finalAmount) {
+    hit: (/*state*/) => /** @this {import('types').RanvierSkill} */ function(damage, target, finalAmount) {
       if (!damage.attacker || damage.attacker.isNpc) {
         return;
       }

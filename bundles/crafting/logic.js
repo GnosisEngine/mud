@@ -1,6 +1,8 @@
 'use strict';
 
 /** @typedef {import('types').LogicCheck} LogicCheck */
+/** @typedef {import('types').LogicCheckNoOptions} LogicCheckNoOptions */
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
 
 const ResourceContainer = require('./lib/ResourceContainer');
 const { hasInventorySpace, isPlayerOnline, isSelf } = require('../lib/logic');
@@ -22,7 +24,7 @@ module.exports = {
     return ResourceContainer.getAmount(player, key) >= required;
   },
 
-  /** @type {LogicCheck} */
+  /** @type {LogicCheckNoOptions} */
   hasInventorySpace,
 
   /** @type {LogicCheck} */
@@ -30,10 +32,10 @@ module.exports = {
     return Object.keys(ResourceContainer.getHeld(player)).length > 0;
   },
 
-  /** @type {LogicCheck} */
+  /** @type {import('types').LogicCheck<{ target: RanvierCharacter }>} */
   isSelf,
 
-  /** @type {LogicCheck} */
+  /** @type {import('types').LogicCheck<{ targetName: string }>} */
   isOnline: isPlayerOnline,
 
   /** @type {LogicCheck} */

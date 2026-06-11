@@ -2,14 +2,14 @@
 
 module.exports = {
   listeners: {
-    playerEnter: state => function (player) {
+    playerEnter: state => /** @this {import('types').RanvierNpc} */ function(player) {
       if (this.hasEffectType('speaking')) {
         return;
       }
 
       const speak = state.EffectFactory.create('speak', {}, {
         messageList: [
-          "Welcome, %player%. The combat training area lies to the east.",
+          'Welcome, %player%. The combat training area lies to the east.',
           "To the west lies Wally's shop where you can stock up on potions.",
         ],
         outputFn: message => {
@@ -20,7 +20,7 @@ module.exports = {
       this.addEffect(speak);
     },
 
-    playerLeave: state => function (player) {
+    playerLeave: (/*state*/) => /** @this {import('types').RanvierNpc} */ function(/*player*/) {
       const speaking = this.effects.getByType('speaking');
       if (speaking) {
         speaking.remove();

@@ -493,8 +493,8 @@ export interface RanvierItem extends RanvierGameEntity {
 }
 
 export interface RanvierBroadcast {
-  sayAt(target: object, message?: string, wrapWidth?: number, useColor?: boolean): void;
-  sayAtExcept(target: object, message: string, excludes: object[]): void;
+  sayAt(target: RanvierRoom | RanvierCharacter, message?: string, wrapWidth?: number, useColor?: boolean): void;
+  sayAtExcept(target: RanvierRoom | RanvierCharacter, message: string, excludes: RanvierCharacter[]): void;
   at(target: object, message?: string): void;
   prompt(player: object): void;
   progress(width: number, percent: number, color: string): string;
