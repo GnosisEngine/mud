@@ -30,6 +30,6 @@ module.exports = {
     return targetRoom === player.room;
   },
 
-  /** @type {LogicCheck} */
+  /** @type {import('types').LogicCheckNoOptions} */
   isInCombat,
 };

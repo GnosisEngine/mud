@@ -1,4 +1,9 @@
 'use strict';
+
+/** @typedef {import('types').RanvierCharacter} RanvierCharacter */
+/** @typedef {import('types').RanvierItem} RanvierItem */
+/** @typedef {import('types').RanvierDoor} RanvierDoor */
+
 const { ItemType } = require('ranvier');
 const canSpeak = require('../moderation/lib/canSpeak');
 const {
@@ -25,7 +30,7 @@ module.exports = {
   /** @type {import('types').LogicCheck} */
   hasInventorySpace,
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {import('types').LogicCheck<{ target: RanvierCharacter }>} */
   isSelf,
 
   /** @type {import('types').LogicCheck} */
@@ -43,7 +48,7 @@ module.exports = {
     return !!(item && item.type === ItemType.CONTAINER);
   },
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {import('types').LogicCheck<{ container: RanvierItem }>} */
   isContainerClosed,
 
   /** @type {import('types').LogicCheck} */
@@ -64,7 +69,7 @@ module.exports = {
   /** @type {import('types').LogicCheck} */
   hasMinimap,
 
-  /** @type {import('types').LogicCheck} */
+  /** @type {import('types').LogicCheck<{ door: RanvierDoor }>} */
   isDoorBlocked,
 
   /** @type {import('types').LogicCheck} */
@@ -93,5 +98,10 @@ module.exports = {
   /** @type {import('types').LogicCheck} */
   meetsLevelRequirement: (_, player, { item } = NOOP) => {
     return !!(item && item.level <= player.level);
+  },
+
+  /** @type {import('types').LogicCheck<{ label: string }>} */
+  hasRecallPoint: (_, player, { label } = { label: '' }) => {
+    return !!(player.metadata.recallPoints && player.metadata.recallPoints[label]);
   },
 };
