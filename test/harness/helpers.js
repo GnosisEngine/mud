@@ -129,8 +129,39 @@ function removeNpc(state, npc) {
 //   after(teardown);
 //   // then ctx.state, ctx.room, ctx.session() are available in tests
 
+/**
+ * @typedef {object} SessionOpts
+ * @property {string} [name]
+ * @property {{name: string}} [account]
+ * @property {string} [prompt]
+ * @property {number} [level]
+ * @property {object} [attributes]
+ * @property {object} [inventory]
+ * @property {object} [metadata]
+ * @property {string} [nameA]
+ * @property {string} [nameB]
+ */
+
+/**
+ * @typedef {object} SuiteContext
+ * @property {import('types').GameState} state Set by setup(); non-null for all test bodies, which run after before(setup)
+ * @property {import('types').RanvierRoom} room Set by setup(); non-null for all test bodies, which run after before(setup)
+ * @property {(opts?: SessionOpts) => import('./TestSession').TestSession} session
+ * @property {(opts?: SessionOpts) => { a: import('./TestSession').TestSession, b: import('./TestSession').TestSession }} twoSessions
+ * @property {(player: import('types').RanvierPlayer, ref: string) => import('types').RanvierItem} giveItem
+ * @property {(ref: string) => import('types').RanvierNpc} spawnNpc
+ */
+
 function useSuite(roomRefOrFn) {
-  const ctx = { state: null, room: null };
+  /** @type {SuiteContext} */
+  const ctx = {
+    state: /** @type {import('types').GameState} */ (/** @type {unknown} */ (null)),
+    room: /** @type {import('types').RanvierRoom} */ (/** @type {unknown} */ (null)),
+    session: (opts) => session(ctx.state, ctx.room, opts),
+    twoSessions: (opts) => twoSessions(ctx.state, ctx.room, opts),
+    giveItem: (player, ref) => giveItem(ctx.state, player, ref),
+    spawnNpc: (ref) => spawnNpc(ctx.state, ctx.room, ref),
+  };
 
   async function setup() {
     try {
@@ -153,11 +184,6 @@ function useSuite(roomRefOrFn) {
     }
     process.exit(0);
   }
-
-  ctx.session = (opts) => session(ctx.state, ctx.room, opts);
-  ctx.twoSessions = (opts) => twoSessions(ctx.state, ctx.room, opts);
-  ctx.giveItem = (player, ref) => giveItem(ctx.state, player, ref);
-  ctx.spawnNpc = (ref) => spawnNpc(ctx.state, ctx.room, ref);
 
   return { setup, teardown, ctx };
 }

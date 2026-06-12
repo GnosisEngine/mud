@@ -68,3 +68,18 @@ export interface MercenaryService {
   tick(state: GameState): void;
   boot(state: GameState): Promise<void>;
 }
+
+interface ChannelAudienceConfigureOptions {
+  state: GameState;
+  sender: RanvierPlayer;
+  message: string;
+}
+
+export interface ChannelAudience {
+  state: GameState;
+  sender: RanvierPlayer;
+  message: string;
+  configure(options: ChannelAudienceConfigureOptions): void;
+  getBroadcastTargets(): RanvierPlayer[];
+  alterMessage(message: string): string;
+}

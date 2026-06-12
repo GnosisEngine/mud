@@ -3,6 +3,8 @@
 /** @typedef {import('types').GameState} GameState */
 /** @typedef {import('types').RanvierPlayer} RanvierPlayer */
 /** @typedef {import('types').RanvierNpc} RanvierNpc */
+/** @typedef {import('types').RanvierDoor} RanvierDoor */
+/** @typedef {import('types').RanvierExit} RanvierExit */
 /** @typedef {import('types').LogicCheck} LogicCheck */
 
 const CombatErrors = require('./lib/CombatErrors');
@@ -10,7 +12,7 @@ const { hasWeapon, hasExits, isNpc, isDoorImpassable, isInCombat } = require('..
 const NOOP = {};
 
 module.exports = {
-  /** @type {LogicCheck} */
+  /** @type {import('types').LogicCheckAsCharacterWithNoOptions} */
   isNpc,
 
   /** @type {LogicCheck} */
@@ -22,7 +24,7 @@ module.exports = {
     return room !== undefined;
   },
 
-  /** @type {LogicCheck} */
+  /** @type {import('types').LogicCheckOptionsOnly<{ door: RanvierDoor }>} */
   isDoorImpassable,
 
   /** @type {LogicCheck} */
@@ -138,7 +140,7 @@ module.exports = {
       && conditions;
   },
 
-  /** @type {LogicCheck} */
+  /** @type {import('types').LogicCheck<{ exits: RanvierExit[] }>} */
   hasExits,
 
   /** @type {LogicCheck} */

@@ -9,7 +9,7 @@
 const { PlayerRoles } = require('ranvier');
 
 module.exports = {
-  /** @type {import('types').LogicCheckNoOptions} */
+  /** @type {import('types').LogicCheckAsCharacterWithNoOptions} */
   isNpc: (_, player) => {
     return !!player.isNpc;
   },

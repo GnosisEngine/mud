@@ -31,6 +31,7 @@ declare module 'ranvier' {
   export const CommandTypeValue: Ctor<import('.').RanvierCommandTypeValue>;
   export const InventoryFullError: Ctor<Error>
   export const CommandManager: Ctor<import('.').CommandManager>;
+  export const ChannelAudience: Ctor<import('.').ChannelAudience>;
 
   export const Player: Ctor<import('.').RanvierPlayer, [
     data: {
