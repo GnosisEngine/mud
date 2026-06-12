@@ -84,6 +84,7 @@ async function boot() {
       path.join(REPO_ROOT, 'bundles', 'claims', 'data', 'claims-test.db'),
       path.join(REPO_ROOT, 'bundles', 'claims', 'data', 'claims-test.log.state.json'),
       path.join(REPO_ROOT, 'bundles', 'factions', 'data', 'factions-test.db'),
+      path.join(REPO_ROOT, 'bundles', 'channels', 'data', 'dynamic-channels-test.json'),
     ];
 
     for (const file of files) {

@@ -8,6 +8,8 @@ const {
   useSuite,
   assertOutput,
 } = require('../harness/helpers');
+const channelStore = require('../../bundles/channels/lib/channelStore');
+const channelsServerEvents = require('../../bundles/channels/server-events');
 
 const { setup, teardown, ctx } = useSuite('lobby:commons');
 
@@ -262,6 +264,88 @@ describe('dynamic channels', () => {
 
       owner.cleanup();
       target.cleanup();
+    });
+  });
+
+  describe('persistence', () => {
+    it('writes password, owner, and membership to disk on every mutation', async() => {
+      const owner = admin();
+      await owner.run('channel create persisted1 pw8');
+
+      const member = ctx.session();
+      await owner.run(`channel invite ${member.player.name} persisted1`);
+
+      let persisted = channelStore.load().find(c => c.name === 'persisted1');
+      assert.ok(persisted, 'channel should be written to disk on create');
+      assert.equal(persisted.password, 'pw8', 'password should be persisted');
+      assert.equal(persisted.owner, owner.player.name, 'owner should be persisted');
+      assert.deepEqual(
+        [...persisted.members].sort(),
+        [owner.player.name, member.player.name].sort(),
+        'members should be persisted after invite'
+      );
+
+      await member.run('channel leave persisted1');
+
+      persisted = channelStore.load().find(c => c.name === 'persisted1');
+
+      if (!persisted) {
+        assert.fail('Channel not ready');
+      }
+
+      assert.deepEqual(persisted.members, [owner.player.name], 'membership changes should be persisted on leave');
+
+      owner.cleanup();
+      member.cleanup();
+    });
+
+    it('restores channels, passwords, and membership on startup', async() => {
+      const owner = admin();
+      await owner.run('channel create persisted2 pw9');
+
+      const member = ctx.session();
+      await owner.run(`channel invite ${member.player.name} persisted2`);
+
+      const outsider = ctx.session();
+
+      // Simulate a restart: re-run the channels bundle's startup listener
+      // against the existing state, exactly as happens at boot.
+      await channelsServerEvents.listeners.startup(ctx.state)();
+
+      const persisted = ctx.state.DynamicChannelRegistry.get('persisted2');
+
+      if (!persisted) {
+        assert.fail('Channel not ready');
+      }
+
+
+      assert.equal(ctx.state.DynamicChannelRegistry.isMember('persisted2', owner.player.name), true, 'owner should still be a member after restart');
+      assert.equal(ctx.state.DynamicChannelRegistry.isMember('persisted2', member.player.name), true, 'invited member should still be a member after restart');
+      assert.equal(persisted.password, 'pw9', 'password should survive restart');
+
+      const channel = ctx.state.ChannelManager.get('persisted2');
+      assert.ok(channel, 'channel should be re-registered with the channel manager after restart');
+
+      member.transport.drain();
+      owner.transport.drain();
+      outsider.transport.drain();
+
+      channel.send(ctx.state, member.player, 'still here');
+
+      assert.match(member.transport.drain(), /You: still here/, 'restored member should be able to send');
+      assert.match(owner.transport.drain(), new RegExp(`${member.player.name}: still here`), 'restored owner should receive the message');
+
+      let threw = false;
+      try {
+        channel.send(ctx.state, outsider.player, 'hello');
+      } catch (_) {
+        threw = true;
+      }
+      assert.ok(threw, 'a non-member should still be blocked after restart');
+
+      owner.cleanup();
+      member.cleanup();
+      outsider.cleanup();
     });
   });
 });

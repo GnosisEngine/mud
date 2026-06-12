@@ -21,3 +21,5 @@ site/
 # ignore api.ai key
 bundles/ranvier-npc-behaviors/APIAIKEY
 data/tick.json
+bundles/channels/data/dynamic-channels.json
+bundles/channels/data/dynamic-channels-test.json

@@ -1,6 +1,8 @@
 // bundles/channels/lib/DynamicChannelRegistry.js
 'use strict';
 
+const channelStore = require('./channelStore');
+
 /**
  * @typedef {object} DynamicChannelEntry
  * @property {string} password
@@ -8,10 +10,37 @@
  * @property {Set<string>} members
  */
 
+/**
+ * @typedef {import('./channelStore').PersistedChannel} PersistedChannel
+ */
+
 class DynamicChannelRegistry {
   constructor() {
     /** @type {Map<string, DynamicChannelEntry>} */
     this.channels = new Map();
+  }
+
+  /**
+   * Repopulate the registry from previously persisted entries. Does not
+   * itself trigger a save. Used at startup before any channels are rebuilt.
+   *
+   * @param {PersistedChannel[]} entries
+   */
+  restore(entries) {
+    for (const { name, password, owner, members } of entries) {
+      this.channels.set(name, {
+        password,
+        owner,
+        members: new Set(members),
+      });
+    }
+  }
+
+  /**
+   * Write the current registry state to disk.
+   */
+  persist() {
+    channelStore.save(this.list());
   }
 
   /**
@@ -43,6 +72,7 @@ class DynamicChannelRegistry {
       members: new Set([ownerName]),
     };
     this.channels.set(name, entry);
+    this.persist();
     return entry;
   }
 
@@ -61,6 +91,7 @@ class DynamicChannelRegistry {
       return 'BAD_PASSWORD';
     }
     entry.members.add(playerName);
+    this.persist();
     return 'OK';
   }
 
@@ -78,6 +109,7 @@ class DynamicChannelRegistry {
       return false;
     }
     entry.members.add(playerName);
+    this.persist();
     return true;
   }
 
@@ -91,7 +123,11 @@ class DynamicChannelRegistry {
     if (!entry) {
       return false;
     }
-    return entry.members.delete(playerName);
+    const removed = entry.members.delete(playerName);
+    if (removed) {
+      this.persist();
+    }
+    return removed;
   }
 
   /**

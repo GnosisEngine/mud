@@ -3,56 +3,17 @@
 
 /** @typedef {import('types').GameState} GameState */
 /** @typedef {import('types').RanvierPlayer} RanvierPlayer */
-/** @typedef {import('../lib/DynamicChannelRegistry')} DynamicChannelRegistry */
 
 const { Broadcast } = require('ranvier');
-const { Channel } = require('ranvier').Channel;
 const Parser = require('../../lib/lib/ArgParser');
 const { isAdmin } = require('../../lib/logic');
-const canSpeak = require('../../moderation/lib/canSpeak');
-const DynamicChannelAudience = require('../lib/DynamicChannelAudience');
+const { buildDynamicChannel } = require('../lib/buildDynamicChannel');
 const {
   isValidChannelName,
   isChannelNameAvailable,
   isDynamicChannel,
   isChannelMember,
 } = require('../logic');
-
-class BlockedByChannelRestriction extends Error {}
-
-/**
- * @param {DynamicChannelRegistry} registry
- * @param {string} name
- * @param {string} ownerName
- * @returns {Channel}
- */
-function buildChannel(registry, name, ownerName) {
-  return new Channel({
-    name,
-    description: `Private channel created by ${ownerName}. Join with 'channel join ${name} <password>'.`,
-    color: ['magenta'],
-    audience: new DynamicChannelAudience(registry, name),
-    formatter: {
-      sender(sender, target, message, colorify) {
-        const { blocked, effect } = canSpeak(sender, name);
-        if (blocked) {
-          Broadcast.sayAt(sender, effect?.config.blockedMessage);
-          throw new BlockedByChannelRestriction();
-        }
-
-        if (!registry.isMember(name, sender.name)) {
-          Broadcast.sayAt(sender, `You haven't joined '${name}'. Use 'channel join ${name} <password>'.`);
-          throw new BlockedByChannelRestriction();
-        }
-
-        return colorify(`📡 [${name}] You: ${message}`);
-      },
-      target(sender, target, message, colorify) {
-        return colorify(`📡 [${name}] ${sender.name}: ${message}`);
-      },
-    },
-  });
-}
 
 module.exports = {
   usage: 'channel create|join|invite|leave|list [name|player] [password|name]',
@@ -87,7 +48,7 @@ module.exports = {
         }
 
         state.DynamicChannelRegistry.create(name, password, player.name);
-        state.ChannelManager.add(buildChannel(state.DynamicChannelRegistry, name, player.name));
+        state.ChannelManager.add(buildDynamicChannel(state.DynamicChannelRegistry, name, player.name));
 
         return Broadcast.sayAt(player, `Channel '${name}' created. Invite players with 'channel invite <player> ${name}' or have them join with 'channel join ${name} <password>'.`);
       }

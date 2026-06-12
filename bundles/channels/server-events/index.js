@@ -4,6 +4,8 @@
 /** @typedef {import('types').GameState} GameState */
 
 const DynamicChannelRegistry = require('../lib/DynamicChannelRegistry');
+const channelStore = require('../lib/channelStore');
+const { buildDynamicChannel } = require('../lib/buildDynamicChannel');
 
 module.exports = {
   listeners: {
@@ -12,7 +14,16 @@ module.exports = {
      * @returns {function(): Promise<void>}
      */
     startup: state => async() => {
-      state.DynamicChannelRegistry = new DynamicChannelRegistry();
+      const registry = new DynamicChannelRegistry();
+      const persisted = channelStore.load();
+
+      registry.restore(persisted);
+
+      for (const { name, owner } of persisted) {
+        state.ChannelManager.add(buildDynamicChannel(registry, name, owner));
+      }
+
+      state.DynamicChannelRegistry = registry;
     },
   },
 };
