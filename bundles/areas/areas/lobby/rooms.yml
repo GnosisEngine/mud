@@ -1,0 +1,36 @@
+- id: arrival
+  title: "The Wayfarer's Rest"
+  coordinates: [ 0, 0, 0 ]
+  description: >-
+    A low-beamed inn at the edge of the realm, its hearth always lit for
+    travelers arriving from afar. Faded maps and notices from a dozen
+    territories paper the walls. A heavy oak door to the east leads into
+    the common room.
+  exits:
+    - roomId: "lobby:commons"
+      direction: east
+
+- id: commons
+  title: "The Common Room"
+  coordinates: [ 1, 0, 0 ]
+  description: >-
+    Long tables fill this room, worn smooth by generations of travelers
+    swapping news of claims, contracts, and shifting loyalties. A notice
+    board near the north door is cluttered with postings from the world
+    beyond. The inn's quieter rooms lie behind a curtained doorway, though
+    only the proprietor decides who passes through.
+  exits:
+    - roomId: "lobby:arrival"
+      direction: west
+    - roomId: "limbo:white"
+      direction: north
+
+- id: quietroom
+  title: "The Back Room"
+  description: >-
+    A small, curtained room behind the common room, its walls lined with
+    heavy tapestries that swallow sound. Whatever is said here goes no
+    further than these walls.
+  metadata:
+    allowedChannels: [ "say" ]
+    allowedChannelsMessage: "The tapestries swallow your words before they leave this room."

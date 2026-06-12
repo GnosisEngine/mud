@@ -24,6 +24,8 @@
       direction: west
     - roomId: "mapped:start"
       direction: north
+    - roomId: "lobby:commons"
+      direction: south
 
 - id: black
   title: "Black Room"
