@@ -101,6 +101,34 @@ export interface StorageManager {
   store: any; // full type: bundles/claims/lib/store.js — no declarations yet
 }
 
+export interface StorageFacade {
+  getDataRoot(): string;
+  namespaceDir(namespace: string): string;
+  getDatabase(namespace: string, migrations?: object[]): Promise<object>;
+  getLog(namespace: string, options?: object): object;
+  shutdownAll(): void;
+  cleanup(): void;
+}
+
+export interface DynamicChannelEntry {
+  name: string;
+  password: string;
+  owner: string;
+  members: Set<string>;
+}
+
+export interface DynamicChannelRegistry {
+  has(name: string): boolean;
+  get(name: string): DynamicChannelEntry | undefined;
+  create(name: string, password: string, ownerName: string): void;
+  join(name: string, password: string, playerName: string): { success: boolean; reason?: string };
+  invite(name: string, playerName: string): void;
+  leave(name: string, playerName: string): void;
+  isMember(name: string, playerName: string): boolean;
+  list(): Array<[string, DynamicChannelEntry]>;
+  restore(entries: Array<{ name: string; password: string; owner: string; members: string[] }>): void;
+}
+
 export interface AbilityManager {
   skills: Map<string, RanvierSkill>;
   get(id: string): RanvierSkill | undefined;

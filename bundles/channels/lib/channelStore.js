@@ -1,8 +1,7 @@
 // bundles/channels/lib/channelStore.js
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const JsonStore = require('../../storage/lib/JsonStore');
 
 /**
  * @typedef {object} PersistedChannel
@@ -12,51 +11,44 @@ const path = require('path');
  * @property {string[]} members
  */
 
-const DEFAULT_PATH = path.join(
-  __dirname, '..', 'data',
-  process.env.NODE_ENV === 'test' ? 'dynamic-channels-test.json' : 'dynamic-channels.json'
-);
-
-let savePath = DEFAULT_PATH;
+/** @type {JsonStore<Record<string, {password: string, owner: string, members: string[]}>>|null} */
+let _store = null;
 
 /**
- * @param {string} filePath
+ * @param {string} filePath Absolute path to the channels JSON file.
+ *   Provided by the channels bundle's startup listener via state.Storage.
  */
 function configure(filePath) {
-  savePath = filePath;
+  _store = new JsonStore(filePath, {});
 }
 
 /**
  * @returns {PersistedChannel[]}
  */
 function load() {
-  try {
-    const raw = fs.readFileSync(savePath, 'utf8');
-    const parsed = JSON.parse(raw);
+  if (!_store) return [];
 
-    if (!parsed || typeof parsed !== 'object') {
-      return [];
-    }
+  const parsed = _store.load();
 
-    return Object.entries(parsed)
-      .filter(([, entry]) => entry && typeof entry.password === 'string' && typeof entry.owner === 'string')
-      .map(([name, entry]) => ({
-        name,
-        password: entry.password,
-        owner: entry.owner,
-        members: Array.isArray(entry.members) ? entry.members.filter(m => typeof m === 'string') : [],
-      }));
-  } catch (_) {
+  if (!parsed || typeof parsed !== 'object') {
     return [];
   }
+
+  return Object.entries(parsed)
+    .filter(([, entry]) => entry && typeof entry.password === 'string' && typeof entry.owner === 'string')
+    .map(([name, entry]) => ({
+      name,
+      password: entry.password,
+      owner: entry.owner,
+      members: Array.isArray(entry.members) ? entry.members.filter(m => typeof m === 'string') : [],
+    }));
 }
 
 /**
  * @param {Array<[string, { password: string, owner: string, members: Set<string> }]>} entries
  */
 function save(entries) {
-  const dir = path.dirname(savePath);
-  fs.mkdirSync(dir, { recursive: true });
+  if (!_store) return;
 
   /** @type {Record<string, { password: string, owner: string, members: string[] }>} */
   const data = {};
@@ -68,7 +60,7 @@ function save(entries) {
     };
   }
 
-  fs.writeFileSync(savePath, JSON.stringify(data, null, 2), 'utf8');
+  _store.save(data);
 }
 
 module.exports = { configure, load, save };

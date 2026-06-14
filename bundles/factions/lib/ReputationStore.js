@@ -3,76 +3,39 @@
 
 /**
  * @template T
- * @template {any[]} [A=any[]]
+ * @template {any[]} [A=any[]]\
  * @typedef {import('types').Ctor<T, A>} Ctor
  */
 
-const path = require('path');
-const fs = require('fs');
-const initSqlJs = require('sql.js');
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('../../storage/lib/SqlStore')} SqlStore */
 
 const { SCORE_MIN, SCORE_MAX } = require('../constants');
-
-let _SQL = null;
-
-async function _getSQL() {
-  if (!_SQL) _SQL = await initSqlJs();
-  return _SQL;
-}
+const { FACTIONS_DB_MIGRATIONS } = require('./migrations');
 
 function _clamp(value) {
   return Math.max(SCORE_MIN, Math.min(SCORE_MAX, value));
 }
 
 class ReputationStore {
-  constructor(dbPath, sqlInstance, buf) {
-    this._dbPath = dbPath;
-    this._SQL = sqlInstance;
-    this.db = buf ? new sqlInstance.Database(buf) : new sqlInstance.Database();
-    this._migrate();
+  /**
+   * Private — use ReputationStore.create(state).
+   *
+   * @param {SqlStore} sqlStore
+   */
+  constructor(sqlStore) {
+    this._sqlStore = sqlStore;
+    this.db = sqlStore.db;
     this._prepare();
   }
 
-  static async create(dataDir) {
-    const SQL = await _getSQL();
-    const dbPath = process.env.NODE_ENV === 'test'
-      ? path.join(dataDir, 'factions-test.db')
-      : path.join(dataDir, 'factions.db');
-    const buf = fs.existsSync(dbPath) ? fs.readFileSync(dbPath) : null;
-    return new ReputationStore(dbPath, SQL, buf);
-  }
-
-  _migrate() {
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS reputation (
-        player_id   TEXT    NOT NULL,
-        faction_id  INTEGER NOT NULL,
-        affinity    INTEGER NOT NULL DEFAULT 0,
-        honor       INTEGER NOT NULL DEFAULT 0,
-        trust       INTEGER NOT NULL DEFAULT 0,
-        debt        INTEGER NOT NULL DEFAULT 0,
-        updated_at  INTEGER NOT NULL,
-        PRIMARY KEY (player_id, faction_id)
-      );
-
-      CREATE TABLE IF NOT EXISTS reputation_events (
-        id              TEXT    PRIMARY KEY,
-        player_id       TEXT    NOT NULL,
-        faction_id      INTEGER NOT NULL,
-        event_type      TEXT    NOT NULL,
-        affinity_delta  INTEGER NOT NULL DEFAULT 0,
-        honor_delta     INTEGER NOT NULL DEFAULT 0,
-        trust_delta     INTEGER NOT NULL DEFAULT 0,
-        debt_delta      INTEGER NOT NULL DEFAULT 0,
-        ts              INTEGER NOT NULL
-      );
-
-      CREATE INDEX IF NOT EXISTS idx_rep_player_faction
-        ON reputation (player_id, faction_id);
-
-      CREATE INDEX IF NOT EXISTS idx_rep_events_player
-        ON reputation_events (player_id, faction_id);
-    `);
+  /**
+   * @param {GameState} state
+   * @returns {Promise<ReputationStore>}
+   */
+  static async create(state) {
+    const sqlStore = await state.Storage.getDatabase('factions', FACTIONS_DB_MIGRATIONS);
+    return new ReputationStore(sqlStore);
   }
 
   _prepare() {
@@ -129,8 +92,7 @@ class ReputationStore {
 
   _persist() {
     for (const stmt of Object.values(this._stmts ?? [])) stmt.free();
-    const data = this.db.export();
-    fs.writeFileSync(this._dbPath, Buffer.from(data));
+    this._sqlStore.save();
     this._prepare();
   }
 
@@ -226,7 +188,7 @@ class ReputationStore {
 
   close() {
     for (const stmt of Object.values(this._stmts ?? [])) stmt.free();
-    this.db.close();
+    this._sqlStore.close();
   }
 }
 

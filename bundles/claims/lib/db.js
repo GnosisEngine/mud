@@ -1,61 +1,30 @@
 // bundles/claims/lib/db.js
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-const initSqlJs = require('sql.js');
+/** @typedef {import('types').GameState} GameState */
+/** @typedef {import('../../storage/lib/SqlStore')} SqlStore */
 
-// Module-level sql.js instance — initialised once per process.
-let _SQL = null;
-
-async function _getSQL() {
-  if (!_SQL) _SQL = await initSqlJs();
-  return _SQL;
-}
+const { CLAIMS_DB_MIGRATIONS } = require('./migrations');
 
 class Db {
   /**
-   * Private — use Db.create(dataDir).
+   * Private — use Db.create(state).
+   *
+   * @param {SqlStore} sqlStore
    */
-  constructor(dbPath, sqlInstance, buf) {
-    this._dbPath = dbPath;
-    this._SQL = sqlInstance;
-    this.db = buf ? new sqlInstance.Database(buf) : new sqlInstance.Database();
-    this._migrate();
+  constructor(sqlStore) {
+    this._sqlStore = sqlStore;
+    this.db = sqlStore.db;
     this._prepare();
   }
 
   /**
-   * Async factory — replaces `new Db(dataDir)`.
-   * @param {string} dataDir
+   * @param {GameState} state
    * @returns {Promise<Db>}
    */
-  static async create(dataDir) {
-    const SQL = await _getSQL();
-    const dbPath = process.env.NODE_ENV === 'test'
-      ? path.join(dataDir, 'claims-test.db')
-      : path.join(dataDir, 'claims.db');
-    const buf = fs.existsSync(dbPath) ? fs.readFileSync(dbPath) : null;
-    return new Db(dbPath, SQL, buf);
-  }
-
-  _migrate() {
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS packages (
-        id                TEXT PRIMARY KEY,
-        name              TEXT NOT NULL,
-        claimantId        TEXT NOT NULL,
-        attachedRoomIds   TEXT NOT NULL,
-        requestedAmount   INTEGER NOT NULL,
-        durationDays      INTEGER NOT NULL,
-        yieldFloor        INTEGER NOT NULL,
-        status            TEXT NOT NULL DEFAULT 'O',
-        lenderId          TEXT
-      );
-      CREATE INDEX IF NOT EXISTS idx_packages_claimantId ON packages (claimantId);
-      CREATE INDEX IF NOT EXISTS idx_packages_lenderId   ON packages (lenderId);
-      CREATE INDEX IF NOT EXISTS idx_packages_status     ON packages (status);
-    `);
+  static async create(state) {
+    const sqlStore = await state.Storage.getDatabase('claims', CLAIMS_DB_MIGRATIONS);
+    return new Db(sqlStore);
   }
 
   _prepare() {
@@ -102,11 +71,11 @@ class Db {
   }
 
   _persist() {
-    const data = this.db.export();
-    fs.writeFileSync(this._dbPath, Buffer.from(data));
-    // sql.js export() closes and reopens the underlying SQLite connection to
-    // produce a consistent snapshot. All prepared statements are finalised as
-    // a side-effect, so we must recreate them immediately after every export.
+    this._sqlStore.save();
+    // sql.js export() (inside save()) closes and reopens the underlying
+    // SQLite connection to produce a consistent snapshot. All prepared
+    // statements are finalised as a side-effect, so we must recreate them
+    // immediately after every export.
     this._prepare();
   }
 
@@ -187,7 +156,7 @@ class Db {
 
   close() {
     for (const stmt of Object.values(this._stmts)) stmt.free();
-    this.db.close();
+    this._sqlStore.close();
   }
 }
 

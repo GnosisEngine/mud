@@ -12,10 +12,10 @@ const { load }               = require('../lib/FactionLoader');
 const { loadPolicies }       = require('../lib/PolicyResolver');
 const { ReputationStore }    = require('../lib/ReputationStore');
 const { build }              = require('../lib/FactionService');
+const startupPoll            = require('../../lib/lib/StartupPoll');
 
 const FACTIONS_YML_PATH = path.resolve(__dirname, '../factions.yml');
 const POLICIES_DIR      = path.resolve(__dirname, '../policies');
-const DATA_DIR          = path.resolve(__dirname, '../data');
 
 // Null manager — used when factions.yml is missing or unparseable.
 // Every method returns a safe empty value so callers do not need to
@@ -56,16 +56,6 @@ module.exports = {
   NULL_FACTION_MANAGER,
   listeners: {
 
-    // -----------------------------------------------------------------------
-    // startup
-    //
-    // 1. Load factions.yml → factionMap
-    // 2. Load policies/ → policyMap
-    // 3. Validate all policy references
-    // 4. Create ReputationStore (SQLite)
-    // 5. Build FactionService
-    // 6. Register state.FactionManager
-    // -----------------------------------------------------------------------
     /**
      * @param {GameState} state
      * @returns {function(string, RanvierPlayer): void}
@@ -73,56 +63,58 @@ module.exports = {
     startup: state => async() => {
       Logger.log('[factions] initializing...');
 
-      let factionMap;
-      try {
-        factionMap = load(FACTIONS_YML_PATH);
-      } catch (/** @type {any} */ err) {
-        Logger.warn(
-          '[factions] factions.yml not found or invalid — ' +
-          `running with null faction manager. (${err.message})`
-        );
-        state.FactionManager = NULL_FACTION_MANAGER;
-        return;
-      }
+      await startupPoll(
+        () => !!state.Storage,
+        async() => {
+          let factionMap;
+          try {
+            factionMap = load(FACTIONS_YML_PATH);
+          } catch (/** @type {any} */ err) {
+            Logger.warn(
+              '[factions] factions.yml not found or invalid — ' +
+              `running with null faction manager. (${err.message})`
+            );
+            state.FactionManager = NULL_FACTION_MANAGER;
+            return;
+          }
 
-      let policyMap;
-      try {
-        policyMap = loadPolicies(POLICIES_DIR);
-      } catch (/** @type {any} */ err) {
-        Logger.warn(
-          '[factions] failed to load policies — ' +
-          `running with null faction manager. (${err.message})`
-        );
-        state.FactionManager = NULL_FACTION_MANAGER;
-        return;
-      }
+          let policyMap;
+          try {
+            policyMap = loadPolicies(POLICIES_DIR);
+          } catch (/** @type {any} */ err) {
+            Logger.warn(
+              '[factions] failed to load policies — ' +
+              `running with null faction manager. (${err.message})`
+            );
+            state.FactionManager = NULL_FACTION_MANAGER;
+            return;
+          }
 
-      _validatePolicies(factionMap, policyMap);
+          _validatePolicies(factionMap, policyMap);
 
-      let store;
-      try {
-        store = await ReputationStore.create(DATA_DIR);
-      } catch (/** @type {any} */ err) {
-        Logger.warn(
-          '[factions] failed to create reputation store — ' +
-          `running with null faction manager. (${err.message})`
-        );
-        state.FactionManager = NULL_FACTION_MANAGER;
-        return;
-      }
+          let store;
+          try {
+            store = await ReputationStore.create(state);
+          } catch (/** @type {any} */ err) {
+            Logger.warn(
+              '[factions] failed to create reputation store — ' +
+              `running with null faction manager. (${err.message})`
+            );
+            state.FactionManager = NULL_FACTION_MANAGER;
+            return;
+          }
 
-      state.FactionManager  = build(factionMap, store, policyMap);
-      state._factionStore   = store;
+          state.FactionManager  = build(factionMap, store, policyMap);
+          state._factionStore   = store;
 
-      Logger.log(
-        '[factions] ready — ' +
-        `${factionMap.size} faction(s), ${policyMap.size} polic(ies)`
+          Logger.log(
+            '[factions] ready — ' +
+            `${factionMap.size} faction(s), ${policyMap.size} polic(ies)`
+          );
+        }
       );
     },
 
-    // -----------------------------------------------------------------------
-    // shutdown — close the SQLite connection cleanly.
-    // -----------------------------------------------------------------------
     /**
      * @param {GameState} state
      * @returns {function(string, RanvierPlayer): void}

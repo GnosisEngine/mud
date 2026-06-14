@@ -3,8 +3,9 @@
 
 // Convenience runner: node test/integration/run.js
 //
-// Discovers and runs all *.test.js files in the integration directory.
-// Equivalent to: node --test test/integration/**/*.test.js
+// Discovers and runs all *.test.js files under test/integration and
+// test/unit.
+// Equivalent to: node --test test/integration/**/*.test.js test/unit/**/*.test.js
 //
 // Set FIEF_ROOT if running from outside the repo root:
 //   FIEF_ROOT=/path/to/fief node test/integration/run.js
@@ -14,6 +15,8 @@ const path = require('path');
 const fs = require('fs');
 
 function findTestFiles(dir) {
+  if (!fs.existsSync(dir)) return [];
+
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
@@ -27,7 +30,8 @@ function findTestFiles(dir) {
   return files;
 }
 
-const testFiles = findTestFiles(__dirname);
+const unitDir = path.resolve(__dirname, '..', 'unit');
+const testFiles = [...findTestFiles(__dirname), ...findTestFiles(unitDir)];
 
 if (testFiles.length === 0) {
   console.error('No *.test.js files found under', __dirname);

@@ -4,23 +4,28 @@
 /** @typedef {import('types').GameState} GameState */
 
 require('../hints');
-const { Log } = require('../lib/log');
 const { Db } = require('../lib/db');
+const codec = require('../lib/codec');
 const { replay } = require('../lib/replay');
 const { compact } = require('../lib/compaction');
 const { Store } = require('../lib/store');
-const { DATA_DIR, COMPACT_THRESHOLD, LOGOUT_GRACE_MS } = require('../constants');
+const { COMPACT_THRESHOLD, LOGOUT_GRACE_MS } = require('../constants');
 const { Logger } = require('ranvier');
+const startupPoll = require('../../lib/lib/StartupPoll');
 /**
- * ranvier-storage bundle
+ * claims storage wiring
  *
  * Provides a Store instance to the rest of the game via GameState.
  * Other bundles access it as:
  *
  *   const { store } = state.StorageManager;
  *
+ * The underlying log/db primitives come from state.Storage (the storage
+ * bundle's facade) — this bundle owns the claims-specific schema (migrations),
+ * event codec, and replay/compaction domain logic, but not file I/O itself.
+ *
  * Startup sequence:
- *   1. Instantiate Log and Db
+ *   1. Get this namespace's log and db from state.Storage
  *   2. Replay claim log → hydrate graph
  *   3. Compact log → reset to current state, discard event history
  *   4. Instantiate Store with live log, graph, and db
@@ -56,41 +61,50 @@ module.exports = {
     startup: state => async() => {
       Logger.log('[claims-storage] initializing...');
 
-      // Layer 3 — log
-      const log = new Log(DATA_DIR, COMPACT_THRESHOLD);
+      // state.Storage is set by the storage bundle's own startup listener.
+      // Bundle startup order is alphabetical by directory name (claims <
+      // storage), not ranvier.json's declared order, so we poll rather
+      // than assume it's already present.
+      await startupPoll(
+        () => !!state.Storage,
+        async() => {
+          // Layer 3 — log
+          const log = state.Storage.getLog('claims', { codec, compactThreshold: COMPACT_THRESHOLD, logName: 'claims' });
 
-      // Layer 7 — SQLite packages
-      const db = await Db.create(DATA_DIR);
+          // Layer 7 — SQLite, schema applied via migrations
+          const db = await Db.create(state);
 
-      // Layer 5 — replay log into a fresh graph
-      const graph = await replay(log);
+          // Layer 5 — replay log into a fresh graph
+          const graph = await replay(log);
 
-      // Layer 6 — compact immediately, reset log to current state
-      await compact(log, graph);
+          // Layer 6 — compact immediately, reset log to current state
+          await compact(log, graph);
 
-      // Layer 8 — store, the single public API surface
-      store = new Store(log, graph, db);
+          // Layer 8 — store, the single public API surface
+          store = new Store(log, graph, db);
 
-      // Register on GameState so other bundles can reach it
-      state.StorageManager = { store };
+          // Register on GameState so other bundles can reach it
+          state.StorageManager = { store };
 
-      // Expiry flush timer — checks for timed-out claims on interval
-      expiryTimer = setInterval(async() => {
-        if (!store) {
-          return;
+          // Expiry flush timer — checks for timed-out claims on interval
+          expiryTimer = setInterval(async() => {
+            if (!store) {
+              return;
+            }
+
+            const count = await store.flushExpiredClaims();
+
+            if (count > 0) {
+              Logger.log(`[claims-storage] flushed ${count} expired claim(s)`);
+            }
+          }, LOGOUT_GRACE_MS);
+
+          // Prevent the timer from keeping the process alive on shutdown
+          if (expiryTimer.unref) expiryTimer.unref();
+
+          Logger.log('[claims-storage] ready');
         }
-
-        const count = await store.flushExpiredClaims();
-
-        if (count > 0) {
-          Logger.log(`[claims-storage] flushed ${count} expired claim(s)`);
-        }
-      }, LOGOUT_GRACE_MS);
-
-      // Prevent the timer from keeping the process alive on shutdown
-      if (expiryTimer.unref) expiryTimer.unref();
-
-      Logger.log('[claims-storage] ready');
+      );
     },
 
     /**

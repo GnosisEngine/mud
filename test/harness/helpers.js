@@ -181,6 +181,9 @@ function useSuite(roomRefOrFn) {
     if (ctx.state) {
       ctx.state.GameServer.emit('shutdown');
       await flush();
+      if (ctx.state.Storage) {
+        ctx.state.Storage.cleanup();
+      }
     }
     process.exit(0);
   }

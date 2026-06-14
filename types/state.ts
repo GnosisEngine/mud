@@ -5,7 +5,6 @@ import type {
   RanvierExit,
   RanvierRoom,
   RanvierLogger,
-  RanvierCharacter
 } from './primitives';
 import type {
   AreaManager,
@@ -16,6 +15,8 @@ import type {
   ItemFactory,
   QuestFactory,
   StorageManager,
+  StorageFacade,
+  DynamicChannelRegistry,
   AbilityManager,
   BundleManager,
   PartyManager,
@@ -34,24 +35,11 @@ import type {
 } from './services';
 import { ContextService } from '../bundles/world/lib/ContextService.js'
 import { FactionManager, ReputationStore } from './factions';
-import { DynamicChannelRegistry } from 'bundles/channels/lib/DynamicChannelAudience';
-import { EventEmitter } from 'node:stream';
 
-export type LogicCheck<T = Record<string, any>> = (
+export type LogicCheck<T = Record<string, never>> = (
   state:   GameState,
   player:  RanvierPlayer,
   options: T
-) => boolean | null
-
-export type LogicCheckAsCharacter<T = Record<string, any>> = (
-  state:   GameState,
-  player:  RanvierCharacter,
-  options: T
-) => boolean | null
-
-export type LogicCheckAsCharacterWithNoOptions = (
-  state:   GameState,
-  player:  RanvierCharacter
 ) => boolean | null
 
 export type LogicCheckNoOptions = (
@@ -60,7 +48,7 @@ export type LogicCheckNoOptions = (
 ) => boolean | null
 
 
-export type LogicCheckOptionsOnly<T = Record<string, any>> = (
+export type LogicCheckOptionsOnly<T = Record<string, never>> = (
   options: T
 ) => boolean | null
 
@@ -94,7 +82,7 @@ export interface GameState {
   InputEventManager:   object;
   ItemManager:         ItemManager;
   MobManager:          MobManager;
-  GameServer:          EventEmitter;
+  GameServer:          object;
   QuestRewardManager:  Map<any, any>;
   PartyManager:        PartyManager;
   AttributeFactory:    AttributeFactory;
@@ -105,11 +93,12 @@ export interface GameState {
   FactionService:      FactionService;
   WorldManager:        WorldManager;
   StorageManager:      StorageManager;
+  Storage:             StorageFacade;
+  DynamicChannelRegistry: DynamicChannelRegistry;
   WorldReady:          boolean;
   FactionManager:      FactionManager;
   _factionStore:       ReputationStore | null;
   ContextService:      typeof ContextService;
-  DynamicChannelRegistry: DynamicChannelRegistry;
   Config:              { get(key: string): any };
   _timeBundleStop():   void;
   getTarget(

@@ -1,4 +1,4 @@
-// bundles/time-bundle/server-events.js
+// bundles/time/server-events/index.js
 
 /** @typedef {import('../../../types/state').GameState} GameState */
 /** @typedef {import('../../../types/ranvier').RanvierPlayer} RanvierPlayer */
@@ -13,12 +13,6 @@ const broadcaster = require('../lib/time-broadcaster');
 const timeMath = require('../lib/time-math');
 const { MS_PER_TICK } = require('../constants');
 const { EVENTS } = require('../events');
-
-let dataPath = path.join(__dirname, '../../data/time-bundle/tick.json');
-
-function configure(options) {
-  if (options && options.dataPath) dataPath = options.dataPath;
-}
 
 function buildTimeService() {
   return {
@@ -37,7 +31,6 @@ function buildTimeService() {
 }
 
 module.exports = {
-  configure,
   listeners: {
 
     /**
@@ -45,7 +38,8 @@ module.exports = {
      * @returns {function(): void}
      */
     startup: state => async() => {
-      timeStore.configure(dataPath);
+      const tickPath = path.join(state.Storage.namespaceDir('time'), 'tick.json');
+      timeStore.configure(tickPath);
 
       const savedTick = timeStore.load();
       timeState.set(savedTick);

@@ -62,6 +62,8 @@ async function boot() {
     DataSourceRegistry: new Ranvier.DataSourceRegistry(),
   };
 
+  GameState.GameServer.setMaxListeners(20);
+
   const rootRequire = Module.createRequire(path.join(REPO_ROOT, 'package.json'));
 
   GameState.DataSourceRegistry.load(rootRequire, REPO_ROOT, Config.get('dataSources'));
@@ -77,23 +79,9 @@ async function boot() {
 
   await BundleManager.loadBundles();
 
-  // Wipe the sql.js test database before startup so every run begins clean.
-  // The claims bundle creates a fresh test.db during its async startup.
-  if (process.env.NODE_ENV === 'test') {
-    const files = [
-      path.join(REPO_ROOT, 'bundles', 'claims', 'data', 'claims-test.db'),
-      path.join(REPO_ROOT, 'bundles', 'claims', 'data', 'claims-test.log.state.json'),
-      path.join(REPO_ROOT, 'bundles', 'factions', 'data', 'factions-test.db'),
-      path.join(REPO_ROOT, 'bundles', 'channels', 'data', 'dynamic-channels-test.json'),
-    ];
-
-    for (const file of files) {
-      if (fs.existsSync(file)) fs.unlinkSync(file);
-    }
-
-    const segments = path.join(REPO_ROOT, 'bundles', 'claims', 'data', 'segments-test');
-    fs.rmSync(segments, { recursive: true, force: true });
-  }
+  // All persistent stores (claims, channels, factions, time) now live under
+  // state.Storage's per-process mkdtemp test root — always fresh, cleaned
+  // up in teardown. No pre-run wipes needed.
 
   // Fire all server-events 'startup' listeners so bundles can register things
   // onto state (e.g. state.getTarget, state.TimeService, state.WorldManager).

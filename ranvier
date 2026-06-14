@@ -118,6 +118,8 @@ async function init(restartServer) {
     Config,
   };
 
+  GameState.GameServer.setMaxListeners(20);
+
   // setup entity loaders
   GameState.DataSourceRegistry.load(require, __dirname, Config.get('dataSources'));
   GameState.EntityLoaderRegistry.load(GameState.DataSourceRegistry, Config.get('entityLoaders'));

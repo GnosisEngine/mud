@@ -280,7 +280,7 @@ If `factions.yml` fails to load at startup, `state.FactionManager` is set to a n
 
 ## Persistence
 
-Reputation is stored in SQLite at `bundles/factions/data/factions.db` (production) or `bundles/factions/data/factions-test.db` (when `NODE_ENV=test`). The database is created automatically on first startup.
+Reputation is stored in SQLite at `data/factions/factions.db`, managed by the central storage bundle. The database is created automatically on first startup; in test mode it lives under a per-process temporary directory and is cleaned up automatically.
 
 Two tables are maintained:
 

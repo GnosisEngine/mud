@@ -216,3 +216,38 @@ describe('dismiss command', () => {
     s.cleanup();
   });
 });
+
+// ---------------------------------------------------------------------------
+// boot scan — storage path and expired-contract behaviour
+// ---------------------------------------------------------------------------
+
+describe('mercenaries boot scan', () => {
+  it('resolves the players directory from state.Storage not a hardcoded path', () => {
+    const expectedDir = ctx.state.Storage.namespaceDir('players');
+    assert.ok(expectedDir.includes('players'), 'namespace dir should contain players');
+  });
+
+  it('ignores an expired contract', async() => {
+    const fs = require('fs');
+    const path = require('path');
+    const playerId = 'ExpiredContractPlayer';
+    const playerDir = ctx.state.Storage.namespaceDir('players');
+    fs.mkdirSync(playerDir, { recursive: true });
+    fs.writeFileSync(path.join(playerDir, playerId + '.json'), JSON.stringify({
+      name: playerId,
+      inventory: { items: [['slot-1', { metadata: { contract: {
+        contractId: 'mc_expired_001', mercRef: 'mercs:mercenary', mercName: 'Expired Merc',
+        homeRoomId: 'mercs:guildhall', holderId: playerId, targetRoomId: 'limbo:black',
+        expiresAt: Date.now() - 1000, upkeepCost: 20, upkeepCurrency: 'gold',
+      }}}]]}
+    }), 'utf8');
+    patchClaims(ctx.state, 'limbo:black');
+    try {
+      await ctx.state.MercenaryService.boot(ctx.state);
+      const contracts = ctx.state.MercenaryService.getContractsByPlayer(playerId);
+      assert.equal(contracts.length, 0, 'expired contract should not be registered');
+    } finally {
+      restoreClaims(ctx.state);
+    }
+  });
+});

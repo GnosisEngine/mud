@@ -4,6 +4,10 @@ data/player/*.json
 data/account/*.json
 !data/account/Admin.json
 !data/player/Admin.json
+data/accounts/*.json
+data/players/*.json
+!data/accounts/Admin.json
+!data/players/Admin.json
 *.swp
 coverage/
 *.logs
@@ -21,5 +25,12 @@ site/
 # ignore api.ai key
 bundles/ranvier-npc-behaviors/APIAIKEY
 data/tick.json
+data/account/
+data/accounts/
+data/player/
+data/claims/
+data/channels/
+data/factions/
+data/time/
 bundles/channels/data/dynamic-channels.json
 bundles/channels/data/dynamic-channels-test.json

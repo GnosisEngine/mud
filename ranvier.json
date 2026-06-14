@@ -2,6 +2,7 @@
   "port": 4000,
   "bundles": [
     "lib",
+    "storage",
     "world",
     "time",
     "moderation",
@@ -40,19 +41,22 @@
     },
     "JsonDirectory": {
       "require": "ranvier-datasource-file.JsonDirectoryDataSource"
+    },
+    "Storage": {
+      "require": "./bundles/storage/lib/StorageDataSource"
     }
   },
   "entityLoaders": {
     "accounts": {
-      "source": "JsonDirectory",
+      "source": "Storage",
       "config": {
-        "path": "data/account"
+        "path": "accounts"
       }
     },
     "players": {
-      "source": "JsonDirectory",
+      "source": "Storage",
       "config": {
-        "path": "data/player"
+        "path": "players"
       }
     },
     "areas": {

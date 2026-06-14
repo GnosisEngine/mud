@@ -1,34 +1,33 @@
+// bundles/time/lib/time-store.js
 'use strict';
-// bundles/time-bundle/lib/time-store.js
 
-const fs = require('fs');
-const path = require('path');
+const JsonStore = require('../../storage/lib/JsonStore');
 
-const DEFAULT_PATH = path.join(__dirname, '../../../data/tick.json');
+/** @type {JsonStore<{tick: number}>|null} */
+let _store = null;
 
-let savePath = DEFAULT_PATH;
-
+/**
+ * @param {string} filePath Absolute path to the tick JSON file.
+ *   Provided by the time bundle's startup listener via state.Storage.
+ */
 function configure(filePath) {
-  savePath = filePath;
+  _store = new JsonStore(filePath, { tick: 0 });
 }
 
 function load() {
-  try {
-    const raw = fs.readFileSync(savePath, 'utf8');
-    const parsed = JSON.parse(raw);
-    if (typeof parsed.tick === 'number' && Number.isFinite(parsed.tick) && parsed.tick >= 0) {
-      return parsed.tick;
-    }
-    return 0;
-  } catch (_) {
-    return 0;
+  if (!_store) return 0;
+  const parsed = _store.load();
+  if (parsed && typeof parsed.tick === 'number' && Number.isFinite(parsed.tick) && parsed.tick >= 0) {
+    return parsed.tick;
   }
+  return 0;
 }
 
+/**
+ * @param {number} tick
+ */
 function save(tick) {
-  const dir = path.dirname(savePath);
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(savePath, JSON.stringify({ tick }), 'utf8');
+  if (_store) _store.save({ tick });
 }
 
 module.exports = { configure, load, save };
