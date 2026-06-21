@@ -17,6 +17,7 @@ import type {
   StorageManager,
   StorageFacade,
   DynamicChannelRegistry,
+  ChannelMessageStore,
   AbilityManager,
   BundleManager,
   PartyManager,
@@ -95,6 +96,7 @@ export interface GameState {
   StorageManager:      StorageManager;
   Storage:             StorageFacade;
   DynamicChannelRegistry: DynamicChannelRegistry;
+  ChannelMessageStore:  ChannelMessageStore;
   WorldReady:          boolean;
   FactionManager:      FactionManager;
   _factionStore:       ReputationStore | null;

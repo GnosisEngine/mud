@@ -111,22 +111,40 @@ export interface StorageFacade {
 }
 
 export interface DynamicChannelEntry {
-  name: string;
   password: string;
   owner: string;
   members: Set<string>;
+  persistent: boolean;
 }
 
 export interface DynamicChannelRegistry {
   has(name: string): boolean;
   get(name: string): DynamicChannelEntry | undefined;
-  create(name: string, password: string, ownerName: string): void;
-  join(name: string, password: string, playerName: string): { success: boolean; reason?: string };
-  invite(name: string, playerName: string): void;
-  leave(name: string, playerName: string): void;
+  create(name: string, password: string, ownerName: string, persistent?: boolean): DynamicChannelEntry;
+  join(name: string, password: string, playerName: string): 'OK' | 'NOT_FOUND' | 'BAD_PASSWORD';
+  invite(name: string, playerName: string): boolean;
+  leave(name: string, playerName: string): boolean;
   isMember(name: string, playerName: string): boolean;
+  isPersistent(name: string): boolean;
   list(): Array<[string, DynamicChannelEntry]>;
-  restore(entries: Array<{ name: string; password: string; owner: string; members: string[] }>): void;
+  restore(entries: Array<{ name: string; password: string; owner: string; members: string[]; persistent?: boolean }>): void;
+  persist(): void;
+}
+
+export interface ChannelMessage {
+  id: number;
+  channel: string;
+  sender: string;
+  body: string;
+  ts: number;
+}
+
+export interface ChannelMessageStore {
+  append(channel: string, sender: string, body: string, now?: number): void;
+  getSince(channel: string, afterId: number): ChannelMessage[];
+  getCursor(channel: string, player: string): number;
+  setCursor(channel: string, player: string, lastReadId: number): void;
+  close(): void;
 }
 
 export interface AbilityManager {

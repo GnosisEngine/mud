@@ -2,6 +2,7 @@
 'use strict';
 
 /** @typedef {import('./DynamicChannelRegistry')} DynamicChannelRegistry */
+/** @typedef {import('./messageStore')} MessageStore */
 
 const { Broadcast } = require('ranvier');
 const { Channel } = require('ranvier').Channel;
@@ -14,9 +15,11 @@ class BlockedByChannelRestriction extends Error {}
  * @param {DynamicChannelRegistry} registry
  * @param {string} name
  * @param {string} ownerName
+ * @param {MessageStore} [messageStore] Required if the channel may be persistent;
+ *   omit only in contexts (e.g. unit tests) that never mark a channel persistent.
  * @returns {Channel}
  */
-function buildDynamicChannel(registry, name, ownerName) {
+function buildDynamicChannel(registry, name, ownerName, messageStore) {
   return new Channel({
     name,
     description: `Private channel created by ${ownerName}. Join with 'channel join ${name} <password>'.`,
@@ -33,6 +36,10 @@ function buildDynamicChannel(registry, name, ownerName) {
         if (!registry.isMember(name, sender.name)) {
           Broadcast.sayAt(sender, `You haven't joined '${name}'. Use 'channel join ${name} <password>'.`);
           throw new BlockedByChannelRestriction();
+        }
+
+        if (messageStore && registry.isPersistent(name)) {
+          messageStore.append(name, sender.name, message);
         }
 
         return colorify(`📡 [${name}] You: ${message}`);

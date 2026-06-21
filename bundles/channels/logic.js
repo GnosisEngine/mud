@@ -28,4 +28,9 @@ module.exports = {
   isChannelMember: (state, player, { name } = NOOP) => {
     return state.DynamicChannelRegistry.isMember(name, player.name);
   },
+
+  /** @type {import('types').LogicCheck} */
+  isChannelPersistent: (state, __, { name } = NOOP) => {
+    return state.DynamicChannelRegistry.isPersistent(name);
+  },
 };

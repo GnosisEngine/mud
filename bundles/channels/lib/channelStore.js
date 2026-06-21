@@ -9,9 +9,10 @@ const JsonStore = require('../../storage/lib/JsonStore');
  * @property {string} password
  * @property {string} owner
  * @property {string[]} members
+ * @property {boolean} persistent
  */
 
-/** @type {JsonStore<Record<string, {password: string, owner: string, members: string[]}>>|null} */
+/** @type {JsonStore<Record<string, {password: string, owner: string, members: string[], persistent?: boolean}>>|null} */
 let _store = null;
 
 /**
@@ -41,22 +42,26 @@ function load() {
       password: entry.password,
       owner: entry.owner,
       members: Array.isArray(entry.members) ? entry.members.filter(m => typeof m === 'string') : [],
+      // Channels persisted before this field existed deserialize as ephemeral —
+      // no behavior change for pre-existing channels.
+      persistent: !!entry.persistent,
     }));
 }
 
 /**
- * @param {Array<[string, { password: string, owner: string, members: Set<string> }]>} entries
+ * @param {Array<[string, { password: string, owner: string, members: Set<string>, persistent: boolean }]>} entries
  */
 function save(entries) {
   if (!_store) return;
 
-  /** @type {Record<string, { password: string, owner: string, members: string[] }>} */
+  /** @type {Record<string, { password: string, owner: string, members: string[], persistent: boolean }>} */
   const data = {};
   for (const [name, entry] of entries) {
     data[name] = {
       password: entry.password,
       owner: entry.owner,
       members: [...entry.members],
+      persistent: !!entry.persistent,
     };
   }
 

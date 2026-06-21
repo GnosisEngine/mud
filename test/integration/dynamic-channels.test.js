@@ -7,6 +7,7 @@ const { PlayerRoles } = require('ranvier');
 const {
   useSuite,
   assertOutput,
+  assertNoOutput,
 } = require('../harness/helpers');
 const channelStore = require('../../bundles/channels/lib/channelStore');
 const channelsServerEvents = require('../../bundles/channels/server-events');
@@ -318,6 +319,144 @@ describe('dynamic channels', () => {
       owner.cleanup();
       member.cleanup();
       outsider.cleanup();
+    });
+  });
+
+  describe('persistent channels & recap', () => {
+    it('defaults to ephemeral when no flag is given', async() => {
+      const owner = admin();
+      await owner.run('channel create plainchat pw10');
+
+      assert.equal(ctx.state.DynamicChannelRegistry.isPersistent('plainchat'), false, 'channel should default to ephemeral');
+
+      owner.cleanup();
+    });
+
+    it('creates a persistent channel with the trailing flag', async() => {
+      const owner = admin();
+      const result = await owner.run('channel create vault pw11 persistent');
+
+      assertOutput(result, /messages are saved for a week/i, 'should confirm persistence in the creation message');
+      assert.equal(ctx.state.DynamicChannelRegistry.isPersistent('vault'), true, 'channel should be marked persistent');
+
+      owner.cleanup();
+    });
+
+    it('persists the persistent flag to disk and across restart', async() => {
+      const owner = admin();
+      await owner.run('channel create vault2 pw12 persistent');
+
+      const persisted = channelStore.load().find(c => c.name === 'vault2');
+      assert.equal(persisted.persistent, true, 'persistent flag should be written to disk');
+
+      await channelsServerEvents.listeners.startup(ctx.state)();
+      assert.equal(ctx.state.DynamicChannelRegistry.isPersistent('vault2'), true, 'persistent flag should survive restart');
+
+      owner.cleanup();
+    });
+
+    it('rejects recap on a non-persistent channel', async() => {
+      const owner = admin();
+      await owner.run('channel create ephemeral1 pw13');
+
+      const result = await owner.run('channel recap ephemeral1');
+      assertOutput(result, /doesn't save message history/i, 'should explain the channel is not persistent');
+
+      owner.cleanup();
+    });
+
+    it('rejects recap for a non-member', async() => {
+      const owner = admin();
+      await owner.run('channel create members1 pw14 persistent');
+
+      const outsider = ctx.session();
+      const result = await outsider.run('channel recap members1');
+      assertOutput(result, /not a member/i, 'should reject a non-member');
+
+      owner.cleanup();
+      outsider.cleanup();
+    });
+
+    it('logs messages on a persistent channel and recap shows them since the cursor, bolding the sender name', async() => {
+      const owner = admin();
+      await owner.run('channel create townsquare pw15 persistent');
+
+      const member = admin();
+      await member.run('channel join townsquare pw15');
+
+      const channel = ctx.state.ChannelManager.get('townsquare');
+
+      channel.send(ctx.state, owner.player, 'first message');
+      channel.send(ctx.state, member.player, 'second message');
+
+      member.transport.drain();
+      const result = await member.run('channel recap townsquare');
+
+      assertOutput(result, /first message/, 'recap should include the first message');
+      assertOutput(result, /second message/, 'recap should include the second message');
+      assertOutput(result, owner.player.name, 'recap should include the first sender\'s name');
+      assertOutput(result, member.player.name, 'recap should include the second sender\'s name');
+
+      owner.cleanup();
+      member.cleanup();
+    });
+
+    it('advances the cursor so a second recap only shows new messages', async() => {
+      const owner = admin();
+      await owner.run('channel create cursorcheck pw16 persistent');
+
+      const member = admin();
+      await member.run('channel join cursorcheck pw16');
+
+      const channel = ctx.state.ChannelManager.get('cursorcheck');
+
+      channel.send(ctx.state, owner.player, 'old news');
+      await member.run('channel recap cursorcheck');
+
+      const emptyResult = await member.run('channel recap cursorcheck');
+      assertOutput(emptyResult, /no new messages/i, 'second recap with nothing new should say so');
+
+      channel.send(ctx.state, owner.player, 'fresh update');
+      const freshResult = await member.run('channel recap cursorcheck');
+      assertOutput(freshResult, /fresh update/, 'third recap should only show the new message');
+      assertNoOutput(freshResult, /old news/, 'third recap should not repeat the old message');
+
+      owner.cleanup();
+      member.cleanup();
+    });
+
+    it('does not log messages on a non-persistent channel', async() => {
+      const owner = admin();
+      await owner.run('channel create quiet1 pw17');
+
+      const channel = ctx.state.ChannelManager.get('quiet1');
+      channel.send(ctx.state, owner.player, 'whisper that vanishes');
+
+      const messages = ctx.state.ChannelMessageStore.getSince('quiet1', 0);
+      assert.equal(messages.length, 0, 'non-persistent channel should not write to the message store');
+
+      owner.cleanup();
+    });
+
+    it('prunes messages older than the retention window', async() => {
+      const owner = admin();
+      await owner.run('channel create stale1 pw18 persistent');
+
+      const store = ctx.state.ChannelMessageStore;
+      const eightDaysAgo = Date.now() - (8 * 24 * 60 * 60 * 1000);
+
+      store.append('stale1', owner.player.name, 'ancient message', eightDaysAgo);
+      let messages = store.getSince('stale1', 0);
+      assert.equal(messages.length, 1, 'message should be written before any pruning trigger');
+
+      // Appending again triggers a prune pass for this channel.
+      store.append('stale1', owner.player.name, 'recent message', Date.now());
+      messages = store.getSince('stale1', 0);
+
+      assert.equal(messages.length, 1, 'the week-old message should have been pruned');
+      assert.equal(messages[0].body, 'recent message', 'only the recent message should remain');
+
+      owner.cleanup();
     });
   });
 });

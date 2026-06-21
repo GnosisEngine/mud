@@ -8,15 +8,17 @@ const { Broadcast } = require('ranvier');
 const Parser = require('../../lib/lib/ArgParser');
 const { isAdmin } = require('../../lib/logic');
 const { buildDynamicChannel } = require('../lib/buildDynamicChannel');
+const formatPlayerName = require('../lib/formatPlayerName');
 const {
   isValidChannelName,
   isChannelNameAvailable,
   isDynamicChannel,
   isChannelMember,
+  isChannelPersistent,
 } = require('../logic');
 
 module.exports = {
-  usage: 'channel create|join|invite|leave|list [name|player] [password|name]',
+  usage: 'channel create|join|invite|leave|list|recap [name|player] [password|name] [persistent]',
 
   /**
    * @param {GameState} state
@@ -32,11 +34,12 @@ module.exports = {
           return Broadcast.sayAt(player, 'You do not have permission to use this command.');
         }
 
-        const [, rawName, password] = parts;
+        const [, rawName, password, persistentFlag] = parts;
         const name = rawName ? rawName.toLowerCase() : '';
+        const persistent = (persistentFlag || '').toLowerCase() === 'persistent';
 
         if (!name || !password) {
-          return Broadcast.sayAt(player, 'Usage: channel create <name> <password>');
+          return Broadcast.sayAt(player, 'Usage: channel create <name> <password> [persistent]');
         }
 
         if (!isValidChannelName(state, player, { name })) {
@@ -47,10 +50,11 @@ module.exports = {
           return Broadcast.sayAt(player, `'${name}' is already in use.`);
         }
 
-        state.DynamicChannelRegistry.create(name, password, player.name);
-        state.ChannelManager.add(buildDynamicChannel(state.DynamicChannelRegistry, name, player.name));
+        state.DynamicChannelRegistry.create(name, password, player.name, persistent);
+        state.ChannelManager.add(buildDynamicChannel(state.DynamicChannelRegistry, name, player.name, state.ChannelMessageStore));
 
-        return Broadcast.sayAt(player, `Channel '${name}' created. Invite players with 'channel invite <player> ${name}' or have them join with 'channel join ${name} <password>'.`);
+        const persistedNote = persistent ? ` Messages are saved for a week — catch up with 'channel recap ${name}'.` : '';
+        return Broadcast.sayAt(player, `Channel '${name}' created. Invite players with 'channel invite <player> ${name}' or have them join with 'channel join ${name} <password>'.${persistedNote}`);
       }
 
       case 'join': {
@@ -148,6 +152,44 @@ module.exports = {
           const memberCount = entry.members.size;
           Broadcast.sayAt(player, `  ${channelName} - ${memberCount} member${memberCount === 1 ? '' : 's'}${joined}`);
         }
+
+        return;
+      }
+
+      case 'recap': {
+        const [, rawName] = parts;
+        const name = rawName ? rawName.toLowerCase() : '';
+
+        if (!name) {
+          return Broadcast.sayAt(player, 'Usage: channel recap <name>');
+        }
+
+        if (!isDynamicChannel(state, player, { name })) {
+          return Broadcast.sayAt(player, `No such channel '${name}'.`);
+        }
+
+        if (!isChannelMember(state, player, { name })) {
+          return Broadcast.sayAt(player, `You're not a member of '${name}'.`);
+        }
+
+        if (!isChannelPersistent(state, player, { name })) {
+          return Broadcast.sayAt(player, `'${name}' doesn't save message history.`);
+        }
+
+        const store = state.ChannelMessageStore;
+        const cursor = store.getCursor(name, player.name);
+        const messages = store.getSince(name, cursor);
+
+        if (!messages.length) {
+          return Broadcast.sayAt(player, `No new messages in '${name}'.`);
+        }
+
+        Broadcast.sayAt(player, `📡 Recap of '${name}':`);
+        for (const msg of messages) {
+          Broadcast.sayAt(player, `  [${name}] ${formatPlayerName(msg.sender)}: ${msg.body}`);
+        }
+
+        store.setCursor(name, player.name, messages[messages.length - 1].id);
 
         return;
       }

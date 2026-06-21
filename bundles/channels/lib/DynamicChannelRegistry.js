@@ -8,6 +8,7 @@ const channelStore = require('./channelStore');
  * @property {string} password
  * @property {string} owner
  * @property {Set<string>} members
+ * @property {boolean} persistent
  */
 
 /**
@@ -27,11 +28,12 @@ class DynamicChannelRegistry {
    * @param {PersistedChannel[]} entries
    */
   restore(entries) {
-    for (const { name, password, owner, members } of entries) {
+    for (const { name, password, owner, members, persistent } of entries) {
       this.channels.set(name, {
         password,
         owner,
         members: new Set(members),
+        persistent: !!persistent,
       });
     }
   }
@@ -63,13 +65,15 @@ class DynamicChannelRegistry {
    * @param {string} name
    * @param {string} password
    * @param {string} ownerName
+   * @param {boolean} [persistent]
    * @returns {DynamicChannelEntry}
    */
-  create(name, password, ownerName) {
+  create(name, password, ownerName, persistent = false) {
     const entry = {
       password,
       owner: ownerName,
       members: new Set([ownerName]),
+      persistent: !!persistent,
     };
     this.channels.set(name, entry);
     this.persist();
@@ -138,6 +142,15 @@ class DynamicChannelRegistry {
   isMember(name, playerName) {
     const entry = this.channels.get(name);
     return !!(entry && entry.members.has(playerName));
+  }
+
+  /**
+   * @param {string} name
+   * @returns {boolean}
+   */
+  isPersistent(name) {
+    const entry = this.channels.get(name);
+    return !!(entry && entry.persistent);
   }
 
   /**
