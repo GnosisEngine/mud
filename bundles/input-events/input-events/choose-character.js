@@ -2,6 +2,7 @@
 
 const { Broadcast, Config, EventUtil, Logger } = require('ranvier');
 const { isEthereal } = require('../../session/logic');
+const Logic = require('../../lib/logic');
 
 /**
  * Account character selection event
@@ -26,7 +27,7 @@ module.exports = {
     // This just gets their names.
     const characters = account.characters.filter(currChar => currChar.deleted === false);
     const maxCharacters   = Config.get('maxCharacters');
-    const canAddCharacter = characters.length < maxCharacters;
+    const canAddCharacter = characters.length < maxCharacters && Logic.isAdminOnline(state);
 
     const options = [];
 

@@ -50,6 +50,11 @@ module.exports = {
     return player.role >= PlayerRoles.ADMIN;
   },
 
+  /** @type {import('types').LogicCheckAsCharacterWithNoOptions} */
+  isAdminOnline: state => {
+    return state.PlayerManager.getPlayersAsArray().some(p => p.role >= PlayerRoles.ADMIN);
+  },
+
   /** @type {import('types').LogicCheckOptionsOnly<{ door: RanvierDoor }>} */
   isDoorPassable: ({ door }) => {
     return !door || (!door.locked && !door.closed);

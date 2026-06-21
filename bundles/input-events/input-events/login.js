@@ -2,6 +2,7 @@
 
 const { Logger } = require('ranvier');
 const CommonFunctions = require('../lib/CommonFunctions');
+const Logic = require('../../lib/logic');
 
 module.exports = {
   event: state => (socket, args) => {
@@ -29,6 +30,12 @@ module.exports = {
 
       if (!account) {
         Logger.error(`No account found as ${name}.`);
+
+        if (!Logic.isAdminOnline(state)) {
+          socket.write('New account creation is currently unavailable. Please try again when an admin is online.\r\n');
+          return socket.emit('login', socket);
+        }
+
         return socket.emit('create-account', socket, name);
       }
 
