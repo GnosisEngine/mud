@@ -17,7 +17,8 @@
     "start": "node ./ranvier",
     "test": "NODE_ENV=test node --trace-warnings test/integration/run.js",
     "typecheck": "tsc -p tsconfig.json",
-    "lint": "npx tsc -p tsconfig.json --noEmit"
+    "lint": "npx tsc -p tsconfig.json --noEmit",
+    "sync-local": "git diff --name-only HEAD | xargs -I{} sh -c 'test -f {} && mkdir -p ../mud-local/$(dirname {}) && cp {} ../mud-local/{} && echo \"synced: {}\"'"
   },
   "dependencies": {
     "commander": "^2.19.0",

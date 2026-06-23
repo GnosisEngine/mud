@@ -50,13 +50,13 @@
     "accounts": {
       "source": "Storage",
       "config": {
-        "path": "accounts"
+        "path": "account"
       }
     },
     "players": {
       "source": "Storage",
       "config": {
-        "path": "players"
+        "path": "player"
       }
     },
     "areas": {
@@ -101,6 +101,7 @@
   "maxPlayerNameLength": 20,
   "minPlayerNameLength": 3,
   "maxCharacters": 3,
+  "allowPlayerCreation": false,
   "reportToAdmins": false,
   "startingRoom": "lobby:arrival",
   "moveCommand": "move",

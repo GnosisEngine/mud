@@ -6,7 +6,7 @@
 /** @typedef {import('types').RanvierItem} RanvierItem */
 /** @typedef {import('types').RanvierExit} RanvierExit */
 
-const { PlayerRoles } = require('ranvier');
+const { PlayerRoles, Config } = require('ranvier');
 
 module.exports = {
   /** @type {import('types').LogicCheckAsCharacterWithNoOptions} */
@@ -52,6 +52,7 @@ module.exports = {
 
   /** @type {import('types').LogicCheckAsCharacterWithNoOptions} */
   isAdminOnline: state => {
+    if (Config.get('allowPlayerCreation')) return true;
     return state.PlayerManager.getPlayersAsArray().some(p => p.role >= PlayerRoles.ADMIN);
   },
 

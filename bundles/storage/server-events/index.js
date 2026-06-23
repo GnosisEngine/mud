@@ -38,6 +38,12 @@ module.exports = {
 
       state.Storage = storage;
 
+      if (process.env.NODE_ENV !== 'test') {
+        const dataRoot = storage.getDataRoot();
+        fs.mkdirSync(path.join(dataRoot, 'account'), { recursive: true });
+        fs.mkdirSync(path.join(dataRoot, 'player'),  { recursive: true });
+      }
+
       Logger.log(`[storage] data root: ${storage.getDataRoot()}`);
     },
 

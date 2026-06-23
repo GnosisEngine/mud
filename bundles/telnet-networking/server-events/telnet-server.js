@@ -15,7 +15,6 @@ module.exports = {
       const server = new Telnet.TelnetServer(rawSocket => {
         const telnetSocket = new Telnet.TelnetSocket();
         telnetSocket.attach(rawSocket);
-        telnetSocket.telnetCommand(Telnet.Sequences.WILL, Telnet.Options.OPT_EOR);
 
         const stream = new TelnetStream();
         stream.attach(telnetSocket);

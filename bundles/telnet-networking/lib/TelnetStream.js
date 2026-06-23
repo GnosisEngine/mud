@@ -92,10 +92,17 @@ class TelnetStream extends TransportStream
   }
 
   executeToggleEcho() {
-    this.socket.toggleEcho();
+    // Flip the echoing flag without sending Telnet IAC bytes.
+    // SSH clients connect via socat passthrough — IAC sequences arrive as
+    // literal garbage bytes instead of being interpreted as Telnet negotiation.
+    // Instead, use ANSI SGR concealment to visually suppress PTY echo.
+    this.socket.echoing = !this.socket.echoing;
+
+    // \x1b[8m = SGR concealed (characters invisible at terminal, PTY still
+    // echoes bytes but they are hidden from view). \x1b[0m = reset (reveal).
+    this.write(this.socket.echoing ? '\x1b[0m' : '\x1b[8m');
+
     if (this._lineEditor) {
-      // socket.echoing: true  = normal operation, client echoes (WONT ECHO state)
-      //                 false = server controls echo (WILL ECHO sent, hide input)
       this._lineEditor.setEchoEnabled(this.socket.echoing);
     }
   }
