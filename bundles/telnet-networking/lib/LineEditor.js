@@ -147,6 +147,12 @@ class LineEditor extends EventEmitter {
     this._buffer.append(char);
     if (this._echoChars) {
       this._write(char);
+    } else {
+      // Password mode: the SSH PTY has already echoed the char and advanced
+      // the cursor one cell (SGR concealment hides the glyph but not the
+      // cursor movement). Send a backspace to walk the cursor back so it
+      // stays at the start of the password field.
+      this._write('\x08');
     }
   }
 
@@ -156,6 +162,7 @@ class LineEditor extends EventEmitter {
     if (this._echoChars) {
       this._write('\x08 \x08');
     }
+    // Password mode: PTY echo already moved cursor left on backspace; nothing to do.
   }
 
   _handleEnter() {

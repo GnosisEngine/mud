@@ -95,16 +95,12 @@ class TelnetStream extends TransportStream
     // Flip the echoing flag without sending Telnet IAC bytes.
     // SSH clients connect via socat passthrough — IAC sequences arrive as
     // literal garbage bytes instead of being interpreted as Telnet negotiation.
+    // Instead, use ANSI SGR concealment to visually suppress PTY echo.
     this.socket.echoing = !this.socket.echoing;
 
-    if (this.socket.echoing) {
-      // Restore: show cursor, reset SGR concealment.
-      this.write('\x1b[?25h\x1b[0m');
-    } else {
-      // Password mode: conceal glyphs via SGR 8, hide cursor so PTY echo
-      // cursor advance (which we cannot suppress over SSH) is not visible.
-      this.write('\x1b[?25l\x1b[8m');
-    }
+    // \x1b[8m = SGR concealed (characters invisible at terminal, PTY still
+    // echoes bytes but they are hidden from view). \x1b[0m = reset (reveal).
+    this.write(this.socket.echoing ? '\x1b[0m' : '\x1b[8m');
 
     if (this._lineEditor) {
       this._lineEditor.setEchoEnabled(this.socket.echoing);
