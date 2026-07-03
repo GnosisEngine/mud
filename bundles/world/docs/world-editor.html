@@ -1909,7 +1909,7 @@ function importMapJSON() {
   let data;
   try {
     data = JSON.parse(importTextarea.value.trim());
-  } catch (e) {
+  } catch (/** @type {any} */ e) {
     importError.textContent = '✕ Invalid JSON — ' + e.message;
     return;
   }

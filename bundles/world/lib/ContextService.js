@@ -46,7 +46,7 @@ class ContextManager {
       try {
         const res = fn(context);
         results.push(Array.isArray(res) ? res : []);
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn(e);
       }
     }

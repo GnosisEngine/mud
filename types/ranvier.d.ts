@@ -92,5 +92,20 @@ declare module 'ranvier' {
       ]>
   }
 
-  export const TransportStream: Ctor<EventEmitter, []>
+  export interface RanvierTransportStream extends EventEmitter {
+    readonly readable: boolean;
+    readonly writable: boolean;
+    socket: any;
+    write(message?: string, encoding?: string): void;
+    command(command: string, ...args: any[]): any;
+    address(): any;
+    end(): void;
+    setEncoding(): void;
+    pause(): void;
+    resume(): void;
+    destroy(): void;
+    attach(socket: any): void;
+  }
+
+  export const TransportStream: Ctor<RanvierTransportStream, []>
 }

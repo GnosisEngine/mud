@@ -123,7 +123,7 @@ class CompactableLog {
 
     try {
       fs.appendFileSync(this.currentSegment, chunk);
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       // best-effort: don't block shutdown on a write failure
     }
   }

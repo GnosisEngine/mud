@@ -42,7 +42,7 @@ module.exports = {
       let loaded;
       try {
         loaded = load(WORLD_JSON_PATH);
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         const msg = err instanceof Error ? err.message : String(err);
         Logger.warn(`[world] world.json not found or invalid — running with null world manager. (${msg})`);
         state.WorldManager = NULL_WORLD_MANAGER;

@@ -31,7 +31,9 @@ const ERASE_LINE = '\r\x1b[K';
  */
 class LineEditor extends EventEmitter {
   /**
-   * @param {{ write: Function }} stream  — any object with a write(str) method
+   * @param {{ write: Function, writeRaw?: Function, socket: { echoing: boolean } }} stream
+   *   A transport stream: requires write(str), an optional writeRaw(str) fast
+   *   path, and a socket exposing the current echo state.
    */
   constructor(stream) {
     super();
@@ -52,6 +54,7 @@ class LineEditor extends EventEmitter {
 
     this._browsing = false;
     this._completer = null;
+    this._pendingBytes = null;
   }
 
   // ---------------------------------------------------------------------------
@@ -64,7 +67,14 @@ class LineEditor extends EventEmitter {
    * @param {Buffer|string} buf
    */
   feed(buf) {
-    const tokens = parse(buf);
+    if (this._pendingBytes && this._pendingBytes.length) {
+      buf = Buffer.concat([this._pendingBytes, Buffer.isBuffer(buf) ? buf : Buffer.from(buf)]);
+      this._pendingBytes = null;
+    }
+
+    const { tokens, remainder } = parse(buf);
+    this._pendingBytes = remainder.length ? remainder : null;
+
     for (const token of tokens) {
       switch (token.type) {
         case TOKEN.CHAR:       this._handleChar(token.char); break;
@@ -89,6 +99,27 @@ class LineEditor extends EventEmitter {
    */
   setPrompt(prompt) {
     this._prompt = prompt ?? '';
+  }
+
+  /**
+   * Whether the player has an in-progress command line worth preserving when
+   * unsolicited output arrives. True only when echo is on (so the buffer is
+   * actually visible on screen) and the buffer is non-empty.
+   *
+   * @returns {boolean}
+   */
+  hasPendingInput() {
+    return this._echoChars && this._buffer.length > 0;
+  }
+
+  /**
+   * Reprints the current prompt and buffer on a freshly cleared line.
+   *
+   * Public wrapper over the internal redraw so the transport can restore a
+   * player's input line after writing broadcast output above it.
+   */
+  redraw() {
+    this._redraw();
   }
 
   /**
@@ -147,13 +178,10 @@ class LineEditor extends EventEmitter {
     this._buffer.append(char);
     if (this._echoChars) {
       this._write(char);
-    } else {
-      // Password mode: the SSH PTY has already echoed the char and advanced
-      // the cursor one cell (SGR concealment hides the glyph but not the
-      // cursor movement). Send a backspace to walk the cursor back so it
-      // stays at the start of the password field.
-      this._write('\x08');
     }
+    // Password mode (echo off): the server authors all on-screen output and the
+    // PTY does not echo, so the character is buffered silently without writing
+    // anything, leaving the cursor parked after the prompt.
   }
 
   _handleBackspace() {
@@ -252,7 +280,11 @@ class LineEditor extends EventEmitter {
   }
 
   _write(str) {
-    this._stream.write(str);
+    if (typeof this._stream.writeRaw === 'function') {
+      this._stream.writeRaw(str);
+    } else {
+      this._stream.write(str);
+    }
   }
 }
 

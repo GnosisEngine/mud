@@ -38,16 +38,19 @@ function _isPrintable(byte) {
  *   - Ctrl+C (0x03), Ctrl+U (0x15), Tab (0x09)
  *   - All other bytes produce IGNORE tokens
  *
- * Partial escape sequences that arrive at the end of a buffer without a
- * terminating byte are emitted as IGNORE tokens rather than being held for
- * the next call -- the parser is stateless.
+ * Incomplete escape sequences that arrive at the end of a buffer (a lone ESC,
+ * or ESC [ with no terminator) are returned as `remainder` rather than being
+ * dropped, so the caller can prepend them to the next chunk. This makes arrow
+ * keys and other sequences survive being split across transport reads (which
+ * happens over the SSH/PTY/socat path but not over a direct connection).
  *
  * @param {Buffer|string} input
- * @returns {Array<{ type: string, char?: string }>}
+ * @returns {{ tokens: Array<{ type: string, char?: string }>, remainder: Buffer }}
  */
 function parse(input) {
   const buf = Buffer.isBuffer(input) ? input : Buffer.from(input, 'utf8');
   const tokens = [];
+  let remainder = Buffer.alloc(0);
   let i = 0;
 
   while (i < buf.length) {
@@ -55,32 +58,39 @@ function parse(input) {
 
     // ESC sequences (0x1b)
     if (byte === 0x1b) {
-      if (i + 1 < buf.length && buf[i + 1] === 0x5b) {
-        // ESC [ present -- this is a CSI sequence, need one more byte for the command
-        if (i + 2 < buf.length) {
-          const terminator = buf[i + 2];
-          if (terminator === 0x41) {
-            tokens.push({ type: TOKEN.ARROW_UP });
-            i += 3;
-            continue;
-          }
-          if (terminator === 0x42) {
-            tokens.push({ type: TOKEN.ARROW_DOWN });
-            i += 3;
-            continue;
-          }
-          // Other CSI sequences (e.g. arrow left/right, F-keys) -- consume and ignore
-          tokens.push({ type: TOKEN.IGNORE });
+      // Lone ESC at end of buffer -- may be the start of a sequence split
+      // across reads. Hold it for the next call.
+      if (i + 1 >= buf.length) {
+        remainder = buf.slice(i);
+        break;
+      }
+
+      if (buf[i + 1] === 0x5b) {
+        // ESC [ present -- this is a CSI sequence, need one more byte.
+        if (i + 2 >= buf.length) {
+          // ESC [ with no terminator yet -- hold for the next call.
+          remainder = buf.slice(i);
+          break;
+        }
+
+        const terminator = buf[i + 2];
+        if (terminator === 0x41) {
+          tokens.push({ type: TOKEN.ARROW_UP });
           i += 3;
           continue;
         }
-        // ESC [ with no terminator -- incomplete CSI, consume both bytes as IGNORE
+        if (terminator === 0x42) {
+          tokens.push({ type: TOKEN.ARROW_DOWN });
+          i += 3;
+          continue;
+        }
+        // Other CSI sequences (arrow left/right, F-keys) -- consume and ignore
         tokens.push({ type: TOKEN.IGNORE });
-        tokens.push({ type: TOKEN.IGNORE });
-        i += 2;
+        i += 3;
         continue;
       }
-      // Bare ESC or ESC followed by non-[ -- ignore this byte only
+
+      // ESC followed by a non-[ byte -- not a sequence we handle.
       tokens.push({ type: TOKEN.IGNORE });
       i += 1;
       continue;
@@ -143,7 +153,7 @@ function parse(input) {
     i += 1;
   }
 
-  return tokens;
+  return { tokens, remainder };
 }
 
 module.exports = { parse, TOKEN };

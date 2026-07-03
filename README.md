@@ -162,3 +162,20 @@ ranvier.json    Server configuration and bundle load order
 ```
 
 Bundle load order in `ranvier.json` matters: `world` and `time` must load before bundles that depend on their services (`WorldManager`, `TimeService`). `claims` must load before `crafting`.
+
+## TODO
+
+* [x] Fix tabbing autocomplete
+* [x] Fix arrow keys for history
+* [x] Add spam detection and chat suppression effect
+* [x] Add minimum level for communication skills
+  * `say` = level 0
+  * `yell` = level 3
+  * `chat` = level 5
+  * `tell` = level 7
+  * `say` = level 0
+* [ ] Add tutorial area for more advanced commands
+* [ ] Add lobby room
+* [ ] Add starting area for basic commands
+* [ ] Add user neighborhood for custom housing
+* [ ] Typing system simplification

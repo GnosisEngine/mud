@@ -161,7 +161,7 @@ function load(worldJsonPath) {
   let raw;
   try {
     raw = JSON.parse(fs.readFileSync(resolved, 'utf8'));
-  } catch (e) {
+  } catch (/** @type {any} */ e) {
     throw new Error(`WorldLoader: failed to parse JSON at ${resolved}: ${e.message}`);
   }
 

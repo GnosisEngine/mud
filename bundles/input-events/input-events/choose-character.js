@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs');
+
 const { Broadcast, Config, EventUtil, Logger } = require('ranvier');
 const { isEthereal } = require('../../session/logic');
 const Logic = require('../../lib/logic');
@@ -14,6 +16,12 @@ module.exports = {
     const say = EventUtil.genSay(socket);
     const write = EventUtil.genWrite(socket);
     const pm = state.PlayerManager;
+
+    const motd = fs.readFileSync(__dirname + '/../resources/motd').toString('utf8');
+    if (motd && !args._motdShown) {
+      say(motd);
+      args._motdShown = true;
+    }
 
     /*
       Player selection menu:

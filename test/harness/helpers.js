@@ -166,7 +166,7 @@ function useSuite(roomRefOrFn) {
   async function setup() {
     try {
       ctx.state = await getState();
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       console.error('\n[harness] FATAL: game state failed to boot.\n', err, '\n');
       process.exit(1);
     }

@@ -24,7 +24,7 @@ module.exports = {
     }
     try {
       B.sayAt(player, render(state, hfile));
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       Logger.warn(`UNRENDERABLE-HELP: [${args}]`);
       Logger.warn(e);
       B.sayAt(player, `Invalid help file for ${args}.`);

@@ -44,7 +44,7 @@ module.exports = {
 
       try {
         useSpell.execute(null, player);
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         if (e instanceof SkillErrors.CooldownError) {
           return say(`${useSpell.name} is on cooldown. ${humanize(e.effect.remaining)} remaining.`);
         }

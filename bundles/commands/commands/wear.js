@@ -31,7 +31,7 @@ module.exports = {
 
     try {
       player.equip(item, item.metadata.slot);
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       if (err instanceof EquipSlotTakenError) {
         const conflict = player.equipment.get(item.metadata.slot);
         return say(player, `You will have to remove ${ItemUtil.display(conflict)} first.`);

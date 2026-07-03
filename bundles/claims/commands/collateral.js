@@ -46,7 +46,7 @@ module.exports = {
             yieldFloor:      0,
           });
           say(player,  `Package created. ID: ${pkg.id}  Name: "${pkg.name}"`);
-        } catch (err) {
+        } catch (/** @type {any} */ err) {
           const msg = err instanceof Error ? err.message : String(err);
           say(player, `Could not create package: ${msg}`);
         }

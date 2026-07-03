@@ -23,7 +23,7 @@ function startupPoll(condition, onReady, timeout = POLL_TIMEOUT_MS) {
         try {
           await onReady();
           resolve();
-        } catch (err) {
+        } catch (/** @type {any} */ err) {
           reject(err);
         }
         return;

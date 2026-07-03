@@ -23,7 +23,7 @@ module.exports = {
         stream.attachLineEditor(lineEditor);
 
         stream.on('interrupt', () => {
-          stream.write('\n*interrupt*\n');
+          stream.write('\r\n*interrupt*\r\n');
         });
 
         stream.on('error', err => {
@@ -40,7 +40,7 @@ module.exports = {
         // Track link state for ethereal/grace handling on disconnect
         linkMonitor.attach(state, stream);
 
-        stream.write('Connecting...\n');
+        stream.write('Connecting...\r\n');
         Logger.log('User connected...');
 
         // @see: bundles/ranvier-events/events/login.js

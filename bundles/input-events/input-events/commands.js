@@ -112,7 +112,7 @@ module.exports = {
             // same with channels
             try {
               channel.send(state, player, result.args);
-            } catch (error) {
+            } catch (/** @type {any} */ error) {
               switch (true) {
                 case error instanceof NoPartyError:
                   B.sayAt(player, "You aren't in a group.");
@@ -144,7 +144,7 @@ module.exports = {
             break;
           }
         }
-      } catch (error) {
+      } catch (/** @type {any} */ error) {
         switch (true) {
           case error instanceof InvalidCommandError:
             if (player.room && player.room instanceof Room) {

@@ -70,7 +70,7 @@ function _respawnRoom(state) {
     if (Random.probability(defaultNpc.respawnChance)) {
       try {
         this.spawnNpc(state, defaultNpc.id);
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         Logger.error(err.message);
       }
     }

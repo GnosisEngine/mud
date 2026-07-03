@@ -4,6 +4,14 @@ const { Sequences } = require('ranvier-telnet');
 const { TransportStream } = require('ranvier');
 
 /**
+ * Trailing debounce window (ms) for coalescing a burst of broadcasts into a
+ * single input-line interrupt. First broadcast starts the timer; further
+ * broadcasts in the window are appended and flushed together, so a burst
+ * reprints the input line once instead of once per line.
+ */
+const BROADCAST_DEBOUNCE_MS = 120;
+
+/**
  * Thin wrapper around a ranvier-telnet `TelnetSocket`.
  *
  * When a LineEditor is attached via attachLineEditor(), raw bytes are fed to
@@ -53,7 +61,7 @@ class TelnetStream extends TransportStream
    * event from the LineEditor is re-emitted as a 'data' event on this stream,
    * preserving the contract that all input-event listeners expect.
    *
-   * @param {LineEditor} lineEditor
+   * @param {import('./LineEditor')} lineEditor
    */
   attachLineEditor(lineEditor) {
     this._lineEditor = lineEditor;
@@ -71,12 +79,109 @@ class TelnetStream extends TransportStream
     return this.socket.writable;
   }
 
-  write(message, encoding = 'utf8') {
+  /**
+   * Ranvier core's Broadcast.at breaks off a displayed prompt with its own
+   * `\r\n` before writing a broadcast (guarded by this flag). When a LineEditor
+   * is attached and the player has typed input, our write() already breaks the
+   * line and reprints the buffer, so core's break would be a redundant second
+   * one. Reporting false in exactly that case suppresses core's break and lets
+   * our interrupt handling own it. With an empty buffer the real flag is
+   * reported, preserving core's break off the bare prompt line.
+   */
+  get _prompted() {
+    if (this._lineEditor && this._lineEditor.hasPendingInput()) {
+      return false;
+    }
+
+    return this._promptedFlag === true;
+  }
+
+  set _prompted(value) {
+    this._promptedFlag = value;
+  }
+
+  /**
+   * Writes directly to the socket, bypassing any input-line interrupt handling.
+   *
+   * This is the path the LineEditor uses for its own echo and redraws: those
+   * bytes must never be treated as broadcast output, or a redraw would recurse
+   * back through the interrupt logic that triggered it.
+   *
+   * @param {string} message
+   * @param {string} encoding
+   */
+  writeRaw(message, encoding = 'utf8') {
     if (!this.writable) {
       return;
     }
 
     this.socket.write(message, encoding);
+  }
+
+  /**
+   * Public write path for game output (Broadcast, etc.).
+   *
+   * When a LineEditor is attached and the player has an in-progress command
+   * line, the message is queued and flushed after a short debounce window so a
+   * burst of broadcasts reprints the input line once rather than once per line.
+   * Otherwise the message is written straight through with no delay.
+   *
+   * @param {string} message
+   * @param {string} encoding
+   */
+  write(message, encoding = 'utf8') {
+    if (this._lineEditor && this._lineEditor.hasPendingInput()) {
+      this._enqueueBroadcast(message);
+      return;
+    }
+
+    this.writeRaw(message, encoding);
+  }
+
+  /**
+   * Appends a broadcast to the pending queue and arms the debounce timer if it
+   * is not already running. The timer is trailing and non-resetting: it fires a
+   * fixed interval after the first queued message, bounding the delay of any
+   * single message regardless of how long the burst continues.
+   *
+   * @param {string} message
+   */
+  _enqueueBroadcast(message) {
+    if (!this._broadcastQueue) {
+      this._broadcastQueue = [];
+    }
+
+    this._broadcastQueue.push(message);
+
+    if (!this._broadcastTimer) {
+      this._broadcastTimer = setTimeout(() => this._flushBroadcasts(), BROADCAST_DEBOUNCE_MS);
+    }
+  }
+
+  /**
+   * Flushes all queued broadcasts as a single input-line interrupt: break to a
+   * fresh line, write the collected messages, then reprint the prompt + buffer
+   * once. If the player is no longer typing by flush time (buffer emptied), the
+   * messages are written plainly with no reprint.
+   */
+  _flushBroadcasts() {
+    this._broadcastTimer = null;
+
+    const messages = this._broadcastQueue || [];
+    this._broadcastQueue = [];
+
+    if (messages.length === 0) {
+      return;
+    }
+
+    if (this._lineEditor && this._lineEditor.hasPendingInput()) {
+      this.writeRaw('\r\n');
+      this.writeRaw(messages.join(''));
+      this._lineEditor.redraw();
+      return;
+    }
+
+    this.writeRaw(messages.join(''));
   }
 
   pause() {
@@ -88,6 +193,11 @@ class TelnetStream extends TransportStream
   }
 
   end() {
+    if (this._broadcastTimer) {
+      clearTimeout(this._broadcastTimer);
+      this._broadcastTimer = null;
+    }
+
     this.socket.end();
   }
 
@@ -100,7 +210,7 @@ class TelnetStream extends TransportStream
 
     // \x1b[8m = SGR concealed (characters invisible at terminal, PTY still
     // echoes bytes but they are hidden from view). \x1b[0m = reset (reveal).
-    this.write(this.socket.echoing ? '\x1b[0m' : '\x1b[8m');
+    this.writeRaw(this.socket.echoing ? '\x1b[0m' : '\x1b[8m');
 
     if (this._lineEditor) {
       this._lineEditor.setEchoEnabled(this.socket.echoing);

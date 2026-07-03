@@ -60,7 +60,7 @@ module.exports = {
       let hadActions = false;
       try {
         hadActions = Combat.updateRound(state, this);
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         if (e instanceof CombatErrors.CombatInvalidTargetError) {
           B.sayAt(this, "You can't attack that target.");
         } else {

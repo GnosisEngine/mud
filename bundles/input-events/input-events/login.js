@@ -7,7 +7,11 @@ const Logic = require('../../lib/logic');
 module.exports = {
   event: state => (socket, args) => {
     if (!args || !args.dontwelcome) {
-      socket.write('Welcome, what is your name? ');
+      const canCreate = Logic.isAdminOnline(state);
+      const greeting = canCreate
+        ? 'Greetings, traveler. Please tell me your account name or the one you want to create: '
+        : 'Greetings, traveler. Please tell me your account name: ';
+      socket.write(greeting);
     }
 
     socket.once('data', async name => {
@@ -24,7 +28,7 @@ module.exports = {
       let account = null;
       try {
         account = await state.AccountManager.loadAccount(name);
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         Logger.error(e.message);
       }
 

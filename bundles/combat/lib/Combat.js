@@ -51,7 +51,7 @@ class Combat {
     let target = null;
     try {
       target = Combat.chooseCombatant(attacker);
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       attacker.removeFromCombat();
       attacker.combatData = {};
       throw e;
