@@ -392,6 +392,7 @@ export interface RanvierPlayer extends RanvierCharacter {
   role:             number;
   playerClass:      RanvierPlayerClass
   _lastCommandTime: number;
+  _lastTeller: string;
 
   queueCommand(executable: any, lag: number): void;
   on(event: string | symbol, listener: (...args: any[]) => void): this;

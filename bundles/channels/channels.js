@@ -22,6 +22,7 @@
 require('./hints');
 const {
   Broadcast,
+  Config,
   PartyAudience,
   PrivateAudience,
   RoomAudience,
@@ -31,6 +32,7 @@ const {
 const { Channel } = require('ranvier').Channel;
 const ClusterAudience = require('./lib/ClusterAudience');
 const canSpeak = require('../moderation/lib/canSpeak');
+const Communication = require('./lib/communication');
 
 class BlockedByCommunicationEffect extends Error {}
 
@@ -93,10 +95,19 @@ module.exports = [
           Broadcast.sayAt(sender, effect?.config.blockedMessage);
           throw new BlockedByCommunicationEffect();
         }
+        const commConfig = Config.get('communication');
+        if (commConfig) {
+          const tellCheck = Communication.checkTell(commConfig, sender, target);
+          if (!tellCheck.allowed) {
+            Broadcast.sayAt(sender, tellCheck.message);
+            throw new BlockedByCommunicationEffect();
+          }
+        }
         return colorify(`👂 You tell ${target.name}, '${message}'`);
       },
       /** @type {ChannelFormatter} */
       target(sender, target, message, colorify) {
+        Communication.recordTell(target, sender);
         return colorify(`👂 ${sender.name} tells you, '${message}'`);
       },
     },

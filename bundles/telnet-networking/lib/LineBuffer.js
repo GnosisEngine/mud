@@ -1,30 +1,36 @@
 // bundles/telnet-networking/lib/LineBuffer.js
 'use strict';
 
-const MAX_LENGTH = 1024;
+const DEFAULT_MAX_LENGTH = 512;
 
 /**
  * Manages the in-progress line being assembled from raw keystrokes.
  *
  * Invariants:
- *   - _chars never exceeds MAX_LENGTH entries
+ *   - _chars never exceeds the configured max length
  *   - backspace() on an empty buffer is a no-op
  *   - get() always returns a string (never null or undefined)
  */
 class LineBuffer {
-  constructor() {
+  /**
+   * @param {number} [maxLength]  Maximum characters the line may hold.
+   */
+  constructor(maxLength = DEFAULT_MAX_LENGTH) {
     this._chars = [];
+    this._maxLength = maxLength;
   }
 
   /**
    * Appends a single character to the buffer.
-   * Silently drops the character if MAX_LENGTH is already reached.
+   * Silently drops the character if the max length is already reached.
    *
    * @param {string} char  — single character
+   * @returns {boolean} true if the character was added, false if dropped (full)
    */
   append(char) {
-    if (this._chars.length >= MAX_LENGTH) return;
+    if (this._chars.length >= this._maxLength) return false;
     this._chars.push(char);
+    return true;
   }
 
   /**
@@ -37,12 +43,12 @@ class LineBuffer {
 
   /**
    * Replaces the entire buffer contents with the given string.
-   * Truncates to MAX_LENGTH if the string is longer.
+   * Truncates to the max length if the string is longer.
    *
    * @param {string} str
    */
   set(str) {
-    this._chars = str.slice(0, MAX_LENGTH).split('');
+    this._chars = str.slice(0, this._maxLength).split('');
   }
 
   /**

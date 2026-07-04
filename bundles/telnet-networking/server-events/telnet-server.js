@@ -1,7 +1,7 @@
 'use strict';
 
 const Telnet = require('ranvier-telnet');
-const { Logger } = require('ranvier');
+const { Config, Logger } = require('ranvier');
 const TelnetStream = require('../lib/TelnetStream');
 const LineEditor   = require('../lib/LineEditor');
 const linkMonitor  = require('../../session/lib/linkMonitor');
@@ -12,6 +12,8 @@ module.exports = {
       /**
       * Effectively the 'main' game loop but not really because it's a REPL
       */
+      const maxPromptLength = (Config.get('communication') || {}).maxPromptLength;
+
       const server = new Telnet.TelnetServer(rawSocket => {
         const telnetSocket = new Telnet.TelnetSocket();
         telnetSocket.attach(rawSocket);
@@ -19,7 +21,7 @@ module.exports = {
         const stream = new TelnetStream();
         stream.attach(telnetSocket);
 
-        const lineEditor = new LineEditor(stream);
+        const lineEditor = new LineEditor(stream, maxPromptLength);
         stream.attachLineEditor(lineEditor);
 
         stream.on('interrupt', () => {

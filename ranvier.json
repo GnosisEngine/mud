@@ -152,5 +152,21 @@
   ],
   "mercMoveIntervalMs": 15000,
   "mercFleeIntervalMs": 3000,
-  "mercMaxPenaltyStacks": 3
+  "mercMaxPenaltyStacks": 3,
+  "communication": {
+    "levels": {
+      "say": 2,
+      "tell": 2,
+      "yell": 5,
+      "chat": 10,
+      "channels": 10,
+      "gtell": 1
+    },
+    "rateLimit": {
+      "max": 3,
+      "windowMs": 20000,
+      "exempt": ["gtell"]
+    },
+    "maxPromptLength": 512
+  }
 }

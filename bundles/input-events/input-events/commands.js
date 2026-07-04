@@ -1,10 +1,11 @@
 'use strict';
 
-const { Broadcast: B, CommandType, Logger, PlayerRoles, Room } = require('ranvier');
+const { Broadcast: B, Config, CommandType, Logger, PlayerRoles, Room } = require('ranvier');
 const { NoPartyError, NoRecipientError, NoMessageError } = require('ranvier').Channel;
 const { CommandParser, InvalidCommandError, RestrictedCommandError } = require('../../lib/lib/CommandParser');
 const { emit: playerEmit } = require('../../player-events/events');
 const { complete } = require('../../telnet-networking/lib/TabCompleter');
+const Communication = require('../../channels/lib/communication');
 const sty = require('sty');
 
 // ---------------------------------------------------------------------------
@@ -34,6 +35,29 @@ function _registerCompleter(state, player) {
   player.socket._lineEditor.setCompleter(input => complete(state, player, input));
 }
 
+// True when a submitted line dispatches as a communication channel (say, tell,
+// yell, chat, gtell, or a dynamic channel). Reuses the command parser so the
+// classification matches dispatch exactly, including command-vs-channel
+// precedence and prefix matching. Unparseable lines are not communications.
+function _isCommunication(state, player, line) {
+  try {
+    const result = CommandParser.parse(state, line.trim(), player);
+    return result.type === CommandType.CHANNEL;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Registers a history filter that keeps communications out of up/down history.
+// Called once per session; guarded like the completer.
+//
+// No-op when no LineEditor is attached (websocket, test harness, etc.).
+function _registerHistoryFilter(state, player) {
+  if (!player.socket._lineEditor || player._historyFilterRegistered) return;
+  player._historyFilterRegistered = true;
+  player.socket._lineEditor.setHistoryFilter(line => !_isCommunication(state, player, line));
+}
+
 /**
  * Main command loop. All player input after login goes through here.
  * If you want to swap out the command parser this is the place to do it
@@ -41,6 +65,7 @@ function _registerCompleter(state, player) {
 module.exports = {
   event: state => player => {
     _registerCompleter(state, player);
+    _registerHistoryFilter(state, player);
 
     player.socket.once('data', data => {
       function loop() {
@@ -109,10 +134,35 @@ module.exports = {
             if (channel.minRequiredRole !== null && channel.minRequiredRole > player.role) {
               throw new RestrictedCommandError();
             }
-            // same with channels
+
+            const commConfig = Config.get('communication');
+
+            // Level gate. Tell is gated in its own formatter (reply-only below
+            // the tell level); every other channel is gated here by player level.
+            if (commConfig && channel.name !== 'tell') {
+              const levelCheck = Communication.checkLevel(commConfig, player, channel.name);
+              if (!levelCheck.allowed) {
+                B.sayAt(player, levelCheck.message);
+                break;
+              }
+            }
+
+            // Rate limit (gtell exempt via config). Checked before sending;
+            // recorded only after a message actually goes out.
+            if (commConfig) {
+              const rateCheck = Communication.checkRate(commConfig, player, channel.name);
+              if (!rateCheck.allowed) {
+                B.sayAt(player, rateCheck.message);
+                break;
+              }
+            }
+
             try {
               channel.send(state, player, result.args);
-            } catch (/** @type {any} */ error) {
+              if (commConfig) {
+                Communication.recordCommunication(commConfig, player, channel.name);
+              }
+            } catch (error) {
               switch (true) {
                 case error instanceof NoPartyError:
                   B.sayAt(player, "You aren't in a group.");
@@ -144,7 +194,7 @@ module.exports = {
             break;
           }
         }
-      } catch (/** @type {any} */ error) {
+      } catch (error) {
         switch (true) {
           case error instanceof InvalidCommandError:
             if (player.room && player.room instanceof Room) {
@@ -158,7 +208,10 @@ module.exports = {
             }
 
             B.sayAt(player, 'Huh?');
-            Logger.warn(`WARNING: Player tried non-existent command '${data}'`);
+            // Log only the attempted command word, never the arguments, so no
+            // message content (a mistyped communication, stray text, etc.)
+            // reaches the logs.
+            Logger.warn(`WARNING: Player tried non-existent command '${data.split(' ')[0]}'`);
             break;
           case error instanceof RestrictedCommandError:
             B.sayAt(player, "You can't do that.");

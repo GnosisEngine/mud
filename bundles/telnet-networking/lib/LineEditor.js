@@ -34,11 +34,12 @@ class LineEditor extends EventEmitter {
    * @param {{ write: Function, writeRaw?: Function, socket: { echoing: boolean } }} stream
    *   A transport stream: requires write(str), an optional writeRaw(str) fast
    *   path, and a socket exposing the current echo state.
+   * @param {number} [maxLength]  Maximum characters the input line may hold.
    */
-  constructor(stream) {
+  constructor(stream, maxLength) {
     super();
     this._stream  = stream;
-    this._buffer  = new LineBuffer();
+    this._buffer  = new LineBuffer(maxLength);
     this._history = new CommandHistory();
     this._prompt  = '';
 
@@ -54,7 +55,9 @@ class LineEditor extends EventEmitter {
 
     this._browsing = false;
     this._completer = null;
+    this._historyFilter = null;
     this._pendingBytes = null;
+    this._atCapBell = false;
   }
 
   // ---------------------------------------------------------------------------
@@ -157,6 +160,19 @@ class LineEditor extends EventEmitter {
   }
 
   /**
+   * Registers a predicate deciding whether a submitted line is recorded in
+   * command history. The function receives the raw line and returns true to
+   * record it, false to skip it. Used to keep communications out of history.
+   *
+   * Passing null records every line.
+   *
+   * @param {Function|null} fn  — (line: string) => boolean
+   */
+  setHistoryFilter(fn) {
+    this._historyFilter = fn;
+  }
+
+  /**
    * normal feed/enter path. Used by commands.js to record commands that
    * were submitted before the line editor was attached (e.g. auto-exec).
    *
@@ -175,7 +191,18 @@ class LineEditor extends EventEmitter {
     if (this._browsing) {
       this._browsing = false;
     }
-    this._buffer.append(char);
+
+    if (!this._buffer.append(char)) {
+      // At capacity: ring the bell once, then stay silent until the buffer is
+      // accepting characters again. The dropped char is not echoed.
+      if (!this._atCapBell) {
+        this._write('\x07');
+        this._atCapBell = true;
+      }
+      return;
+    }
+    this._atCapBell = false;
+
     if (this._echoChars) {
       this._write(char);
     }
@@ -202,7 +229,9 @@ class LineEditor extends EventEmitter {
     this._buffer.clear();
 
     if (this._stream.socket.echoing) {
-      this._history.push(line);
+      if (!this._historyFilter || this._historyFilter(line)) {
+        this._history.push(line);
+      }
     }
 
     this._browsing = false;
